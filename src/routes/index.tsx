@@ -266,28 +266,51 @@ function Home() {
           </p>
         </header>
 
-        {/* Status */}
-        <div className="mb-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
-          <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-            {statusBadge.label}
+        {/* Status + record control */}
+        {isMobile ? (
+          <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
+            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+              {statusBadge.label}
+            </div>
+            <button
+              onClick={() => {
+                if (recordingRef.current) void stopRecording();
+                else void startRecording();
+              }}
+              disabled={status === "processing"}
+              className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                recordingRef.current || status === "recording"
+                  ? "animate-pulse bg-red-500"
+                  : "bg-primary hover:bg-primary/90"
+              }`}
+              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                <span className="text-sm">
+                  {status === "recording" ? "Tap to stop" : "Tap to record"}
+                </span>
+              </span>
+            </button>
+            <p className="text-center text-xs text-muted-foreground">
+              Tap once to start, tap again to stop. The translation is copied to your clipboard.
+            </p>
           </div>
-          <button
-            onMouseDown={() => void startRecording()}
-            onMouseUp={() => void stopRecording()}
-            onMouseLeave={() => recordingRef.current && void stopRecording()}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              void startRecording();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              void stopRecording();
-            }}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-95"
-          >
-            Hold to record
-          </button>
-        </div>
+        ) : (
+          <div className="mb-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
+            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+              {statusBadge.label}
+            </div>
+            <button
+              onMouseDown={() => void startRecording()}
+              onMouseUp={() => void stopRecording()}
+              onMouseLeave={() => recordingRef.current && void stopRecording()}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-95"
+            >
+              Hold to record
+            </button>
+          </div>
+        )}
 
         {/* Language selectors */}
         <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
