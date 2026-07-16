@@ -68,6 +68,7 @@ function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [capturing, setCapturing] = useState<null | "start" | "stop">(null);
   const [hydrated, setHydrated] = useState(false);
+  const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
 
   // Recording refs
