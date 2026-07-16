@@ -68,6 +68,7 @@ function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [capturing, setCapturing] = useState<null | "start" | "stop">(null);
   const [hydrated, setHydrated] = useState(false);
+  const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
 
   // Recording refs
@@ -135,9 +136,13 @@ function Home() {
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
-      // Write to clipboard
+      // Write to clipboard — prefer Electron API (works without focus, even from a game)
       try {
-        await navigator.clipboard.writeText(json.translation);
+        if (typeof window !== "undefined" && window.voxElectron) {
+          await window.voxElectron.writeClipboard(json.translation);
+        } else {
+          await navigator.clipboard.writeText(json.translation);
+        }
       } catch {
         // ignore — user may need to click first
       }
@@ -226,6 +231,18 @@ function Home() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [startKey, stopKey, capturing, startRecording, stopRecording]);
+
+  // Electron global hotkeys (F8/F9 fire even when a game has focus)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron) return;
+    setIsElectron(true);
+    void window.voxElectron.setHotkeys(startKey, stopKey);
+    const off = window.voxElectron.onHotkey((kind) => {
+      if (kind === "start" && !recordingRef.current) void startRecording();
+      else if (kind === "stop" && recordingRef.current) void stopRecording();
+    });
+    return off;
+  }, [startKey, stopKey, startRecording, stopRecording]);
 
   const swap = () => {
     if (source === "auto") return;
@@ -360,6 +377,7 @@ function Home() {
 
         {/* Hotkeys — desktop only */}
         {!isMobile && (
+          <>
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -377,11 +395,32 @@ function Home() {
               />
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Hotkeys only fire while this tab has focus. For global hotkeys that work while
-              playing a fullscreen game, use the desktop app (Phase 2).
+              {isElectron
+                ? "✅ Desktop app detected — F8/F9 are registered as GLOBAL hotkeys and work even while a fullscreen game has focus."
+                : "In the browser, hotkeys only fire when this tab has focus. Download the desktop app below for global hotkeys that work while playing."}
             </p>
           </div>
+
+          {!isElectron && (
+            <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
+              <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkeys</h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Standalone Windows app. Runs in the system tray, registers F8/F9 globally so recording
+                works while you're in a fullscreen game, and copies the translation to your clipboard
+                automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
+              </p>
+              <a
+                href="/__l5e/assets-v1/f493e3ab-bcd2-4b27-96fd-875e69f0a807/VoxTranslate-win32-x64.zip"
+                download="VoxTranslate-win32-x64.zip"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
+              </a>
+            </div>
+          )}
+          </>
         )}
+
 
         {/* Current result */}
         {current && (
