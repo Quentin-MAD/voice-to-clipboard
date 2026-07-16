@@ -65,6 +65,7 @@ function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [capturing, setCapturing] = useState<null | "start" | "stop">(null);
   const [hydrated, setHydrated] = useState(false);
+  const isMobile = useIsMobile();
 
   // Recording refs
   const audioCtxRef = useRef<AudioContext | null>(null);
