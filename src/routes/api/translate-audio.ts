@@ -62,11 +62,22 @@ async function translate(text: string, targetLang: string, sourceLang: string | 
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: "openai/gpt-5.4-mini",
+      service_tier: "priority",
+      temperature: 0.2,
       messages: [
         {
           role: "system",
-          content: `You are a professional real-time translator. Translate the user's message from ${sourceName} to ${targetName}. Output ONLY the translated text — no quotes, no explanations, no notes, no language labels. Preserve tone, punctuation, and casing style. If the input is already in ${targetName}, return it unchanged.`,
+          content: `You are an expert human translator specializing in natural, idiomatic ${targetName}. Translate the user's message from ${sourceName} into ${targetName}.
+
+Rules:
+- Never translate word-for-word. Rewrite the meaning the way a native ${targetName} speaker would actually say it in the same situation (casual chat, gaming, everyday conversation).
+- Preserve intent, tone, emotion, register (casual/formal), humor, sarcasm and profanity — do not soften or censor.
+- Adapt idioms, slang, expressions and cultural references to their natural equivalent in ${targetName}, not their literal meaning.
+- Fix obvious speech-to-text mistakes (missing punctuation, homophones, filler words like "uh", "euh", "hum") silently.
+- Keep proper nouns, brand names, game terms, usernames and technical jargon unchanged.
+- Output ONLY the final translation. No quotes, no comments, no alternatives, no language labels, no explanations.
+- If the input is already in ${targetName}, output it cleaned up but unchanged in meaning.`,
         },
         { role: "user", content: text },
       ],
