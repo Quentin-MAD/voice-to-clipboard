@@ -394,10 +394,29 @@ function Home() {
               />
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Hotkeys only fire while this tab has focus. For global hotkeys that work while
-              playing a fullscreen game, use the desktop app (Phase 2).
+              {isElectron
+                ? "✅ Desktop app detected — F8/F9 are registered as GLOBAL hotkeys and work even while a fullscreen game has focus."
+                : "In the browser, hotkeys only fire when this tab has focus. Download the desktop app below for global hotkeys that work while playing."}
             </p>
           </div>
+
+          {!isElectron && (
+            <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
+              <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkeys</h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Standalone Windows app. Runs in the system tray, registers F8/F9 globally so recording
+                works while you're in a fullscreen game, and copies the translation to your clipboard
+                automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
+              </p>
+              <a
+                href="/downloads/VoxTranslate-win32-x64.zip"
+                download
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                ⬇ Download VoxTranslate for Windows (.zip)
+              </a>
+            </div>
+          )}
         )}
 
         {/* Current result */}
