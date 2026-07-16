@@ -77,14 +77,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "VoxTranslate — Real-time voice translator" },
+      {
+        name: "description",
+        content:
+          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+      },
+      { name: "author", content: "VoxTranslate" },
+      { property: "og:title", content: "VoxTranslate — Real-time voice translator" },
+      {
+        property: "og:description",
+        content:
+          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
