@@ -410,11 +410,11 @@ function Home() {
                 automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
               </p>
               <a
-                href="/downloads/VoxTranslate-win32-x64.zip"
-                download
+                href="/__l5e/assets-v1/f493e3ab-bcd2-4b27-96fd-875e69f0a807/VoxTranslate-win32-x64.zip"
+                download="VoxTranslate-win32-x64.zip"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                ⬇ Download VoxTranslate for Windows (.zip)
+                ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
               </a>
             </div>
           )}
