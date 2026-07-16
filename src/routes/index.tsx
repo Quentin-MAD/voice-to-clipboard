@@ -232,6 +232,18 @@ function Home() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [startKey, stopKey, capturing, startRecording, stopRecording]);
 
+  // Electron global hotkeys (F8/F9 fire even when a game has focus)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron) return;
+    setIsElectron(true);
+    void window.voxElectron.setHotkeys(startKey, stopKey);
+    const off = window.voxElectron.onHotkey((kind) => {
+      if (kind === "start" && !recordingRef.current) void startRecording();
+      else if (kind === "stop" && recordingRef.current) void stopRecording();
+    });
+    return off;
+  }, [startKey, stopKey, startRecording, stopRecording]);
+
   const swap = () => {
     if (source === "auto") return;
     const s = source;
