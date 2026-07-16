@@ -418,7 +418,9 @@ function Home() {
               </a>
             </div>
           )}
+          </>
         )}
+
 
         {/* Current result */}
         {current && (
