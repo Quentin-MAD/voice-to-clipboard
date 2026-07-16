@@ -377,7 +377,6 @@ function Home() {
 
         {/* Hotkeys — desktop only */}
         {!isMobile && (
-          <>
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -400,25 +399,26 @@ function Home() {
                 : "In the browser, hotkeys only fire when this tab has focus. Download the desktop app below for global hotkeys that work while playing."}
             </p>
           </div>
+        )}
 
-          {!isElectron && (
-            <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-              <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkeys</h2>
-              <p className="mb-3 text-xs text-muted-foreground">
-                Standalone Windows app. Runs in the system tray, registers F8/F9 globally so recording
-                works while you're in a fullscreen game, and copies the translation to your clipboard
-                automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
-              </p>
-              <a
-                href="/__l5e/assets-v1/f493e3ab-bcd2-4b27-96fd-875e69f0a807/VoxTranslate-win32-x64.zip"
-                download="VoxTranslate-win32-x64.zip"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
-              </a>
-            </div>
-          )}
-          </>
+        {/* Desktop app download — shown on all devices so you can grab the file from phone too */}
+        {!isElectron && (
+          <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
+            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkeys</h2>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Standalone Windows app. Runs in the system tray, registers F8/F9 globally so recording
+              works while you're in a fullscreen game, and copies the translation to your clipboard
+              automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
+              {isMobile && " You can download the ZIP now and transfer it to your PC later."}
+            </p>
+            <a
+              href="/__l5e/assets-v1/f493e3ab-bcd2-4b27-96fd-875e69f0a807/VoxTranslate-win32-x64.zip"
+              download="VoxTranslate-win32-x64.zip"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
+            </a>
+          </div>
         )}
 
 
