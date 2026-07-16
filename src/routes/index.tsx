@@ -31,6 +31,9 @@ const LANGUAGES = [
   { code: "es", label: "Spanish 🇪🇸" },
   { code: "de", label: "German 🇩🇪" },
   { code: "it", label: "Italian 🇮🇹" },
+  { code: "ru", label: "Russian 🇷🇺" },
+  { code: "ja", label: "Japanese 🇯🇵" },
+  { code: "zh", label: "Chinese 🇨🇳" },
 ];
 
 type HistoryItem = {
