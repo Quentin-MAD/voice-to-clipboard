@@ -377,6 +377,7 @@ function Home() {
 
         {/* Hotkeys — desktop only */}
         {!isMobile && (
+          <>
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
             <div className="grid gap-3 sm:grid-cols-2">
