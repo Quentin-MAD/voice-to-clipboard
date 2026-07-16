@@ -355,28 +355,30 @@ function Home() {
           </div>
         </div>
 
-        {/* Hotkeys */}
-        <div className="mb-6 rounded-xl border border-border bg-card p-4">
-          <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <HotkeyRow
-              label="Start recording"
-              value={startKey}
-              capturing={capturing === "start"}
-              onCapture={() => setCapturing("start")}
-            />
-            <HotkeyRow
-              label="Stop recording"
-              value={stopKey}
-              capturing={capturing === "stop"}
-              onCapture={() => setCapturing("stop")}
-            />
+        {/* Hotkeys — desktop only */}
+        {!isMobile && (
+          <div className="mb-6 rounded-xl border border-border bg-card p-4">
+            <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <HotkeyRow
+                label="Start recording"
+                value={startKey}
+                capturing={capturing === "start"}
+                onCapture={() => setCapturing("start")}
+              />
+              <HotkeyRow
+                label="Stop recording"
+                value={stopKey}
+                capturing={capturing === "stop"}
+                onCapture={() => setCapturing("stop")}
+              />
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Hotkeys only fire while this tab has focus. For global hotkeys that work while
+              playing a fullscreen game, use the desktop app (Phase 2).
+            </p>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Hotkeys only fire while this tab has focus. For global hotkeys that work while
-            playing a fullscreen game, use the desktop app (Phase 2).
-          </p>
-        </div>
+        )}
 
         {/* Current result */}
         {current && (
