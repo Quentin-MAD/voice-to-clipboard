@@ -6,14 +6,21 @@ const LANG_NAMES: Record<string, string> = {
   es: "Spanish",
   de: "German",
   it: "Italian",
+  ru: "Russian",
+  ja: "Japanese",
+  zh: "Chinese (Simplified)",
 };
 
-const LANG_ISO3: Record<string, string> = {
-  fr: "fra",
-  en: "eng",
-  es: "spa",
-  de: "deu",
-  it: "ita",
+// ISO-639-1 codes accepted by gpt-4o transcription models
+const STT_LANG: Record<string, string> = {
+  fr: "fr",
+  en: "en",
+  es: "es",
+  de: "de",
+  it: "it",
+  ru: "ru",
+  ja: "ja",
+  zh: "zh",
 };
 
 async function transcribe(audio: Blob, filename: string, sourceLang: string | null) {
