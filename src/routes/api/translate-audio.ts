@@ -31,8 +31,8 @@ async function transcribe(audio: Blob, filename: string, sourceLang: string | nu
   form.append("file", audio, filename);
   form.append("model", "openai/gpt-4o-mini-transcribe");
   if (sourceLang && sourceLang !== "auto") {
-    const iso3 = LANG_ISO3[sourceLang];
-    if (iso3) form.append("language", sourceLang); // gpt-4o transcribe accepts ISO-639-1
+    const code = STT_LANG[sourceLang];
+    if (code) form.append("language", code);
   }
 
   const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
