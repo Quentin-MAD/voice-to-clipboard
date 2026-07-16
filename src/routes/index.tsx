@@ -136,9 +136,13 @@ function Home() {
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
-      // Write to clipboard
+      // Write to clipboard — prefer Electron API (works without focus, even from a game)
       try {
-        await navigator.clipboard.writeText(json.translation);
+        if (typeof window !== "undefined" && window.voxElectron) {
+          await window.voxElectron.writeClipboard(json.translation);
+        } else {
+          await navigator.clipboard.writeText(json.translation);
+        }
       } catch {
         // ignore — user may need to click first
       }
