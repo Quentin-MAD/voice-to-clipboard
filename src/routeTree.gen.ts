@@ -16,6 +16,7 @@ import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as LegalRefundsRouteImport } from './routes/legal.refunds'
 import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
+import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -54,6 +55,11 @@ const LegalNoticeRoute = LegalNoticeRouteImport.update({
   path: '/legal/notice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserStatusRoute = ApiUserStatusRouteImport.update({
+  id: '/api/user-status',
+  path: '/api/user-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   id: '/api/translate-audio',
   path: '/api/translate-audio',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
+  ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalNoticeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user-status': {
+      id: '/api/user-status'
+      path: '/api/user-status'
+      fullPath: '/api/user-status'
+      preLoaderRoute: typeof ApiUserStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/translate-audio': {
       id: '/api/translate-audio'
       path: '/api/translate-audio'
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
+  ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
@@ -230,3 +251,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
