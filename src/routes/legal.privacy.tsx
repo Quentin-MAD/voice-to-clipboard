@@ -7,7 +7,7 @@ export const Route = createFileRoute("/legal/privacy")({
     meta: [
       { title: "Privacy Notice - TalKing" },
       { name: "description", content: "How TalKing collects and processes your personal data." },
-      { property: "og:title", content: "Privacy Notice — TalKing" },
+      { property: "og:title", content: "Privacy Notice - TalKing" },
       { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/privacy" },
     ],
     links: [{ rel: "canonical", href: "https://voice-to-clipboard.lovable.app/legal/privacy" }],

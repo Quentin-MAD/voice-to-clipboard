@@ -5,9 +5,9 @@ export const Route = createFileRoute("/legal/terms")({
   component: TermsPage,
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — TalKing" },
+      { title: "Terms & Conditions - TalKing" },
       { name: "description", content: "TalKing Terms & Conditions." },
-      { property: "og:title", content: "Terms & Conditions — TalKing" },
+      { property: "og:title", content: "Terms & Conditions - TalKing" },
       { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/terms" },
     ],
     links: [{ rel: "canonical", href: "https://voice-to-clipboard.lovable.app/legal/terms" }],
