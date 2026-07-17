@@ -1,7 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { getUserStatus } from "@/lib/user-status.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,6 +80,8 @@ function loadSettings(): PersistedSettings | null {
 }
 
 function Home() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
@@ -87,6 +94,14 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
+
+  const statusQuery = useQuery({
+    queryKey: ["user-status", user?.id],
+    queryFn: () => getUserStatus(),
+    enabled: !!user,
+    refetchInterval: 30_000,
+  });
+  const userStatus = statusQuery.data;
 
   // Recording refs
   const audioCtxRef = useRef<AudioContext | null>(null);
