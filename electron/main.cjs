@@ -16,15 +16,12 @@ const path = require('path');
 const fs = require('fs');
 
 // -------- Session persistence (step 9) --------
-// Electron persists localStorage/cookies/IndexedDB per userData directory by
-// default, which is exactly what the Supabase JS client relies on to keep the
-// user signed in across restarts. We make that guarantee explicit here:
-//   * A named persistent partition ('persist:talking') so the storage path is
-//     stable and cannot be silently swapped for an in-memory session by a
-//     future Electron change or a stray webPreferences edit.
-//   * We never call session.clearStorageData() automatically; only the
-//     user-triggered "Sign out" tray action clears it.
-const SESSION_PARTITION = 'persist:talking';
+// Electron persists localStorage / cookies / IndexedDB in the userData
+// directory by default, which is exactly what the Supabase JS client uses to
+// keep the user signed in across restarts. We keep the DEFAULT partition on
+// mainWindow so upgrading users don't get logged out, and we never call
+// session.clearStorageData() automatically - only the user-triggered
+// "Sign out" tray action / IPC clears it.
 
 const APP_URL = process.env.TALKING_URL || 'https://project--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
 const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://voice-to-clipboard.lovable.app/talking-version.json';
