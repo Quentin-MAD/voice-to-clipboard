@@ -23,4 +23,8 @@ contextBridge.exposeInMainWorld('voxElectron', {
   getAutoStart: () => ipcRenderer.invoke('autostart:get'),
   setAutoStart: (enabled) => ipcRenderer.invoke('autostart:set', !!enabled),
   signOut: () => ipcRenderer.invoke('session:signout'),
+  openLogs: () => ipcRenderer.invoke('logs:open'),
+  getLogPaths: () => ipcRenderer.invoke('logs:paths'),
+  tailLogs: (maxBytes) => ipcRenderer.invoke('logs:tail', maxBytes),
+  writeLog: (level, message, extra) => ipcRenderer.invoke('logs:write', { level, message, extra }),
 });
