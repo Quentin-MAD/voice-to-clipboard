@@ -194,6 +194,7 @@ function rebuildTrayMenu() {
       } },
     { type: 'separator' },
     { label: 'Sign out (clear saved session)', click: () => signOutAndReload({ confirm: true }) },
+    { label: 'Open logs folder', click: () => { const p = logger.getPaths(); if (p.logDir) shell.openPath(p.logDir); } },
     { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
