@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HardDrive } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
