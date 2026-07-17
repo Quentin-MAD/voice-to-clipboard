@@ -61,6 +61,8 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+// Windows: identity for native toast notifications (branding + click routing)
+if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop'); } catch {} }
 
 function createWindow() {
   mainWindow = new BrowserWindow({
