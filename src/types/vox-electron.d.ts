@@ -20,6 +20,8 @@ declare global {
     hideWindow: () => Promise<boolean>;
     showWindow: () => Promise<boolean>;
     info: () => Promise<{ isElectron: true; toggleAccel: string; hotkeyOk: boolean; version: string }>;
+    getAutoStart: () => Promise<{ enabled: boolean }>;
+    setAutoStart: (enabled: boolean) => Promise<{ enabled: boolean }>;
   }
   interface Window {
     voxElectron?: VoxElectronAPI;
