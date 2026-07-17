@@ -22,4 +22,5 @@ contextBridge.exposeInMainWorld('voxElectron', {
   info: () => ipcRenderer.invoke('app:info'),
   getAutoStart: () => ipcRenderer.invoke('autostart:get'),
   setAutoStart: (enabled) => ipcRenderer.invoke('autostart:set', !!enabled),
+  signOut: () => ipcRenderer.invoke('session:signout'),
 });

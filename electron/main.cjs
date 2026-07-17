@@ -10,9 +10,18 @@ const {
   nativeImage,
   powerSaveBlocker,
   screen,
+  session,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+
+// -------- Session persistence (step 9) --------
+// Electron persists localStorage / cookies / IndexedDB in the userData
+// directory by default, which is exactly what the Supabase JS client uses to
+// keep the user signed in across restarts. We keep the DEFAULT partition on
+// mainWindow so upgrading users don't get logged out, and we never call
+// session.clearStorageData() automatically - only the user-triggered
+// "Sign out" tray action / IPC clears it.
 
 const APP_URL = process.env.TALKING_URL || 'https://project--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
 const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://voice-to-clipboard.lovable.app/talking-version.json';
@@ -182,6 +191,8 @@ function rebuildTrayMenu() {
         else checkForUpdates({ silent: false });
       } },
     { type: 'separator' },
+    { label: 'Sign out (clear saved session)', click: () => signOutAndReload({ confirm: true }) },
+    { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
   tray.setContextMenu(menu);
@@ -317,7 +328,33 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+
+// -------- Session sign-out (step 9) --------
+async function signOutAndReload({ confirm = false } = {}) {
+  if (confirm) {
+    const res = await dialog.showMessageBox({
+      type: 'question', title: 'Sign out of TalKing',
+      message: 'Sign out and clear the saved session on this computer?',
+      detail: 'You will need to log in again next time you open TalKing. Your hotkey and auto-start settings are kept.',
+      buttons: ['Sign out', 'Cancel'], defaultId: 0, cancelId: 1,
+    });
+    if (res.response !== 0) return { ok: false, canceled: true };
+  }
+  try {
+    await session.defaultSession.clearStorageData({
+      storages: ['cookies', 'localstorage', 'indexdb', 'serviceworkers', 'cachestorage'],
+    });
+    await session.defaultSession.clearCache();
+  } catch (e) { console.error('clearStorageData failed', e); }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (!mainWindow.isVisible()) mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.reloadIgnoringCache();
+  }
+  return { ok: true };
+}
+ipcMain.handle('session:signout', () => signOutAndReload({ confirm: false }));
 ipcMain.handle('updates:check', async () => { await checkForUpdates({ silent: false }); return latestUpdate; });
 
 // -------- Auto-start with Windows (hidden into tray) --------
@@ -342,6 +379,7 @@ ipcMain.handle('autostart:get', () => getAutoStart());
 ipcMain.handle('autostart:set', (_e, enabled) => setAutoStart(enabled));
 
 app.whenReady().then(() => {
+  console.log('[TalKing] userData (persistent session):', app.getPath('userData'));
   loadSettings();
   createWindow();
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
