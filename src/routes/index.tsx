@@ -515,7 +515,7 @@ function Home() {
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. Unzip and launch <code className="rounded bg-muted px-1">TalKing.exe</code>.
+              automatically. Unzip and launch the app.
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
