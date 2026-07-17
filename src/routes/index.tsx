@@ -252,7 +252,7 @@ function Home() {
         at: Date.now(),
       };
       setCurrent({ transcript: item.transcript, translation: item.translation });
-      setHistory((h) => [item, ...h].slice(0, 20));
+      setHistory([item]);
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
       playSuccessChime();
