@@ -169,6 +169,8 @@ function Home() {
     }
 
     setStatus("processing");
+    stopProcessingSoundRef.current?.();
+    stopProcessingSoundRef.current = playProcessingLoop();
     try {
       const wav = encodeWav(chunks, sampleRate, 16000);
       const form = new FormData();
