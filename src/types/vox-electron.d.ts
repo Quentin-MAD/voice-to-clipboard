@@ -3,10 +3,10 @@ export {};
 declare global {
   interface VoxElectronAPI {
     isElectron: true;
-    onHotkey: (cb: (kind: "start" | "stop") => void) => () => void;
+    onHotkey: (cb: (kind: "toggle" | "start" | "stop") => void) => () => void;
     writeClipboard: (text: string) => Promise<boolean>;
-    setHotkeys: (start: string, stop: string) => Promise<{ start: string; stop: string }>;
-    info: () => Promise<{ isElectron: true; startAccel: string; stopAccel: string }>;
+    setHotkeys: (toggle: string) => Promise<{ toggle: string }>;
+    info: () => Promise<{ isElectron: true; toggleAccel: string }>;
   }
   interface Window {
     voxElectron?: VoxElectronAPI;
