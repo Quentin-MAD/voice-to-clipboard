@@ -136,13 +136,10 @@ let hideNotified = false;
 function notifyOnce() {
   if (hideNotified) return;
   hideNotified = true;
-  try {
-    new Notification({
-      title: 'TalKing runs in the background',
-      body: `Press ${toggleAccel} anytime to record. Right-click the tray icon to quit.`,
-      icon: ICON_PATH,
-    }).show();
-  } catch {}
+  notify({
+    title: 'TalKing runs in the background',
+    body: `Press ${toggleAccel} anytime to record. Right-click the tray icon to quit. Click here to reopen.`,
+  });
 }
 
 function registerHotkeys() {
