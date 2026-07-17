@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HardDrive } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -551,7 +552,7 @@ function Home() {
         {/* Desktop app download - shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
           <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) - global hotkey</h2>
+            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Desktop app (Windows) - global hotkey</h2>
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
