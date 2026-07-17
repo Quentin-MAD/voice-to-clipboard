@@ -328,7 +328,33 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+
+// -------- Session sign-out (step 9) --------
+async function signOutAndReload({ confirm = false } = {}) {
+  if (confirm) {
+    const res = await dialog.showMessageBox({
+      type: 'question', title: 'Sign out of TalKing',
+      message: 'Sign out and clear the saved session on this computer?',
+      detail: 'You will need to log in again next time you open TalKing. Your hotkey and auto-start settings are kept.',
+      buttons: ['Sign out', 'Cancel'], defaultId: 0, cancelId: 1,
+    });
+    if (res.response !== 0) return { ok: false, canceled: true };
+  }
+  try {
+    await session.defaultSession.clearStorageData({
+      storages: ['cookies', 'localstorage', 'indexdb', 'serviceworkers', 'cachestorage'],
+    });
+    await session.defaultSession.clearCache();
+  } catch (e) { console.error('clearStorageData failed', e); }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (!mainWindow.isVisible()) mainWindow.show();
+    mainWindow.focus();
+    mainWindow.webContents.reloadIgnoringCache();
+  }
+  return { ok: true };
+}
+ipcMain.handle('session:signout', () => signOutAndReload({ confirm: false }));
 ipcMain.handle('updates:check', async () => { await checkForUpdates({ silent: false }); return latestUpdate; });
 
 // -------- Auto-start with Windows (hidden into tray) --------
