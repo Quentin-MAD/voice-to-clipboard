@@ -297,58 +297,51 @@ function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Push-to-talk voice translator. Record → transcribe → translate → clipboard.
-          </p>
-        </header>
-
-        {/* Status + record control */}
-        {isMobile ? (
-          <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
-            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-              {statusBadge.label}
-            </div>
-            <button
-              onClick={() => {
-                if (recordingRef.current) void stopRecording();
-                else void startRecording();
-              }}
-              disabled={status === "processing"}
-              className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                recordingRef.current || status === "recording"
-                  ? "animate-pulse bg-red-500"
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
-            >
-              <span className="flex flex-col items-center gap-1">
-                <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
-                <span className="text-sm">
-                  {status === "recording" ? "Tap to stop" : "Tap to record"}
-                </span>
-              </span>
-            </button>
-            <p className="text-center text-xs text-muted-foreground">
-              Tap once to start, tap again to stop. The translation is copied to your clipboard.
+        <header className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Push-to-talk voice translator. Record → transcribe → translate → clipboard.
             </p>
           </div>
-        ) : (
-          <div className="mb-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
-            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-              {statusBadge.label}
-            </div>
-            <button
-              onMouseDown={() => void startRecording()}
-              onMouseUp={() => void stopRecording()}
-              onMouseLeave={() => recordingRef.current && void stopRecording()}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-95"
-            >
-              Hold to record
-            </button>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="shrink-0 rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
+            aria-label="Settings"
+            title="Settings"
+          >
+            ⚙️ Settings
+          </button>
+        </header>
+
+        {/* Status + single toggle record button */}
+        <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
+          <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+            {statusBadge.label}
           </div>
-        )}
+          <button
+            onClick={toggleRecording}
+            disabled={status === "processing"}
+            className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+              recordingRef.current || status === "recording"
+                ? "animate-pulse bg-red-500"
+                : "bg-primary hover:bg-primary/90"
+            }`}
+            aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+          >
+            <span className="flex flex-col items-center gap-1">
+              <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+              <span className="text-sm">
+                {status === "recording" ? "Click to stop" : "Click to record"}
+              </span>
+            </span>
+          </button>
+          <p className="text-center text-xs text-muted-foreground">
+            Click once to start, click again to stop — or press{" "}
+            <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
+            {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+          </p>
+        </div>
 
         {/* Language selectors */}
         <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
@@ -393,31 +386,6 @@ function Home() {
           </div>
         </div>
 
-        {/* Hotkeys — desktop only */}
-        {!isMobile && (
-          <div className="mb-6 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <HotkeyRow
-                label="Start recording"
-                value={startKey}
-                capturing={capturing === "start"}
-                onCapture={() => setCapturing("start")}
-              />
-              <HotkeyRow
-                label="Stop recording"
-                value={stopKey}
-                capturing={capturing === "stop"}
-                onCapture={() => setCapturing("stop")}
-              />
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {isElectron
-                ? "✅ Desktop app detected — F8/F9 are registered as GLOBAL hotkeys and work even while a fullscreen game has focus."
-                : "In the browser, hotkeys only fire when this tab has focus. Download the desktop app below for global hotkeys that work while playing."}
-            </p>
-          </div>
-        )}
 
         {/* Desktop app download — shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
