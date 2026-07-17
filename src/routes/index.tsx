@@ -234,10 +234,15 @@ function Home() {
       };
       setCurrent({ transcript: item.transcript, translation: item.translation });
       setHistory((h) => [item, ...h].slice(0, 20));
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      playSuccessChime();
       setStatus("copied");
       statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
     } catch (err) {
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Translation failed");
       setTimeout(() => setStatus("idle"), 3000);
