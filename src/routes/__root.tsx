@@ -124,6 +124,34 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    let sessionId = "";
+    try {
+      sessionId = sessionStorage.getItem("tk_sid") ?? "";
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem("tk_sid", sessionId);
+      }
+    } catch {}
+    const track = (path: string) => {
+      if (path.startsWith("/api/")) return;
+      fetch("/api/public/track-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, session_id: sessionId }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+    track(window.location.pathname);
+    const unsub = router.subscribe("onResolved", (e: any) => {
+      track(e.toLocation?.pathname ?? window.location.pathname);
+    });
+    return () => {
+      unsub();
+    };
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
