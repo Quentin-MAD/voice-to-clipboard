@@ -114,6 +114,7 @@ function PricingPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
