@@ -61,6 +61,8 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+// Windows: identity for native toast notifications (branding + click routing)
+if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop'); } catch {} }
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -136,13 +138,10 @@ let hideNotified = false;
 function notifyOnce() {
   if (hideNotified) return;
   hideNotified = true;
-  try {
-    new Notification({
-      title: 'TalKing runs in the background',
-      body: `Press ${toggleAccel} anytime to record. Right-click the tray icon to quit.`,
-      icon: ICON_PATH,
-    }).show();
-  } catch {}
+  notify({
+    title: 'TalKing runs in the background',
+    body: `Press ${toggleAccel} anytime to record. Right-click the tray icon to quit. Click here to reopen.`,
+  });
 }
 
 function registerHotkeys() {
@@ -153,13 +152,11 @@ function registerHotkeys() {
       if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
     });
     if (!hotkeyOk) {
-      try {
-        new Notification({
-          title: 'TalKing — hotkey conflict',
-          body: `${toggleAccel} is already used by another app. Open TalKing and pick another key in Settings.`,
-          icon: ICON_PATH,
-        }).show();
-      } catch {}
+      notify({
+        title: 'TalKing — hotkey conflict',
+        body: `${toggleAccel} is already used by another app. Click to open TalKing and pick another key.`,
+        urgent: true,
+      });
     }
   } catch (e) { console.error('Failed to register hotkey', e); }
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -256,11 +253,43 @@ async function checkForUpdates({ silent = true } = {}) {
   }
 }
 
-ipcMain.handle('clipboard:write', (_e, text) => {
+function showWindow() {
+  if (!mainWindow) return;
+  if (!mainWindow.isVisible()) mainWindow.show();
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.focus();
+}
+
+function notify({ title, body, silent = false, urgent = false }) {
+  try {
+    const n = new Notification({
+      title, body, icon: ICON_PATH, silent,
+      urgency: urgent ? 'critical' : 'normal',
+    });
+    n.on('click', () => showWindow());
+    n.show();
+    return n;
+  } catch { return null; }
+}
+
+ipcMain.handle('clipboard:write', (_e, payload) => {
+  const { text, meta } = (payload && typeof payload === 'object' && 'text' in payload)
+    ? payload : { text: payload, meta: null };
   clipboard.writeText(String(text ?? ''));
-  try { new Notification({ title: 'TalKing', body: '✅ Translation copied to clipboard', icon: ICON_PATH }).show(); } catch {}
-  return true;
+  const windowHidden = !mainWindow || !mainWindow.isVisible();
+  // Native notification only when the app is in the background — avoids double sound when the UI is visible.
+  if (windowHidden) {
+    const langName = meta && meta.targetLangName ? meta.targetLangName : '';
+    const preview = String(text ?? '').replace(/\s+/g, ' ').trim().slice(0, 140);
+    notify({
+      title: langName ? `✓ Copied · ${langName}` : '✓ Copied to clipboard',
+      body: preview || 'Translation ready — paste with Ctrl+V',
+      silent: false,
+    });
+  }
+  return { ok: true, windowHidden };
 });
+ipcMain.handle('window:show', () => { showWindow(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {
   const toggle = payload && (payload.toggle || payload.start);

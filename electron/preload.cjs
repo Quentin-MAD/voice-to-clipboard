@@ -12,11 +12,12 @@ contextBridge.exposeInMainWorld('voxElectron', {
     ipcRenderer.on('hotkey-status', listener);
     return () => ipcRenderer.removeListener('hotkey-status', listener);
   },
-  writeClipboard: (text) => ipcRenderer.invoke('clipboard:write', text),
+  writeClipboard: (text, meta) => ipcRenderer.invoke('clipboard:write', { text, meta }),
   setHotkeys: (toggle) => ipcRenderer.invoke('hotkeys:set', { toggle }),
   getHotkey: () => ipcRenderer.invoke('hotkeys:get'),
   setRecordingState: (isRecording) => ipcRenderer.invoke('recording:state', isRecording),
   setOverlayStatus: (status) => ipcRenderer.invoke('overlay:status', status),
   hideWindow: () => ipcRenderer.invoke('window:hide'),
+  showWindow: () => ipcRenderer.invoke('window:show'),
   info: () => ipcRenderer.invoke('app:info'),
 });

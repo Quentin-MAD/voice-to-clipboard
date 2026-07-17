@@ -245,9 +245,15 @@ function Home() {
       }
 
       // Write to clipboard - prefer Electron API (works without focus, even from a game)
+      let windowHidden = false;
       try {
         if (typeof window !== "undefined" && window.voxElectron) {
-          await window.voxElectron.writeClipboard(json.translation);
+          const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+          const result = await window.voxElectron.writeClipboard(json.translation, {
+            targetLangName,
+            preview: json.translation,
+          });
+          windowHidden = !!(result && typeof result === "object" && result.windowHidden);
         } else {
           await navigator.clipboard.writeText(json.translation);
         }
@@ -267,7 +273,8 @@ function Home() {
       setHistory([item]);
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
-      playSuccessChime();
+      // Skip the web chime when the app is hidden — the native Windows toast already plays its own sound.
+      if (!windowHidden) playSuccessChime();
       setStatus("copied");
       statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
@@ -610,11 +617,11 @@ function Home() {
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
-              href="/__l5e/assets-v1/3d771b68-3104-4d6e-b412-7409484075d9/TalKing-win32-x64.zip"
+              href="/__l5e/assets-v1/e7a0fbd6-ca54-44b1-8a6f-fa557d449ff8/TalKing-win32-x64.zip"
               download="TalKing-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download TalKing v1.3.0 for Windows (.zip, 148 MB)
+              ⬇ Download TalKing v1.4.0 for Windows (.zip, 148 MB)
             </a>
           </div>
         )}
