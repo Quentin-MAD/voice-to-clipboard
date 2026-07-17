@@ -115,6 +115,7 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
+  const [autoStart, setAutoStartState] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
 
