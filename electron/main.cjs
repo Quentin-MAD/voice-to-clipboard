@@ -196,6 +196,58 @@ function buildTray() {
   });
 }
 
+// -------- Update checker --------
+const { shell, dialog, net } = require('electron');
+let latestUpdate = null;
+
+function cmpVersion(a, b) {
+  const pa = String(a).split('.').map(n => parseInt(n, 10) || 0);
+  const pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (x > y) return 1; if (x < y) return -1;
+  }
+  return 0;
+}
+
+async function fetchUpdateManifest() {
+  return new Promise((resolve) => {
+    try {
+      const req = net.request({ method: 'GET', url: UPDATE_MANIFEST_URL, redirect: 'follow' });
+      let body = '';
+      req.on('response', (res) => {
+        res.on('data', (c) => { body += c.toString('utf8'); });
+        res.on('end', () => { try { resolve(JSON.parse(body)); } catch { resolve(null); } });
+      });
+      req.on('error', () => resolve(null));
+      req.end();
+    } catch { resolve(null); }
+  });
+}
+
+async function checkForUpdates({ silent = true } = {}) {
+  const manifest = await fetchUpdateManifest();
+  if (!manifest || !manifest.version) {
+    if (!silent) dialog.showMessageBox({ type: 'info', title: 'TalKing', message: 'Update check failed.', detail: 'Could not reach the update server. Try again later.' });
+    return;
+  }
+  if (cmpVersion(manifest.version, CURRENT_VERSION) > 0) {
+    latestUpdate = manifest;
+    rebuildTrayMenu();
+    const res = await dialog.showMessageBox({
+      type: 'info',
+      title: 'TalKing update available',
+      message: `A new version is available: v${manifest.version}`,
+      detail: (manifest.notes || '') + `\n\nYou are on v${CURRENT_VERSION}. Download and replace the folder to update.`,
+      buttons: ['Download now', 'Later'],
+      defaultId: 0, cancelId: 1,
+    });
+    if (res.response === 0 && manifest.url) shell.openExternal(manifest.url);
+  } else if (!silent) {
+    dialog.showMessageBox({ type: 'info', title: 'TalKing', message: `You are up to date (v${CURRENT_VERSION}).` });
+  }
+}
+
 ipcMain.handle('clipboard:write', (_e, text) => {
   clipboard.writeText(String(text ?? ''));
   try { new Notification({ title: 'TalKing', body: '✅ Translation copied to clipboard', icon: ICON_PATH }).show(); } catch {}
