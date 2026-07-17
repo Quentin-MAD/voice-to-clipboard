@@ -245,9 +245,15 @@ function Home() {
       }
 
       // Write to clipboard - prefer Electron API (works without focus, even from a game)
+      let windowHidden = false;
       try {
         if (typeof window !== "undefined" && window.voxElectron) {
-          await window.voxElectron.writeClipboard(json.translation);
+          const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+          const result = await window.voxElectron.writeClipboard(json.translation, {
+            targetLangName,
+            preview: json.translation,
+          });
+          windowHidden = !!(result && typeof result === "object" && result.windowHidden);
         } else {
           await navigator.clipboard.writeText(json.translation);
         }
@@ -267,7 +273,8 @@ function Home() {
       setHistory([item]);
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
-      playSuccessChime();
+      // Skip the web chime when the app is hidden — the native Windows toast already plays its own sound.
+      if (!windowHidden) playSuccessChime();
       setStatus("copied");
       statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
