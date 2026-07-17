@@ -65,7 +65,7 @@ function buildTray() {
 ipcMain.handle('clipboard:write', (_e, text) => {
   clipboard.writeText(String(text ?? ''));
   try {
-    new Notification({ title: 'VoxTranslate', body: '✅ Translation copied to clipboard' }).show();
+    new Notification({ title: 'TalKing', body: '✅ Translation copied to clipboard' }).show();
   } catch {}
   return true;
 });
