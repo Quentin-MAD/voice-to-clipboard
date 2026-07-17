@@ -191,6 +191,8 @@ function rebuildTrayMenu() {
         else checkForUpdates({ silent: false });
       } },
     { type: 'separator' },
+    { label: 'Sign out (clear saved session)', click: () => signOutAndReload({ confirm: true }) },
+    { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
   tray.setContextMenu(menu);
