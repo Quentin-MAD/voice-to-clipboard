@@ -450,15 +450,17 @@ function Home() {
             </button>
           )}
           <p className="text-center text-xs text-muted-foreground">
-            {isMobile
-              ? "Tap once to start, tap again to stop."
-              : (
-                <>
-                  Click once to start, click again to stop — or press{" "}
-                  <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-                  {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
-                </>
-              )}
+            {isMobile ? (
+              <>
+                Tap once to start, tap again to stop. Translation is copied to your clipboard.
+              </>
+            ) : (
+              <>
+                Click once to start, click again to stop — or press{" "}
+                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
+                {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+              </>
+            )}
           </p>
         </div>
 
