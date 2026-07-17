@@ -40,6 +40,17 @@ const LANGUAGES = [
   { code: "ru", label: "Russian 🇷🇺" },
   { code: "ja", label: "Japanese 🇯🇵" },
   { code: "zh", label: "Chinese 🇨🇳" },
+  { code: "pt", label: "Portuguese (BR) 🇧🇷" },
+  { code: "ko", label: "Korean 🇰🇷" },
+  { code: "tr", label: "Turkish 🇹🇷" },
+  { code: "pl", label: "Polish 🇵🇱" },
+  { code: "nl", label: "Dutch 🇳🇱" },
+  { code: "ar", label: "Arabic 🇸🇦" },
+  { code: "id", label: "Indonesian 🇮🇩" },
+  { code: "vi", label: "Vietnamese 🇻🇳" },
+  { code: "th", label: "Thai 🇹🇭" },
+  { code: "sv", label: "Swedish 🇸🇪" },
+  { code: "uk", label: "Ukrainian 🇺🇦" },
 ];
 
 type HistoryItem = {
