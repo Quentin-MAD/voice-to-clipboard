@@ -14,6 +14,7 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const logger = require('./logger.cjs');
 
 // -------- Session persistence (step 9) --------
 // Electron persists localStorage / cookies / IndexedDB in the userData
@@ -93,6 +94,7 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk });
   });
+  logger.attachRenderer(mainWindow.webContents);
 }
 
 function createOverlay() {
@@ -192,6 +194,7 @@ function rebuildTrayMenu() {
       } },
     { type: 'separator' },
     { label: 'Sign out (clear saved session)', click: () => signOutAndReload({ confirm: true }) },
+    { label: 'Open logs folder', click: () => { const p = logger.getPaths(); if (p.logDir) shell.openPath(p.logDir); } },
     { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
@@ -378,7 +381,35 @@ function setAutoStart(enabled) {
 ipcMain.handle('autostart:get', () => getAutoStart());
 ipcMain.handle('autostart:set', (_e, enabled) => setAutoStart(enabled));
 
+// -------- Logs (step 10) --------
+ipcMain.handle('logs:paths', () => logger.getPaths());
+ipcMain.handle('logs:open', () => { const p = logger.getPaths(); if (p.logDir) shell.openPath(p.logDir); return p; });
+ipcMain.handle('logs:tail', (_e, maxBytes) => {
+  try {
+    const { logFile } = logger.getPaths();
+    if (!logFile || !fs.existsSync(logFile)) return '';
+    const size = fs.statSync(logFile).size;
+    const cap = Math.min(Number(maxBytes) || 64 * 1024, 512 * 1024);
+    const start = Math.max(0, size - cap);
+    const fd = fs.openSync(logFile, 'r');
+    const buf = Buffer.alloc(size - start);
+    fs.readSync(fd, buf, 0, buf.length, start);
+    fs.closeSync(fd);
+    return buf.toString('utf8');
+  } catch (e) { return `read error: ${e && e.message}`; }
+});
+ipcMain.handle('logs:write', (_e, payload) => {
+  const level = (payload && payload.level) || 'INFO';
+  const msg = (payload && payload.message) || '';
+  const extra = payload && payload.extra;
+  if (level === 'ERROR') logger.error('[renderer]', msg, extra || '');
+  else if (level === 'WARN') logger.warn('[renderer]', msg, extra || '');
+  else logger.log('[renderer]', msg, extra || '');
+  return true;
+});
+
 app.whenReady().then(() => {
+  logger.init(app.getPath('userData'));
   console.log('[TalKing] userData (persistent session):', app.getPath('userData'));
   loadSettings();
   createWindow();
