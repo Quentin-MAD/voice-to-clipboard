@@ -196,9 +196,28 @@ export const Route = createFileRoute("/api/translate-audio")({
         } catch (err) {
           const message = err instanceof Error ? err.message : "Unknown error";
           console.error("translate-audio failed:", message);
-          const status = /\[402\]/.test(message) ? 402 : /\[429\]/.test(message) ? 429 : 500;
-          return Response.json({ error: message, code: "internal" }, { status });
+          if (/\[402\]/.test(message)) {
+            return Response.json(
+              {
+                error:
+                  "Service de traduction temporairement indisponible (quota IA épuisé côté serveur). Réessayez dans quelques minutes.",
+                code: "ai_credits_exhausted",
+              },
+              { status: 503 },
+            );
+          }
+          if (/\[429\]/.test(message)) {
+            return Response.json(
+              {
+                error: "Service surchargé, réessayez dans quelques instants.",
+                code: "ai_rate_limited",
+              },
+              { status: 503 },
+            );
+          }
+          return Response.json({ error: message, code: "internal" }, { status: 500 });
         }
+
       },
     },
   },

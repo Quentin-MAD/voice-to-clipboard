@@ -229,7 +229,12 @@ function Home() {
         } else if (json.code === "unauthorized") {
           toast.error("Session expirée");
           navigate({ to: "/auth" });
+        } else if (json.code === "ai_credits_exhausted") {
+          toast.error("Service temporairement indisponible. Réessayez dans quelques minutes.", { duration: 6000 });
+        } else if (json.code === "ai_rate_limited") {
+          toast.error("Service surchargé, réessayez dans quelques instants.", { duration: 5000 });
         }
+
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
