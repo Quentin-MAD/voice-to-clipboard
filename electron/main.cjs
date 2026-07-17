@@ -256,11 +256,43 @@ async function checkForUpdates({ silent = true } = {}) {
   }
 }
 
-ipcMain.handle('clipboard:write', (_e, text) => {
+function showWindow() {
+  if (!mainWindow) return;
+  if (!mainWindow.isVisible()) mainWindow.show();
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.focus();
+}
+
+function notify({ title, body, silent = false, urgent = false }) {
+  try {
+    const n = new Notification({
+      title, body, icon: ICON_PATH, silent,
+      urgency: urgent ? 'critical' : 'normal',
+    });
+    n.on('click', () => showWindow());
+    n.show();
+    return n;
+  } catch { return null; }
+}
+
+ipcMain.handle('clipboard:write', (_e, payload) => {
+  const { text, meta } = (payload && typeof payload === 'object' && 'text' in payload)
+    ? payload : { text: payload, meta: null };
   clipboard.writeText(String(text ?? ''));
-  try { new Notification({ title: 'TalKing', body: '✅ Translation copied to clipboard', icon: ICON_PATH }).show(); } catch {}
-  return true;
+  const windowHidden = !mainWindow || !mainWindow.isVisible();
+  // Native notification only when the app is in the background — avoids double sound when the UI is visible.
+  if (windowHidden) {
+    const langName = meta && meta.targetLangName ? meta.targetLangName : '';
+    const preview = String(text ?? '').replace(/\s+/g, ' ').trim().slice(0, 140);
+    notify({
+      title: langName ? `✓ Copied · ${langName}` : '✓ Copied to clipboard',
+      body: preview || 'Translation ready — paste with Ctrl+V',
+      silent: false,
+    });
+  }
+  return { ok: true, windowHidden };
 });
+ipcMain.handle('window:show', () => { showWindow(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {
   const toggle = payload && (payload.toggle || payload.start);
