@@ -150,13 +150,11 @@ function registerHotkeys() {
       if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
     });
     if (!hotkeyOk) {
-      try {
-        new Notification({
-          title: 'TalKing — hotkey conflict',
-          body: `${toggleAccel} is already used by another app. Open TalKing and pick another key in Settings.`,
-          icon: ICON_PATH,
-        }).show();
-      } catch {}
+      notify({
+        title: 'TalKing — hotkey conflict',
+        body: `${toggleAccel} is already used by another app. Click to open TalKing and pick another key.`,
+        urgent: true,
+      });
     }
   } catch (e) { console.error('Failed to register hotkey', e); }
   if (mainWindow && !mainWindow.isDestroyed()) {
