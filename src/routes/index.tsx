@@ -519,11 +519,11 @@ function Home() {
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
-              href="/__l5e/assets-v1/f493e3ab-bcd2-4b27-96fd-875e69f0a807/VoxTranslate-win32-x64.zip"
-              download="VoxTranslate-win32-x64.zip"
+              href="/__l5e/assets-v1/1d1a9e0d-4df9-49d2-a70c-0ee444627715/TalKing-win32-x64.zip"
+              download="TalKing-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download TalKing for Windows (.zip, 173 MB)
+              ⬇ Download TalKing for Windows (.zip, 138 MB)
             </a>
           </div>
         )}
