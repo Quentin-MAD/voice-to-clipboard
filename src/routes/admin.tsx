@@ -64,6 +64,8 @@ function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "free" | "subscribed">("all");
   const [search, setSearch] = useState("");
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [pwdInput, setPwdInput] = useState("");
 
   async function load() {
     setLoading(true);
@@ -75,7 +77,9 @@ function AdminPage() {
       return;
     }
     if (res.status === 403) {
-      setErr("Accès refusé");
+      // Wrong or missing admin password (or not admin role)
+      sessionStorage.removeItem("tk_admin_pwd");
+      setNeedsPassword(true);
       setLoading(false);
       return;
     }
@@ -84,6 +88,7 @@ function AdminPage() {
       setLoading(false);
       return;
     }
+    setNeedsPassword(false);
     setData((await res.json()) as AdminData);
     setLoading(false);
   }
@@ -95,6 +100,14 @@ function AdminPage() {
       setLoading(false);
     }
   }, [authLoading, user]);
+
+  function submitPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pwdInput) return;
+    sessionStorage.setItem("tk_admin_pwd", pwdInput);
+    setPwdInput("");
+    load();
+  }
 
   async function act(user_id: string, action: string, amount?: number) {
     const res = await authedFetch("/api/admin", {
