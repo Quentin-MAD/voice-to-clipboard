@@ -17,27 +17,33 @@ function getCtx(): AudioContext | null {
 }
 
 /**
- * Soft "typing / thinking" loop — inspired by Snapchat's typing indicator:
- * a rhythmic sequence of tiny soft blips at ~5 Hz.
+ * Soft "thinking" loop — three gentle tonal blips that fade from louder to
+ * softer, repeating while the AI is processing. Designed to be easy on the
+ * ear even during long waits.
  * Returns a stop function.
  */
 export function playProcessingLoop(): () => void {
   const c = getCtx();
   if (!c) return () => {};
 
-  // Shared soft low-pass filter to keep every blip warm (no harshness)
+  // Warm low-pass filter to remove any harsh edge
   const filter = c.createBiquadFilter();
   filter.type = "lowpass";
-  filter.frequency.value = 2200;
-  filter.Q.value = 0.5;
+  filter.frequency.value = 1400;
+  filter.Q.value = 0.6;
 
   const master = c.createGain();
-  master.gain.value = 0.9;
+  master.gain.value = 0.85;
   filter.connect(master);
   master.connect(c.destination);
 
-  // Two alternating pitches for a subtle "tick-tock" typing feel
-  const pitches = [880, 988]; // A5, B5 — small step, very soft
+  // Three descending-softness notes: same friendly pitch set, but amplitude
+  // falls from louder to softer so the pattern feels like it "breathes out".
+  const notes = [
+    { freq: 784.0, gain: 0.14 }, // G5
+    { freq: 659.25, gain: 0.09 }, // E5
+    { freq: 523.25, gain: 0.05 }, // C5
+  ];
   let step = 0;
   let stopped = false;
 
@@ -46,22 +52,24 @@ export function playProcessingLoop(): () => void {
     const c2 = ctx;
     if (!c2) return;
     const t = c2.currentTime;
-    const freq = pitches[step % pitches.length];
+    const note = notes[step % notes.length];
     step++;
 
     const osc = c2.createOscillator();
-    osc.type = "sine";
-    osc.frequency.value = freq;
+    // Triangle is a bit fuller than sine, but still very soft through the filter
+    osc.type = "triangle";
+    osc.frequency.value = note.freq;
 
     const g = c2.createGain();
     g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.08, t + 0.008); // quick soft attack
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11); // short decay
+    // Gentle attack and a slightly longer, rounded decay
+    g.gain.linearRampToValueAtTime(note.gain, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
 
     osc.connect(g);
     g.connect(filter);
     osc.start(t);
-    osc.stop(t + 0.14);
+    osc.stop(t + 0.28);
     setTimeout(() => {
       try {
         osc.disconnect();
@@ -69,12 +77,12 @@ export function playProcessingLoop(): () => void {
       } catch {
         // ignore
       }
-    }, 200);
+    }, 350);
   };
 
-  // First blip immediately, then every ~180ms (~5.5 Hz — typing cadence)
+  // First blip immediately, then every ~280ms (slower, calmer cadence)
   blip();
-  const interval = window.setInterval(blip, 180);
+  const interval = window.setInterval(blip, 280);
 
   return () => {
     if (stopped) return;
@@ -87,7 +95,7 @@ export function playProcessingLoop(): () => void {
       } catch {
         // ignore
       }
-    }, 250);
+    }, 350);
   };
 }
 
