@@ -8,7 +8,7 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Tarifs — VoxTranslate" },
+      { title: "Tarifs — TalKing" },
       { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 20€/an." },
     ],
   }),
