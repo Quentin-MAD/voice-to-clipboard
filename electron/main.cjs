@@ -379,6 +379,7 @@ ipcMain.handle('autostart:get', () => getAutoStart());
 ipcMain.handle('autostart:set', (_e, enabled) => setAutoStart(enabled));
 
 app.whenReady().then(() => {
+  console.log('[TalKing] userData (persistent session):', app.getPath('userData'));
   loadSettings();
   createWindow();
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
