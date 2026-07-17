@@ -359,6 +359,13 @@ function Home() {
     return off;
   }, [toggleKey, toggleRecording]);
 
+  // Sync status to Electron overlay (shows over fullscreen games)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.setOverlayStatus) return;
+    void window.voxElectron.setOverlayStatus(status);
+  }, [status]);
+
+
 
   const swap = () => {
     if (source === "auto") return;
