@@ -8,7 +8,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Connexion — VoxTranslate" },
-      { name: "description", content: "Connectez-vous à VoxTranslate pour utiliser vos 20 traductions gratuites mensuelles." },
+      { name: "description", content: "Connectez-vous à VoxTranslate." },
     ],
   }),
   component: AuthPage,
@@ -78,7 +78,7 @@ function AuthPage() {
             {mode === "signin" ? "Connexion" : "Créer un compte"}
           </h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            20 traductions gratuites/mois. Aucune CB requise pour commencer.
+            Accédez à votre compte VoxTranslate.
           </p>
 
           <button
