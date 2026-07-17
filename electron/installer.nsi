@@ -29,7 +29,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "1.5.0.0"
+VIProductVersion "1.7.0.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
