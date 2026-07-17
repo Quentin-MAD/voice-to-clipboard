@@ -10,10 +10,23 @@ const LANG_NAMES: Record<string, string> = {
   ru: "Russian",
   ja: "Japanese",
   zh: "Chinese (Simplified)",
+  pt: "Brazilian Portuguese",
+  ko: "Korean",
+  tr: "Turkish",
+  pl: "Polish",
+  nl: "Dutch",
+  ar: "Arabic",
+  id: "Indonesian",
+  vi: "Vietnamese",
+  th: "Thai",
+  sv: "Swedish",
+  uk: "Ukrainian",
 };
 
 const STT_LANG: Record<string, string> = {
   fr: "fr", en: "en", es: "es", de: "de", it: "it", ru: "ru", ja: "ja", zh: "zh",
+  pt: "pt", ko: "ko", tr: "tr", pl: "pl", nl: "nl", ar: "ar", id: "id", vi: "vi",
+  th: "th", sv: "sv", uk: "uk",
 };
 
 async function transcribe(audio: Blob, filename: string, sourceLang: string | null) {
