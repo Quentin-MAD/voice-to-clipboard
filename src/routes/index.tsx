@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getUserStatus } from "@/lib/user-status.functions";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
+import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 
 export const Route = createFileRoute("/")({
   head: () => ({
