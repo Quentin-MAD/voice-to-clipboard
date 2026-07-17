@@ -61,7 +61,7 @@ async function translate(text: string, targetLang: string, sourceLang: string | 
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: "openai/gpt-5.4-mini",
+      model: "google/gemini-2.5-flash-lite",
       service_tier: "priority",
       temperature: 0.2,
       messages: [
