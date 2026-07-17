@@ -166,6 +166,10 @@ function Home() {
   const stopRecording = useCallback(async () => {
     if (!recordingRef.current) return;
     recordingRef.current = false;
+    if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+      void window.voxElectron.setRecordingState(false);
+    }
+
 
     const duration = Date.now() - recordStartRef.current;
     processorRef.current?.disconnect();
@@ -299,6 +303,9 @@ function Home() {
       recordingRef.current = true;
       recordStartRef.current = Date.now();
       setStatus("recording");
+      if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+        void window.voxElectron.setRecordingState(true);
+      }
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Microphone access denied");
@@ -565,11 +572,11 @@ function Home() {
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
-              href="/__l5e/assets-v1/1d1a9e0d-4df9-49d2-a70c-0ee444627715/TalKing-win32-x64.zip"
+              href="/__l5e/assets-v1/34b03434-3e74-4706-9e5d-e815f7d5b991/TalKing-win32-x64.zip"
               download="TalKing-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download TalKing for Windows (.zip, 138 MB)
+              ⬇ Download TalKing for Windows (.zip, 175 MB)
             </a>
           </div>
         )}

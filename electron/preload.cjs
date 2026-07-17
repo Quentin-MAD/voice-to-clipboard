@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('voxElectron', {
   },
   writeClipboard: (text) => ipcRenderer.invoke('clipboard:write', text),
   setHotkeys: (toggle) => ipcRenderer.invoke('hotkeys:set', { toggle }),
+  setRecordingState: (isRecording) => ipcRenderer.invoke('recording:state', isRecording),
   info: () => ipcRenderer.invoke('app:info'),
 });
