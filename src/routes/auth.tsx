@@ -7,8 +7,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Connexion — VoxTranslate" },
-      { name: "description", content: "Connectez-vous à VoxTranslate." },
+      { title: "Connexion — TalKing" },
+      { name: "description", content: "Connectez-vous à TalKing." },
     ],
   }),
   component: AuthPage,
@@ -78,7 +78,7 @@ function AuthPage() {
             {mode === "signin" ? "Connexion" : "Créer un compte"}
           </h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            Accédez à votre compte VoxTranslate.
+            Accédez à votre compte TalKing.
           </p>
 
           <button

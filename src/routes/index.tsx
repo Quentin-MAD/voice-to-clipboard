@@ -11,13 +11,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VoxTranslate — Real-time voice translator" },
+      { title: "TalKing — Real-time voice translator" },
       {
         name: "description",
         content:
           "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
       },
-      { property: "og:title", content: "VoxTranslate — Real-time voice translator" },
+      { property: "og:title", content: "TalKing — Real-time voice translator" },
       {
         property: "og:description",
         content:
@@ -367,7 +367,7 @@ function Home() {
       <div className="mx-auto max-w-3xl px-6 py-10">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
+            <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Push-to-talk voice translator. Record → transcribe → translate → clipboard.
             </p>
@@ -416,27 +416,51 @@ function Home() {
           <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
             {statusBadge.label}
           </div>
-          <button
-            onClick={toggleRecording}
-            disabled={status === "processing"}
-            className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-              recordingRef.current || status === "recording"
-                ? "animate-pulse bg-red-500"
-                : "bg-primary hover:bg-primary/90"
-            }`}
-            aria-label={status === "recording" ? "Stop recording" : "Start recording"}
-          >
-            <span className="flex flex-col items-center gap-1">
-              <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
-              <span className="text-sm">
-                {status === "recording" ? "Click to stop" : "Click to record"}
+          {isMobile ? (
+            <button
+              onClick={toggleRecording}
+              disabled={status === "processing"}
+              className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                recordingRef.current || status === "recording"
+                  ? "animate-pulse bg-red-500"
+                  : "bg-primary hover:bg-primary/90"
+              }`}
+              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+            >
+              <span className="flex flex-col items-center gap-1">
+                <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                <span className="text-sm">
+                  {status === "recording" ? "Tap to stop" : "Tap to record"}
+                </span>
               </span>
-            </span>
-          </button>
+            </button>
+          ) : (
+            <button
+              onClick={toggleRecording}
+              disabled={status === "processing"}
+              className={`flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-5 text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                recordingRef.current || status === "recording"
+                  ? "animate-pulse bg-red-500"
+                  : "bg-primary hover:bg-primary/90"
+              }`}
+              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+            >
+              <span className="text-2xl">{status === "recording" ? "⏹" : "🎙"}</span>
+              <span>{status === "recording" ? "Stop recording" : "Press to record"}</span>
+            </button>
+          )}
           <p className="text-center text-xs text-muted-foreground">
-            Click once to start, click again to stop — or press{" "}
-            <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-            {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+            {isMobile ? (
+              <>
+                Tap once to start, tap again to stop. Translation is copied to your clipboard.
+              </>
+            ) : (
+              <>
+                Click once to start, click again to stop — or press{" "}
+                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
+                {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+              </>
+            )}
           </p>
         </div>
 
@@ -491,7 +515,7 @@ function Home() {
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
+              automatically. Unzip and launch the app.
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
@@ -499,7 +523,7 @@ function Home() {
               download="VoxTranslate-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
+              ⬇ Download TalKing for Windows (.zip, 173 MB)
             </a>
           </div>
         )}

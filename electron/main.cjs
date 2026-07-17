@@ -11,7 +11,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 780,
-    title: 'VoxTranslate',
+    title: 'TalKing',
     backgroundColor: '#0a0a0a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -46,7 +46,7 @@ function registerHotkeys() {
 function rebuildTrayMenu() {
   if (!tray) return;
   const menu = Menu.buildFromTemplate([
-    { label: 'Show VoxTranslate', click: () => mainWindow && mainWindow.show() },
+    { label: 'Show TalKing', click: () => mainWindow && mainWindow.show() },
     { label: `Toggle recording (${toggleAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'toggle') },
     { type: 'separator' },
     { label: 'Quit', click: () => { app.isQuiting = true; app.quit(); } },
@@ -57,7 +57,7 @@ function rebuildTrayMenu() {
 function buildTray() {
   const empty = nativeImage.createEmpty();
   tray = new Tray(empty);
-  tray.setToolTip('VoxTranslate — global hotkey active');
+  tray.setToolTip('TalKing — global hotkey active');
   rebuildTrayMenu();
   tray.on('click', () => mainWindow && mainWindow.show());
 }
@@ -65,7 +65,7 @@ function buildTray() {
 ipcMain.handle('clipboard:write', (_e, text) => {
   clipboard.writeText(String(text ?? ''));
   try {
-    new Notification({ title: 'VoxTranslate', body: '✅ Translation copied to clipboard' }).show();
+    new Notification({ title: 'TalKing', body: '✅ Translation copied to clipboard' }).show();
   } catch {}
   return true;
 });

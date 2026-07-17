@@ -78,14 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VoxTranslate — Real-time voice translator" },
+      { title: "TalKing — Real-time voice translator" },
       {
         name: "description",
         content:
           "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
       },
-      { name: "author", content: "VoxTranslate" },
-      { property: "og:title", content: "VoxTranslate — Real-time voice translator" },
+      { name: "author", content: "TalKing" },
+      { property: "og:title", content: "TalKing — Real-time voice translator" },
       {
         property: "og:description",
         content:
