@@ -14,6 +14,7 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const logger = require('./logger.cjs');
 
 // -------- Session persistence (step 9) --------
 // Electron persists localStorage / cookies / IndexedDB in the userData
