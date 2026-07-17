@@ -114,7 +114,9 @@ function Home() {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const isMobile = useIsMobile();
+
 
   const statusQuery = useQuery({
     queryKey: ["user-status", user?.id],
@@ -352,11 +354,14 @@ function Home() {
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(toggleKey);
-    const off = window.voxElectron.onHotkey((kind) => {
+    void window.voxElectron.setHotkeys(toggleKey).then((res) => {
+      if (res) setHotkeyBlocked(!res.ok);
+    });
+    const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
     });
-    return off;
+    const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
+    return () => { offHotkey(); offStatus?.(); };
   }, [toggleKey, toggleRecording]);
 
   // Sync status to Electron overlay (shows over fullscreen games)
@@ -364,6 +369,7 @@ function Home() {
     if (typeof window === "undefined" || !window.voxElectron?.setOverlayStatus) return;
     void window.voxElectron.setOverlayStatus(status);
   }, [status]);
+
 
 
 
@@ -480,8 +486,23 @@ function Home() {
           )}
         </div>
 
+        {isElectron && hotkeyBlocked && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+            <div>
+              <div className="font-semibold">⚠ Hotkey {toggleKey} is already used by another app</div>
+              <div className="text-xs opacity-80">Discord, OBS, Steam or a game may have grabbed it. Open Settings and pick another key.</div>
+            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-2 text-xs font-medium hover:bg-amber-500/30"
+            >
+              Change hotkey
+            </button>
+          </div>
+        )}
 
         {/* Status + single toggle record button */}
+
         <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
           <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
             {statusBadge.label}
