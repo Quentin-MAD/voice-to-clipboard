@@ -94,6 +94,7 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk });
   });
+  logger.attachRenderer(mainWindow.webContents);
 }
 
 function createOverlay() {
