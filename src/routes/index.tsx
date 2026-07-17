@@ -5,7 +5,6 @@ import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { getUserStatus } from "@/lib/user-status.functions";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
@@ -63,6 +62,14 @@ type HistoryItem = {
   at: number;
 };
 
+type UserStatus = {
+  subscribed: boolean;
+  free_remaining: number;
+  purchased_balance: number;
+  hourly_used: number;
+  hourly_limit: number;
+};
+
 const STORAGE_KEY = "voxtranslate:settings:v2";
 
 type PersistedSettings = {
@@ -110,9 +117,21 @@ function Home() {
 
   const statusQuery = useQuery({
     queryKey: ["user-status", user?.id],
-    queryFn: () => getUserStatus(),
+    queryFn: async (): Promise<UserStatus> => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) throw new Error("Unauthorized");
+
+      const res = await fetch("/api/user-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error(`Unable to load status (${res.status})`);
+      return (await res.json()) as UserStatus;
+    },
     enabled: !!user,
     refetchInterval: 30_000,
+    retry: 1,
   });
   const userStatus = statusQuery.data;
 
