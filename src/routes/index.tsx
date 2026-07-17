@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getUserStatus } from "@/lib/user-status.functions";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
+import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -123,6 +124,7 @@ function Home() {
   const chunksRef = useRef<Float32Array[]>([]);
   const recordingRef = useRef(false);
   const recordStartRef = useRef(0);
+  const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
   // Load settings after hydration
   useEffect(() => {
@@ -167,6 +169,8 @@ function Home() {
     }
 
     setStatus("processing");
+    stopProcessingSoundRef.current?.();
+    stopProcessingSoundRef.current = playProcessingLoop();
     try {
       const wav = encodeWav(chunks, sampleRate, 16000);
       const form = new FormData();
@@ -230,10 +234,15 @@ function Home() {
       };
       setCurrent({ transcript: item.transcript, translation: item.translation });
       setHistory((h) => [item, ...h].slice(0, 20));
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      playSuccessChime();
       setStatus("copied");
       statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
     } catch (err) {
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Translation failed");
       setTimeout(() => setStatus("idle"), 3000);
