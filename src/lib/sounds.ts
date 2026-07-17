@@ -26,26 +26,29 @@ export function playProcessingLoop(): () => void {
   const c = getCtx();
   if (!c) return () => {};
 
-  // Warm low-pass filter to remove any harsh edge
+  // Very gentle low-pass filter to keep the tones warm and remove any
+  // sharp edge that could stand out while gaming.
   const filter = c.createBiquadFilter();
   filter.type = "lowpass";
-  filter.frequency.value = 1400;
-  filter.Q.value = 0.6;
+  filter.frequency.value = 650;
+  filter.Q.value = 0.3;
 
   const master = c.createGain();
-  master.gain.value = 0.85;
+  master.gain.value = 0.7;
   filter.connect(master);
   master.connect(c.destination);
 
-  // Three descending-softness notes: same friendly pitch set, but amplitude
-  // falls from louder to softer so the pattern feels like it "breathes out".
+  // Three descending notes: slightly lower and much quieter than before.
+  // The volume drops from louder to softer so the pattern feels like it
+  // "breathes out".
   const notes = [
-    { freq: 784.0, gain: 0.14 }, // G5
-    { freq: 659.25, gain: 0.09 }, // E5
-    { freq: 523.25, gain: 0.05 }, // C5
+    { freq: 698.46, gain: 0.075 }, // F5
+    { freq: 587.33, gain: 0.05 },  // D5
+    { freq: 493.88, gain: 0.03 },  // B4
   ];
   let step = 0;
   let stopped = false;
+  let nextTimer: number | null = null;
 
   const blip = () => {
     if (stopped) return;
@@ -56,20 +59,21 @@ export function playProcessingLoop(): () => void {
     step++;
 
     const osc = c2.createOscillator();
-    // Triangle is a bit fuller than sine, but still very soft through the filter
-    osc.type = "triangle";
+    // Pure sine wave is the softest source; the low-pass finishes rounding it.
+    osc.type = "sine";
     osc.frequency.value = note.freq;
 
     const g = c2.createGain();
     g.gain.setValueAtTime(0, t);
-    // Gentle attack and a slightly longer, rounded decay
-    g.gain.linearRampToValueAtTime(note.gain, t + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    // Soft attack and a long, rounded decay so nothing feels percussive.
+    g.gain.linearRampToValueAtTime(note.gain, t + 0.025);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
 
     osc.connect(g);
     g.connect(filter);
     osc.start(t);
-    osc.stop(t + 0.28);
+    osc.stop(t + 0.38);
+
     setTimeout(() => {
       try {
         osc.disconnect();
@@ -77,17 +81,21 @@ export function playProcessingLoop(): () => void {
       } catch {
         // ignore
       }
-    }, 350);
+    }, 450);
+
+    // Schedule the next blip. After the third note, add a small pause
+    // before the cycle starts again so the pattern feels relaxed.
+    const isEndOfCycle = step % notes.length === 0;
+    const delay = isEndOfCycle ? 560 : 340;
+    nextTimer = window.setTimeout(blip, delay);
   };
 
-  // First blip immediately, then every ~280ms (slower, calmer cadence)
   blip();
-  const interval = window.setInterval(blip, 280);
 
   return () => {
     if (stopped) return;
     stopped = true;
-    window.clearInterval(interval);
+    if (nextTimer !== null) window.clearTimeout(nextTimer);
     setTimeout(() => {
       try {
         filter.disconnect();
@@ -95,7 +103,7 @@ export function playProcessingLoop(): () => void {
       } catch {
         // ignore
       }
-    }, 350);
+    }, 450);
   };
 }
 
