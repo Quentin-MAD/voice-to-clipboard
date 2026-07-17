@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_log: {
+        Row: {
+          cost_credits: number | null
+          created_at: string
+          id: number
+          input_tokens: number | null
+          model: string
+          operation: string
+          output_tokens: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_credits?: number | null
+          created_at?: string
+          id?: number
+          input_tokens?: number | null
+          model: string
+          operation: string
+          output_tokens?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_credits?: number | null
+          created_at?: string
+          id?: number
+          input_tokens?: number | null
+          model?: string
+          operation?: string
+          output_tokens?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       credit_wallets: {
         Row: {
           purchased_balance: number
@@ -29,6 +62,30 @@ export type Database = {
           purchased_balance?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          created_at: string
+          id: number
+          path: string
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          path: string
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          path?: string
+          session_id?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -122,6 +179,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -129,6 +207,28 @@ export type Database = {
     Functions: {
       add_purchased_credits: {
         Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
+      admin_add_credits: {
+        Args: { _amount: number; _target_user: string }
+        Returns: undefined
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          current_period_end: string
+          email: string
+          purchased_balance: number
+          sub_status: string
+          subscribed: boolean
+          translations_30d: number
+          translations_total: number
+          user_id: string
+        }[]
+      }
+      admin_set_subscription: {
+        Args: { _action: string; _target_user: string }
         Returns: undefined
       }
       consume_translation: {
@@ -151,9 +251,16 @@ export type Database = {
           subscribed: boolean
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -280,6 +387,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const

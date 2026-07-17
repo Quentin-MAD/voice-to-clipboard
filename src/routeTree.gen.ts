@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as LegalRefundsRouteImport } from './routes/legal.refunds'
@@ -18,6 +19,8 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
+import { Route as ApiAdminRouteImport } from './routes/api/admin'
+import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const PricingRoute = PricingRouteImport.update({
@@ -28,6 +31,11 @@ const PricingRoute = PricingRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -65,6 +73,16 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   path: '/api/translate-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminRoute = ApiAdminRouteImport.update({
+  id: '/api/admin',
+  path: '/api/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackViewRoute = ApiPublicTrackViewRouteImport.update({
+  id: '/api/public/track-view',
+  path: '/api/public/track-view',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -74,90 +92,111 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
+  ApiAdminRoute: typeof ApiAdminRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  ApiPublicTrackViewRoute: typeof ApiPublicTrackViewRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -175,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -226,6 +272,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranslateAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin': {
+      id: '/api/admin'
+      path: '/api/admin'
+      fullPath: '/api/admin'
+      preLoaderRoute: typeof ApiAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track-view': {
+      id: '/api/public/track-view'
+      path: '/api/public/track-view'
+      fullPath: '/api/public/track-view'
+      preLoaderRoute: typeof ApiPublicTrackViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -238,14 +298,17 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
+  ApiAdminRoute: ApiAdminRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
   LegalTermsRoute: LegalTermsRoute,
+  ApiPublicTrackViewRoute: ApiPublicTrackViewRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

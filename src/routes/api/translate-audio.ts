@@ -86,8 +86,24 @@ Rules:
     const body = await res.text().catch(() => "");
     throw new Error(`Translation failed [${res.status}]: ${body}`);
   }
-  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  return (json.choices?.[0]?.message?.content ?? "").trim();
+  const json = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
+  return {
+    text: (json.choices?.[0]?.message?.content ?? "").trim(),
+    inputTokens: json.usage?.prompt_tokens ?? 0,
+    outputTokens: json.usage?.completion_tokens ?? 0,
+  };
+}
+
+async function logAiUsage(userId: string, entries: Array<{ model: string; operation: string; input_tokens?: number; output_tokens?: number; cost_credits: number }>) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("ai_usage_log").insert(entries.map((e) => ({ ...e, user_id: userId })));
+  } catch (e) {
+    console.warn("ai_usage_log insert failed", e);
+  }
 }
 
 export const Route = createFileRoute("/api/translate-audio")({
@@ -181,11 +197,28 @@ export const Route = createFileRoute("/api/translate-audio")({
           if (!transcript) {
             return Response.json({ error: "Aucune parole détectée", code: "no_speech" }, { status: 422 });
           }
-          const translation = await translate(transcript, targetLang, sourceLang);
+          const translationRes = await translate(transcript, targetLang, sourceLang);
+
+          // Log AI usage (fire-and-forget)
+          // Rough estimates: transcription ~0.00018 cr / call, translation cost from tokens
+          const audioSec = Math.max(1, Math.round((audio.size / 32000)));
+          const transcribeCost = 0.00018 * (audioSec / 5); // scale by duration
+          const translateCost =
+            (translationRes.inputTokens * 0.0000001) + (translationRes.outputTokens * 0.0000004);
+          void logAiUsage(userId, [
+            { model: "openai/gpt-4o-mini-transcribe", operation: "transcription", cost_credits: transcribeCost },
+            {
+              model: "google/gemini-2.5-flash-lite",
+              operation: "translation",
+              input_tokens: translationRes.inputTokens,
+              output_tokens: translationRes.outputTokens,
+              cost_credits: translateCost,
+            },
+          ]);
 
           return Response.json({
             transcript,
-            translation,
+            translation: translationRes.text,
             usage: {
               source: row.reason,
               subscribed: row.subscribed,
