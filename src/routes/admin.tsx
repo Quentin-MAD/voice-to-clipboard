@@ -45,11 +45,13 @@ type AdminData = {
 async function authedFetch(url: string, init?: RequestInit) {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
+  const adminPwd = typeof window !== "undefined" ? sessionStorage.getItem("tk_admin_pwd") ?? "" : "";
   return fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(adminPwd ? { "X-Admin-Password": adminPwd } : {}),
       ...(init?.headers ?? {}),
     },
   });
