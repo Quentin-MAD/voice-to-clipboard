@@ -124,6 +124,7 @@ function Home() {
   const chunksRef = useRef<Float32Array[]>([]);
   const recordingRef = useRef(false);
   const recordStartRef = useRef(0);
+  const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
   // Load settings after hydration
   useEffect(() => {
