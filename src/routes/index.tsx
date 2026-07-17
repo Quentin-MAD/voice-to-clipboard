@@ -45,13 +45,30 @@ type HistoryItem = {
   at: number;
 };
 
-const STORAGE_KEY = "voxtranslate:settings:v1";
+const STORAGE_KEY = "voxtranslate:settings:v2";
 
-function loadSettings() {
+type PersistedSettings = {
+  source: string;
+  target: string;
+  toggleKey: string;
+};
+
+function loadSettings(): PersistedSettings | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as { source: string; target: string; startKey: string; stopKey: string }) : null;
+    if (raw) return JSON.parse(raw) as PersistedSettings;
+    // Migrate old v1 settings
+    const oldRaw = localStorage.getItem("voxtranslate:settings:v1");
+    if (oldRaw) {
+      const old = JSON.parse(oldRaw) as { source?: string; target?: string; startKey?: string };
+      return {
+        source: old.source ?? "auto",
+        target: old.target ?? "en",
+        toggleKey: old.startKey ?? "F8",
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -60,13 +77,13 @@ function loadSettings() {
 function Home() {
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
-  const [startKey, setStartKey] = useState<string>("F8");
-  const [stopKey, setStopKey] = useState<string>("F9");
+  const [toggleKey, setToggleKey] = useState<string>("F8");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<null | "start" | "stop">(null);
+  const [capturing, setCapturing] = useState<boolean>(false);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
@@ -87,15 +104,15 @@ function Home() {
     if (s) {
       setSource(s.source ?? "auto");
       setTarget(s.target ?? "en");
-      setStartKey(s.startKey ?? "F8");
-      setStopKey(s.stopKey ?? "F9");
+      setToggleKey(s.toggleKey ?? "F8");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, startKey, stopKey }));
-  }, [source, target, startKey, stopKey, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey }));
+  }, [source, target, toggleKey, hydrated]);
+
 
   const stopRecording = useCallback(async () => {
     if (!recordingRef.current) return;
