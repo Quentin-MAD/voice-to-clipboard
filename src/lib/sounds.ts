@@ -83,10 +83,15 @@ export function playProcessingLoop(): () => void {
       }
     }, 450);
 
-    // Schedule the next blip. After the third note, add a small pause
-    // before the cycle starts again so the pattern feels relaxed.
-    const isEndOfCycle = step % notes.length === 0;
-    const delay = isEndOfCycle ? 560 : 340;
+    // Schedule the next blip. The gap widens through the cycle:
+    // short pause between 1st and 2nd, shorter still between 2nd and 3rd,
+    // then a longer pause before the cycle starts again so the pattern
+    // feels like a gentle inhale / exhale.
+    const cycleIndex = (step - 1) % notes.length;
+    let delay: number;
+    if (cycleIndex === 0) delay = 340;   // 1st -> 2nd
+    else if (cycleIndex === 1) delay = 220; // 2nd -> 3rd (shorter)
+    else delay = 760;                    // 3rd -> 1st of next cycle (longer)
     nextTimer = window.setTimeout(blip, delay);
   };
 
