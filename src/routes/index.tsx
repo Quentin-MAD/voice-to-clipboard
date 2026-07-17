@@ -433,6 +433,15 @@ function Home() {
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {isElectron && (
+              <button
+                onClick={() => window.voxElectron?.hideWindow()}
+                className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
+                title="Hide to system tray (keeps hotkey active)"
+              >
+                Hide to tray
+              </button>
+            )}
             <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
@@ -441,6 +450,7 @@ function Home() {
             >
               ⚙️
             </button>
+
             <button
               onClick={async () => {
                 await supabase.auth.signOut();
