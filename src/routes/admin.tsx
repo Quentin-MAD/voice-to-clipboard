@@ -45,11 +45,13 @@ type AdminData = {
 async function authedFetch(url: string, init?: RequestInit) {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
+  const adminPwd = typeof window !== "undefined" ? sessionStorage.getItem("tk_admin_pwd") ?? "" : "";
   return fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(adminPwd ? { "X-Admin-Password": adminPwd } : {}),
       ...(init?.headers ?? {}),
     },
   });
@@ -62,6 +64,8 @@ function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "free" | "subscribed">("all");
   const [search, setSearch] = useState("");
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [pwdInput, setPwdInput] = useState("");
 
   async function load() {
     setLoading(true);
@@ -73,7 +77,9 @@ function AdminPage() {
       return;
     }
     if (res.status === 403) {
-      setErr("Accès refusé");
+      // Wrong or missing admin password (or not admin role)
+      sessionStorage.removeItem("tk_admin_pwd");
+      setNeedsPassword(true);
       setLoading(false);
       return;
     }
@@ -82,6 +88,7 @@ function AdminPage() {
       setLoading(false);
       return;
     }
+    setNeedsPassword(false);
     setData((await res.json()) as AdminData);
     setLoading(false);
   }
@@ -93,6 +100,14 @@ function AdminPage() {
       setLoading(false);
     }
   }, [authLoading, user]);
+
+  function submitPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!pwdInput) return;
+    sessionStorage.setItem("tk_admin_pwd", pwdInput);
+    setPwdInput("");
+    load();
+  }
 
   async function act(user_id: string, action: string, amount?: number) {
     const res = await authedFetch("/api/admin", {
@@ -109,6 +124,30 @@ function AdminPage() {
 
   if (authLoading || loading) {
     return <div className="p-8 text-center text-muted-foreground">Chargement…</div>;
+  }
+  if (needsPassword) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-8">
+        <form onSubmit={submitPassword} className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-6">
+          <h1 className="text-xl font-bold">Admin - Mot de passe</h1>
+          <p className="text-sm text-muted-foreground">Accès restreint.</p>
+          <input
+            type="password"
+            autoFocus
+            value={pwdInput}
+            onChange={(e) => setPwdInput(e.target.value)}
+            placeholder="Mot de passe"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+          />
+          <button
+            type="submit"
+            className="w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Entrer
+          </button>
+        </form>
+      </div>
+    );
   }
   if (err) {
     return (
