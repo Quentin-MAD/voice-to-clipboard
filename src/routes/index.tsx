@@ -515,7 +515,7 @@ function Home() {
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
+              automatically. Unzip and launch <code className="rounded bg-muted px-1">TalKing.exe</code>.
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
@@ -523,7 +523,7 @@ function Home() {
               download="VoxTranslate-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download VoxTranslate for Windows (.zip, 173 MB)
+              ⬇ Download TalKing for Windows (.zip, 173 MB)
             </a>
           </div>
         )}
