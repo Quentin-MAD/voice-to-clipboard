@@ -86,8 +86,24 @@ Rules:
     const body = await res.text().catch(() => "");
     throw new Error(`Translation failed [${res.status}]: ${body}`);
   }
-  const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  return (json.choices?.[0]?.message?.content ?? "").trim();
+  const json = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+    usage?: { prompt_tokens?: number; completion_tokens?: number };
+  };
+  return {
+    text: (json.choices?.[0]?.message?.content ?? "").trim(),
+    inputTokens: json.usage?.prompt_tokens ?? 0,
+    outputTokens: json.usage?.completion_tokens ?? 0,
+  };
+}
+
+async function logAiUsage(userId: string, entries: Array<{ model: string; operation: string; input_tokens?: number; output_tokens?: number; cost_credits: number }>) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("ai_usage_log").insert(entries.map((e) => ({ ...e, user_id: userId })));
+  } catch (e) {
+    console.warn("ai_usage_log insert failed", e);
+  }
 }
 
 export const Route = createFileRoute("/api/translate-audio")({

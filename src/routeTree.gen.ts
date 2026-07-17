@@ -18,6 +18,8 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
+import { Route as ApiAdminRouteImport } from './routes/api/admin'
+import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const PricingRoute = PricingRouteImport.update({
@@ -65,6 +67,16 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   path: '/api/translate-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminRoute = ApiAdminRouteImport.update({
+  id: '/api/admin',
+  path: '/api/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackViewRoute = ApiPublicTrackViewRouteImport.update({
+  id: '/api/public/track-view',
+  path: '/api/public/track-view',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -76,24 +88,28 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -101,12 +117,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
+  '/api/admin': typeof ApiAdminRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -115,36 +133,42 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/pricing'
+    | '/api/admin'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -152,12 +176,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
+  ApiAdminRoute: typeof ApiAdminRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  ApiPublicTrackViewRoute: typeof ApiPublicTrackViewRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -226,6 +252,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranslateAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin': {
+      id: '/api/admin'
+      path: '/api/admin'
+      fullPath: '/api/admin'
+      preLoaderRoute: typeof ApiAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track-view': {
+      id: '/api/public/track-view'
+      path: '/api/public/track-view'
+      fullPath: '/api/public/track-view'
+      preLoaderRoute: typeof ApiPublicTrackViewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -240,12 +280,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
+  ApiAdminRoute: ApiAdminRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
   LegalTermsRoute: LegalTermsRoute,
+  ApiPublicTrackViewRoute: ApiPublicTrackViewRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
