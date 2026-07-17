@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { getUserStatus } from "@/lib/user-status.functions";
 import { toast } from "sonner";
+import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -640,6 +641,7 @@ function Home() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

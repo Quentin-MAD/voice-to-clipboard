@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -133,6 +134,7 @@ function AuthPage() {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

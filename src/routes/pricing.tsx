@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -113,6 +114,7 @@ function PricingPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
