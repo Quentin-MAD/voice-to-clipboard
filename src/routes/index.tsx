@@ -299,6 +299,9 @@ function Home() {
       recordingRef.current = true;
       recordStartRef.current = Date.now();
       setStatus("recording");
+      if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+        void window.voxElectron.setRecordingState(true);
+      }
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Microphone access denied");
