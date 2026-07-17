@@ -133,6 +133,7 @@ function AuthPage() {
           </button>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
