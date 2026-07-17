@@ -13,7 +13,7 @@ let isRecording = false;
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {
   app.quit();
-  return;
+  process.exit(0);
 }
 app.on('second-instance', () => {
   if (mainWindow) {
