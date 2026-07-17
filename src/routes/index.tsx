@@ -524,31 +524,7 @@ function Home() {
 }
 
 
-function HotkeyRow({
-  label,
-  value,
-  capturing,
-  onCapture,
-}: {
-  label: string;
-  value: string;
-  capturing: boolean;
-  onCapture: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-md border border-input bg-background px-3 py-2">
-      <span className="text-sm">{label}</span>
-      <button
-        onClick={onCapture}
-        className={`min-w-[80px] rounded px-3 py-1 text-xs font-mono ${
-          capturing ? "bg-amber-500/20 text-amber-600" : "bg-muted"
-        }`}
-      >
-        {capturing ? "Press a key…" : value}
-      </button>
-    </div>
-  );
-}
+
 
 function normalizeKey(e: KeyboardEvent): string | null {
   const parts: string[] = [];
