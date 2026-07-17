@@ -1,7 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { getUserStatus } from "@/lib/user-status.functions";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,6 +80,8 @@ function loadSettings(): PersistedSettings | null {
 }
 
 function Home() {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
@@ -87,6 +94,14 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
+
+  const statusQuery = useQuery({
+    queryKey: ["user-status", user?.id],
+    queryFn: () => getUserStatus(),
+    enabled: !!user,
+    refetchInterval: 30_000,
+  });
+  const userStatus = statusQuery.data;
 
   // Recording refs
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -147,9 +162,38 @@ function Home() {
       form.append("targetLang", target);
       if (source !== "auto") form.append("sourceLang", source);
 
-      const res = await fetch("/api/translate-audio", { method: "POST", body: form });
-      const json = (await res.json()) as { transcript?: string; translation?: string; error?: string };
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        setStatus("error");
+        setErrorMsg("Vous devez être connecté");
+        toast.error("Vous devez être connecté pour traduire");
+        navigate({ to: "/auth" });
+        return;
+      }
+
+      const res = await fetch("/api/translate-audio", {
+        method: "POST",
+        body: form,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = (await res.json()) as {
+        transcript?: string;
+        translation?: string;
+        error?: string;
+        code?: string;
+      };
       if (!res.ok || !json.translation) {
+        // Refetch status so the UI reflects new usage/limits
+        statusQuery.refetch();
+        if (json.code === "hourly_limit") {
+          toast.error("🛑 Limite anti-spam atteinte (50/heure). Réessayez dans 1 heure.", { duration: 6000 });
+        } else if (json.code === "no_credits") {
+          toast.error("Plus de crédits. Passez à l'abonnement ou achetez un pack.", { duration: 6000 });
+        } else if (json.code === "unauthorized") {
+          toast.error("Session expirée");
+          navigate({ to: "/auth" });
+        }
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
@@ -175,13 +219,14 @@ function Home() {
       setCurrent({ transcript: item.transcript, translation: item.translation });
       setHistory((h) => [item, ...h].slice(0, 20));
       setStatus("copied");
+      statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Translation failed");
       setTimeout(() => setStatus("idle"), 3000);
     }
-  }, [source, target]);
+  }, [source, target, navigate, statusQuery]);
 
   const startRecording = useCallback(async () => {
     if (recordingRef.current) return;
@@ -294,25 +339,80 @@ function Home() {
     }
   }, [status, errorMsg]);
 
+  // Auth guard — redirect to /auth if not signed in
+  useEffect(() => {
+    if (!authLoading && !user) navigate({ to: "/auth" });
+  }, [authLoading, user, navigate]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-muted-foreground text-sm">
+        Chargement…
+      </div>
+    );
+  }
+
+  const creditsLabel = userStatus
+    ? userStatus.subscribed
+      ? "⭐ Abonné — illimité"
+      : `${userStatus.free_remaining} gratuits ce mois${
+          userStatus.purchased_balance > 0 ? ` + ${userStatus.purchased_balance} achetés` : ""
+        }`
+    : "…";
+
+  const hourlyLeft = userStatus ? Math.max(0, userStatus.hourly_limit - userStatus.hourly_used) : 50;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-8 flex items-start justify-between gap-4">
+        <header className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Push-to-talk voice translator. Record → transcribe → translate → clipboard.
             </p>
           </div>
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="shrink-0 rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
-            aria-label="Settings"
-            title="Settings"
-          >
-            ⚙️ Settings
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
+              aria-label="Settings"
+              title="Settings"
+            >
+              ⚙️
+            </button>
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/auth" });
+              }}
+              className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
+              title="Se déconnecter"
+            >
+              Déconnexion
+            </button>
+          </div>
         </header>
+
+        {/* Credits + subscription status */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+          <div className="flex flex-col">
+            <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
+            <div className="text-sm font-semibold">{creditsLabel}</div>
+            <div className="text-xs text-muted-foreground">
+              Reste {hourlyLeft}/50 traductions cette heure (limite anti-spam)
+            </div>
+          </div>
+          {!userStatus?.subscribed && (
+            <Link
+              to="/pricing"
+              className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Passer à l'illimité
+            </Link>
+          )}
+        </div>
+
 
         {/* Status + single toggle record button */}
         <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
