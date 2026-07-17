@@ -166,6 +166,10 @@ function Home() {
   const stopRecording = useCallback(async () => {
     if (!recordingRef.current) return;
     recordingRef.current = false;
+    if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+      void window.voxElectron.setRecordingState(false);
+    }
+
 
     const duration = Date.now() - recordStartRef.current;
     processorRef.current?.disconnect();
