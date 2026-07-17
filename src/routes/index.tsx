@@ -162,9 +162,38 @@ function Home() {
       form.append("targetLang", target);
       if (source !== "auto") form.append("sourceLang", source);
 
-      const res = await fetch("/api/translate-audio", { method: "POST", body: form });
-      const json = (await res.json()) as { transcript?: string; translation?: string; error?: string };
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        setStatus("error");
+        setErrorMsg("Vous devez être connecté");
+        toast.error("Vous devez être connecté pour traduire");
+        navigate({ to: "/auth" });
+        return;
+      }
+
+      const res = await fetch("/api/translate-audio", {
+        method: "POST",
+        body: form,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = (await res.json()) as {
+        transcript?: string;
+        translation?: string;
+        error?: string;
+        code?: string;
+      };
       if (!res.ok || !json.translation) {
+        // Refetch status so the UI reflects new usage/limits
+        statusQuery.refetch();
+        if (json.code === "hourly_limit") {
+          toast.error("🛑 Limite anti-spam atteinte (50/heure). Réessayez dans 1 heure.", { duration: 6000 });
+        } else if (json.code === "no_credits") {
+          toast.error("Plus de crédits. Passez à l'abonnement ou achetez un pack.", { duration: 6000 });
+        } else if (json.code === "unauthorized") {
+          toast.error("Session expirée");
+          navigate({ to: "/auth" });
+        }
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
@@ -190,13 +219,14 @@ function Home() {
       setCurrent({ transcript: item.transcript, translation: item.translation });
       setHistory((h) => [item, ...h].slice(0, 20));
       setStatus("copied");
+      statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Translation failed");
       setTimeout(() => setStatus("idle"), 3000);
     }
-  }, [source, target]);
+  }, [source, target, navigate, statusQuery]);
 
   const startRecording = useCallback(async () => {
     if (recordingRef.current) return;
