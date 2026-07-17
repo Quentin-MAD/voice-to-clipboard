@@ -20,4 +20,6 @@ contextBridge.exposeInMainWorld('voxElectron', {
   hideWindow: () => ipcRenderer.invoke('window:hide'),
   showWindow: () => ipcRenderer.invoke('window:show'),
   info: () => ipcRenderer.invoke('app:info'),
+  getAutoStart: () => ipcRenderer.invoke('autostart:get'),
+  setAutoStart: (enabled) => ipcRenderer.invoke('autostart:set', !!enabled),
 });

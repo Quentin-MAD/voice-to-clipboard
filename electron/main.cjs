@@ -320,6 +320,27 @@ ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return 
 ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION }));
 ipcMain.handle('updates:check', async () => { await checkForUpdates({ silent: false }); return latestUpdate; });
 
+// -------- Auto-start with Windows (hidden into tray) --------
+function getAutoStart() {
+  try {
+    const s = app.getLoginItemSettings({ args: ['--hidden'] });
+    return { enabled: !!s.openAtLogin };
+  } catch { return { enabled: false }; }
+}
+function setAutoStart(enabled) {
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: !!enabled,
+      openAsHidden: true,
+      args: ['--hidden'],
+      path: process.execPath,
+    });
+    return getAutoStart();
+  } catch (e) { console.error('setAutoStart failed', e); return { enabled: false }; }
+}
+ipcMain.handle('autostart:get', () => getAutoStart());
+ipcMain.handle('autostart:set', (_e, enabled) => setAutoStart(enabled));
+
 app.whenReady().then(() => {
   loadSettings();
   createWindow();

@@ -115,6 +115,7 @@ function Home() {
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
+  const [autoStart, setAutoStartState] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
 
@@ -371,6 +372,12 @@ function Home() {
     return () => { offHotkey(); offStatus?.(); };
   }, [toggleKey, toggleRecording]);
 
+  // Load current auto-start state from Electron
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.getAutoStart) return;
+    void window.voxElectron.getAutoStart().then((r) => setAutoStartState(!!r?.enabled));
+  }, []);
+
   // Sync status to Electron overlay (shows over fullscreen games)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron?.setOverlayStatus) return;
@@ -613,16 +620,29 @@ function Home() {
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. Unzip and launch the app.
-              {isMobile && " You can download the ZIP now and transfer it to your PC later."}
+              automatically. The installer creates Desktop + Start Menu shortcuts and can launch TalKing hidden with Windows.
+              {isMobile && " Download now and transfer to your PC later."}
             </p>
-            <a
-              href="/__l5e/assets-v1/e7a0fbd6-ca54-44b1-8a6f-fa557d449ff8/TalKing-win32-x64.zip"
-              download="TalKing-win32-x64.zip"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              ⬇ Download TalKing v1.4.0 for Windows (.zip, 148 MB)
-            </a>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="/__l5e/assets-v1/10bada84-2dfe-4531-9808-4da526e5582d/TalKing-Setup-1.5.0.exe"
+                download="TalKing-Setup-1.5.0.exe"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                ⬇ Download installer v1.5.0 (.exe, 100 MB)
+              </a>
+              <a
+                href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
+                download="TalKing-win32-x64.zip"
+                className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+                title="Portable ZIP - no install, just unzip and run"
+              >
+                Portable ZIP (148 MB)
+              </a>
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Windows SmartScreen may warn on first run (app not code-signed). Click <em>More info</em> → <em>Run anyway</em>.
+            </p>
           </div>
         )}
 
@@ -725,6 +745,28 @@ function Home() {
                   : "In the browser, the hotkey only fires when this tab has focus. Download the desktop app for global hotkeys."}
               </p>
             </div>
+
+            {isElectron && (
+              <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
+                <label className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium">Launch TalKing when Windows starts</div>
+                    <div className="text-xs text-muted-foreground">Starts hidden in the system tray so your hotkey works instantly, even before you open anything.</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={autoStart}
+                    onChange={async (e) => {
+                      const next = e.target.checked;
+                      setAutoStartState(next);
+                      const r = await window.voxElectron?.setAutoStart?.(next);
+                      if (r) setAutoStartState(!!r.enabled);
+                    }}
+                    className="h-5 w-5 shrink-0 accent-primary"
+                  />
+                </label>
+              </div>
+            )}
 
             <button
               onClick={() => {
