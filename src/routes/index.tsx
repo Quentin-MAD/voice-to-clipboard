@@ -617,11 +617,11 @@ function Home() {
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
             </p>
             <a
-              href="/__l5e/assets-v1/3d771b68-3104-4d6e-b412-7409484075d9/TalKing-win32-x64.zip"
+              href="/__l5e/assets-v1/e7a0fbd6-ca54-44b1-8a6f-fa557d449ff8/TalKing-win32-x64.zip"
               download="TalKing-win32-x64.zip"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              ⬇ Download TalKing v1.3.0 for Windows (.zip, 148 MB)
+              ⬇ Download TalKing v1.4.0 for Windows (.zip, 148 MB)
             </a>
           </div>
         )}
