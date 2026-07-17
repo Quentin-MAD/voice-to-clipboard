@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
-  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/e7a0fbd6-ca54-44b1-8a6f-fa557d449ff8/TalKing-win32-x64.zip",
-  "notes": "v1.4.0 — Native Windows toast notifications: clickable (reopen app), show translated preview + target language, avoid double sound when app is visible, branded via AppUserModelId."
+  "version": "1.5.0",
+  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/10bada84-2dfe-4531-9808-4da526e5582d/TalKing-Setup-1.5.0.exe",
+  "notes": "v1.5.0 - Real Windows installer (.exe): Desktop + Start Menu shortcuts, Add/Remove Programs entry, optional launch-with-Windows (hidden in tray). New Settings toggle to enable/disable auto-start."
 }
