@@ -170,12 +170,20 @@ function registerHotkeys() {
 
 function rebuildTrayMenu() {
   if (!tray) return;
+  const updateLabel = latestUpdate
+    ? `⬇ Download update v${latestUpdate.version}`
+    : 'Check for updates…';
   const menu = Menu.buildFromTemplate([
-    { label: `TalKing — ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
+    { label: `TalKing v${CURRENT_VERSION} — ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
     { type: 'separator' },
     { label: 'Show window', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
     { label: 'Hide window', click: () => { if (mainWindow) mainWindow.hide(); } },
     { label: `Toggle recording (${toggleAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'toggle') },
+    { type: 'separator' },
+    { label: updateLabel, click: () => {
+        if (latestUpdate && latestUpdate.url) shell.openExternal(latestUpdate.url);
+        else checkForUpdates({ silent: false });
+      } },
     { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
