@@ -733,6 +733,28 @@ function Home() {
               </p>
             </div>
 
+            {isElectron && (
+              <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
+                <label className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium">Launch TalKing when Windows starts</div>
+                    <div className="text-xs text-muted-foreground">Starts hidden in the system tray so your hotkey works instantly, even before you open anything.</div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={autoStart}
+                    onChange={async (e) => {
+                      const next = e.target.checked;
+                      setAutoStartState(next);
+                      const r = await window.voxElectron?.setAutoStart?.(next);
+                      if (r) setAutoStartState(!!r.enabled);
+                    }}
+                    className="h-5 w-5 shrink-0 accent-primary"
+                  />
+                </label>
+              </div>
+            )}
+
             <button
               onClick={() => {
                 setSettingsOpen(false);
