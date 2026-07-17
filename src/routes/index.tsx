@@ -584,10 +584,10 @@ function Home() {
           </div>
         )}
 
-        {/* History */}
+        {/* Last translation */}
         {history.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">History</h2>
+            <h2 className="mb-3 text-sm font-semibold">Last translation</h2>
             <ul className="divide-y divide-border">
               {history.map((h) => (
                 <li key={h.id} className="flex items-start gap-3 py-3">
