@@ -5,7 +5,7 @@ export const Route = createFileRoute("/legal/notice")({
   component: NoticePage,
   head: () => ({
     meta: [
-      { title: "Mentions légales — TalKing" },
+      { title: "Mentions légales - TalKing" },
       { name: "description", content: "Mentions légales du site TalKing." },
       { property: "og:title", content: "Mentions légales — TalKing" },
       { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/notice" },
@@ -25,7 +25,7 @@ function NoticePage() {
           <section>
             <h2 className="text-lg font-semibold">Éditeur du site</h2>
             <p>
-              <strong>Quentin Rosset</strong> — Entrepreneur individuel<br />
+              <strong>Quentin Rosset</strong> - Entrepreneur individuel<br />
               SIREN : 107 314 445<br />
               SIRET : 107 314 445 00019<br />
               Pays : France<br />
