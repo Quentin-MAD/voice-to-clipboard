@@ -114,7 +114,9 @@ function Home() {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const isMobile = useIsMobile();
+
 
   const statusQuery = useQuery({
     queryKey: ["user-status", user?.id],
