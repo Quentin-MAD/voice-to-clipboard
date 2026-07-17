@@ -11,13 +11,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VoxTranslate — Real-time voice translator" },
+      { title: "TalKing — Real-time voice translator" },
       {
         name: "description",
         content:
           "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
       },
-      { property: "og:title", content: "VoxTranslate — Real-time voice translator" },
+      { property: "og:title", content: "TalKing — Real-time voice translator" },
       {
         property: "og:description",
         content:
