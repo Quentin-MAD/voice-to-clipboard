@@ -354,7 +354,7 @@ function Home() {
 
   const creditsLabel = userStatus
     ? userStatus.subscribed
-      ? "⭐ Abonné — illimité"
+      ? "⭐ Abonné - illimité"
       : `${userStatus.free_remaining} gratuits ce mois${
           userStatus.purchased_balance > 0 ? ` + ${userStatus.purchased_balance} achetés` : ""
         }`
