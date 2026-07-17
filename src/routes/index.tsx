@@ -215,7 +215,12 @@ function Home() {
     }
   }, []);
 
-  // Keyboard hotkeys
+  const toggleRecording = useCallback(() => {
+    if (recordingRef.current) void stopRecording();
+    else void startRecording();
+  }, [startRecording, stopRecording]);
+
+  // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       // Hotkey capture mode
@@ -223,9 +228,8 @@ function Home() {
         e.preventDefault();
         const key = normalizeKey(e);
         if (key) {
-          if (capturing === "start") setStartKey(key);
-          else setStopKey(key);
-          setCapturing(null);
+          setToggleKey(key);
+          setCapturing(false);
         }
         return;
       }
@@ -237,29 +241,26 @@ function Home() {
       const key = normalizeKey(e);
       if (!key) return;
 
-      if (key === startKey && !recordingRef.current) {
+      if (key === toggleKey) {
         e.preventDefault();
-        void startRecording();
-      } else if (key === stopKey && recordingRef.current) {
-        e.preventDefault();
-        void stopRecording();
+        toggleRecording();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [startKey, stopKey, capturing, startRecording, stopRecording]);
+  }, [toggleKey, capturing, toggleRecording]);
 
-  // Electron global hotkeys (F8/F9 fire even when a game has focus)
+  // Electron global hotkey (fires even when a game has focus)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(startKey, stopKey);
+    void window.voxElectron.setHotkeys(toggleKey);
     const off = window.voxElectron.onHotkey((kind) => {
-      if (kind === "start" && !recordingRef.current) void startRecording();
-      else if (kind === "stop" && recordingRef.current) void stopRecording();
+      if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
     });
     return off;
-  }, [startKey, stopKey, startRecording, stopRecording]);
+  }, [toggleKey, toggleRecording]);
+
 
   const swap = () => {
     if (source === "auto") return;
