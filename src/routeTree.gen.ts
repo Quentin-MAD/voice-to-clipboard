@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
 
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -32,35 +38,46 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/api/translate-audio'
+  fullPaths: '/' | '/auth' | '/pricing' | '/api/translate-audio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/api/translate-audio'
-  id: '__root__' | '/' | '/auth' | '/api/translate-audio'
+  to: '/' | '/auth' | '/pricing' | '/api/translate-audio'
+  id: '__root__' | '/' | '/auth' | '/pricing' | '/api/translate-audio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  PricingRoute: typeof PricingRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  PricingRoute: PricingRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
 }
 export const routeTree = rootRouteImport
