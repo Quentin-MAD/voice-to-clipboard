@@ -14,13 +14,118 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      credit_wallets: {
+        Row: {
+          purchased_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          purchased_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          purchased_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          current_period_end: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_period_end?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_period_end?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      translations_log: {
+        Row: {
+          created_at: string
+          id: number
+          source_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          source_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          source_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_translation: {
+        Args: { _user_id: string }
+        Returns: {
+          ok: boolean
+          reason: string
+          remaining_free: number
+          remaining_purchased: number
+          subscribed: boolean
+        }[]
+      }
+      get_user_status: {
+        Args: { _user_id: string }
+        Returns: {
+          free_remaining: number
+          hourly_limit: number
+          hourly_used: number
+          purchased_balance: number
+          subscribed: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
