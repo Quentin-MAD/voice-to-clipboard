@@ -1,7 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
+import { createHash, timingSafeEqual } from "node:crypto";
+
+function passwordMatches(input: string, expected: string): boolean {
+  const a = createHash("sha256").update(input, "utf8").digest();
+  const b = createHash("sha256").update(expected, "utf8").digest();
+  return timingSafeEqual(a, b);
+}
 
 async function getUserAndCheckAdmin(request: Request) {
+  const expected = process.env.ADMIN_PASSWORD;
+  const provided = request.headers.get("x-admin-password") ?? "";
+  if (!expected || !provided || !passwordMatches(provided, expected)) {
+    return { error: "forbidden" as const };
+  }
+
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) return { error: "unauthorized" as const };
