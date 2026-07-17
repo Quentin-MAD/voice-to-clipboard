@@ -37,7 +37,7 @@ export function Footer() {
           </nav>
         </div>
         <div className="mt-8 flex flex-col gap-2 border-t border-border pt-4 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <div>© {year} Quentin Rosset — TalKing. All rights reserved.</div>
+          <div>© {year} Quentin Rosset - TalKing. All rights reserved.</div>
           <div>
             Payments securely processed by our reseller Paddle.com (Merchant of Record).
           </div>
