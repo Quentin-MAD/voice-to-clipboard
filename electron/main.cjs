@@ -1,7 +1,7 @@
 const { app, BrowserWindow, globalShortcut, clipboard, Notification, ipcMain, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 
-const APP_URL = process.env.VOXTRANSLATE_URL || 'https://id-preview--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
+const APP_URL = process.env.TALKING_URL || 'https://project--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
 
 let mainWindow = null;
 let tray = null;
