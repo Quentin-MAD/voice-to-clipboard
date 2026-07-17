@@ -1,4 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -11,8 +16,39 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
+  const { user, loading: authLoading } = useAuth();
+  const { openCheckout, loading } = usePaddleCheckout();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      toast.success("Merci ! Votre paiement a été enregistré. Les crédits ou l'abonnement seront actifs sous quelques secondes.");
+    }
+  }, []);
+
+  const buy = async (priceId: string) => {
+    if (authLoading) return;
+    if (!user) {
+      toast.info("Connectez-vous pour finaliser l'achat.");
+      navigate({ to: "/auth" });
+      return;
+    }
+    try {
+      await openCheckout({
+        priceId,
+        customerEmail: user.email ?? undefined,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/pricing?checkout=success`,
+      });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Impossible d'ouvrir le paiement.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <PaymentTestModeBanner />
       <div className="mx-auto max-w-4xl px-6 py-12">
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'app</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
@@ -30,7 +66,7 @@ function PricingPage() {
               <li>✓ App Windows incluse</li>
             </ul>
             <div className="mt-4 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-              Formule actuelle
+              Formule par défaut
             </div>
           </div>
 
@@ -43,10 +79,11 @@ function PricingPage() {
               <li>✓ Paiement unique</li>
             </ul>
             <button
-              disabled
-              className="mt-4 w-full rounded-lg bg-primary/50 px-4 py-2 text-sm font-medium text-primary-foreground"
+              onClick={() => buy("credits_pack_50_onetime")}
+              disabled={loading || authLoading}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              Bientôt — paiement en préparation
+              {loading ? "Chargement..." : "Acheter 50 crédits"}
             </button>
           </div>
 
@@ -64,10 +101,11 @@ function PricingPage() {
               <li>✓ Économie vs packs</li>
             </ul>
             <button
-              disabled
-              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground opacity-60"
+              onClick={() => buy("vox_subscription_yearly")}
+              disabled={loading || authLoading}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              Bientôt — paiement en préparation
+              {loading ? "Chargement..." : "S'abonner — 20 €/an"}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
               *dans la limite de 50 traductions/heure (anti-spam).
