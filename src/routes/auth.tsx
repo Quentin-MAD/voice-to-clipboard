@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Connexion — TalKing" },
+      { title: "Connexion - TalKing" },
       { name: "description", content: "Connectez-vous à TalKing." },
     ],
   }),

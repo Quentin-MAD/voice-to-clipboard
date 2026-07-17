@@ -12,13 +12,13 @@ import { Footer } from "@/components/Footer";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TalKing — Real-time voice translator" },
+      { title: "TalKing - Real-time voice translator" },
       {
         name: "description",
         content:
           "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
       },
-      { property: "og:title", content: "TalKing — Real-time voice translator" },
+      { property: "og:title", content: "TalKing - Real-time voice translator" },
       {
         property: "og:description",
         content:
@@ -198,7 +198,7 @@ function Home() {
         throw new Error(json.error ?? `Request failed (${res.status})`);
       }
 
-      // Write to clipboard — prefer Electron API (works without focus, even from a game)
+      // Write to clipboard - prefer Electron API (works without focus, even from a game)
       try {
         if (typeof window !== "undefined" && window.voxElectron) {
           await window.voxElectron.writeClipboard(json.translation);
@@ -206,7 +206,7 @@ function Home() {
           await navigator.clipboard.writeText(json.translation);
         }
       } catch {
-        // ignore — user may need to click first
+        // ignore - user may need to click first
       }
 
       const item: HistoryItem = {
@@ -340,7 +340,7 @@ function Home() {
     }
   }, [status, errorMsg]);
 
-  // Auth guard — redirect to /auth if not signed in
+  // Auth guard - redirect to /auth if not signed in
   useEffect(() => {
     if (!authLoading && !user) navigate({ to: "/auth" });
   }, [authLoading, user, navigate]);
@@ -457,9 +457,9 @@ function Home() {
               </>
             ) : (
               <>
-                Click once to start, click again to stop — or press{" "}
+                Click once to start, click again to stop - or press{" "}
                 <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-                {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+                {isElectron ? " (global - works from a game)" : ""}. Translation is copied to your clipboard.
               </>
             )}
           </p>
@@ -509,10 +509,10 @@ function Home() {
         </div>
 
 
-        {/* Desktop app download — shown on all devices so you can grab the file from phone too */}
+        {/* Desktop app download - shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
           <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkey</h2>
+            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) - global hotkey</h2>
             <p className="mb-3 text-xs text-muted-foreground">
               Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard

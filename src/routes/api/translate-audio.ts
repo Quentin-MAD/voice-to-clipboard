@@ -58,7 +58,7 @@ async function translate(text: string, targetLang: string, sourceLang: string | 
 
 Rules:
 - Never translate word-for-word. Rewrite the meaning the way a native ${targetName} speaker would actually say it in the same situation (casual chat, gaming, everyday conversation).
-- Preserve intent, tone, emotion, register (casual/formal), humor, sarcasm and profanity — do not soften or censor.
+- Preserve intent, tone, emotion, register (casual/formal), humor, sarcasm and profanity - do not soften or censor.
 - Adapt idioms, slang, expressions and cultural references to their natural equivalent in ${targetName}, not their literal meaning.
 - Fix obvious speech-to-text mistakes silently.
 - Keep proper nouns, brand names, game terms, usernames and technical jargon unchanged.

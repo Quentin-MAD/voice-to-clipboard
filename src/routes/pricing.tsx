@@ -9,7 +9,7 @@ import { Footer } from "@/components/Footer";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Tarifs — TalKing" },
+      { title: "Tarifs - TalKing" },
       { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 20€/an." },
     ],
   }),
@@ -106,7 +106,7 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "S'abonner — 20 €/an"}
+              {loading ? "Chargement..." : "S'abonner - 20 €/an"}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
               *dans la limite de 50 traductions/heure (anti-spam).
