@@ -8,6 +8,6 @@ contextBridge.exposeInMainWorld('voxElectron', {
     return () => ipcRenderer.removeListener('hotkey', listener);
   },
   writeClipboard: (text) => ipcRenderer.invoke('clipboard:write', text),
-  setHotkeys: (start, stop) => ipcRenderer.invoke('hotkeys:set', { start, stop }),
+  setHotkeys: (toggle) => ipcRenderer.invoke('hotkeys:set', { toggle }),
   info: () => ipcRenderer.invoke('app:info'),
 });

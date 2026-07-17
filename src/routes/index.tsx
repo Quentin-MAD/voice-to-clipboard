@@ -45,13 +45,30 @@ type HistoryItem = {
   at: number;
 };
 
-const STORAGE_KEY = "voxtranslate:settings:v1";
+const STORAGE_KEY = "voxtranslate:settings:v2";
 
-function loadSettings() {
+type PersistedSettings = {
+  source: string;
+  target: string;
+  toggleKey: string;
+};
+
+function loadSettings(): PersistedSettings | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as { source: string; target: string; startKey: string; stopKey: string }) : null;
+    if (raw) return JSON.parse(raw) as PersistedSettings;
+    // Migrate old v1 settings
+    const oldRaw = localStorage.getItem("voxtranslate:settings:v1");
+    if (oldRaw) {
+      const old = JSON.parse(oldRaw) as { source?: string; target?: string; startKey?: string };
+      return {
+        source: old.source ?? "auto",
+        target: old.target ?? "en",
+        toggleKey: old.startKey ?? "F8",
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -60,13 +77,13 @@ function loadSettings() {
 function Home() {
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
-  const [startKey, setStartKey] = useState<string>("F8");
-  const [stopKey, setStopKey] = useState<string>("F9");
+  const [toggleKey, setToggleKey] = useState<string>("F8");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<null | "start" | "stop">(null);
+  const [capturing, setCapturing] = useState<boolean>(false);
+  const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const isMobile = useIsMobile();
@@ -87,15 +104,15 @@ function Home() {
     if (s) {
       setSource(s.source ?? "auto");
       setTarget(s.target ?? "en");
-      setStartKey(s.startKey ?? "F8");
-      setStopKey(s.stopKey ?? "F9");
+      setToggleKey(s.toggleKey ?? "F8");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, startKey, stopKey }));
-  }, [source, target, startKey, stopKey, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey }));
+  }, [source, target, toggleKey, hydrated]);
+
 
   const stopRecording = useCallback(async () => {
     if (!recordingRef.current) return;
@@ -198,7 +215,12 @@ function Home() {
     }
   }, []);
 
-  // Keyboard hotkeys
+  const toggleRecording = useCallback(() => {
+    if (recordingRef.current) void stopRecording();
+    else void startRecording();
+  }, [startRecording, stopRecording]);
+
+  // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       // Hotkey capture mode
@@ -206,9 +228,8 @@ function Home() {
         e.preventDefault();
         const key = normalizeKey(e);
         if (key) {
-          if (capturing === "start") setStartKey(key);
-          else setStopKey(key);
-          setCapturing(null);
+          setToggleKey(key);
+          setCapturing(false);
         }
         return;
       }
@@ -220,29 +241,26 @@ function Home() {
       const key = normalizeKey(e);
       if (!key) return;
 
-      if (key === startKey && !recordingRef.current) {
+      if (key === toggleKey) {
         e.preventDefault();
-        void startRecording();
-      } else if (key === stopKey && recordingRef.current) {
-        e.preventDefault();
-        void stopRecording();
+        toggleRecording();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [startKey, stopKey, capturing, startRecording, stopRecording]);
+  }, [toggleKey, capturing, toggleRecording]);
 
-  // Electron global hotkeys (F8/F9 fire even when a game has focus)
+  // Electron global hotkey (fires even when a game has focus)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(startKey, stopKey);
+    void window.voxElectron.setHotkeys(toggleKey);
     const off = window.voxElectron.onHotkey((kind) => {
-      if (kind === "start" && !recordingRef.current) void startRecording();
-      else if (kind === "stop" && recordingRef.current) void stopRecording();
+      if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
     });
     return off;
-  }, [startKey, stopKey, startRecording, stopRecording]);
+  }, [toggleKey, toggleRecording]);
+
 
   const swap = () => {
     if (source === "auto") return;
@@ -279,58 +297,51 @@ function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Push-to-talk voice translator. Record → transcribe → translate → clipboard.
-          </p>
-        </header>
-
-        {/* Status + record control */}
-        {isMobile ? (
-          <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
-            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-              {statusBadge.label}
-            </div>
-            <button
-              onClick={() => {
-                if (recordingRef.current) void stopRecording();
-                else void startRecording();
-              }}
-              disabled={status === "processing"}
-              className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                recordingRef.current || status === "recording"
-                  ? "animate-pulse bg-red-500"
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
-            >
-              <span className="flex flex-col items-center gap-1">
-                <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
-                <span className="text-sm">
-                  {status === "recording" ? "Tap to stop" : "Tap to record"}
-                </span>
-              </span>
-            </button>
-            <p className="text-center text-xs text-muted-foreground">
-              Tap once to start, tap again to stop. The translation is copied to your clipboard.
+        <header className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">VoxTranslate</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Push-to-talk voice translator. Record → transcribe → translate → clipboard.
             </p>
           </div>
-        ) : (
-          <div className="mb-6 flex items-center justify-between rounded-xl border border-border bg-card p-4">
-            <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-              {statusBadge.label}
-            </div>
-            <button
-              onMouseDown={() => void startRecording()}
-              onMouseUp={() => void stopRecording()}
-              onMouseLeave={() => recordingRef.current && void stopRecording()}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-95"
-            >
-              Hold to record
-            </button>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="shrink-0 rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
+            aria-label="Settings"
+            title="Settings"
+          >
+            ⚙️ Settings
+          </button>
+        </header>
+
+        {/* Status + single toggle record button */}
+        <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
+          <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+            {statusBadge.label}
           </div>
-        )}
+          <button
+            onClick={toggleRecording}
+            disabled={status === "processing"}
+            className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+              recordingRef.current || status === "recording"
+                ? "animate-pulse bg-red-500"
+                : "bg-primary hover:bg-primary/90"
+            }`}
+            aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+          >
+            <span className="flex flex-col items-center gap-1">
+              <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+              <span className="text-sm">
+                {status === "recording" ? "Click to stop" : "Click to record"}
+              </span>
+            </span>
+          </button>
+          <p className="text-center text-xs text-muted-foreground">
+            Click once to start, click again to stop — or press{" "}
+            <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
+            {isElectron ? " (global — works from a game)" : ""}. Translation is copied to your clipboard.
+          </p>
+        </div>
 
         {/* Language selectors */}
         <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
@@ -375,38 +386,13 @@ function Home() {
           </div>
         </div>
 
-        {/* Hotkeys — desktop only */}
-        {!isMobile && (
-          <div className="mb-6 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Hotkeys</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <HotkeyRow
-                label="Start recording"
-                value={startKey}
-                capturing={capturing === "start"}
-                onCapture={() => setCapturing("start")}
-              />
-              <HotkeyRow
-                label="Stop recording"
-                value={stopKey}
-                capturing={capturing === "stop"}
-                onCapture={() => setCapturing("stop")}
-              />
-            </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {isElectron
-                ? "✅ Desktop app detected — F8/F9 are registered as GLOBAL hotkeys and work even while a fullscreen game has focus."
-                : "In the browser, hotkeys only fire when this tab has focus. Download the desktop app below for global hotkeys that work while playing."}
-            </p>
-          </div>
-        )}
 
         {/* Desktop app download — shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
           <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkeys</h2>
+            <h2 className="mb-1 text-sm font-semibold">🎮 Desktop app (Windows) — global hotkey</h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              Standalone Windows app. Runs in the system tray, registers F8/F9 globally so recording
+              Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
               works while you're in a fullscreen game, and copies the translation to your clipboard
               automatically. Unzip and launch <code className="rounded bg-muted px-1">VoxTranslate.exe</code>.
               {isMobile && " You can download the ZIP now and transfer it to your PC later."}
@@ -463,35 +449,82 @@ function Home() {
           </div>
         )}
       </div>
+
+      {/* Settings modal */}
+      {settingsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => {
+            setSettingsOpen(false);
+            setCapturing(false);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Settings</h2>
+              <button
+                onClick={() => {
+                  setSettingsOpen(false);
+                  setCapturing(false);
+                }}
+                className="rounded p-1 text-muted-foreground hover:bg-accent"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium">Record toggle hotkey</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCapturing(true)}
+                  className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
+                    capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                  }`}
+                >
+                  {capturing ? "Press any key…" : toggleKey}
+                </button>
+                <button
+                  onClick={() => {
+                    setToggleKey("F8");
+                    setCapturing(false);
+                  }}
+                  className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
+                  title="Reset to default (F8)"
+                >
+                  Reset
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Press once to start recording, press again to stop.{" "}
+                {isElectron
+                  ? "This hotkey is registered globally and works even while a fullscreen game has focus."
+                  : "In the browser, the hotkey only fires when this tab has focus. Download the desktop app for global hotkeys."}
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setSettingsOpen(false);
+                setCapturing(false);
+              }}
+              className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function HotkeyRow({
-  label,
-  value,
-  capturing,
-  onCapture,
-}: {
-  label: string;
-  value: string;
-  capturing: boolean;
-  onCapture: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-md border border-input bg-background px-3 py-2">
-      <span className="text-sm">{label}</span>
-      <button
-        onClick={onCapture}
-        className={`min-w-[80px] rounded px-3 py-1 text-xs font-mono ${
-          capturing ? "bg-amber-500/20 text-amber-600" : "bg-muted"
-        }`}
-      >
-        {capturing ? "Press a key…" : value}
-      </button>
-    </div>
-  );
-}
+
+
 
 function normalizeKey(e: KeyboardEvent): string | null {
   const parts: string[] = [];

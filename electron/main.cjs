@@ -1,13 +1,11 @@
 const { app, BrowserWindow, globalShortcut, clipboard, Notification, ipcMain, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 
-// URL of the deployed web app (front + API)
 const APP_URL = process.env.VOXTRANSLATE_URL || 'https://id-preview--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
 
 let mainWindow = null;
 let tray = null;
-let startAccel = 'F8';
-let stopAccel = 'F9';
+let toggleAccel = 'F8';
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -36,33 +34,34 @@ function createWindow() {
 function registerHotkeys() {
   globalShortcut.unregisterAll();
   try {
-    globalShortcut.register(startAccel, () => {
-      if (mainWindow) mainWindow.webContents.send('hotkey', 'start');
-    });
-    globalShortcut.register(stopAccel, () => {
-      if (mainWindow) mainWindow.webContents.send('hotkey', 'stop');
+    globalShortcut.register(toggleAccel, () => {
+      if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
     });
   } catch (e) {
-    console.error('Failed to register hotkeys', e);
+    console.error('Failed to register hotkey', e);
   }
+  rebuildTrayMenu();
+}
+
+function rebuildTrayMenu() {
+  if (!tray) return;
+  const menu = Menu.buildFromTemplate([
+    { label: 'Show VoxTranslate', click: () => mainWindow && mainWindow.show() },
+    { label: `Toggle recording (${toggleAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'toggle') },
+    { type: 'separator' },
+    { label: 'Quit', click: () => { app.isQuiting = true; app.quit(); } },
+  ]);
+  tray.setContextMenu(menu);
 }
 
 function buildTray() {
   const empty = nativeImage.createEmpty();
   tray = new Tray(empty);
-  const menu = Menu.buildFromTemplate([
-    { label: 'Show VoxTranslate', click: () => mainWindow && mainWindow.show() },
-    { label: `Start recording (${startAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'start') },
-    { label: `Stop recording (${stopAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'stop') },
-    { type: 'separator' },
-    { label: 'Quit', click: () => { app.isQuiting = true; app.quit(); } },
-  ]);
-  tray.setToolTip('VoxTranslate — global hotkeys active');
-  tray.setContextMenu(menu);
+  tray.setToolTip('VoxTranslate — global hotkey active');
+  rebuildTrayMenu();
   tray.on('click', () => mainWindow && mainWindow.show());
 }
 
-// IPC from renderer
 ipcMain.handle('clipboard:write', (_e, text) => {
   clipboard.writeText(String(text ?? ''));
   try {
@@ -71,20 +70,20 @@ ipcMain.handle('clipboard:write', (_e, text) => {
   return true;
 });
 
-ipcMain.handle('hotkeys:set', (_e, { start, stop }) => {
-  if (start) startAccel = start;
-  if (stop) stopAccel = stop;
+ipcMain.handle('hotkeys:set', (_e, payload) => {
+  const toggle = payload && (payload.toggle || payload.start);
+  if (toggle) toggleAccel = toggle;
   registerHotkeys();
-  return { start: startAccel, stop: stopAccel };
+  return { toggle: toggleAccel };
 });
 
-ipcMain.handle('app:info', () => ({ isElectron: true, startAccel, stopAccel }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel }));
 
 app.whenReady().then(() => {
   createWindow();
-  registerHotkeys();
   try { buildTray(); } catch (e) { console.error('Tray failed', e); }
+  registerHotkeys();
 });
 
 app.on('will-quit', () => globalShortcut.unregisterAll());
-app.on('window-all-closed', (e) => { /* keep alive in tray */ });
+app.on('window-all-closed', () => { /* keep alive in tray */ });
