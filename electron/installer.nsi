@@ -14,7 +14,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "1.5.0"
+!define APP_VERSION    "1.7.0"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
