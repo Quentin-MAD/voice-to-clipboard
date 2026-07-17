@@ -354,11 +354,14 @@ function Home() {
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(toggleKey);
-    const off = window.voxElectron.onHotkey((kind) => {
+    void window.voxElectron.setHotkeys(toggleKey).then((res) => {
+      if (res) setHotkeyBlocked(!res.ok);
+    });
+    const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
     });
-    return off;
+    const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
+    return () => { offHotkey(); offStatus?.(); };
   }, [toggleKey, toggleRecording]);
 
   // Sync status to Electron overlay (shows over fullscreen games)
@@ -366,6 +369,7 @@ function Home() {
     if (typeof window === "undefined" || !window.voxElectron?.setOverlayStatus) return;
     void window.voxElectron.setOverlayStatus(status);
   }, [status]);
+
 
 
 
