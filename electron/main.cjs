@@ -288,7 +288,8 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION }));
+ipcMain.handle('updates:check', async () => { await checkForUpdates({ silent: false }); return latestUpdate; });
 
 app.whenReady().then(() => {
   loadSettings();
@@ -296,6 +297,9 @@ app.whenReady().then(() => {
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
   try { buildTray(); } catch (e) { console.error('Tray failed', e); }
   registerHotkeys();
+  // Check for updates 8s after startup, then every 6h
+  setTimeout(() => checkForUpdates({ silent: true }), 8000);
+  setInterval(() => checkForUpdates({ silent: true }), 6 * 60 * 60 * 1000);
 });
 
 app.on('will-quit', () => {
