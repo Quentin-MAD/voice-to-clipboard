@@ -486,8 +486,23 @@ function Home() {
           )}
         </div>
 
+        {isElectron && hotkeyBlocked && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+            <div>
+              <div className="font-semibold">⚠ Hotkey {toggleKey} is already used by another app</div>
+              <div className="text-xs opacity-80">Discord, OBS, Steam or a game may have grabbed it. Open Settings and pick another key.</div>
+            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-2 text-xs font-medium hover:bg-amber-500/30"
+            >
+              Change hotkey
+            </button>
+          </div>
+        )}
 
         {/* Status + single toggle record button */}
+
         <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
           <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
             {statusBadge.label}
