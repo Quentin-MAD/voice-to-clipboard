@@ -360,7 +360,7 @@ function Home() {
         }`
     : "…";
 
-  const hourlyLeft = userStatus ? Math.max(0, userStatus.hourly_limit - userStatus.hourly_used) : 50;
+  
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -399,9 +399,6 @@ function Home() {
           <div className="flex flex-col">
             <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
             <div className="text-sm font-semibold">{creditsLabel}</div>
-            <div className="text-xs text-muted-foreground">
-              Reste {hourlyLeft}/50 traductions cette heure (limite anti-spam)
-            </div>
           </div>
           {!userStatus?.subscribed && (
             <Link
