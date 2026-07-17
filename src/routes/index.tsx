@@ -372,6 +372,12 @@ function Home() {
     return () => { offHotkey(); offStatus?.(); };
   }, [toggleKey, toggleRecording]);
 
+  // Load current auto-start state from Electron
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.getAutoStart) return;
+    void window.voxElectron.getAutoStart().then((r) => setAutoStartState(!!r?.enabled));
+  }, []);
+
   // Sync status to Electron overlay (shows over fullscreen games)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron?.setOverlayStatus) return;
