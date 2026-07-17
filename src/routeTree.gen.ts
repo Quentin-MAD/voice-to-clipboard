@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as LegalRefundsRouteImport } from './routes/legal.refunds'
 import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
+import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -48,6 +49,11 @@ const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   path: '/legal/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalNoticeRoute = LegalNoticeRouteImport.update({
+  id: '/legal/notice',
+  path: '/legal/notice',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   id: '/api/translate-audio',
   path: '/api/translate-audio',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
+  '/legal/notice': typeof LegalNoticeRoute
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/translate-audio'
+    | '/legal/notice'
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
+  LegalNoticeRoute: typeof LegalNoticeRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
   LegalTermsRoute: typeof LegalTermsRoute
@@ -179,6 +192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalPrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/notice': {
+      id: '/legal/notice'
+      path: '/legal/notice'
+      fullPath: '/legal/notice'
+      preLoaderRoute: typeof LegalNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/translate-audio': {
       id: '/api/translate-audio'
       path: '/api/translate-audio'
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
+  LegalNoticeRoute: LegalNoticeRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
   LegalTermsRoute: LegalTermsRoute,
