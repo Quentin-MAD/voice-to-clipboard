@@ -1,5 +1,5 @@
 {
-  "version": "1.5.0",
-  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/10bada84-2dfe-4531-9808-4da526e5582d/TalKing-Setup-1.5.0.exe",
-  "notes": "v1.5.0 - Real Windows installer (.exe): Desktop + Start Menu shortcuts, Add/Remove Programs entry, optional launch-with-Windows (hidden in tray). New Settings toggle to enable/disable auto-start."
+  "version": "1.7.0",
+  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/49839bc9-85e0-4436-80f2-66f9d64bd60e/TalKing-Setup-1.7.0.exe",
+  "notes": "v1.7.0 - Session persistence: stay signed in across restarts, tray 'Sign out' to clear it. Local rotating logs (5 x 1 MB) at %APPDATA%/tanstack_start_ts/logs, tray 'Open logs folder' for easy debug."
 }
