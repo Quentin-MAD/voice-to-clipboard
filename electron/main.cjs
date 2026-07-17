@@ -15,8 +15,10 @@ const path = require('path');
 const fs = require('fs');
 
 const APP_URL = process.env.TALKING_URL || 'https://project--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
+const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://voice-to-clipboard.lovable.app/talking-version.json';
 const ICON_PATH = path.join(__dirname, 'tray-icon.png');
 const START_HIDDEN = process.argv.includes('--hidden');
+const CURRENT_VERSION = app.getVersion();
 
 let mainWindow = null;
 let overlayWindow = null;
@@ -168,12 +170,20 @@ function registerHotkeys() {
 
 function rebuildTrayMenu() {
   if (!tray) return;
+  const updateLabel = latestUpdate
+    ? `⬇ Download update v${latestUpdate.version}`
+    : 'Check for updates…';
   const menu = Menu.buildFromTemplate([
-    { label: `TalKing — ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
+    { label: `TalKing v${CURRENT_VERSION} — ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
     { type: 'separator' },
     { label: 'Show window', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
     { label: 'Hide window', click: () => { if (mainWindow) mainWindow.hide(); } },
     { label: `Toggle recording (${toggleAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'toggle') },
+    { type: 'separator' },
+    { label: updateLabel, click: () => {
+        if (latestUpdate && latestUpdate.url) shell.openExternal(latestUpdate.url);
+        else checkForUpdates({ silent: false });
+      } },
     { type: 'separator' },
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
@@ -192,6 +202,58 @@ function buildTray() {
     if (mainWindow.isVisible()) mainWindow.hide();
     else { mainWindow.show(); mainWindow.focus(); }
   });
+}
+
+// -------- Update checker --------
+const { shell, dialog, net } = require('electron');
+let latestUpdate = null;
+
+function cmpVersion(a, b) {
+  const pa = String(a).split('.').map(n => parseInt(n, 10) || 0);
+  const pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] || 0, y = pb[i] || 0;
+    if (x > y) return 1; if (x < y) return -1;
+  }
+  return 0;
+}
+
+async function fetchUpdateManifest() {
+  return new Promise((resolve) => {
+    try {
+      const req = net.request({ method: 'GET', url: UPDATE_MANIFEST_URL, redirect: 'follow' });
+      let body = '';
+      req.on('response', (res) => {
+        res.on('data', (c) => { body += c.toString('utf8'); });
+        res.on('end', () => { try { resolve(JSON.parse(body)); } catch { resolve(null); } });
+      });
+      req.on('error', () => resolve(null));
+      req.end();
+    } catch { resolve(null); }
+  });
+}
+
+async function checkForUpdates({ silent = true } = {}) {
+  const manifest = await fetchUpdateManifest();
+  if (!manifest || !manifest.version) {
+    if (!silent) dialog.showMessageBox({ type: 'info', title: 'TalKing', message: 'Update check failed.', detail: 'Could not reach the update server. Try again later.' });
+    return;
+  }
+  if (cmpVersion(manifest.version, CURRENT_VERSION) > 0) {
+    latestUpdate = manifest;
+    rebuildTrayMenu();
+    const res = await dialog.showMessageBox({
+      type: 'info',
+      title: 'TalKing update available',
+      message: `A new version is available: v${manifest.version}`,
+      detail: (manifest.notes || '') + `\n\nYou are on v${CURRENT_VERSION}. Download and replace the folder to update.`,
+      buttons: ['Download now', 'Later'],
+      defaultId: 0, cancelId: 1,
+    });
+    if (res.response === 0 && manifest.url) shell.openExternal(manifest.url);
+  } else if (!silent) {
+    dialog.showMessageBox({ type: 'info', title: 'TalKing', message: `You are up to date (v${CURRENT_VERSION}).` });
+  }
 }
 
 ipcMain.handle('clipboard:write', (_e, text) => {
@@ -226,7 +288,8 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION }));
+ipcMain.handle('updates:check', async () => { await checkForUpdates({ silent: false }); return latestUpdate; });
 
 app.whenReady().then(() => {
   loadSettings();
@@ -234,6 +297,9 @@ app.whenReady().then(() => {
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
   try { buildTray(); } catch (e) { console.error('Tray failed', e); }
   registerHotkeys();
+  // Check for updates 8s after startup, then every 6h
+  setTimeout(() => checkForUpdates({ silent: true }), 8000);
+  setInterval(() => checkForUpdates({ silent: true }), 6 * 60 * 60 * 1000);
 });
 
 app.on('will-quit', () => {
