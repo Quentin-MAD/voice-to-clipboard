@@ -17,84 +17,77 @@ function getCtx(): AudioContext | null {
 }
 
 /**
- * Soft "thinking / loading" loop: a gentle undulating tone with slow pitch
- * and filter modulation — like a calm wave rolling in and out.
+ * Soft "typing / thinking" loop — inspired by Snapchat's typing indicator:
+ * a rhythmic sequence of tiny soft blips at ~5 Hz.
  * Returns a stop function.
  */
 export function playProcessingLoop(): () => void {
   const c = getCtx();
   if (!c) return () => {};
 
-  const now = c.currentTime;
-
-  // Master gain — quiet, slow fade-in
-  const master = c.createGain();
-  master.gain.value = 0.0;
-  master.gain.linearRampToValueAtTime(0.04, now + 0.5);
-  master.connect(c.destination);
-
-  // Soft low-pass filter that will be modulated (wah-like undulation)
+  // Shared soft low-pass filter to keep every blip warm (no harshness)
   const filter = c.createBiquadFilter();
   filter.type = "lowpass";
-  filter.frequency.value = 600;
-  filter.Q.value = 2;
+  filter.frequency.value = 2200;
+  filter.Q.value = 0.5;
+
+  const master = c.createGain();
+  master.gain.value = 0.9;
   filter.connect(master);
+  master.connect(c.destination);
 
-  // Triangle carrier — soft but a bit richer than pure sine
-  const osc = c.createOscillator();
-  osc.type = "triangle";
-  osc.frequency.value = 261.63; // C4
-
-  // Slow LFO 1: pitch wobble (very subtle)
-  const pitchLfo = c.createOscillator();
-  pitchLfo.type = "sine";
-  pitchLfo.frequency.value = 0.4; // ~2.5s per cycle
-  const pitchLfoGain = c.createGain();
-  pitchLfoGain.gain.value = 4; // ±4 Hz — very gentle vibrato
-  pitchLfo.connect(pitchLfoGain);
-  pitchLfoGain.connect(osc.frequency);
-
-  // Slow LFO 2: filter sweep for the "undulating" wave feel
-  const filterLfo = c.createOscillator();
-  filterLfo.type = "sine";
-  filterLfo.frequency.value = 0.5; // ~2s per cycle
-  const filterLfoGain = c.createGain();
-  filterLfoGain.gain.value = 350; // sweeps between ~250Hz and ~950Hz
-  filterLfo.connect(filterLfoGain);
-  filterLfoGain.connect(filter.frequency);
-
-  osc.connect(filter);
-
-  osc.start();
-  pitchLfo.start();
-  filterLfo.start();
-
+  // Two alternating pitches for a subtle "tick-tock" typing feel
+  const pitches = [880, 988]; // A5, B5 — small step, very soft
+  let step = 0;
   let stopped = false;
-  return () => {
+
+  const blip = () => {
     if (stopped) return;
-    stopped = true;
     const c2 = ctx;
     if (!c2) return;
     const t = c2.currentTime;
-    master.gain.cancelScheduledValues(t);
-    master.gain.setValueAtTime(master.gain.value, t);
-    master.gain.linearRampToValueAtTime(0, t + 0.3);
+    const freq = pitches[step % pitches.length];
+    step++;
+
+    const osc = c2.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+
+    const g = c2.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.08, t + 0.008); // quick soft attack
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11); // short decay
+
+    osc.connect(g);
+    g.connect(filter);
+    osc.start(t);
+    osc.stop(t + 0.14);
     setTimeout(() => {
       try {
-        osc.stop();
-        pitchLfo.stop();
-        filterLfo.stop();
         osc.disconnect();
-        pitchLfo.disconnect();
-        pitchLfoGain.disconnect();
-        filterLfo.disconnect();
-        filterLfoGain.disconnect();
+        g.disconnect();
+      } catch {
+        // ignore
+      }
+    }, 200);
+  };
+
+  // First blip immediately, then every ~180ms (~5.5 Hz — typing cadence)
+  blip();
+  const interval = window.setInterval(blip, 180);
+
+  return () => {
+    if (stopped) return;
+    stopped = true;
+    window.clearInterval(interval);
+    setTimeout(() => {
+      try {
         filter.disconnect();
         master.disconnect();
       } catch {
         // ignore
       }
-    }, 350);
+    }, 250);
   };
 }
 
