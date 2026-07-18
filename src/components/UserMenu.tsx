@@ -11,6 +11,7 @@ export function UserMenu() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -32,9 +33,6 @@ export function UserMenu() {
     navigate({ to: "/" });
   };
 
-  const supportHref = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-    "[TalKing] Support",
-  )}&body=${encodeURIComponent(`Compte: ${user.email}\n\nBonjour,\n\n`)}`;
 
   return (
     <>
@@ -66,14 +64,17 @@ export function UserMenu() {
               <UserIcon className="h-4 w-4" />
               Mon profil
             </button>
-            <a
-              href={supportHref}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setSupportOpen(true);
+              }}
               className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-accent"
-              onClick={() => setOpen(false)}
             >
               <Mail className="h-4 w-4" />
               Contacter le support
-            </a>
+            </button>
+
             <button
               onClick={signOut}
               className="flex w-full items-center gap-2 border-t border-border px-4 py-2 text-sm text-destructive hover:bg-accent"
@@ -88,9 +89,13 @@ export function UserMenu() {
       {profileOpen && (
         <ProfileModal email={user.email ?? ""} onClose={() => setProfileOpen(false)} />
       )}
+      {supportOpen && (
+        <SupportModal email={SUPPORT_EMAIL} onClose={() => setSupportOpen(false)} />
+      )}
     </>
   );
 }
+
 
 function ProfileModal({ email, onClose }: { email: string; onClose: () => void }) {
   const [newEmail, setNewEmail] = useState(email);
@@ -179,6 +184,45 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function SupportModal({ email, onClose }: { email: string; onClose: () => void }) {
+  const supportHref = `mailto:${email}?subject=${encodeURIComponent(
+    "[TalKing] Support",
+  )}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center"
+      >
+        <h2 className="text-lg font-bold">Contacter le support</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Une question ou un problème ?
+        </p>
+        <a
+          href={supportHref}
+          onClick={() => setTimeout(onClose, 100)}
+          className="mt-4 inline-block rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          {email}
+        </a>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Cliquez sur l'adresse pour ouvrir votre messagerie.
+        </p>
+        <button
+          onClick={onClose}
+          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
+        >
+          Fermer
+        </button>
       </div>
     </div>
   );
