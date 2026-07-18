@@ -1,20 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { createHash, timingSafeEqual } from "node:crypto";
 
-function passwordMatches(input: string, expected: string): boolean {
-  const a = createHash("sha256").update(input, "utf8").digest();
-  const b = createHash("sha256").update(expected, "utf8").digest();
-  return timingSafeEqual(a, b);
-}
+const ADMIN_EMAIL = "rossetquentin26@gmail.com";
 
 async function getUserAndCheckAdmin(request: Request) {
-  const expected = process.env.ADMIN_PASSWORD;
-  const provided = request.headers.get("x-admin-password") ?? "";
-  if (!expected || !provided || !passwordMatches(provided, expected)) {
-    return { error: "forbidden" as const };
-  }
-
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) return { error: "unauthorized" as const };
@@ -27,14 +16,13 @@ async function getUserAndCheckAdmin(request: Request) {
   const { data: userData, error } = await authClient.auth.getUser(token);
   if (error || !userData?.user) return { error: "unauthorized" as const };
 
+  const email = (userData.user.email ?? "").toLowerCase();
+  if (email !== ADMIN_EMAIL) return { error: "forbidden" as const };
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
-    _user_id: userData.user.id,
-    _role: "admin",
-  });
-  if (!isAdmin) return { error: "forbidden" as const };
   return { userId: userData.user.id, supabaseAdmin };
 }
+
 
 function startOfDayUTC(d: Date) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
