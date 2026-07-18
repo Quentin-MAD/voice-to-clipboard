@@ -63,7 +63,18 @@ Function EnableAutoStart
 FunctionEnd
 
 Section "Install"
+  ; Kill any running instance so we can overwrite existing files on reinstall / upgrade
+  ExecWait 'taskkill /F /IM ${APP_EXE}' $0
+  Sleep 500
+
   SetOutPath "$INSTDIR"
+
+  ; Wipe previous install content so stale files don't linger
+  RMDir /r "$INSTDIR\resources"
+  RMDir /r "$INSTDIR\locales"
+  Delete  "$INSTDIR\*.dll"
+  Delete  "$INSTDIR\*.pak"
+  Delete  "$INSTDIR\*.bin"
 
   ; Copy the entire packaged app tree
   File /r "TalKing-win32-x64\*.*"
