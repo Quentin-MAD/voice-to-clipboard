@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { HardDrive, Mic, Globe, Zap } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
+import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useAuth } from "@/hooks/use-auth";
 
 
