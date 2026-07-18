@@ -9,17 +9,17 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TalKing - Real-time voice translator for gamers" },
+      { title: "TalKing - Traducteur vocal en temps réel pour gamers" },
       {
         name: "description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci, la traduction arrive dans votre presse-papiers instantanément.",
       },
-      { property: "og:title", content: "TalKing - Real-time voice translator for gamers" },
+      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel pour gamers" },
       {
         property: "og:description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci, la traduction arrive dans votre presse-papiers instantanément.",
       },
     ],
   }),
