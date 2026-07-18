@@ -68,7 +68,7 @@ function LandingPage() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
           Parlez dans votre langue.
           <br />
-          Collage dans la leur.
+          Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
           TalKing traduit votre voix en temps réel pendant que vous jouez.
