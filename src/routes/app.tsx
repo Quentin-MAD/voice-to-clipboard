@@ -744,21 +744,21 @@ function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Settings</h2>
+              <h2 className="text-lg font-semibold">Paramètres</h2>
               <button
                 onClick={() => {
                   setSettingsOpen(false);
                   setCapturing(false);
                 }}
                 className="rounded p-1 text-muted-foreground hover:bg-accent"
-                aria-label="Close"
+                aria-label="Fermer"
               >
                 ✕
               </button>
             </div>
 
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium">Record toggle hotkey</label>
+              <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCapturing(true)}
@@ -766,7 +766,7 @@ function Home() {
                     capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
                   }`}
                 >
-                  {capturing ? "Press any key…" : toggleKey}
+                  {capturing ? "Appuyez sur une touche…" : toggleKey}
                 </button>
                 <button
                   onClick={() => {
@@ -774,16 +774,16 @@ function Home() {
                     setCapturing(false);
                   }}
                   className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                  title="Reset to default (F8)"
+                  title="Réinitialiser (F8)"
                 >
-                  Reset
+                  Réinit.
                 </button>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                Press once to start recording, press again to stop.{" "}
+                Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter.{" "}
                 {isElectron
-                  ? "This hotkey is registered globally and works even while a fullscreen game has focus."
-                  : "In the browser, the hotkey only fires when this tab has focus. Download the desktop app for global hotkeys."}
+                  ? "Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus."
+                  : "Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global."}
               </p>
             </div>
 
@@ -791,8 +791,8 @@ function Home() {
               <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
                 <label className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-sm font-medium">Launch TalKing when Windows starts</div>
-                    <div className="text-xs text-muted-foreground">Starts hidden in the system tray so your hotkey works instantly, even before you open anything.</div>
+                    <div className="text-sm font-medium">Lancer TalKing au démarrage de Windows</div>
+                    <div className="text-xs text-muted-foreground">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -816,7 +816,7 @@ function Home() {
               }}
               className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Done
+              Terminé
             </button>
           </div>
         </div>
