@@ -51,7 +51,7 @@ function PricingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <PaymentTestModeBanner />
       <div className="mx-auto max-w-4xl px-6 py-12">
-        <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'app</Link>
+        <Link to="/app" className="text-sm text-muted-foreground hover:underline">← Retour à l'app</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           1 crédit = 1 traduction. Anti-spam : max 50 traductions/heure pour tout le monde.
