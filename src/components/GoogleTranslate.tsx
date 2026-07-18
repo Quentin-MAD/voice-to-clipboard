@@ -22,7 +22,6 @@ export function GoogleTranslate() {
           pageLanguage: "fr",
           includedLanguages: "en,es,de,it,pt,nl,pl,ru,ja,zh-CN,ar,ko,tr,fr",
           autoDisplay: false,
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
         },
         "google_translate_element"
       );
@@ -30,7 +29,7 @@ export function GoogleTranslate() {
 
     const s = document.createElement("script");
     s.id = "google-translate-script";
-    s.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    s.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
     s.async = true;
     document.body.appendChild(s);
   }, []);
