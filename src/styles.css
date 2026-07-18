@@ -166,7 +166,11 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .gtranslate-wrapper .goog-te-gadget img,
 .gtranslate-wrapper .goog-logo-link,
 .gtranslate-wrapper .goog-te-gadget-simple img { display: none !important; }
-.gtranslate-wrapper .goog-te-gadget .goog-te-combo {
+.gtranslate-wrapper .goog-te-gadget .goog-te-combo,
+.gtranslate-wrapper select.goog-te-combo {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   margin: 0 !important;
   padding: 4px 24px 4px 8px;
   border-radius: 6px;
