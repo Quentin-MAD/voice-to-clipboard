@@ -78,18 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TalKing - Real-time voice translator" },
+      { title: "TalKing - Traducteur vocal en temps réel" },
       {
         name: "description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
       { name: "author", content: "TalKing" },
-      { property: "og:title", content: "TalKing - Real-time voice translator" },
+      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel" },
       {
         property: "og:description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
