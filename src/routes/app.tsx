@@ -543,14 +543,14 @@ function Home() {
         {isElectron && hotkeyBlocked && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
             <div>
-              <div className="font-semibold">⚠ Hotkey {toggleKey} is already used by another app</div>
-              <div className="text-xs opacity-80">Discord, OBS, Steam or a game may have grabbed it. Open Settings and pick another key.</div>
+              <div className="font-semibold">⚠ Le raccourci {toggleKey} est déjà utilisé par une autre application</div>
+              <div className="text-xs opacity-80">Discord, OBS, Steam ou un jeu l'a peut-être déjà pris. Ouvrez les paramètres et choisissez une autre touche.</div>
             </div>
             <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-2 text-xs font-medium hover:bg-amber-500/30"
             >
-              Change hotkey
+              Changer le raccourci
             </button>
           </div>
         )}
