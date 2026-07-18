@@ -12,6 +12,7 @@ async function getUserAndCheckAdmin(request: Request) {
   const publishable = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const authClient = createClient(supabaseUrl, publishable, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
   });
   const { data: userData, error } = await authClient.auth.getUser(token);
   if (error || !userData?.user) return { error: "unauthorized" as const };
@@ -20,7 +21,7 @@ async function getUserAndCheckAdmin(request: Request) {
   if (email !== ADMIN_EMAIL) return { error: "forbidden" as const };
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return { userId: userData.user.id, supabaseAdmin };
+  return { userId: userData.user.id, supabaseAdmin, userClient: authClient };
 }
 
 
