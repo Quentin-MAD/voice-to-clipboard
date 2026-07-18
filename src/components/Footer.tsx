@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 export function Footer() {
+  if (typeof window !== "undefined" && (window as any).voxElectron) return null;
   const year = new Date().getFullYear();
   return (
     <footer className="mt-16 border-t border-border bg-background/50">
