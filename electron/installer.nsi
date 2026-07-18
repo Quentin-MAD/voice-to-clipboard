@@ -14,7 +14,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.9.3"
+!define APP_VERSION    "0.9.4"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
@@ -29,7 +29,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.9.3.0"
+VIProductVersion "0.9.4.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
@@ -63,7 +63,18 @@ Function EnableAutoStart
 FunctionEnd
 
 Section "Install"
+  ; Kill any running instance so we can overwrite existing files on reinstall / upgrade
+  ExecWait 'taskkill /F /IM ${APP_EXE}' $0
+  Sleep 500
+
   SetOutPath "$INSTDIR"
+
+  ; Wipe previous install content so stale files don't linger
+  RMDir /r "$INSTDIR\resources"
+  RMDir /r "$INSTDIR\locales"
+  Delete  "$INSTDIR\*.dll"
+  Delete  "$INSTDIR\*.pak"
+  Delete  "$INSTDIR\*.bin"
 
   ; Copy the entire packaged app tree
   File /r "TalKing-win32-x64\*.*"
