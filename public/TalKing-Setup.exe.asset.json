@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "786f8433-c1d0-46e4-880b-9dfaecbfd0c8",
+  "asset_id": "cfec90e2-2c8b-4790-b3b6-41883f3bc2bd",
   "project_id": "39e650b7-feb8-41f0-a90e-aa5cab35c27a",
-  "url": "/__l5e/assets-v1/786f8433-c1d0-46e4-880b-9dfaecbfd0c8/TalKing-Setup-0.9.1.exe",
-  "r2_key": "a/v1/39e650b7-feb8-41f0-a90e-aa5cab35c27a/786f8433-c1d0-46e4-880b-9dfaecbfd0c8/TalKing-Setup-0.9.1.exe",
-  "original_filename": "TalKing-Setup-0.9.1.exe",
-  "size": 123143351,
+  "url": "/__l5e/assets-v1/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe",
+  "r2_key": "a/v1/39e650b7-feb8-41f0-a90e-aa5cab35c27a/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe",
+  "original_filename": "TalKing-Setup-0.9.2.exe",
+  "size": 123313799,
   "content_type": "application/octet-stream",
-  "created_at": "2026-07-18T00:02:57Z"
+  "created_at": "2026-07-18T02:48:38Z"
 }
