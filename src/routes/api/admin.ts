@@ -109,7 +109,7 @@ export const Route = createFileRoute("/api/admin")({
         if ("error" in check) {
           return Response.json({ error: check.error }, { status: check.error === "unauthorized" ? 401 : 403 });
         }
-        const { userClient } = check;
+        const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
           action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits";
           user_id?: string;
@@ -120,18 +120,19 @@ export const Route = createFileRoute("/api/admin")({
         }
         if (body.action === "add_credits") {
           const amt = Math.trunc(body.amount ?? 0);
-          const { error } = await userClient.rpc("admin_add_credits", {
+          const { error } = await supabaseAdmin.rpc("admin_add_credits", {
             _target_user: body.user_id,
             _amount: amt,
           });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         } else {
-          const { error } = await userClient.rpc("admin_set_subscription", {
+          const { error } = await supabaseAdmin.rpc("admin_set_subscription", {
             _target_user: body.user_id,
             _action: body.action,
           });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         }
+
         return Response.json({ ok: true });
       },
     },
