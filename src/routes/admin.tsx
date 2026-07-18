@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,6 +58,7 @@ async function authedFetch(url: string, init?: RequestInit) {
 
 function AdminPage() {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<AdminData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,9 +68,14 @@ function AdminPage() {
   async function load() {
     setLoading(true);
     setErr(null);
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
+      return;
+    }
     const res = await authedFetch("/api/admin");
     if (res.status === 401) {
-      setErr("Non authentifié");
+      navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
       setLoading(false);
       return;
     }
@@ -90,10 +96,9 @@ function AdminPage() {
   useEffect(() => {
     if (!authLoading && user) load();
     else if (!authLoading && !user) {
-      setErr("Non authentifié");
-      setLoading(false);
+      navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
     }
-  }, [authLoading, user]);
+  }, [authLoading, user, navigate]);
 
 
 
