@@ -145,12 +145,16 @@
 
 /* Google Translate widget - clean styling */
 .goog-te-banner-frame,
-.skiptranslate iframe.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+.skiptranslate > iframe,
 #goog-gt-tt,
-.goog-te-balloon-frame { display: none !important; }
-body { top: 0 !important; position: static !important; }
+.goog-te-balloon-frame { display: none !important; visibility: hidden !important; height: 0 !important; }
+html, body { top: 0 !important; position: static !important; margin-top: 0 !important; }
 .goog-tooltip, .goog-tooltip:hover { display: none !important; }
 .goog-text-highlight { background: none !important; box-shadow: none !important; }
+
 
 .gtranslate-wrapper { display: inline-flex; align-items: center; }
 .gtranslate-wrapper .goog-te-gadget {
