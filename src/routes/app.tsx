@@ -230,7 +230,7 @@ function Home() {
 
     if (duration < 300 || chunks.length === 0) {
       setStatus("error");
-      setErrorMsg("Recording too short");
+      setErrorMsg("Enregistrement trop court");
       setTimeout(() => setStatus("idle"), 1500);
       return;
     }
