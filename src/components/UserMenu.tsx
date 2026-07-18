@@ -33,9 +33,6 @@ export function UserMenu() {
     navigate({ to: "/" });
   };
 
-  const supportHref = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-    "[TalKing] Support",
-  )}&body=${encodeURIComponent(`Compte: ${user.email}\n\nBonjour,\n\n`)}`;
 
   return (
     <>
@@ -67,14 +64,17 @@ export function UserMenu() {
               <UserIcon className="h-4 w-4" />
               Mon profil
             </button>
-            <a
-              href={supportHref}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setSupportOpen(true);
+              }}
               className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-accent"
-              onClick={() => setOpen(false)}
             >
               <Mail className="h-4 w-4" />
               Contacter le support
-            </a>
+            </button>
+
             <button
               onClick={signOut}
               className="flex w-full items-center gap-2 border-t border-border px-4 py-2 text-sm text-destructive hover:bg-accent"
@@ -89,9 +89,13 @@ export function UserMenu() {
       {profileOpen && (
         <ProfileModal email={user.email ?? ""} onClose={() => setProfileOpen(false)} />
       )}
+      {supportOpen && (
+        <SupportModal email={SUPPORT_EMAIL} onClose={() => setSupportOpen(false)} />
+      )}
     </>
   );
 }
+
 
 function ProfileModal({ email, onClose }: { email: string; onClose: () => void }) {
   const [newEmail, setNewEmail] = useState(email);
