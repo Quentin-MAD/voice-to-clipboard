@@ -53,8 +53,8 @@ function BrowserBlocked() {
           TalKing ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe"
-          download="TalKing-Setup-0.9.2.exe"
+          href="/__l5e/assets-v1/e2a79e8e-06e3-43b5-be52-01f93e7f548f/TalKing-Setup-0.9.3.exe"
+          download="TalKing-Setup-0.9.3.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
@@ -665,8 +665,8 @@ function Home() {
             </p>
             <div className="flex flex-wrap gap-2">
               <a
-                href="/__l5e/assets-v1/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe"
-                download="TalKing-Setup-0.9.2.exe"
+                href="/__l5e/assets-v1/e2a79e8e-06e3-43b5-be52-01f93e7f548f/TalKing-Setup-0.9.3.exe"
+                download="TalKing-Setup-0.9.3.exe"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 ⬇ Download installer v0.9.1 (.exe, 118 MB)
