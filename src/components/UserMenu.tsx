@@ -190,10 +190,6 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
 }
 
 function SupportModal({ email, onClose }: { email: string; onClose: () => void }) {
-  const supportHref = `mailto:${email}?subject=${encodeURIComponent(
-    "[TalKing] Support",
-  )}`;
-
   const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(email);
@@ -214,28 +210,18 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
       >
         <h2 className="text-lg font-bold">Contacter le support</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Une question ou un problème ?
+          Envoyez-nous un email à l'adresse ci-dessous :
         </p>
-        <a
-          href={supportHref}
-          onClick={() => setTimeout(onClose, 150)}
-          className="mt-4 inline-block rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Ouvrir ma messagerie
-        </a>
-        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <span className="font-mono">{email}</span>
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
+          <span className="flex-1 truncate px-2 text-sm font-mono">{email}</span>
           <button
             type="button"
             onClick={copyEmail}
-            className="rounded border border-border px-2 py-0.5 hover:bg-accent"
+            className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Copier
           </button>
         </div>
-        <p className="mt-3 text-[11px] text-muted-foreground">
-          Si rien ne s'ouvre, aucune application mail n'est configurée sur votre appareil : copiez l'adresse et collez-la dans Gmail / Outlook web.
-        </p>
         <button
           onClick={onClose}
           className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
