@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { HardDrive, Mic, Globe, Zap } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
+import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useAuth } from "@/hooks/use-auth";
 
 
@@ -45,6 +46,7 @@ function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="text-xl font-bold">TalKing</div>
           <nav className="flex items-center gap-4 text-sm">
+            <GoogleTranslate />
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
               Tarifs
             </Link>
