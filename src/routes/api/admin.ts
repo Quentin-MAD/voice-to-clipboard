@@ -12,6 +12,7 @@ async function getUserAndCheckAdmin(request: Request) {
   const publishable = process.env.SUPABASE_PUBLISHABLE_KEY!;
   const authClient = createClient(supabaseUrl, publishable, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
   });
   const { data: userData, error } = await authClient.auth.getUser(token);
   if (error || !userData?.user) return { error: "unauthorized" as const };
@@ -20,7 +21,7 @@ async function getUserAndCheckAdmin(request: Request) {
   if (email !== ADMIN_EMAIL) return { error: "forbidden" as const };
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return { userId: userData.user.id, supabaseAdmin };
+  return { userId: userData.user.id, supabaseAdmin, userClient: authClient };
 }
 
 
@@ -36,10 +37,10 @@ export const Route = createFileRoute("/api/admin")({
         if ("error" in check) {
           return Response.json({ error: check.error }, { status: check.error === "unauthorized" ? 401 : 403 });
         }
-        const { supabaseAdmin } = check;
+        const { supabaseAdmin, userClient } = check;
 
-        // Users list
-        const { data: users, error: uErr } = await supabaseAdmin.rpc("admin_list_users");
+        // Users list (RPC checks has_role(auth.uid(),'admin') — must run as the user)
+        const { data: users, error: uErr } = await userClient.rpc("admin_list_users");
         if (uErr) {
           return Response.json({ error: uErr.message }, { status: 500 });
         }
@@ -107,7 +108,7 @@ export const Route = createFileRoute("/api/admin")({
         if ("error" in check) {
           return Response.json({ error: check.error }, { status: check.error === "unauthorized" ? 401 : 403 });
         }
-        const { supabaseAdmin } = check;
+        const { userClient } = check;
         const body = (await request.json().catch(() => ({}))) as {
           action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits";
           user_id?: string;
@@ -118,13 +119,13 @@ export const Route = createFileRoute("/api/admin")({
         }
         if (body.action === "add_credits") {
           const amt = Math.trunc(body.amount ?? 0);
-          const { error } = await supabaseAdmin.rpc("admin_add_credits", {
+          const { error } = await userClient.rpc("admin_add_credits", {
             _target_user: body.user_id,
             _amount: amt,
           });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         } else {
-          const { error } = await supabaseAdmin.rpc("admin_set_subscription", {
+          const { error } = await userClient.rpc("admin_set_subscription", {
             _target_user: body.user_id,
             _action: body.action,
           });
