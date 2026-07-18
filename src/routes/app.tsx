@@ -691,13 +691,13 @@ function Home() {
         {/* Current result */}
         {current && (
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Latest translation</h2>
+            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
             <div className="mb-2">
-              <div className="text-xs uppercase text-muted-foreground">Heard</div>
+              <div className="text-xs uppercase text-muted-foreground">Entendu</div>
               <div className="text-sm">{current.transcript}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-muted-foreground">Translation (in clipboard)</div>
+              <div className="text-xs uppercase text-muted-foreground">Traduction (dans le presse-papiers)</div>
               <div className="text-base font-medium">{current.translation}</div>
             </div>
           </div>
@@ -706,7 +706,7 @@ function Home() {
         {/* Last translation */}
         {history.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Last translation</h2>
+            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
             <ul className="divide-y divide-border">
               {history.map((h) => (
                 <li key={h.id} className="flex items-start gap-3 py-3">
@@ -721,7 +721,7 @@ function Home() {
                     onClick={() => void copyAgain(h.translation)}
                     className="rounded-md border border-input bg-background px-2 py-1 text-xs hover:bg-accent"
                   >
-                    Copy
+                    Copier
                   </button>
                 </li>
               ))}
