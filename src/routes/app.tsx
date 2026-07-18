@@ -13,17 +13,17 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "App - TalKing" },
+      { title: "Application - TalKing" },
       {
         name: "description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
-      { property: "og:title", content: "TalKing - Real-time voice translator" },
+      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel" },
       {
         property: "og:description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
     ],
   }),
