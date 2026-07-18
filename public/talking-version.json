@@ -1,5 +1,5 @@
 {
-  "version": "0.9.2",
-  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe",
-  "notes": "v0.9.2 - Fix 'Forbidden' blank window after install: app now loads the published domain (voice-to-clipboard.lovable.app/app) instead of the internal preview URL."
+  "version": "0.9.3",
+  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/e2a79e8e-06e3-43b5-be52-01f93e7f548f/TalKing-Setup-0.9.3.exe",
+  "notes": "v0.9.3 - Custom TalKing icon embedded in the Windows executable (no more default Electron atom icon on the desktop shortcut and in Explorer)."
 }
