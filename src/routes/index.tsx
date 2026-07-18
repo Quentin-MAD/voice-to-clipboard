@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HardDrive, Mic, Globe, Zap } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/hooks/use-auth";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,7 +26,10 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const { user, loading } = useAuth();
   return (
+
+
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border">
@@ -33,16 +39,18 @@ function LandingPage() {
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
               Tarifs
             </Link>
-            <Link to="/app" className="text-muted-foreground hover:text-foreground">
-              App
-            </Link>
-            <Link
-              to="/auth"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Connexion
-            </Link>
+            {loading ? null : user ? (
+              <UserMenu />
+            ) : (
+              <Link
+                to="/auth"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Connexion
+              </Link>
+            )}
           </nav>
+
         </div>
       </header>
 
