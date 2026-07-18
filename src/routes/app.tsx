@@ -570,12 +570,12 @@ function Home() {
                   ? "animate-pulse bg-red-500"
                   : "bg-primary hover:bg-primary/90"
               }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
             >
               <span className="flex flex-col items-center gap-1">
                 <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
                 <span className="text-sm">
-                  {status === "recording" ? "Tap to stop" : "Tap to record"}
+                  {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
                 </span>
               </span>
             </button>
@@ -588,22 +588,22 @@ function Home() {
                   ? "animate-pulse bg-red-500"
                   : "bg-primary hover:bg-primary/90"
               }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
             >
               <span className="text-2xl">{status === "recording" ? "⏹" : "🎙"}</span>
-              <span>{status === "recording" ? "Stop recording" : "Press to record"}</span>
+              <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
             </button>
           )}
           <p className="text-center text-xs text-muted-foreground">
             {isMobile ? (
               <>
-                Tap once to start, tap again to stop. Translation is copied to your clipboard.
+                Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.
               </>
             ) : (
               <>
-                Click once to start, click again to stop - or press{" "}
+                Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter - ou appuyez sur{" "}
                 <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-                {isElectron ? " (global - works from a game)" : ""}. Translation is copied to your clipboard.
+                {isElectron ? " (global - fonctionne depuis un jeu)" : ""}. La traduction est copiée dans votre presse-papiers.
               </>
             )}
           </p>
