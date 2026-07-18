@@ -447,15 +447,15 @@ function Home() {
   const statusBadge = useMemo(() => {
     switch (status) {
       case "idle":
-        return { label: "Idle", color: "bg-muted text-muted-foreground" };
+        return { label: "Prêt", color: "bg-muted text-muted-foreground" };
       case "recording":
-        return { label: "🎙 Recording…", color: "bg-red-500/15 text-red-500 animate-pulse" };
+        return { label: "🎙 Enregistrement…", color: "bg-red-500/15 text-red-500 animate-pulse" };
       case "processing":
-        return { label: "⏳ Translating…", color: "bg-amber-500/15 text-amber-500" };
+        return { label: "⏳ Traduction…", color: "bg-amber-500/15 text-amber-500" };
       case "copied":
-        return { label: "✅ Copied to clipboard", color: "bg-emerald-500/15 text-emerald-500" };
+        return { label: "✅ Copié dans le presse-papiers", color: "bg-emerald-500/15 text-emerald-500" };
       case "error":
-        return { label: `⚠ ${errorMsg || "Error"}`, color: "bg-red-500/15 text-red-500" };
+        return { label: `⚠ ${errorMsg || "Erreur"}`, color: "bg-red-500/15 text-red-500" };
     }
   }, [status, errorMsg]);
 
