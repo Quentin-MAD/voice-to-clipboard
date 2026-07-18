@@ -56,14 +56,6 @@ export function UserMenu() {
               <p className="text-xs text-muted-foreground">Connecté</p>
               <p className="truncate text-sm font-medium">{user.email}</p>
             </div>
-            <Link
-              to="/app"
-              onClick={() => setOpen(false)}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-accent"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Ouvrir l'app
-            </Link>
             <button
               onClick={() => {
                 setOpen(false);
