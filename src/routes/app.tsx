@@ -358,7 +358,7 @@ function Home() {
       }
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Microphone access denied");
+      setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
       setTimeout(() => setStatus("idle"), 2500);
     }
   }, []);
