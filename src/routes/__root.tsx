@@ -18,16 +18,16 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          La page que vous cherchez n'existe pas ou a été déplacée.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Retour à l'accueil
           </Link>
         </div>
       </div>
@@ -46,10 +46,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Cette page n'a pas pu se charger
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Une erreur est survenue. Vous pouvez actualiser ou revenir à l'accueil.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -59,13 +59,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Réessayer
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Retour à l'accueil
           </a>
         </div>
       </div>
@@ -78,18 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "TalKing - Real-time voice translator" },
+      { title: "TalKing - Traducteur vocal en temps réel" },
       {
         name: "description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
       { name: "author", content: "TalKing" },
-      { property: "og:title", content: "TalKing - Real-time voice translator" },
+      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel" },
       {
         property: "og:description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey and get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -110,7 +110,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <HeadContent />
       </head>

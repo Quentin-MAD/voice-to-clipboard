@@ -13,17 +13,17 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "App - TalKing" },
+      { title: "Application - TalKing" },
       {
         name: "description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
-      { property: "og:title", content: "TalKing - Real-time voice translator" },
+      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel" },
       {
         property: "og:description",
         content:
-          "Push-to-talk voice translator. Record with a hotkey, get the translation copied to your clipboard instantly.",
+          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
       },
     ],
   }),
@@ -73,25 +73,25 @@ function BrowserBlocked() {
 type Status = "idle" | "recording" | "processing" | "copied" | "error";
 
 const LANGUAGES = [
-  { code: "fr", label: "French 🇫🇷" },
-  { code: "en", label: "English 🇬🇧" },
-  { code: "es", label: "Spanish 🇪🇸" },
-  { code: "de", label: "German 🇩🇪" },
-  { code: "it", label: "Italian 🇮🇹" },
-  { code: "ru", label: "Russian 🇷🇺" },
-  { code: "ja", label: "Japanese 🇯🇵" },
-  { code: "zh", label: "Chinese 🇨🇳" },
-  { code: "pt", label: "Portuguese (BR) 🇧🇷" },
-  { code: "ko", label: "Korean 🇰🇷" },
-  { code: "tr", label: "Turkish 🇹🇷" },
-  { code: "pl", label: "Polish 🇵🇱" },
-  { code: "nl", label: "Dutch 🇳🇱" },
-  { code: "ar", label: "Arabic 🇸🇦" },
-  { code: "id", label: "Indonesian 🇮🇩" },
-  { code: "vi", label: "Vietnamese 🇻🇳" },
-  { code: "th", label: "Thai 🇹🇭" },
-  { code: "sv", label: "Swedish 🇸🇪" },
-  { code: "uk", label: "Ukrainian 🇺🇦" },
+  { code: "fr", label: "Français 🇫🇷" },
+  { code: "en", label: "Anglais 🇬🇧" },
+  { code: "es", label: "Espagnol 🇪🇸" },
+  { code: "de", label: "Allemand 🇩🇪" },
+  { code: "it", label: "Italien 🇮🇹" },
+  { code: "ru", label: "Russe 🇷🇺" },
+  { code: "ja", label: "Japonais 🇯🇵" },
+  { code: "zh", label: "Chinois 🇨🇳" },
+  { code: "pt", label: "Portugais (BR) 🇧🇷" },
+  { code: "ko", label: "Coréen 🇰🇷" },
+  { code: "tr", label: "Turc 🇹🇷" },
+  { code: "pl", label: "Polonais 🇵🇱" },
+  { code: "nl", label: "Néerlandais 🇳🇱" },
+  { code: "ar", label: "Arabe 🇸🇦" },
+  { code: "id", label: "Indonésien 🇮🇩" },
+  { code: "vi", label: "Vietnamien 🇻🇳" },
+  { code: "th", label: "Thaï 🇹🇭" },
+  { code: "sv", label: "Suédois 🇸🇪" },
+  { code: "uk", label: "Ukrainien 🇺🇦" },
 ];
 
 type HistoryItem = {
@@ -230,7 +230,7 @@ function Home() {
 
     if (duration < 300 || chunks.length === 0) {
       setStatus("error");
-      setErrorMsg("Recording too short");
+      setErrorMsg("Enregistrement trop court");
       setTimeout(() => setStatus("idle"), 1500);
       return;
     }
@@ -323,7 +323,7 @@ function Home() {
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Translation failed");
+      setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
     }
   }, [source, target, navigate, statusQuery]);
@@ -358,7 +358,7 @@ function Home() {
       }
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Microphone access denied");
+      setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
       setTimeout(() => setStatus("idle"), 2500);
     }
   }, []);
@@ -447,15 +447,15 @@ function Home() {
   const statusBadge = useMemo(() => {
     switch (status) {
       case "idle":
-        return { label: "Idle", color: "bg-muted text-muted-foreground" };
+        return { label: "Prêt", color: "bg-muted text-muted-foreground" };
       case "recording":
-        return { label: "🎙 Recording…", color: "bg-red-500/15 text-red-500 animate-pulse" };
+        return { label: "🎙 Enregistrement…", color: "bg-red-500/15 text-red-500 animate-pulse" };
       case "processing":
-        return { label: "⏳ Translating…", color: "bg-amber-500/15 text-amber-500" };
+        return { label: "⏳ Traduction…", color: "bg-amber-500/15 text-amber-500" };
       case "copied":
-        return { label: "✅ Copied to clipboard", color: "bg-emerald-500/15 text-emerald-500" };
+        return { label: "✅ Copié dans le presse-papiers", color: "bg-emerald-500/15 text-emerald-500" };
       case "error":
-        return { label: `⚠ ${errorMsg || "Error"}`, color: "bg-red-500/15 text-red-500" };
+        return { label: `⚠ ${errorMsg || "Erreur"}`, color: "bg-red-500/15 text-red-500" };
     }
   }, [status, errorMsg]);
 
@@ -489,7 +489,7 @@ function Home() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Push-to-talk voice translator. Record → transcribe → translate → clipboard.
+              Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -497,16 +497,16 @@ function Home() {
               <button
                 onClick={() => window.voxElectron?.hideWindow()}
                 className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
-                title="Hide to system tray (keeps hotkey active)"
+                title="Réduire dans la zone de notification (le raccourci reste actif)"
               >
-                Hide to tray
+                Réduire dans la barre
               </button>
             )}
             <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
-              aria-label="Settings"
-              title="Settings"
+              aria-label="Paramètres"
+              title="Paramètres"
             >
               ⚙️
             </button>
@@ -543,14 +543,14 @@ function Home() {
         {isElectron && hotkeyBlocked && (
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
             <div>
-              <div className="font-semibold">⚠ Hotkey {toggleKey} is already used by another app</div>
-              <div className="text-xs opacity-80">Discord, OBS, Steam or a game may have grabbed it. Open Settings and pick another key.</div>
+              <div className="font-semibold">⚠ Le raccourci {toggleKey} est déjà utilisé par une autre application</div>
+              <div className="text-xs opacity-80">Discord, OBS, Steam ou un jeu l'a peut-être déjà pris. Ouvrez les paramètres et choisissez une autre touche.</div>
             </div>
             <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-2 text-xs font-medium hover:bg-amber-500/30"
             >
-              Change hotkey
+              Changer le raccourci
             </button>
           </div>
         )}
@@ -570,12 +570,12 @@ function Home() {
                   ? "animate-pulse bg-red-500"
                   : "bg-primary hover:bg-primary/90"
               }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
             >
               <span className="flex flex-col items-center gap-1">
                 <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
                 <span className="text-sm">
-                  {status === "recording" ? "Tap to stop" : "Tap to record"}
+                  {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
                 </span>
               </span>
             </button>
@@ -588,22 +588,22 @@ function Home() {
                   ? "animate-pulse bg-red-500"
                   : "bg-primary hover:bg-primary/90"
               }`}
-              aria-label={status === "recording" ? "Stop recording" : "Start recording"}
+              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
             >
               <span className="text-2xl">{status === "recording" ? "⏹" : "🎙"}</span>
-              <span>{status === "recording" ? "Stop recording" : "Press to record"}</span>
+              <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
             </button>
           )}
           <p className="text-center text-xs text-muted-foreground">
             {isMobile ? (
               <>
-                Tap once to start, tap again to stop. Translation is copied to your clipboard.
+                Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.
               </>
             ) : (
               <>
-                Click once to start, click again to stop - or press{" "}
+                Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter - ou appuyez sur{" "}
                 <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-                {isElectron ? " (global - works from a game)" : ""}. Translation is copied to your clipboard.
+                {isElectron ? " (global - fonctionne depuis un jeu)" : ""}. La traduction est copiée dans votre presse-papiers.
               </>
             )}
           </p>
@@ -612,13 +612,13 @@ function Home() {
         {/* Language selectors */}
         <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">From</label>
+            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Depuis</label>
             <select
               value={source}
               onChange={(e) => setSource(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
-              <option value="auto">Auto-detect</option>
+              <option value="auto">Détection auto</option>
               {LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.label}
@@ -630,14 +630,14 @@ function Home() {
             <button
               onClick={swap}
               disabled={source === "auto"}
-              title="Swap languages"
+              title="Inverser les langues"
               className="rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-40"
             >
               ⇄
             </button>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">To</label>
+            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Vers</label>
             <select
               value={target}
               onChange={(e) => setTarget(e.target.value)}
@@ -656,12 +656,13 @@ function Home() {
         {/* Desktop app download - shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
           <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Desktop app (Windows) - global hotkey</h2>
+            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Application Windows - raccourci global</h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
-              works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. The installer creates Desktop + Start Menu shortcuts and can launch TalKing hidden with Windows.
-              {isMobile && " Download now and transfer to your PC later."}
+              Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
+              globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
+              automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
+              et peut lancer TalKing masqué avec Windows.
+              {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
             </p>
             <div className="flex flex-wrap gap-2">
               <a
@@ -669,19 +670,19 @@ function Home() {
                 download="TalKing-Setup-0.9.4.exe"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                ⬇ Download installer v0.9.1 (.exe, 118 MB)
+                ⬇ Télécharger l'installeur v0.9.4 (.exe, 118 Mo)
               </a>
               <a
                 href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
                 download="TalKing-win32-x64.zip"
                 className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-                title="Portable ZIP - no install, just unzip and run"
+                title="ZIP portable - pas d'installation, décompresser et lancer"
               >
-                Portable ZIP (148 MB)
+                ZIP portable (148 Mo)
               </a>
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Windows SmartScreen may warn on first run (app not code-signed). Click <em>More info</em> → <em>Run anyway</em>.
+              Windows SmartScreen peut avertir au premier lancement (app non signée). Cliquez sur <em>Informations complémentaires</em> → <em>Exécuter quand même</em>.
             </p>
           </div>
         )}
@@ -690,13 +691,13 @@ function Home() {
         {/* Current result */}
         {current && (
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Latest translation</h2>
+            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
             <div className="mb-2">
-              <div className="text-xs uppercase text-muted-foreground">Heard</div>
+              <div className="text-xs uppercase text-muted-foreground">Entendu</div>
               <div className="text-sm">{current.transcript}</div>
             </div>
             <div>
-              <div className="text-xs uppercase text-muted-foreground">Translation (in clipboard)</div>
+              <div className="text-xs uppercase text-muted-foreground">Traduction (dans le presse-papiers)</div>
               <div className="text-base font-medium">{current.translation}</div>
             </div>
           </div>
@@ -705,7 +706,7 @@ function Home() {
         {/* Last translation */}
         {history.length > 0 && (
           <div className="rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Last translation</h2>
+            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
             <ul className="divide-y divide-border">
               {history.map((h) => (
                 <li key={h.id} className="flex items-start gap-3 py-3">
@@ -720,7 +721,7 @@ function Home() {
                     onClick={() => void copyAgain(h.translation)}
                     className="rounded-md border border-input bg-background px-2 py-1 text-xs hover:bg-accent"
                   >
-                    Copy
+                    Copier
                   </button>
                 </li>
               ))}
@@ -743,21 +744,21 @@ function Home() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Settings</h2>
+              <h2 className="text-lg font-semibold">Paramètres</h2>
               <button
                 onClick={() => {
                   setSettingsOpen(false);
                   setCapturing(false);
                 }}
                 className="rounded p-1 text-muted-foreground hover:bg-accent"
-                aria-label="Close"
+                aria-label="Fermer"
               >
                 ✕
               </button>
             </div>
 
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium">Record toggle hotkey</label>
+              <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCapturing(true)}
@@ -765,7 +766,7 @@ function Home() {
                     capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
                   }`}
                 >
-                  {capturing ? "Press any key…" : toggleKey}
+                  {capturing ? "Appuyez sur une touche…" : toggleKey}
                 </button>
                 <button
                   onClick={() => {
@@ -773,16 +774,16 @@ function Home() {
                     setCapturing(false);
                   }}
                   className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                  title="Reset to default (F8)"
+                  title="Réinitialiser (F8)"
                 >
-                  Reset
+                  Réinit.
                 </button>
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
-                Press once to start recording, press again to stop.{" "}
+                Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter.{" "}
                 {isElectron
-                  ? "This hotkey is registered globally and works even while a fullscreen game has focus."
-                  : "In the browser, the hotkey only fires when this tab has focus. Download the desktop app for global hotkeys."}
+                  ? "Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus."
+                  : "Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global."}
               </p>
             </div>
 
@@ -790,8 +791,8 @@ function Home() {
               <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
                 <label className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-sm font-medium">Launch TalKing when Windows starts</div>
-                    <div className="text-xs text-muted-foreground">Starts hidden in the system tray so your hotkey works instantly, even before you open anything.</div>
+                    <div className="text-sm font-medium">Lancer TalKing au démarrage de Windows</div>
+                    <div className="text-xs text-muted-foreground">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
                   </div>
                   <input
                     type="checkbox"
@@ -815,7 +816,7 @@ function Home() {
               }}
               className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Done
+              Terminé
             </button>
           </div>
         </div>
