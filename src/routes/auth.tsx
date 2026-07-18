@@ -6,6 +6,9 @@ import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Connexion - TalKing" },
@@ -21,13 +24,15 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const getPostAuthPath = (): "/" | "/app" => {
+  const search = Route.useSearch();
+  const getPostAuthPath = (): "/" | "/app" | "/admin" => {
+    if (search.redirect === "/admin") return "/admin";
     return typeof window !== "undefined" && window.voxElectron?.isElectron ? "/app" : "/";
   };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: getPostAuthPath() });
+        if (data.session) navigate({ to: getPostAuthPath(), replace: true });
     });
   }, [navigate]);
 
@@ -43,12 +48,12 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Compte créé ! Vous êtes connecté.");
-        navigate({ to: getPostAuthPath() });
+        navigate({ to: getPostAuthPath(), replace: true });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Connexion réussie");
-        navigate({ to: getPostAuthPath() });
+        navigate({ to: getPostAuthPath(), replace: true });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
@@ -61,10 +66,10 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth`,
+        redirect_uri: `${window.location.origin}/auth${search.redirect === "/admin" ? "?redirect=/admin" : ""}`,
       });
       if (result.error) throw new Error(String(result.error));
-      if (!result.redirected) navigate({ to: getPostAuthPath() });
+      if (!result.redirected) navigate({ to: getPostAuthPath(), replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur Google");
       setLoading(false);
