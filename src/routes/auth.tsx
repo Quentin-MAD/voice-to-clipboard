@@ -24,7 +24,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+      if (data.session) navigate({ to: "/app" });
     });
   }, [navigate]);
 
@@ -40,12 +40,12 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("Compte créé ! Vous êtes connecté.");
-        navigate({ to: "/" });
+        navigate({ to: "/app" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Connexion réussie");
-        navigate({ to: "/" });
+        navigate({ to: "/app" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
@@ -61,7 +61,7 @@ function AuthPage() {
         redirect_uri: window.location.origin,
       });
       if (result.error) throw new Error(String(result.error));
-      if (!result.redirected) navigate({ to: "/" });
+      if (!result.redirected) navigate({ to: "/app" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur Google");
       setLoading(false);
