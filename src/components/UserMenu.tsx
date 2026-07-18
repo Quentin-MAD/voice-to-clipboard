@@ -210,18 +210,15 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
       >
         <h2 className="text-lg font-bold">Contacter le support</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Envoyez-nous un email à l'adresse ci-dessous :
+          Cliquez sur l'adresse ci-dessous pour la copier :
         </p>
-        <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
-          <span className="flex-1 truncate px-2 text-sm font-mono">{email}</span>
-          <button
-            type="button"
-            onClick={copyEmail}
-            className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Copier
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={copyEmail}
+          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono hover:bg-accent"
+        >
+          {email}
+        </button>
         <button
           onClick={onClose}
           className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
