@@ -194,9 +194,13 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
     "[TalKing] Support",
   )}`;
 
-  const handleOpenMail = () => {
-    window.location.href = supportHref;
-    setTimeout(onClose, 150);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      toast.success("Adresse email copiée");
+    } catch {
+      toast.error("Impossible de copier");
+    }
   };
 
   return (
@@ -212,14 +216,25 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
         <p className="mt-2 text-sm text-muted-foreground">
           Une question ou un problème ?
         </p>
-        <button
-          onClick={handleOpenMail}
+        <a
+          href={supportHref}
+          onClick={() => setTimeout(onClose, 150)}
           className="mt-4 inline-block rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          {email}
-        </button>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Cliquez sur l'adresse pour ouvrir votre messagerie.
+          Ouvrir ma messagerie
+        </a>
+        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <span className="font-mono">{email}</span>
+          <button
+            type="button"
+            onClick={copyEmail}
+            className="rounded border border-border px-2 py-0.5 hover:bg-accent"
+          >
+            Copier
+          </button>
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Si rien ne s'ouvre, aucune application mail n'est configurée sur votre appareil : copiez l'adresse et collez-la dans Gmail / Outlook web.
         </p>
         <button
           onClick={onClose}
