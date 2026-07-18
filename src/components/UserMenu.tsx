@@ -188,3 +188,42 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
     </div>
   );
 }
+
+function SupportModal({ email, onClose }: { email: string; onClose: () => void }) {
+  const supportHref = `mailto:${email}?subject=${encodeURIComponent(
+    "[TalKing] Support",
+  )}`;
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center"
+      >
+        <h2 className="text-lg font-bold">Contacter le support</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Une question ou un problème ?
+        </p>
+        <a
+          href={supportHref}
+          onClick={() => setTimeout(onClose, 100)}
+          className="mt-4 inline-block rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          {email}
+        </a>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Cliquez sur l'adresse pour ouvrir votre messagerie.
+        </p>
+        <button
+          onClick={onClose}
+          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
+        >
+          Fermer
+        </button>
+      </div>
+    </div>
+  );
+}
