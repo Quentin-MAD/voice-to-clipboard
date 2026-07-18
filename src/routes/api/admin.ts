@@ -37,13 +37,14 @@ export const Route = createFileRoute("/api/admin")({
         if ("error" in check) {
           return Response.json({ error: check.error }, { status: check.error === "unauthorized" ? 401 : 403 });
         }
-        const { supabaseAdmin, userClient } = check;
+        const { supabaseAdmin } = check;
 
-        // Users list (RPC checks has_role(auth.uid(),'admin') — must run as the user)
-        const { data: users, error: uErr } = await userClient.rpc("admin_list_users");
+        // Users list (email-based admin check already performed via getUserAndCheckAdmin)
+        const { data: users, error: uErr } = await supabaseAdmin.rpc("admin_list_users");
         if (uErr) {
           return Response.json({ error: uErr.message }, { status: 500 });
         }
+
 
         // Time series - last 90 days
         const since = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
