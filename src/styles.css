@@ -151,15 +151,27 @@
 body { top: 0 !important; position: static !important; }
 .goog-tooltip, .goog-tooltip:hover { display: none !important; }
 .goog-text-highlight { background: none !important; box-shadow: none !important; }
-.gtranslate-wrapper .goog-te-gadget { font-size: 0 !important; color: transparent !important; }
+
+.gtranslate-wrapper { display: inline-flex; align-items: center; }
+.gtranslate-wrapper .goog-te-gadget {
+  font-size: 0 !important;
+  color: transparent !important;
+  line-height: 1 !important;
+}
+.gtranslate-wrapper .goog-te-gadget > span,
+.gtranslate-wrapper .goog-te-gadget img,
+.gtranslate-wrapper .goog-logo-link,
+.gtranslate-wrapper .goog-te-gadget-simple img { display: none !important; }
 .gtranslate-wrapper .goog-te-gadget .goog-te-combo {
   margin: 0 !important;
-  padding: 4px 8px;
+  padding: 4px 24px 4px 8px;
   border-radius: 6px;
   border: 1px solid var(--color-border);
   background: var(--color-background);
   color: var(--color-foreground);
   font-size: 13px;
+  line-height: 1.2;
+  height: auto;
   cursor: pointer;
+  appearance: auto;
 }
-.gtranslate-wrapper .goog-te-gadget > span { display: none !important; }
