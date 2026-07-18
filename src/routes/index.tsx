@@ -141,8 +141,8 @@ function LandingPage() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
               2
             </div>
-            <p className="mt-3 text-sm font-medium">Parlez</p>
-            <p className="text-xs text-muted-foreground">Dites votre phrase en jeu ou sur Discord.</p>
+            <p className="mt-3 text-sm font-medium">Dites votre phrase et appuyez de nouveau sur la touche d'enregistrement</p>
+            <p className="text-xs text-muted-foreground">La touche F8 est configurable dans l'app.</p>
           </div>
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
