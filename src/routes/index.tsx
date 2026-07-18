@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { HardDrive, Mic, Globe, Zap } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
@@ -27,6 +28,14 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user && typeof window !== "undefined" && window.voxElectron?.isElectron) {
+      navigate({ to: "/app", replace: true });
+    }
+  }, [loading, user, navigate]);
+
   return (
 
 

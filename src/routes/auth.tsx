@@ -21,10 +21,13 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const getPostAuthPath = (): "/" | "/app" => {
+    return typeof window !== "undefined" && window.voxElectron?.isElectron ? "/app" : "/";
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+      if (data.session) navigate({ to: getPostAuthPath() });
     });
   }, [navigate]);
 
@@ -36,16 +39,16 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (error) throw error;
         toast.success("Compte créé ! Vous êtes connecté.");
-        navigate({ to: "/" });
+        navigate({ to: getPostAuthPath() });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Connexion réussie");
-        navigate({ to: "/" });
+        navigate({ to: getPostAuthPath() });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
@@ -58,10 +61,10 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: `${window.location.origin}/auth`,
       });
       if (result.error) throw new Error(String(result.error));
-      if (!result.redirected) navigate({ to: "/" });
+      if (!result.redirected) navigate({ to: getPostAuthPath() });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur Google");
       setLoading(false);
