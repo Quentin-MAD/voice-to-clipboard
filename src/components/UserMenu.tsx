@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Mail, User as UserIcon, KeyRound, LayoutDashboard } from "lucide-react";
+import { LogOut, Mail, User as UserIcon, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
