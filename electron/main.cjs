@@ -24,7 +24,7 @@ const logger = require('./logger.cjs');
 // session.clearStorageData() automatically - only the user-triggered
 // "Sign out" tray action / IPC clears it.
 
-const APP_URL = process.env.TALKING_URL || 'https://project--39e650b7-feb8-41f0-a90e-aa5cab35c27a.lovable.app/';
+const APP_URL = process.env.TALKING_URL || 'https://voice-to-clipboard.lovable.app/app';
 const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://voice-to-clipboard.lovable.app/talking-version.json';
 const ICON_PATH = path.join(__dirname, 'tray-icon.png');
 const START_HIDDEN = process.argv.includes('--hidden');
