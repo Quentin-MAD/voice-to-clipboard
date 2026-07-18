@@ -656,12 +656,13 @@ function Home() {
         {/* Desktop app download - shown on all devices so you can grab the file from phone too */}
         {!isElectron && (
           <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Desktop app (Windows) - global hotkey</h2>
+            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Application Windows - raccourci global</h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              Standalone Windows app. Runs in the system tray, registers your hotkey globally so recording
-              works while you're in a fullscreen game, and copies the translation to your clipboard
-              automatically. The installer creates Desktop + Start Menu shortcuts and can launch TalKing hidden with Windows.
-              {isMobile && " Download now and transfer to your PC later."}
+              Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
+              globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
+              automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
+              et peut lancer TalKing masqué avec Windows.
+              {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
             </p>
             <div className="flex flex-wrap gap-2">
               <a
@@ -669,19 +670,19 @@ function Home() {
                 download="TalKing-Setup-0.9.4.exe"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                ⬇ Download installer v0.9.1 (.exe, 118 MB)
+                ⬇ Télécharger l'installeur v0.9.4 (.exe, 118 Mo)
               </a>
               <a
                 href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
                 download="TalKing-win32-x64.zip"
                 className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-                title="Portable ZIP - no install, just unzip and run"
+                title="ZIP portable - pas d'installation, décompresser et lancer"
               >
-                Portable ZIP (148 MB)
+                ZIP portable (148 Mo)
               </a>
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Windows SmartScreen may warn on first run (app not code-signed). Click <em>More info</em> → <em>Run anyway</em>.
+              Windows SmartScreen peut avertir au premier lancement (app non signée). Cliquez sur <em>Informations complémentaires</em> → <em>Exécuter quand même</em>.
             </p>
           </div>
         )}
