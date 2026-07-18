@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { user, loading } = useAuth();
+  return (
+
 
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
