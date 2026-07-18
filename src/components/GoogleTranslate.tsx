@@ -22,7 +22,6 @@ export function GoogleTranslate() {
           pageLanguage: "fr",
           includedLanguages: "en,es,de,it,pt,nl,pl,ru,ja,zh-CN,ar,ko,tr,fr",
           autoDisplay: false,
-          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
         },
         "google_translate_element"
       );
