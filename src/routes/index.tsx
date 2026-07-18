@@ -39,16 +39,18 @@ function LandingPage() {
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
               Tarifs
             </Link>
-            <Link to="/app" className="text-muted-foreground hover:text-foreground">
-              App
-            </Link>
-            <Link
-              to="/auth"
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Connexion
-            </Link>
+            {loading ? null : user ? (
+              <UserMenu />
+            ) : (
+              <Link
+                to="/auth"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Connexion
+              </Link>
+            )}
           </nav>
+
         </div>
       </header>
 
