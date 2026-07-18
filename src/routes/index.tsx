@@ -46,6 +46,7 @@ function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="text-xl font-bold">TalKing</div>
           <nav className="flex items-center gap-4 text-sm">
+            <GoogleTranslate />
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
               Tarifs
             </Link>
