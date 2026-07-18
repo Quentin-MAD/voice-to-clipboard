@@ -47,7 +47,7 @@ function LandingPage() {
           <div className="text-xl font-bold">TalKing</div>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
+            <Link to="/pricing" className="rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground">
               Tarifs
             </Link>
             {loading ? null : user ? (
