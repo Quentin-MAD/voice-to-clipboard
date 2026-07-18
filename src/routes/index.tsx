@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HardDrive, Mic, Globe, Zap } from "lucide-react";
 import { Footer } from "@/components/Footer";
+import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/hooks/use-auth";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
