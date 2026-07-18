@@ -194,6 +194,11 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
     "[TalKing] Support",
   )}`;
 
+  const handleOpenMail = () => {
+    window.location.href = supportHref;
+    setTimeout(onClose, 150);
+  };
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
@@ -207,13 +212,12 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
         <p className="mt-2 text-sm text-muted-foreground">
           Une question ou un problème ?
         </p>
-        <a
-          href={supportHref}
-          onClick={() => setTimeout(onClose, 100)}
+        <button
+          onClick={handleOpenMail}
           className="mt-4 inline-block rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           {email}
-        </a>
+        </button>
         <p className="mt-3 text-xs text-muted-foreground">
           Cliquez sur l'adresse pour ouvrir votre messagerie.
         </p>
