@@ -1,5 +1,5 @@
 {
   "version": "0.9.4",
-  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/83c73fb9-c5aa-4b92-87fc-1e43b3d11e8b/TalKing-Setup-0.9.4.exe",
+  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe",
   "notes": "v0.9.4 - Version correctement embarquée dans le binaire (fin des faux prompts de mise à jour) et l'installeur écrase désormais l'ancienne version automatiquement (kill du process TalKing avant copie)."
 }

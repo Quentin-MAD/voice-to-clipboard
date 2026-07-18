@@ -53,7 +53,7 @@ function BrowserBlocked() {
           TalKing ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/83c73fb9-c5aa-4b92-87fc-1e43b3d11e8b/TalKing-Setup-0.9.4.exe"
+          href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
           download="TalKing-Setup-0.9.4.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
@@ -665,7 +665,7 @@ function Home() {
             </p>
             <div className="flex flex-wrap gap-2">
               <a
-                href="/__l5e/assets-v1/83c73fb9-c5aa-4b92-87fc-1e43b3d11e8b/TalKing-Setup-0.9.4.exe"
+                href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
                 download="TalKing-Setup-0.9.4.exe"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >

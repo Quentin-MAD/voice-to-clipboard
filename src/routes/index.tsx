@@ -82,7 +82,7 @@ function LandingPage() {
             Essayer gratuitement
           </Link>
           <a
-            href="/__l5e/assets-v1/83c73fb9-c5aa-4b92-87fc-1e43b3d11e8b/TalKing-Setup-0.9.4.exe"
+            href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
             download="TalKing-Setup-0.9.4.exe"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
           >
@@ -160,7 +160,7 @@ function LandingPage() {
             L'application fonctionne en arrière-plan et reste active même quand vous jouez.
           </p>
           <a
-            href="/__l5e/assets-v1/83c73fb9-c5aa-4b92-87fc-1e43b3d11e8b/TalKing-Setup-0.9.4.exe"
+            href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
             download="TalKing-Setup-0.9.4.exe"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
