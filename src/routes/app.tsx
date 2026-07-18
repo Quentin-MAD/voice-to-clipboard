@@ -27,8 +27,48 @@ export const Route = createFileRoute("/app")({
       },
     ],
   }),
-  component: Home,
+  component: AppGate,
 });
+
+function AppGate() {
+  const [checked, setChecked] = useState(false);
+  const [isElectron, setIsElectron] = useState(false);
+  useEffect(() => {
+    setIsElectron(typeof window !== "undefined" && !!window.voxElectron?.isElectron);
+    setChecked(true);
+  }, []);
+  if (!checked) return null;
+  if (!isElectron) return <BrowserBlocked />;
+  return <Home />;
+}
+
+function BrowserBlocked() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-24 text-center">
+        <HardDrive className="h-12 w-12 text-primary" />
+        <h1 className="text-2xl font-bold">TalKing s'utilise uniquement via l'application</h1>
+        <p className="text-sm text-muted-foreground">
+          Pour des raisons techniques (raccourcis clavier globaux et presse-papiers en arrière-plan),
+          TalKing ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
+        </p>
+        <a
+          href="/__l5e/assets-v1/cfec90e2-2c8b-4790-b3b6-41883f3bc2bd/TalKing-Setup-0.9.2.exe"
+          download="TalKing-Setup-0.9.2.exe"
+          className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          <HardDrive className="h-5 w-5" />
+          Télécharger pour Windows
+        </a>
+        <Link to="/" className="text-xs text-muted-foreground hover:underline">
+          ← Retour à l'accueil
+        </Link>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+
 
 type Status = "idle" | "recording" | "processing" | "copied" | "error";
 
