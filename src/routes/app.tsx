@@ -612,13 +612,13 @@ function Home() {
         {/* Language selectors */}
         <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">From</label>
+            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Depuis</label>
             <select
               value={source}
               onChange={(e) => setSource(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             >
-              <option value="auto">Auto-detect</option>
+              <option value="auto">Détection auto</option>
               {LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.label}
@@ -630,14 +630,14 @@ function Home() {
             <button
               onClick={swap}
               disabled={source === "auto"}
-              title="Swap languages"
+              title="Inverser les langues"
               className="rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-40"
             >
               ⇄
             </button>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">To</label>
+            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Vers</label>
             <select
               value={target}
               onChange={(e) => setTarget(e.target.value)}
