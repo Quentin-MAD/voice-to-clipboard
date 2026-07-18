@@ -156,7 +156,24 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .goog-text-highlight { background: none !important; box-shadow: none !important; }
 
 
-.gtranslate-wrapper { display: inline-flex; align-items: center; }
+.gtranslate-select {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+  padding: 4px 24px 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-size: 13px;
+  line-height: 1.2;
+  height: auto;
+  max-width: 116px;
+  cursor: pointer;
+  appearance: auto;
+}
+.gtranslate-wrapper { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
 .gtranslate-wrapper .goog-te-gadget {
   font-size: 0 !important;
   color: transparent !important;
