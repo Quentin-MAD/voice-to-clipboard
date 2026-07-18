@@ -489,7 +489,7 @@ function Home() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Push-to-talk voice translator. Record → transcribe → translate → clipboard.
+              Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -497,16 +497,16 @@ function Home() {
               <button
                 onClick={() => window.voxElectron?.hideWindow()}
                 className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
-                title="Hide to system tray (keeps hotkey active)"
+                title="Réduire dans la zone de notification (le raccourci reste actif)"
               >
-                Hide to tray
+                Réduire dans la barre
               </button>
             )}
             <button
               onClick={() => setSettingsOpen(true)}
               className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
-              aria-label="Settings"
-              title="Settings"
+              aria-label="Paramètres"
+              title="Paramètres"
             >
               ⚙️
             </button>
