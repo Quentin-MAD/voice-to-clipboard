@@ -323,7 +323,7 @@ function Home() {
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Translation failed");
+      setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
     }
   }, [source, target, navigate, statusQuery]);
