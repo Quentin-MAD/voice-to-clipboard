@@ -122,6 +122,7 @@ type PersistedSettings = {
   target: string;
   toggleKey: string;
   readKey: string;
+  readLang?: string;
 };
 
 function loadSettings(): PersistedSettings | null {
@@ -138,6 +139,7 @@ function loadSettings(): PersistedSettings | null {
         target: old.target ?? "en",
         toggleKey: old.toggleKey ?? "F8",
         readKey: "F9",
+        readLang: "fr",
       };
     }
     // Migrate v1
@@ -149,6 +151,7 @@ function loadSettings(): PersistedSettings | null {
         target: old.target ?? "en",
         toggleKey: old.startKey ?? "F8",
         readKey: "F9",
+        readLang: "fr",
       };
     }
     return null;
@@ -157,6 +160,7 @@ function loadSettings(): PersistedSettings | null {
   }
 }
 
+
 function Home() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -164,6 +168,8 @@ function Home() {
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
   const [readKey, setReadKey] = useState<string>("F9");
+  const [readLang, setReadLang] = useState<string>("fr");
+
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
@@ -250,13 +256,15 @@ function Home() {
       setTarget(s.target ?? "en");
       setToggleKey(s.toggleKey ?? "F8");
       setReadKey(s.readKey ?? "F9");
+      setReadLang(s.readLang ?? "fr");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey }));
-  }, [source, target, toggleKey, readKey, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey, readLang }));
+  }, [source, target, toggleKey, readKey, readLang, hydrated]);
+
 
 
   const stopRecording = useCallback(async () => {
@@ -507,7 +515,8 @@ function Home() {
       form.append("audio", wav, "recording.wav");
       form.append("audioFormat", "wav");
       form.append("screenshot", screenshotBlob, "screen.png");
-      form.append("targetLang", target);
+      form.append("targetLang", readLang);
+
 
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
@@ -1206,9 +1215,24 @@ function Home() {
                       </button>
                     </div>
                     <p className="native-field-help">
-                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans votre langue cible.
+                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans la langue choisie ci-dessous.
                     </p>
                   </div>
+
+                  <div className="native-field">
+                    <span className="native-label">Langue de réponse (lecture vocale)</span>
+                    <select
+                      value={readLang}
+                      onChange={(e) => setReadLang(e.target.value)}
+                      style={{ width: "100%", height: 36, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
+                    >
+                      {LANGUAGES.map((l) => (
+                        <option key={l.code} value={l.code}>{l.label}</option>
+                      ))}
+                    </select>
+                    <p className="native-field-help">Langue dans laquelle l'IA vous lira le message traduit.</p>
+                  </div>
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
@@ -1281,6 +1305,20 @@ function Home() {
                     Disponible uniquement dans l'app Windows (capture d'écran requise).
                   </p>
                 </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Langue de réponse (lecture vocale)</label>
+                  <select
+                    value={readLang}
+                    onChange={(e) => setReadLang(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    {LANGUAGES.map((l) => (
+                      <option key={l.code} value={l.code}>{l.label}</option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
+                </div>
+
                 <button
                   onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                   className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
