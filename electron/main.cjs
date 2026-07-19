@@ -75,8 +75,9 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop'); } catch {} }
 
 function createWindow() {
+  const WINDOW_TITLE = `TalKing\u00AE, v${CURRENT_VERSION}`;
   mainWindow = new BrowserWindow({
-    width: 980, height: 720, minWidth: 820, minHeight: 560, title: 'TalKing', icon: ICON_PATH,
+    width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: ICON_PATH,
     backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -84,10 +85,14 @@ function createWindow() {
     },
   });
   mainWindow.setMenuBarVisibility(false);
+  // Prevent the renderer's <title> from overriding our custom window title
+  mainWindow.on('page-title-updated', (e) => { e.preventDefault(); });
+  mainWindow.setTitle(WINDOW_TITLE);
   mainWindow.loadURL(APP_URL);
 
   // Avoid the white flash: only show the window once the renderer has content ready.
   mainWindow.once('ready-to-show', () => {
+    mainWindow.setTitle(WINDOW_TITLE);
     if (!START_HIDDEN) mainWindow.show();
   });
 
@@ -97,10 +102,12 @@ function createWindow() {
   mainWindow.on('minimize', (e) => { e.preventDefault(); mainWindow.hide(); notifyOnce(); });
 
   mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.setTitle(WINDOW_TITLE);
     mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk });
   });
   logger.attachRenderer(mainWindow.webContents);
 }
+
 
 
 function createOverlay() {
