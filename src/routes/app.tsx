@@ -609,19 +609,29 @@ function Home() {
       toast.error("🛑 Limite quotidienne atteinte.");
       return;
     }
-    // Read-message needs 2 credits
+    // Read-message needs 1 voice credit (subscribers exempt from credit cost)
     if (!userStatus?.subscribed) {
-      const available = (userStatus?.free_remaining ?? 0) + (userStatus?.purchased_balance ?? 0);
-      if (available < 2) {
-        toast.error("Il vous faut 2 crédits pour une lecture de message.", {
+      if ((userStatus?.voice_balance ?? 0) < 1) {
+        toast.error("Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €).", {
           duration: 7000,
           action: {
-            label: "Voir les plans",
+            label: "Acheter",
             onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
           },
         });
         return;
       }
+    }
+    // Voice daily cap (5 free / 10 with credits or sub)
+    if ((userStatus?.voice_daily_used ?? 0) >= (userStatus?.voice_daily_limit ?? 5)) {
+      toast.error(`🔊 Limite quotidienne atteinte (${userStatus?.voice_daily_limit ?? 5} lectures/jour).`, {
+        duration: 7000,
+        action: {
+          label: "Voir les plans",
+          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+        },
+      });
+      return;
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
