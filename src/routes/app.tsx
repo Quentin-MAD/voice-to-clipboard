@@ -14,7 +14,7 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "TalKing®, v0.9.5" },
+      { title: "TalKing®, v0.9.6" },
       {
         name: "description",
         content:
