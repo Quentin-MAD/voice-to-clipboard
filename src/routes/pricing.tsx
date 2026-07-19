@@ -57,12 +57,13 @@ function PricingPage() {
           1 crédit = 1 traduction. Anti-spam : max 150 traductions/jour pour tout le monde.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold">Gratuit</h2>
             <div className="my-3 text-3xl font-bold">0 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ 20 traductions/mois</li>
+              <li>✓ 20 traductions texte/mois</li>
+              <li>✓ 5 lectures vocales/jour</li>
               <li>✓ Toutes les langues</li>
               <li>✓ App Windows incluse</li>
             </ul>
