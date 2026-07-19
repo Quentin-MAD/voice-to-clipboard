@@ -244,6 +244,9 @@ export type Database = {
       get_user_status: {
         Args: { _user_id: string }
         Returns: {
+          daily_limit: number
+          daily_reset_at: string
+          daily_used: number
           free_remaining: number
           hourly_limit: number
           hourly_used: number
