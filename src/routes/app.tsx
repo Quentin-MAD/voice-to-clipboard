@@ -168,6 +168,8 @@ function Home() {
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
   const [readKey, setReadKey] = useState<string>("F9");
+  const [readLang, setReadLang] = useState<string>("fr");
+
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
