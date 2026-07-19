@@ -155,13 +155,10 @@ function AuthPage() {
                 {mode === "signup" && (
                   <ul className="native-auth-pwd-req">
                     <li className={pwdChecks.length ? "ok" : ""}>
-                      {pwdChecks.length ? "✓" : "○"} Au moins 8 caractères
+                      {pwdChecks.length ? "✓" : "○"} Au moins 6 caractères
                     </li>
                     <li className={pwdChecks.letter ? "ok" : ""}>
                       {pwdChecks.letter ? "✓" : "○"} Au moins 1 lettre (a-z)
-                    </li>
-                    <li className={pwdChecks.digit ? "ok" : ""}>
-                      {pwdChecks.digit ? "✓" : "○"} Au moins 1 chiffre (0-9)
                     </li>
                   </ul>
                 )}
