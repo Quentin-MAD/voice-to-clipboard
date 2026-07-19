@@ -452,18 +452,19 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   border-color: transparent;
 }
 
-/* Primary + record — cyan */
+/* Primary + record — Discord blurple */
 .native-app .native-btn-primary,
 .native-app .bg-primary {
-  background: linear-gradient(180deg, #2ee6ff, #0fb6d0) !important;
-  border: 1px solid #0aa2b8 !important;
-  color: var(--nx-accent-ink) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 6px 22px -10px var(--nx-accent-glow) !important;
+  background: var(--nx-accent) !important;
+  border: 1px solid var(--nx-accent) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
 }
 .native-app .native-btn-primary:hover:not(:disabled),
 .native-app .bg-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #56edff, #26c6df) !important;
+  background: #4752c4 !important;
+  border-color: #4752c4 !important;
 }
 
 /* Record hero */
@@ -481,35 +482,34 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   padding: 16px 28px !important;
   min-height: 56px;
   border-radius: 999px !important;
-  border: 1px solid #0aa2b8 !important;
-  background: linear-gradient(180deg, #2ee6ff, #0fb6d0) !important;
-  color: var(--nx-accent-ink) !important;
-  font-weight: 700 !important;
-  font-size: 14px !important;
-  letter-spacing: -0.005em;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.06) inset,
-    0 12px 40px -12px var(--nx-accent-glow),
-    0 0 0 6px rgba(34, 211, 238, 0.06) !important;
+  border: none !important;
+  background: var(--nx-accent) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  box-shadow: 0 4px 16px -4px var(--nx-accent-glow) !important;
   animation: none !important;
 }
 .native-app .native-record:hover:not(:disabled) {
-  background: linear-gradient(180deg, #56edff, #26c6df) !important;
+  background: #4752c4 !important;
 }
 .native-app .native-record.is-recording {
-  background: linear-gradient(180deg, #ff5c78, #d81b47) !important;
-  border-color: #a01636 !important;
+  background: var(--nx-danger) !important;
   color: #fff !important;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.15) inset,
-    0 12px 40px -12px rgba(255,92,120,0.55),
-    0 0 0 6px rgba(255,92,120,0.10) !important;
+  box-shadow: 0 4px 16px -4px rgba(242, 63, 66, 0.5) !important;
   animation: nx-pulse 1.6s ease-out infinite !important;
 }
 @keyframes nx-pulse {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset, 0 12px 40px -12px rgba(255,92,120,.55), 0 0 0 0 rgba(255,92,120,.35); }
-  50%      { box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset, 0 12px 40px -12px rgba(255,92,120,.55), 0 0 0 14px rgba(255,92,120,0);    }
+  0%, 100% { box-shadow: 0 4px 16px -4px rgba(242,63,66,.5), 0 0 0 0 rgba(242,63,66,.35); }
+  50%      { box-shadow: 0 4px 16px -4px rgba(242,63,66,.5), 0 0 0 14px rgba(242,63,66,0); }
 }
+.native-app .native-hero-hint {
+  font-size: 13px;
+  color: var(--nx-text-dim);
+  max-width: 460px;
+  line-height: 1.55;
+}
+
 .native-app .native-hero-hint {
   font-size: 12px;
   color: var(--nx-text-dim);
