@@ -446,6 +446,195 @@ function Home() {
     else void startRecording();
   }, [startRecording, stopRecording]);
 
+  // Read-message flow refs / state
+  const readAudioCtxRef = useRef<AudioContext | null>(null);
+  const readStreamRef = useRef<MediaStream | null>(null);
+  const readProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const readSourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const readChunksRef = useRef<Float32Array[]>([]);
+  const readRecordingRef = useRef(false);
+  const readStartRef = useRef(0);
+  const [readActive, setReadActive] = useState(false);
+  const [readProcessing, setReadProcessing] = useState(false);
+  const readAudioPlayerRef = useRef<HTMLAudioElement | null>(null);
+
+  const stopReadRecording = useCallback(async () => {
+    if (!readRecordingRef.current) return;
+    readRecordingRef.current = false;
+    setReadActive(false);
+    if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+      void window.voxElectron.setRecordingState(false);
+    }
+    const duration = Date.now() - readStartRef.current;
+    readProcessorRef.current?.disconnect();
+    readSourceNodeRef.current?.disconnect();
+    readStreamRef.current?.getTracks().forEach((t) => t.stop());
+    const ctx = readAudioCtxRef.current;
+    const sampleRate = ctx?.sampleRate ?? 48000;
+    const chunks = readChunksRef.current;
+    readChunksRef.current = [];
+    readProcessorRef.current = null;
+    readSourceNodeRef.current = null;
+    readStreamRef.current = null;
+    if (ctx) await ctx.close().catch(() => {});
+    readAudioCtxRef.current = null;
+
+    if (duration < 400 || chunks.length === 0) {
+      toast.error("Enregistrement trop court");
+      return;
+    }
+    if (typeof window === "undefined" || !window.voxElectron?.captureScreen) {
+      toast.error("Fonction disponible uniquement dans l'application Windows");
+      return;
+    }
+
+    setReadProcessing(true);
+    stopProcessingSoundRef.current?.();
+    stopProcessingSoundRef.current = playProcessingLoop();
+    try {
+      // 1. Capture screenshot NOW (after speaking, chat is still visible)
+      const shot = await window.voxElectron.captureScreen();
+      if (!shot?.ok || !shot.dataBase64) {
+        throw new Error(shot?.error ?? "Capture d'écran impossible");
+      }
+      const screenshotBlob = await (await fetch(`data:${shot.mime ?? "image/png"};base64,${shot.dataBase64}`)).blob();
+
+      // 2. Encode audio to WAV
+      const wav = encodeWav(chunks, sampleRate, 16000);
+
+      const form = new FormData();
+      form.append("audio", wav, "recording.wav");
+      form.append("audioFormat", "wav");
+      form.append("screenshot", screenshotBlob, "screen.png");
+      form.append("targetLang", target);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Vous devez être connecté");
+        navigate({ to: "/auth" });
+        return;
+      }
+
+      const res = await fetch("/api/read-message", {
+        method: "POST",
+        body: form,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = (await res.json()) as {
+        pseudo?: string;
+        original?: string;
+        translation?: string;
+        audio?: string;
+        audioFormat?: string;
+        error?: string;
+        code?: string;
+      };
+      if (!res.ok || !json.translation || !json.audio) {
+        statusQuery.refetch();
+        if (json.code === "daily_limit") {
+          toast.error("🛑 Limite quotidienne atteinte (150 / 24h).", { duration: 6000 });
+        } else if (json.code === "no_credits") {
+          toast.error(json.error ?? "Il vous faut 2 crédits pour une lecture.", {
+            duration: 7000,
+            action: {
+              label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
+        } else if (json.code === "not_found") {
+          toast.error(json.error ?? "Message introuvable.", { duration: 5000 });
+        } else if (json.code === "unauthorized") {
+          toast.error("Session expirée");
+          navigate({ to: "/auth" });
+        } else {
+          toast.error(json.error ?? "Échec de la lecture");
+        }
+        throw new Error(json.error ?? `Request failed (${res.status})`);
+      }
+
+      // 3. Play the returned audio (MP3)
+      setReadResult({ pseudo: json.pseudo, original: json.original, translation: json.translation });
+      const audioUrl = `data:audio/${json.audioFormat ?? "mp3"};base64,${json.audio}`;
+      try { readAudioPlayerRef.current?.pause(); } catch { /* ignore */ }
+      const audio = new Audio(audioUrl);
+      audio.volume = 1;
+      readAudioPlayerRef.current = audio;
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      setTimeout(() => playSuccessChime(), 30);
+      await audio.play().catch(() => {
+        toast.info("Cliquez dans la fenêtre pour autoriser la lecture audio.");
+      });
+      statusQuery.refetch();
+    } catch (err) {
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      const msg = err instanceof Error ? err.message : "Erreur inconnue";
+      console.error("read-message flow failed:", msg);
+    } finally {
+      setReadProcessing(false);
+    }
+  }, [target, navigate, statusQuery]);
+
+  const startReadRecording = useCallback(async () => {
+    if (readRecordingRef.current || recordingRef.current) return;
+    if (typeof window === "undefined" || !window.voxElectron?.captureScreen) {
+      toast.error("Fonction disponible uniquement dans l'application Windows.");
+      return;
+    }
+    if (dailyLimitReached) {
+      toast.error("🛑 Limite quotidienne atteinte.");
+      return;
+    }
+    // Read-message needs 2 credits
+    if (!userStatus?.subscribed) {
+      const available = (userStatus?.free_remaining ?? 0) + (userStatus?.purchased_balance ?? 0);
+      if (available < 2) {
+        toast.error("Il vous faut 2 crédits pour une lecture de message.", {
+          duration: 7000,
+          action: {
+            label: "Voir les plans",
+            onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+          },
+        });
+        return;
+      }
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      const ctx = new AudioContext();
+      const src = ctx.createMediaStreamSource(stream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      readChunksRef.current = [];
+      processor.onaudioprocess = (e) => {
+        if (!readRecordingRef.current) return;
+        readChunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+      };
+      src.connect(processor);
+      processor.connect(ctx.destination);
+      readAudioCtxRef.current = ctx;
+      readStreamRef.current = stream;
+      readSourceNodeRef.current = src;
+      readProcessorRef.current = processor;
+      readRecordingRef.current = true;
+      readStartRef.current = Date.now();
+      setReadActive(true);
+      if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+        void window.voxElectron.setRecordingState(true);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
+    }
+  }, [dailyLimitReached, userStatus]);
+
+  const toggleReadRecording = useCallback(() => {
+    if (readRecordingRef.current) void stopReadRecording();
+    else void startReadRecording();
+  }, [startReadRecording, stopReadRecording]);
+
   // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -454,8 +643,9 @@ function Home() {
         e.preventDefault();
         const key = normalizeKey(e);
         if (key) {
-          setToggleKey(key);
-          setCapturing(false);
+          if (capturing === "toggle") setToggleKey(key);
+          else if (capturing === "read") setReadKey(key);
+          setCapturing(null);
         }
         return;
       }
@@ -470,6 +660,9 @@ function Home() {
       if (key === toggleKey) {
         e.preventDefault();
         toggleRecording();
+      } else if (key === readKey) {
+        e.preventDefault();
+        toggleReadRecording();
       }
     };
     window.addEventListener("keydown", onKeyDown);
