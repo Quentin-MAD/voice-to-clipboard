@@ -44,7 +44,7 @@ function LandingPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="text-xl font-bold">TalKing<sup className="ml-0.5 text-[10px] align-super">®</sup></div>
+          <div className="text-xl font-bold">TalKing<sup className="ml-0.5 text-sm align-super">®</sup></div>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
             <Link to="/pricing" className="rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground">

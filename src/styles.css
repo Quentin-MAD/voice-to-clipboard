@@ -295,11 +295,11 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 }
 .native-app .native-menubar .native-title b { color: var(--nx-text); font-weight: 700; }
 .native-app .native-trademark {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--nx-text-mute);
   vertical-align: super;
-  margin-left: 1px;
+  margin-left: 2px;
   line-height: 1;
 }
 .native-app .native-credits-pill {
