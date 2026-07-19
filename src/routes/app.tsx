@@ -264,13 +264,44 @@ function Home() {
       setToggleKey(s.toggleKey ?? "F8");
       setReadKey(s.readKey ?? "F9");
       setReadLang(s.readLang ?? "fr");
+      setMicDeviceId(s.micDeviceId ?? "");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey, readLang }));
-  }, [source, target, toggleKey, readKey, readLang, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey, readLang, micDeviceId }));
+  }, [source, target, toggleKey, readKey, readLang, micDeviceId, hydrated]);
+
+  // Enumerate microphones
+  const refreshMicDevices = useCallback(async () => {
+    try {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      const mics = devices.filter((d) => d.kind === "audioinput");
+      // If labels are empty, we need permission first
+      if (mics.length > 0 && mics.every((d) => !d.label)) {
+        try {
+          const tmp = await navigator.mediaDevices.getUserMedia({ audio: true });
+          tmp.getTracks().forEach((t) => t.stop());
+          devices = await navigator.mediaDevices.enumerateDevices();
+        } catch {
+          /* ignore */
+        }
+      }
+      setMicDevices(devices.filter((d) => d.kind === "audioinput"));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshMicDevices();
+    if (typeof navigator === "undefined" || !navigator.mediaDevices) return;
+    const handler = () => void refreshMicDevices();
+    navigator.mediaDevices.addEventListener?.("devicechange", handler);
+    return () => navigator.mediaDevices.removeEventListener?.("devicechange", handler);
+  }, [refreshMicDevices]);
 
 
 
