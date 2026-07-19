@@ -249,13 +249,14 @@ function Home() {
       setSource(s.source ?? "auto");
       setTarget(s.target ?? "en");
       setToggleKey(s.toggleKey ?? "F8");
+      setReadKey(s.readKey ?? "F9");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey }));
-  }, [source, target, toggleKey, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey }));
+  }, [source, target, toggleKey, readKey, hydrated]);
 
 
   const stopRecording = useCallback(async () => {
