@@ -35,7 +35,9 @@ let mainWindow = null;
 let overlayWindow = null;
 let tray = null;
 let toggleAccel = 'F8';
+let readAccel = 'F9';
 let hotkeyOk = true;
+let readHotkeyOk = true;
 let isRecording = false;
 let powerBlockerId = null;
 
@@ -47,13 +49,14 @@ function loadSettings() {
     if (fs.existsSync(SETTINGS_PATH)) {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
       if (raw && typeof raw.toggleAccel === 'string') toggleAccel = raw.toggleAccel;
+      if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
     }
   } catch (e) { console.error('loadSettings failed', e); }
 }
 function saveSettings() {
   try {
     if (!SETTINGS_PATH) return;
-    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel }, null, 2));
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel, readAccel }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
 
