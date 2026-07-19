@@ -174,6 +174,8 @@ function Home() {
   const [toggleKey, setToggleKey] = useState<string>("F8");
   const [readKey, setReadKey] = useState<string>("F9");
   const [readLang, setReadLang] = useState<string>("fr");
+  const [micDeviceId, setMicDeviceId] = useState<string>("");
+  const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
