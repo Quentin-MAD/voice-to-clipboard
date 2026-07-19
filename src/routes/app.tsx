@@ -548,11 +548,19 @@ function Home() {
         statusQuery.refetch();
         if (json.code === "daily_limit") {
           toast.error("🛑 Limite quotidienne atteinte (150 / 24h).", { duration: 6000 });
-        } else if (json.code === "no_credits") {
-          toast.error(json.error ?? "Il vous faut 2 crédits pour une lecture.", {
+        } else if (json.code === "voice_daily_limit") {
+          toast.error(json.error ?? "🔊 Limite quotidienne de lectures vocales atteinte.", {
             duration: 7000,
             action: {
               label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
+        } else if (json.code === "no_voice_credits" || json.code === "no_credits") {
+          toast.error(json.error ?? "Vous n'avez plus de crédits vocaux.", {
+            duration: 7000,
+            action: {
+              label: "Acheter des crédits Vocale",
               onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
             },
           });
