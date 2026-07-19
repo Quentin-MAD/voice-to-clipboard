@@ -319,8 +319,8 @@ function Stat({ label, value, sub }: { label: string; value: string | number; su
   );
 }
 
-const EUR = (n: number) =>
-  n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
+const EUR = (n: number | null | undefined) =>
+  (Number(n) || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
 
 function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
   const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" }> = [
