@@ -319,6 +319,71 @@ function Stat({ label, value, sub }: { label: string; value: string | number; su
   );
 }
 
+const EUR = (n: number) =>
+  n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
+
+function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
+  const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" }> = [
+    { label: "Jour", key: "day" },
+    { label: "Semaine", key: "week" },
+    { label: "Mois", key: "month" },
+    { label: "Année", key: "year" },
+  ];
+  const fmtRatio = (r: number) =>
+    !isFinite(r) ? "∞" : r === 0 ? "—" : `${r.toFixed(2)}×`;
+  const fmtMargin = (m: number) => `${m.toFixed(1)}%`;
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Finances (EUR)</h2>
+        <div className="text-xs text-muted-foreground">
+          Abo. payants actifs : {finance.assumptions.active_paying_subs} · Base :{" "}
+          {EUR(finance.assumptions.sub_price_eur_year)}/an, 50 crédits ={" "}
+          {EUR(finance.assumptions.eur_per_purchased_credit * 50)}
+        </div>
+      </div>
+      <div className="overflow-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-left">
+              <th className="p-2">Période</th>
+              <th className="p-2">Coût IA</th>
+              <th className="p-2">Revenus</th>
+              <th className="p-2">Bénéfice</th>
+              <th className="p-2">Ratio R/C</th>
+              <th className="p-2">Marge</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const cost = finance.cost[r.key];
+              const rev = finance.revenue[r.key];
+              const prof = finance.profit[r.key];
+              return (
+                <tr key={r.key} className="border-b">
+                  <td className="p-2 font-medium">{r.label}</td>
+                  <td className="p-2 text-red-500">{EUR(cost)}</td>
+                  <td className="p-2 text-green-500">{EUR(rev)}</td>
+                  <td className={`p-2 font-semibold ${prof >= 0 ? "text-green-500" : "text-red-500"}`}>
+                    {EUR(prof)}
+                  </td>
+                  <td className="p-2">{fmtRatio(finance.ratio[r.key])}</td>
+                  <td className="p-2">{fmtMargin(finance.margin[r.key])}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Estimation. Coût = usage IA (USD → EUR × {finance.assumptions.usd_to_eur}). Revenus = abonnements
+        actifs pro-ratisés + crédits consommés depuis les packs. Ne compte pas les crédits achetés mais non
+        consommés (revenus réels ≥ estimation).
+      </p>
+    </div>
+  );
+}
+
 function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, action: string, amount?: number) => void }) {
   const [open, setOpen] = useState(false);
   return (
