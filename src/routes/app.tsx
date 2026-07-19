@@ -1305,6 +1305,20 @@ function Home() {
                     Disponible uniquement dans l'app Windows (capture d'écran requise).
                   </p>
                 </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Langue de réponse (lecture vocale)</label>
+                  <select
+                    value={readLang}
+                    onChange={(e) => setReadLang(e.target.value)}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    {LANGUAGES.map((l) => (
+                      <option key={l.code} value={l.code}>{l.label}</option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
+                </div>
+
                 <button
                   onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                   className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
