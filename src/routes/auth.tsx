@@ -145,7 +145,7 @@ function AuthPage() {
                   <input
                     type="password"
                     required
-                    minLength={6}
+                    minLength={mode === "signup" ? 8 : 6}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -153,8 +153,21 @@ function AuthPage() {
                     autoComplete={mode === "signin" ? "current-password" : "new-password"}
                   />
                 </label>
+                {mode === "signup" && (
+                  <ul className="native-auth-pwd-req">
+                    <li className={pwdChecks.length ? "ok" : ""}>
+                      {pwdChecks.length ? "✓" : "○"} Au moins 8 caractères
+                    </li>
+                    <li className={pwdChecks.letter ? "ok" : ""}>
+                      {pwdChecks.letter ? "✓" : "○"} Au moins 1 lettre (a-z)
+                    </li>
+                    <li className={pwdChecks.digit ? "ok" : ""}>
+                      {pwdChecks.digit ? "✓" : "○"} Au moins 1 chiffre (0-9)
+                    </li>
+                  </ul>
+                )}
 
-                <button type="submit" disabled={loading} className="native-auth-primary">
+                <button type="submit" disabled={loading || (mode === "signup" && !pwdValid)} className="native-auth-primary">
                   {loading
                     ? "Connexion…"
                     : mode === "signin"
