@@ -174,28 +174,44 @@ function notifyOnce() {
 }
 
 function registerHotkeys() {
-  globalShortcut.unregisterAll();
+  // Prefer the low-level keyboard hook (uiohook-napi): works in DirectInput /
+  // exclusive-fullscreen games (Star Citizen, Valorant, LoL, Fortnite, Apex,
+  // CS2...) where Electron's globalShortcut (RegisterHotKey) is silently
+  // swallowed by the game. Same technique used by Discord/OBS push-to-talk.
+  const useLowLevel = lowLevelHotkeys.isAvailable();
+  try { globalShortcut.unregisterAll(); } catch {}
+  lowLevelHotkeys.unregisterAll();
+
   hotkeyOk = false;
   readHotkeyOk = false;
-  try {
-    hotkeyOk = globalShortcut.register(toggleAccel, () => {
-      if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
-    });
-    if (!hotkeyOk) {
-      notify({
-        title: 'TalKing — hotkey conflict',
-        body: `${toggleAccel} is already used by another app. Click to open TalKing and pick another key.`,
-        urgent: true,
-      });
+
+  const bind = (accel, kind) => {
+    const cb = () => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); };
+    if (useLowLevel) {
+      const ok = lowLevelHotkeys.register(accel, cb);
+      if (ok) return true;
     }
-  } catch (e) { console.error('Failed to register toggle hotkey', e); }
+    // Fallback to Electron globalShortcut if the low-level hook is unavailable
+    // (module load failure) or the accelerator can't be parsed by uiohook.
+    try { return !!globalShortcut.register(accel, cb); } catch { return false; }
+  };
+
+  try { hotkeyOk = bind(toggleAccel, 'toggle'); } catch (e) { console.error('Failed to register toggle hotkey', e); }
+  if (!hotkeyOk) {
+    notify({
+      title: 'TalKing — hotkey conflict',
+      body: `${toggleAccel} is already used by another app. Click to open TalKing and pick another key.`,
+      urgent: true,
+    });
+  }
   try {
     if (readAccel && readAccel !== toggleAccel) {
-      readHotkeyOk = globalShortcut.register(readAccel, () => {
-        if (mainWindow) mainWindow.webContents.send('hotkey', 'read-toggle');
-      });
+      readHotkeyOk = bind(readAccel, 'read-toggle');
     }
   } catch (e) { console.error('Failed to register read hotkey', e); }
+
+  console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk})`);
+
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk });
   }
