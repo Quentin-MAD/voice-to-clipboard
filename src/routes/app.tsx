@@ -499,7 +499,7 @@ function Home() {
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
-                <span className="native-title"><b>TalKing</b><sup className="native-trademark">®</sup></span>
+                <span className="native-title notranslate"><b>TalKing</b><sup className="native-trademark">®</sup></span>
               </div>
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
