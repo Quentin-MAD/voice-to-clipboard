@@ -75,9 +75,27 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
 }
 
 // Pack de crédits (paiement unique) : on écoute transaction.completed
-async function handleTransactionCompleted(data: any) {
+async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   const userId = data.customData?.userId;
   if (!userId) return;
+
+  // Log every real Paddle transaction (subscription renewals + one-off packs)
+  const kind = data.subscriptionId ? "subscription" : "one_time";
+  const totalEur = centsToEur(data.details?.totals?.total ?? data.details?.totals?.grandTotal);
+  await getSupabase().from("payment_transactions").upsert(
+    {
+      user_id: userId,
+      paddle_transaction_id: data.id,
+      paddle_subscription_id: data.subscriptionId ?? null,
+      environment: env,
+      kind,
+      amount_eur: totalEur,
+      currency: data.currencyCode ?? "EUR",
+      raw: data,
+    },
+    { onConflict: "paddle_transaction_id" },
+  );
+
   // Une transaction récurrente est déjà gérée par les events subscription.*
   if (data.subscriptionId) return;
 
@@ -113,7 +131,7 @@ async function handleWebhook(req: Request, env: PaddleEnv) {
       await handleSubscriptionCanceled(event.data, env);
       break;
     case EventName.TransactionCompleted:
-      await handleTransactionCompleted(event.data);
+      await handleTransactionCompleted(event.data, env);
       break;
     default:
       console.log("Unhandled event:", event.eventType);
