@@ -163,16 +163,18 @@ function Home() {
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
+  const [readKey, setReadKey] = useState<string>("F9");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<boolean>(false);
+  const [capturing, setCapturing] = useState<"toggle" | "read" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const [autoStart, setAutoStartState] = useState<boolean>(false);
+  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; translation?: string } | null>(null);
   const isMobile = useIsMobile();
 
 
