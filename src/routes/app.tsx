@@ -14,7 +14,7 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "Application - TalKing" },
+      { title: "TalKing®, v0.9.5" },
       {
         name: "description",
         content:
@@ -493,11 +493,13 @@ function Home() {
               <div className="native-brand-inline">
                 <span className="native-title"><b>TalKing</b><sup className="native-trademark">®</sup></span>
               </div>
-              <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
-                <span className="native-credits-dot" />
-                <span className="native-credits-text">{creditsLabel}</span>
+              <div className="native-menubar-center">
+                <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
+                  <span className="native-credits-dot" />
+                  <span className="native-credits-text">{creditsLabel}</span>
+                </div>
               </div>
-              <div className="ml-auto flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="native-translate-slot">
                   <GoogleTranslate alwaysShow />
                 </div>
@@ -734,22 +736,7 @@ function Home() {
           )}
           </div>
 
-          {/* Statusbar (Electron only) */}
-          {isElectron && (
-            <div className="native-statusbar">
-              <span className={`native-status-dot ${status === "recording" ? "rec" : status === "processing" ? "proc" : ""}`} />
-              <span>{status === "idle" ? "READY" : status.toUpperCase()}</span>
-              <span className="native-status-sep" />
-              <span>{creditsLabel}</span>
-              <span className="native-status-sep" />
-              <span>HOTKEY <kbd>{toggleKey}</kbd></span>
-              <span className="ml-auto flex items-center gap-2">
-                {!userStatus?.subscribed && (
-                  <Link to="/pricing" className="text-[11px] underline">Passer à l'illimité</Link>
-                )}
-              </span>
-            </div>
-          )}
+          {/* Bottom statusbar removed - all info already visible in the header */}
         </div>
       </div>
 
