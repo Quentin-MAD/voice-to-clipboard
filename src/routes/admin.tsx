@@ -329,9 +329,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
     { label: "Mois", key: "month" },
     { label: "Année", key: "year" },
   ];
-  const fmtRatio = (r: number) =>
-    !isFinite(r) ? "∞" : r === 0 ? "—" : `${r.toFixed(2)}×`;
-  const fmtMargin = (m: number) => `${m.toFixed(1)}%`;
+  const fmtRatio = (r: number | null | undefined) => {
+    const v = Number(r);
+    return !isFinite(v) ? "∞" : v === 0 ? "—" : `${v.toFixed(2)}×`;
+  };
+  const fmtMargin = (m: number | null | undefined) => `${(Number(m) || 0).toFixed(1)}%`;
   return (
     <div className="rounded-lg border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
