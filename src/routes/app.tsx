@@ -14,7 +14,7 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "TalKing®, v0.9.6" },
+      { title: "TalKing®, v0.9.7" },
       {
         name: "description",
         content:
@@ -54,8 +54,8 @@ function BrowserBlocked() {
           <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe"
-          download="TalKing-Setup-0.9.6.exe"
+          href="/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe"
+          download="TalKing-Setup-0.9.7.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
@@ -1104,11 +1104,11 @@ function Home() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe"
-                  download="TalKing-Setup-0.9.6.exe"
+                  href="/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe"
+                  download="TalKing-Setup-0.9.7.exe"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v0.9.6 (.exe, 118 Mo)
+                  ⬇ Télécharger l'installeur v0.9.7 (.exe, 118 Mo)
                 </a>
                 <a
                   href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"

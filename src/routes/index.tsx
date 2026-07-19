@@ -84,8 +84,8 @@ function LandingPage() {
             Essayer gratuitement
           </Link>
           <a
-            href="/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe"
-            download="TalKing-Setup-0.9.6.exe"
+            href="/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe"
+            download="TalKing-Setup-0.9.7.exe"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
           >
             <HardDrive className="h-5 w-5" />
@@ -161,12 +161,12 @@ function LandingPage() {
             L'application fonctionne en arrière-plan et reste active même quand vous jouez.
           </p>
           <a
-            href="/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe"
-            download="TalKing-Setup-0.9.6.exe"
+            href="/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe"
+            download="TalKing-Setup-0.9.7.exe"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <HardDrive className="h-5 w-5" />
-            Télécharger <span className="notranslate">TalKing-Setup-0.9.6.exe</span> (114 MB)
+            Télécharger <span className="notranslate">TalKing-Setup-0.9.7.exe</span> (114 MB)
           </a>
         </div>
       </section>
