@@ -76,8 +76,8 @@ if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.des
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900, height: 780, title: 'TalKing', icon: ICON_PATH,
-    backgroundColor: '#0a0a0a', show: !START_HIDDEN,
+    width: 980, height: 720, minWidth: 820, minHeight: 560, title: 'TalKing', icon: ICON_PATH,
+    backgroundColor: '#07090d', show: false, autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true, nodeIntegration: false, backgroundThrottling: false,
@@ -85,6 +85,11 @@ function createWindow() {
   });
   mainWindow.setMenuBarVisibility(false);
   mainWindow.loadURL(APP_URL);
+
+  // Avoid the white flash: only show the window once the renderer has content ready.
+  mainWindow.once('ready-to-show', () => {
+    if (!START_HIDDEN) mainWindow.show();
+  });
 
   mainWindow.on('close', (e) => {
     if (!app.isQuiting) { e.preventDefault(); mainWindow.hide(); notifyOnce(); }
@@ -96,6 +101,7 @@ function createWindow() {
   });
   logger.attachRenderer(mainWindow.webContents);
 }
+
 
 function createOverlay() {
   const display = screen.getPrimaryDisplay();
