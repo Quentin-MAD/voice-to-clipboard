@@ -814,7 +814,7 @@ function Home() {
       <span className="limits-sep" />
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
-          <strong>⭐ Abonné illimité</strong>
+          <strong>⭐ Illimité texte · 🔊 {voiceCount} vocaux</strong>
         ) : (
           <strong>
             ✍️ {userStatus.purchased_balance + userStatus.free_remaining} texte · 🔊 {voiceCount} vocaux
