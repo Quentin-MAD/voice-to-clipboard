@@ -107,32 +107,20 @@ export const Route = createFileRoute("/api/admin")({
           year: costEurWindow(365),
         };
 
-        // === Revenus EUR ===
-        // Exclut les abonnements offerts par admin (environment='admin')
-        const activeSubs = (subs.data ?? []).filter(
-          (s: any) =>
-            s.status === "active" &&
-            (s.environment === "sandbox" || s.environment === "live") &&
-            (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
-        );
-        const dailySubRevenue = activeSubs.length * (SUB_PRICE_EUR / 365);
-
-        const purchasedInWindow = (days: number) =>
-          (tl.data ?? []).filter(
-            (r) => r.source_type === "purchased_credit" && inWindow(r.created_at, days),
-          ).length;
-        const voiceInWindow = (days: number) =>
-          (tl.data ?? []).filter(
-            (r) => r.source_type === "voice_purchased" && inWindow(r.created_at, days),
-          ).length;
-        const packRev = (days: number) =>
-          purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT + voiceInWindow(days) * EUR_PER_VOICE_CREDIT;
+        // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
+        // Les abonnements/crédits offerts par l'admin (environment='admin') ne comptent pas.
+        // Sandbox exclu du revenu réel : seul 'live' compte comme vente.
+        const realTx = (tx.data ?? []).filter((t: any) => t.environment === "live");
+        const revenueInWindow = (days: number) =>
+          realTx
+            .filter((t: any) => inWindow(t.created_at, days))
+            .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
 
         const revenue = {
-          day: dailySubRevenue + packRev(1),
-          week: dailySubRevenue * 7 + packRev(7),
-          month: dailySubRevenue * 30 + packRev(30),
-          year: dailySubRevenue * 365 + packRev(365),
+          day: revenueInWindow(1),
+          week: revenueInWindow(7),
+          month: revenueInWindow(30),
+          year: revenueInWindow(365),
         };
 
         const profit = {
