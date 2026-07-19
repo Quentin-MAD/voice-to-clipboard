@@ -113,42 +113,30 @@ export function playProcessingLoop(): () => void {
 }
 
 /**
- * Success / validation chime: three-note ascending arpeggio.
- * Louder and longer than a single blip so it is clearly audible even after
- * the processing loop is torn down or when another app is playing sound.
+ * Soft "success / validation" chime: two-note ascending arpeggio.
  */
 export function playSuccessChime() {
   const c = getCtx();
   if (!c) return;
-  const now = c.currentTime + 0.03;
-
-  // Dedicated master gain so the chime is not affected by any other node
-  // being torn down (e.g. the processing loop's filter/master).
-  const master = c.createGain();
-  master.gain.value = 1;
-  master.connect(c.destination);
+  const now = c.currentTime;
 
   const notes = [
-    { freq: 659.25, start: 0.0,  dur: 0.22, gain: 0.28 }, // E5
-    { freq: 880.0,  start: 0.11, dur: 0.24, gain: 0.32 }, // A5
-    { freq: 1174.7, start: 0.22, dur: 0.42, gain: 0.36 }, // D6
+    { freq: 783.99, start: 0, dur: 0.18 },   // G5
+    { freq: 1046.5, start: 0.09, dur: 0.28 }, // C6
   ];
 
   for (const n of notes) {
     const osc = c.createOscillator();
-    osc.type = "triangle";
+    osc.type = "sine";
     osc.frequency.value = n.freq;
     const g = c.createGain();
+    g.gain.value = 0;
     g.gain.setValueAtTime(0, now + n.start);
-    g.gain.linearRampToValueAtTime(n.gain, now + n.start + 0.015);
+    g.gain.linearRampToValueAtTime(0.15, now + n.start + 0.02);
     g.gain.exponentialRampToValueAtTime(0.0001, now + n.start + n.dur);
     osc.connect(g);
-    g.connect(master);
+    g.connect(c.destination);
     osc.start(now + n.start);
     osc.stop(now + n.start + n.dur + 0.05);
   }
-
-  setTimeout(() => {
-    try { master.disconnect(); } catch { /* ignore */ }
-  }, 1000);
 }
