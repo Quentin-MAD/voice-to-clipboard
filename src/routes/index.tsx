@@ -99,12 +99,19 @@ function LandingPage() {
       {/* Features */}
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl border border-border bg-card p-6">
               <Mic className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">Push-to-talk</h3>
+              <h3 className="text-lg font-semibold">Traduction Vocale</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Une seule touche pour enregistrer et arrêter. Parfait quand vous jouez en plein écran.
+                Parlez, relâchez la touche, et la traduction écrite est immédiatement dans votre presse-papiers.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6">
+              <Ear className="mb-3 h-8 w-8 text-primary" />
+              <h3 className="text-lg font-semibold">Lecture de Message Joueur</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Appuyez sur F9, dites le pseudo du joueur : l'IA lit à voix haute sa traduction dans votre langue.
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
