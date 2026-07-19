@@ -817,7 +817,7 @@ function Home() {
           <strong>⭐ Abonné illimité</strong>
         ) : (
           <strong>
-            {userStatus.purchased_balance + userStatus.free_remaining} crédits texte · 🔊 {voiceCount}
+            ✍️ {userStatus.purchased_balance + userStatus.free_remaining} texte · 🔊 {voiceCount} vocaux
           </strong>
         )}
         <span className="limits-reset">Reset {resetLabel} (24h)</span>
