@@ -190,7 +190,7 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
-          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits";
+          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits";
           user_id?: string;
           amount?: number;
         };
@@ -200,6 +200,13 @@ export const Route = createFileRoute("/api/admin")({
         if (body.action === "add_credits") {
           const amt = Math.trunc(body.amount ?? 0);
           const { error } = await supabaseAdmin.rpc("admin_add_credits", {
+            _target_user: body.user_id,
+            _amount: amt,
+          });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (body.action === "add_voice_credits") {
+          const amt = Math.trunc(body.amount ?? 0);
+          const { error } = await supabaseAdmin.rpc("admin_add_voice_credits", {
             _target_user: body.user_id,
             _amount: amt,
           });
