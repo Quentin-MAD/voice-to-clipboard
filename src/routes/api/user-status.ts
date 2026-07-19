@@ -7,6 +7,9 @@ type UserStatus = {
   purchased_balance: number;
   hourly_used: number;
   hourly_limit: number;
+  daily_used: number;
+  daily_limit: number;
+  daily_reset_at: string | null;
 };
 
 function isNewSupabaseApiKey(value: string): boolean {
