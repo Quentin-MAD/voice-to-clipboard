@@ -1,5 +1,5 @@
 {
-  "version": "0.9.5",
-  "url": "https://voice-to-clipboard.lovable.app/__l5e/assets-v1/e27fe7d9-e41b-4feb-8dde-a2b5c34a45fb/TalKing-Setup-0.9.5.exe",
-  "notes": "v0.9.5 - Transcription et traduction verifiees pour les 19 langues supportees (fr, en, es, de, it, ru, ja, zh, pt, ko, tr, pl, nl, ar, id, vi, th, sv, uk)."
+  "version": "0.9.6",
+  "url": "https://talking-translator.com/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe",
+  "notes": "v0.9.6 - Bulle credits centree dans la barre du haut, barre de statut inferieure retiree, titre de fenetre 'TalKing (R), v0.9.6', mise a jour automatique silencieuse."
 }
