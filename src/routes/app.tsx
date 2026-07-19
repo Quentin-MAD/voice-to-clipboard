@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { HardDrive } from "lucide-react";
+import { HardDrive, Settings, LogOut } from "lucide-react";
+import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -485,30 +486,39 @@ function Home() {
   return (
     <div className={`min-h-screen bg-background text-foreground ${isElectron ? "native-app" : ""}`}>
       <div className={isElectron ? "native-window" : ""}>
-        {/* Sidebar rail (Electron only) */}
-        {isElectron && (
-          <aside className="native-sidebar">
-            <div className="native-brand" title="TalKing">Tk</div>
-            <button className="native-side-btn is-active" title="Traduire">🎙</button>
-            <button className="native-side-btn" title="Paramètres" onClick={() => setSettingsOpen(true)}>⚙</button>
-            <div className="native-side-spacer" />
-            <button className="native-side-btn" title="Réduire dans la barre" onClick={() => window.voxElectron?.hideWindow()}>—</button>
-            <button
-              className="native-side-btn"
-              title="Se déconnecter"
-              onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
-            >⏻</button>
-          </aside>
-        )}
-
         <div className={isElectron ? "native-main" : ""}>
           {/* Titlebar (Electron only) */}
           {isElectron && (
             <div className="native-menubar">
-              <span className="native-title"><b>TalKing</b> · Traducteur vocal</span>
-              <span className="ml-auto" style={{ fontSize: 11, color: "var(--nx-text-mute)" }}>{user.email}</span>
+              <div className="native-brand-inline">
+                <span className="native-brand-dot">Tk</span>
+                <span className="native-title"><b>TalKing</b></span>
+              </div>
+              <div className="ml-auto flex items-center gap-2">
+                <div className="native-translate-slot">
+                  <GoogleTranslate alwaysShow />
+                </div>
+                <span className="native-email">{user.email}</span>
+                <button
+                  className="native-icon-btn"
+                  title="Paramètres"
+                  onClick={() => setSettingsOpen(true)}
+                  aria-label="Paramètres"
+                >
+                  <Settings size={15} />
+                </button>
+                <button
+                  className="native-icon-btn native-icon-btn-danger"
+                  title="Se déconnecter"
+                  onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
+                  aria-label="Se déconnecter"
+                >
+                  <LogOut size={15} />
+                </button>
+              </div>
             </div>
           )}
+
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
           {/* Web-only header */}

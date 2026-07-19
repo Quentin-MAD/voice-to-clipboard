@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function GoogleTranslate() {
+export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean } = {}) {
   const languages = useMemo(
     () => [
       { code: "fr", label: "Français" },
@@ -32,7 +32,7 @@ export function GoogleTranslate() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if ((window as any).voxElectron) return;
+    if (!alwaysShow && (window as any).voxElectron) return;
 
     const cookieLanguage = document.cookie
       .split("; ")
@@ -86,7 +86,7 @@ export function GoogleTranslate() {
     window.location.reload();
   };
 
-  if (typeof window !== "undefined" && (window as any).voxElectron) return null;
+  if (!alwaysShow && typeof window !== "undefined" && (window as any).voxElectron) return null;
 
   return (
     <div className="flex items-center gap-1.5 text-muted-foreground" title="Traduire la page">
