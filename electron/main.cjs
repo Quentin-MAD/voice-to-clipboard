@@ -403,7 +403,15 @@ ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, rea
 
 // -------- Screenshot capture for "Read message" feature --------
 ipcMain.handle('screenshot:capture', async () => {
+  // Hide our own window first so the screenshot captures the game/app behind,
+  // not TalKing itself. Restore visibility after (without stealing focus).
+  const wasVisible = mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible();
   try {
+    if (wasVisible) {
+      try { mainWindow.hide(); } catch { /* noop */ }
+      // Give the OS compositor a moment to repaint the window behind us.
+      await new Promise((r) => setTimeout(r, 180));
+    }
     const primary = screen.getPrimaryDisplay();
     const { width, height } = primary.size;
     const scale = primary.scaleFactor || 1;
@@ -415,15 +423,19 @@ ipcMain.handle('screenshot:capture', async () => {
       },
     });
     if (!sources || sources.length === 0) return { ok: false, error: 'no-source' };
-    // Prefer primary screen (usually the first)
     const src = sources[0];
     const png = src.thumbnail.toPNG();
     return { ok: true, dataBase64: png.toString('base64'), mime: 'image/png' };
   } catch (e) {
     console.error('screenshot:capture failed', e);
     return { ok: false, error: String(e && e.message || e) };
+  } finally {
+    if (wasVisible && mainWindow && !mainWindow.isDestroyed()) {
+      try { mainWindow.showInactive(); } catch { try { mainWindow.show(); } catch { /* noop */ } }
+    }
   }
 });
+
 
 // -------- Session sign-out (step 9) --------
 async function signOutAndReload({ confirm = false } = {}) {
