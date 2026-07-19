@@ -95,7 +95,6 @@ function PricingPage() {
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ 10 crédits Vocale</li>
               <li>✓ 1 crédit = 1 lecture d'un message (F9)</li>
-              <li>✓ Se consomment à chaque lecture F9</li>
             </ul>
             <button
               onClick={() => buy("voice_pack_10_onetime")}
