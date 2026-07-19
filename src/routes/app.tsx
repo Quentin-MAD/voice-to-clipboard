@@ -779,24 +779,54 @@ function Home() {
   const voiceCount = userStatus?.voice_balance ?? 0;
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
-  const creditBadge = userStatus ? (
-    userStatus.subscribed ? (
-      <span className="native-credits-text">
-        ⭐ Abonné · <span title="Lectures vocales restantes aujourd'hui">🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap}</span>
-      </span>
-    ) : (
-      <span className="native-credits-text">
-        <span title="Crédits Texte achetés">{userStatus.purchased_balance}</span>
-        {" + "}
-        <span style={{ color: "var(--nx-warn)" }} title="Crédits Texte gratuits ce mois">{userStatus.free_remaining}</span>
-        {" texte · "}
-        <span title="Crédits Vocale achetés">🔊 {voiceCount}</span>
-        <span style={{ opacity: 0.6 }}> ({voiceUsed}/{voiceCap}/j)</span>
-      </span>
-    )
+  const textUsed = userStatus?.daily_used ?? 0;
+  const textCap = userStatus?.daily_limit ?? 150;
+  const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
+  const resetLabel = resetAt
+    ? new Date(resetAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+    : "00:00";
+  const resetDateLabel = resetAt
+    ? new Date(resetAt).toLocaleString("fr-FR", { weekday: "short", hour: "2-digit", minute: "2-digit" })
+    : "";
+  const pct = (u: number, c: number) => (c > 0 ? Math.min(100, Math.round((u / c) * 100)) : 0);
+  const barClass = (u: number, c: number) => {
+    const p = pct(u, c);
+    if (p >= 100) return "full";
+    if (p >= 80) return "warn";
+    return "";
+  };
+  const resetTooltip = `Les limites journalières se réinitialisent automatiquement à 00h00 (heure de Paris). Prochaine réinitialisation : ${resetDateLabel}.`;
+
+  const limitsPanel = userStatus ? (
+    <>
+      <div className="limits-stack" title={resetTooltip}>
+        <div className="limits-row">
+          <span className="limits-row-label">Texte</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(textUsed, textCap)}`} style={{ width: `${pct(textUsed, textCap)}%` }} /></span>
+          <span className="limits-row-count">{textUsed}/{textCap}</span>
+        </div>
+        <div className="limits-row">
+          <span className="limits-row-label">Vocale</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(voiceUsed, voiceCap)}`} style={{ width: `${pct(voiceUsed, voiceCap)}%` }} /></span>
+          <span className="limits-row-count">{voiceUsed}/{voiceCap}</span>
+        </div>
+      </div>
+      <span className="limits-sep" />
+      <div className="limits-meta" title={resetTooltip}>
+        {userStatus.subscribed ? (
+          <strong>⭐ Abonné illimité</strong>
+        ) : (
+          <strong>
+            {userStatus.purchased_balance + userStatus.free_remaining} crédits texte · 🔊 {voiceCount}
+          </strong>
+        )}
+        <span className="limits-reset">Reset {resetLabel} (24h)</span>
+      </div>
+    </>
   ) : (
     <span className="native-credits-text">…</span>
   );
+
 
 
   
@@ -812,10 +842,11 @@ function Home() {
                 <span className="native-title notranslate"><b>TalKing</b><sup className="native-trademark">®</sup></span>
               </div>
               <div className="native-menubar-center">
-                <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
+                <div className="native-credits-pill" title={resetTooltip}>
                   <span className="native-credits-dot" />
-                  {creditBadge}
+                  {limitsPanel}
                 </div>
+
               </div>
               <div className="flex items-center gap-2">
                 <div className="native-translate-slot">
@@ -878,36 +909,55 @@ function Home() {
 
           {/* Credits + subscription status (web only — Electron shows in statusbar) */}
           {!isElectron && (
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-              <div className="flex flex-col">
-                <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
-                <div className="text-sm font-semibold">
-                  {userStatus?.subscribed ? (
-                    <>⭐ Abonné · 🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap} vocale/jour</>
-                  ) : userStatus ? (
-                    <>
-                      <span>{userStatus.purchased_balance}</span>
-                      {" + "}
-                      <span className="text-amber-500">{userStatus.free_remaining}</span>
-                      {" texte · 🔊 "}
-                      <span>{voiceCount}</span>
-                      <span className="ml-1 text-xs text-muted-foreground">({voiceUsed}/{voiceCap}/j)</span>
-                    </>
-                  ) : (
-                    "…"
-                  )}
+            <div className="mb-6 rounded-xl border border-border bg-card p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-col">
+                  <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
+                  <div className="text-sm font-semibold">
+                    {userStatus?.subscribed ? (
+                      <>⭐ Abonné illimité</>
+                    ) : userStatus ? (
+                      <>
+                        <span>{userStatus.purchased_balance + userStatus.free_remaining}</span>
+                        {" crédits texte · 🔊 "}
+                        <span>{voiceCount}</span> vocaux
+                      </>
+                    ) : "…"}
+                  </div>
                 </div>
+                {!userStatus?.subscribed && (
+                  <Link
+                    to="/pricing"
+                    className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                  >
+                    Passer à l'illimité
+                  </Link>
+                )}
               </div>
-              {!userStatus?.subscribed && (
-                <Link
-                  to="/pricing"
-                  className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  Passer à l'illimité
-                </Link>
+              {userStatus && (
+                <div className="space-y-2" title={resetTooltip}>
+                  <div>
+                    <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Traductions texte aujourd'hui</span>
+                      <span className="tabular-nums">{textUsed} / {textCap}</span>
+                    </div>
+                    <div className="limits-bar"><span className={`limits-bar-fill ${barClass(textUsed, textCap)}`} style={{ width: `${pct(textUsed, textCap)}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Lectures vocales (F9) aujourd'hui</span>
+                      <span className="tabular-nums">{voiceUsed} / {voiceCap}</span>
+                    </div>
+                    <div className="limits-bar"><span className={`limits-bar-fill ${barClass(voiceUsed, voiceCap)}`} style={{ width: `${pct(voiceUsed, voiceCap)}%` }} /></div>
+                  </div>
+                  <div className="pt-1 text-[11px] text-muted-foreground">
+                    Réinitialisation automatique toutes les 24h à 00h00 (Paris) · prochaine : <strong className="text-foreground">{resetDateLabel}</strong>
+                  </div>
+                </div>
               )}
             </div>
           )}
+
 
           {/* Blocking banner - daily limit reached */}
           {dailyLimitReached && (
