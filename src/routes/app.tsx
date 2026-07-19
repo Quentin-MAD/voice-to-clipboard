@@ -473,13 +473,21 @@ function Home() {
     );
   }
 
-  const creditsLabel = userStatus
-    ? userStatus.subscribed
-      ? "⭐ Abonné - illimité"
-      : `${userStatus.free_remaining} gratuits ce mois${
-          userStatus.purchased_balance > 0 ? ` + ${userStatus.purchased_balance} achetés` : ""
-        }`
-    : "…";
+  const creditBadge = userStatus ? (
+    userStatus.subscribed ? (
+      <span className="native-credits-text">⭐ Abonné - illimité</span>
+    ) : (
+      <span className="native-credits-text">
+        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
+        {" + "}
+        <span>{userStatus.purchased_balance}</span>
+        {" crédits"}
+      </span>
+    )
+  ) : (
+    <span className="native-credits-text">…</span>
+  );
+
 
   
 
@@ -496,7 +504,7 @@ function Home() {
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
                   <span className="native-credits-dot" />
-                  <span className="native-credits-text">{creditsLabel}</span>
+                  {creditBadge}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -563,7 +571,20 @@ function Home() {
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
               <div className="flex flex-col">
                 <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
-                <div className="text-sm font-semibold">{creditsLabel}</div>
+                <div className="text-sm font-semibold">
+                  {userStatus?.subscribed ? (
+                    "⭐ Abonné - illimité"
+                  ) : userStatus ? (
+                    <>
+                      <span className="text-amber-500">{userStatus.free_remaining}</span>
+                      {" + "}
+                      <span>{userStatus.purchased_balance}</span>
+                      {" crédits"}
+                    </>
+                  ) : (
+                    "…"
+                  )}
+                </div>
               </div>
               {!userStatus?.subscribed && (
                 <Link
