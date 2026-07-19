@@ -120,7 +120,12 @@ export const Route = createFileRoute("/api/admin")({
           (tl.data ?? []).filter(
             (r) => r.source_type === "purchased_credit" && inWindow(r.created_at, days),
           ).length;
-        const packRev = (days: number) => purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT;
+        const voiceInWindow = (days: number) =>
+          (tl.data ?? []).filter(
+            (r) => r.source_type === "voice_purchased" && inWindow(r.created_at, days),
+          ).length;
+        const packRev = (days: number) =>
+          purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT + voiceInWindow(days) * EUR_PER_VOICE_CREDIT;
 
         const revenue = {
           day: dailySubRevenue + packRev(1),
