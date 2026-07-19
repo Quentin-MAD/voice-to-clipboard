@@ -183,8 +183,40 @@ function Home() {
   });
   const userStatus = statusQuery.data;
 
-  // Recording refs
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  // Access blocking
+  const dailyLimitReached = !!userStatus && userStatus.daily_used >= userStatus.daily_limit;
+  const noCreditsLeft =
+    !!userStatus && !userStatus.subscribed && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
+  const accessBlocked = dailyLimitReached || noCreditsLeft;
+
+  // Live countdown for daily reset
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!dailyLimitReached || !userStatus?.daily_reset_at) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [dailyLimitReached, userStatus?.daily_reset_at]);
+  const resetCountdown = useMemo(() => {
+    if (!userStatus?.daily_reset_at) return null;
+    const diff = new Date(userStatus.daily_reset_at).getTime() - now;
+    if (diff <= 0) return "moins d'une minute";
+    const h = Math.floor(diff / 3_600_000);
+    const m = Math.floor((diff % 3_600_000) / 60_000);
+    const s = Math.floor((diff % 60_000) / 1000);
+    if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
+    if (m > 0) return `${m}m ${s.toString().padStart(2, "0")}s`;
+    return `${s}s`;
+  }, [userStatus?.daily_reset_at, now]);
+
+  // Auto-refetch status once countdown hits zero
+  useEffect(() => {
+    if (!dailyLimitReached || !userStatus?.daily_reset_at) return;
+    const diff = new Date(userStatus.daily_reset_at).getTime() - Date.now();
+    if (diff <= 0) return;
+    const id = setTimeout(() => statusQuery.refetch(), diff + 500);
+    return () => clearTimeout(id);
+  }, [dailyLimitReached, userStatus?.daily_reset_at, statusQuery]);
+
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
