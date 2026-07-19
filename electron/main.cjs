@@ -77,7 +77,7 @@ if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.des
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 980, height: 720, minWidth: 820, minHeight: 560, title: 'TalKing', icon: ICON_PATH,
-    backgroundColor: '#07090d', show: false, autoHideMenuBar: true,
+    backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true, nodeIntegration: false, backgroundThrottling: false,
