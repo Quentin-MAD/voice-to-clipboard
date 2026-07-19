@@ -277,8 +277,9 @@ export const Route = createFileRoute("/api/read-message")({
             audioFormat: "mp3",
             usage: {
               subscribed: row.subscribed,
-              remaining_free: row.remaining_free,
-              remaining_purchased: row.remaining_purchased,
+              remaining_voice: row.remaining_voice,
+              voice_daily_used: row.voice_daily_used,
+              voice_daily_limit: row.voice_daily_limit,
             },
           });
         } catch (err) {
