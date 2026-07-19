@@ -576,9 +576,9 @@ function Home() {
                     "⭐ Abonné - illimité"
                   ) : userStatus ? (
                     <>
-                      <span className="text-amber-500">{userStatus.free_remaining}</span>
-                      {" + "}
                       <span>{userStatus.purchased_balance}</span>
+                      {" + "}
+                      <span className="text-amber-500">{userStatus.free_remaining}</span>
                       {" crédits"}
                     </>
                   ) : (
