@@ -181,8 +181,8 @@ function AdminPage() {
           <Stat label="Visites (24h)" value={data.totals.views_today} sub={`${data.totals.views_7d} / 7j - ${data.totals.views_30d} / 30j`} />
           <Stat
             label="Crédits IA (24h)"
-            value={data.totals.ai_credits_today.toFixed(4)}
-            sub={`${data.totals.ai_credits_7d.toFixed(4)} / 7j - ${data.totals.ai_credits_30d.toFixed(4)} / 30j`}
+            value={num(data.totals.ai_credits_today).toFixed(4)}
+            sub={`${num(data.totals.ai_credits_7d).toFixed(4)} / 7j - ${num(data.totals.ai_credits_30d).toFixed(4)} / 30j`}
           />
         </div>
 
