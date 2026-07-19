@@ -151,7 +151,10 @@ export const Route = createFileRoute("/api/admin")({
             usd_to_eur: USD_TO_EUR,
             sub_price_eur_year: SUB_PRICE_EUR,
             eur_per_purchased_credit: EUR_PER_PURCHASED_CREDIT,
-            active_paying_subs: activeSubs.length,
+            active_paying_subs: (subs.data ?? []).filter(
+              (s: any) => s.status === "active" && s.environment === "live" &&
+                (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
+            ).length,
           },
         };
 
