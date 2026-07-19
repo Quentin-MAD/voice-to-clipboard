@@ -36,12 +36,12 @@ Your job in ONE step:
 4. Return ONLY a JSON object, no other text.
 
 JSON schema (STRICT - no extra fields, no markdown fence):
-{"found": boolean, "pseudo": "<the pseudo you heard>", "original": "<exact message text as it appears on screen>", "translation": "<${targetName} translation>", "reason": "<if not found, brief reason in French>"}
+{"found": boolean, "pseudo": "<the pseudo you heard>", "original": "<exact message text as it appears on screen>", "sourceLang": "<ISO 639-1 code of the original message language>", "translation": "<${targetName} translation>", "reason": "<if not found, brief reason in French>"}
 
 Rules:
 - Pseudo matching is fuzzy (accents, capitalization, minor spelling variation from mishearing are OK). Match the closest visible pseudo.
 - If no chat/message area is visible OR no message from that pseudo is on screen, return {"found": false, "pseudo": "<what you heard>", "reason": "..."}.
-- If the target message is already in ${targetName}, still fill "translation" with the same text cleaned up.
+- If the target message is already in ${targetName}, still fill "translation" with the same text cleaned up and "sourceLang" with the detected code.
 - Keep proper nouns, game terms, brand names unchanged in the translation.
 - Never invent a message. If unsure, "found": false.`;
 
