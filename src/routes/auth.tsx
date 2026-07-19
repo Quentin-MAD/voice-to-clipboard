@@ -256,15 +256,28 @@ function AuthPage() {
             <input
               type="password"
               required
-              minLength={6}
-              placeholder="Mot de passe (min. 6 caractères)"
+              minLength={mode === "signup" ? 8 : 6}
+              placeholder={mode === "signup" ? "Mot de passe (min. 8 caractères)" : "Mot de passe"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
+            {mode === "signup" && (
+              <ul className="space-y-1 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
+                <li className={pwdChecks.length ? "text-emerald-600" : "text-muted-foreground"}>
+                  {pwdChecks.length ? "✓" : "○"} Au moins 8 caractères
+                </li>
+                <li className={pwdChecks.letter ? "text-emerald-600" : "text-muted-foreground"}>
+                  {pwdChecks.letter ? "✓" : "○"} Au moins 1 lettre (a-z)
+                </li>
+                <li className={pwdChecks.digit ? "text-emerald-600" : "text-muted-foreground"}>
+                  {pwdChecks.digit ? "✓" : "○"} Au moins 1 chiffre (0-9)
+                </li>
+              </ul>
+            )}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (mode === "signup" && !pwdValid)}
               className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
             >
               {loading ? "…" : mode === "signin" ? "Se connecter" : "Créer mon compte"}
