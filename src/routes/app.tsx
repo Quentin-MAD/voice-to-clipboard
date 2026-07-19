@@ -127,6 +127,7 @@ type PersistedSettings = {
   toggleKey: string;
   readKey: string;
   readLang?: string;
+  micDeviceId?: string;
 };
 
 function loadSettings(): PersistedSettings | null {
