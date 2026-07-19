@@ -199,14 +199,14 @@ function AdminPage() {
               <div
                 key={d.date}
                 className="flex-1 bg-primary/70 hover:bg-primary transition-colors"
-                style={{ height: `${(d.ai_credits / maxCredits) * 100}%` }}
-                title={`${d.date} - ${d.ai_credits.toFixed(6)} cr - ${d.translations} trad. - ${d.views} visites`}
+                style={{ height: `${(num(d.ai_credits) / maxCredits) * 100}%` }}
+                title={`${d.date} - ${num(d.ai_credits).toFixed(6)} cr - ${d.translations} trad. - ${d.views} visites`}
               />
             ))}
           </div>
           <div className="mt-2 flex justify-between text-xs text-muted-foreground">
             <span>{data.daily[0]?.date}</span>
-            <span>Total 90j : {data.totals.ai_credits_total.toFixed(4)} cr</span>
+            <span>Total 90j : {num(data.totals.ai_credits_total).toFixed(4)} cr</span>
             <span>{data.daily[data.daily.length - 1]?.date}</span>
           </div>
         </div>
