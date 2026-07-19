@@ -187,7 +187,8 @@ function Home() {
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const [autoStart, setAutoStartState] = useState<boolean>(false);
-  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; translation?: string } | null>(null);
+  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
+  const [readLangPair, setReadLangPair] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
 
