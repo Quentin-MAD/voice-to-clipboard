@@ -54,7 +54,7 @@ function PricingPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          1 crédit = 1 traduction. Anti-spam : max 150 traductions/jour pour tout le monde.
+          Traduction (F8) : 1 crédit Texte = 1 traduction. Lecture d'un message (F9) : 1 crédit Vocale = 1 lecture. Anti-spam global : 150 traductions/jour maximum. Lectures vocales : 5/jour en gratuit, 10/jour avec crédits Vocale ou abonnement.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
