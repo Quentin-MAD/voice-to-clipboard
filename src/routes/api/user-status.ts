@@ -94,8 +94,6 @@ export const Route = createFileRoute("/api/user-status")({
         };
 
         return Response.json(status);
-
-        return Response.json(status);
       },
     },
   },
