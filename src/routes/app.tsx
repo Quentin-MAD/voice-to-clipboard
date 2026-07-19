@@ -307,9 +307,18 @@ function Home() {
         // Refetch status so the UI reflects new usage/limits
         statusQuery.refetch();
         if (json.code === "daily_limit" || json.code === "hourly_limit") {
-          toast.error("🛑 Limite anti-spam atteinte (150/jour). Réessayez demain.", { duration: 6000 });
+          toast.error(
+            `🛑 Limite quotidienne atteinte (150 traductions/24h). Vous pourrez recommencer bientôt.`,
+            { duration: 7000 },
+          );
         } else if (json.code === "no_credits") {
-          toast.error("Plus de crédits. Passez à l'abonnement ou achetez un pack.", { duration: 6000 });
+          toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
+            duration: 7000,
+            action: {
+              label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
         } else if (json.code === "unauthorized") {
           toast.error("Session expirée");
           navigate({ to: "/auth" });
