@@ -491,7 +491,6 @@ function Home() {
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
-                <span className="native-brand-dot">Tk</span>
                 <span className="native-title"><b>TalKing</b></span>
               </div>
               <div className="ml-auto flex items-center gap-2">
