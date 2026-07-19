@@ -483,252 +483,257 @@ function Home() {
   
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <header className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {isElectron && (
+    <div className={`min-h-screen bg-background text-foreground ${isElectron ? "native-app" : ""}`}>
+      <div className={isElectron ? "native-window" : ""}>
+        {/* Menubar (Electron only) */}
+        {isElectron && (
+          <div className="native-menubar">
+            <span className="native-title">TalKing</span>
+            <button onClick={() => setSettingsOpen(true)} title="Paramètres">Paramètres</button>
+            <button onClick={() => window.voxElectron?.hideWindow()} title="Réduire dans la barre">Réduire</button>
+            <div className="ml-auto flex items-center gap-2">
+              <span className="text-[11px] text-[color:#555]">{user.email}</span>
               <button
-                onClick={() => window.voxElectron?.hideWindow()}
-                className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
-                title="Réduire dans la zone de notification (le raccourci reste actif)"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  navigate({ to: "/auth" });
+                }}
+                title="Se déconnecter"
               >
-                Réduire dans la barre
+                Déconnexion
               </button>
-            )}
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
-              aria-label="Paramètres"
-              title="Paramètres"
-            >
-              ⚙️
-            </button>
-
-            <button
-              onClick={async () => {
-                await supabase.auth.signOut();
-                navigate({ to: "/auth" });
-              }}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
-              title="Se déconnecter"
-            >
-              Déconnexion
-            </button>
+            </div>
           </div>
-        </header>
+        )}
 
-        {/* Credits + subscription status */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-          <div className="flex flex-col">
-            <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
-            <div className="text-sm font-semibold">{creditsLabel}</div>
+        <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+          {/* Web-only header */}
+          {!isElectron && (
+            <header className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={() => setSettingsOpen(true)}
+                  className="rounded-lg border border-border bg-card p-2 text-sm hover:bg-accent"
+                  aria-label="Paramètres"
+                  title="Paramètres"
+                >
+                  ⚙️
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate({ to: "/auth" });
+                  }}
+                  className="rounded-lg border border-border bg-card px-3 py-2 text-xs hover:bg-accent"
+                  title="Se déconnecter"
+                >
+                  Déconnexion
+                </button>
+              </div>
+            </header>
+          )}
+
+          {/* Credits + subscription status (web only — Electron shows in statusbar) */}
+          {!isElectron && (
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+              <div className="flex flex-col">
+                <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
+                <div className="text-sm font-semibold">{creditsLabel}</div>
+              </div>
+              {!userStatus?.subscribed && (
+                <Link
+                  to="/pricing"
+                  className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Passer à l'illimité
+                </Link>
+              )}
+            </div>
+          )}
+
+          {isElectron && hotkeyBlocked && (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber-500/60 bg-amber-500/10 p-3 text-xs text-[color:#7a4a00]">
+              <div>
+                <div className="font-semibold">⚠ Le raccourci {toggleKey} est déjà utilisé par une autre application</div>
+                <div className="opacity-80">Discord, OBS, Steam ou un jeu l'a peut-être déjà pris.</div>
+              </div>
+              <button onClick={() => setSettingsOpen(true)}>Changer le raccourci</button>
+            </div>
+          )}
+
+          {/* Record group */}
+          <div className={isElectron ? "native-group mb-3" : "mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6"}>
+            {isElectron && <div className="native-group-title">Enregistrement</div>}
+            <div className={isElectron ? "flex items-center gap-4" : "flex flex-col items-center gap-4"}>
+              <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+                {statusBadge.label}
+              </div>
+              {isMobile ? (
+                <button
+                  onClick={toggleRecording}
+                  disabled={status === "processing"}
+                  className={`native-record grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                    recordingRef.current || status === "recording"
+                      ? "is-recording animate-pulse bg-red-500"
+                      : "bg-primary hover:bg-primary/90"
+                  }`}
+                  aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+                >
+                  <span className="flex flex-col items-center gap-1">
+                    <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                    <span className="text-sm">
+                      {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
+                    </span>
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={toggleRecording}
+                  disabled={status === "processing"}
+                  className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                    recordingRef.current || status === "recording"
+                      ? "is-recording animate-pulse bg-red-500"
+                      : "bg-primary hover:bg-primary/90"
+                  }`}
+                  aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+                >
+                  <span className="text-xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                  <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
+                </button>
+              )}
+            </div>
+            <p className={isElectron ? "mt-2 text-[11px] text-[color:#555]" : "text-center text-xs text-muted-foreground"}>
+              {isMobile ? (
+                <>Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.</>
+              ) : (
+                <>
+                  Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter — ou appuyez sur{" "}
+                  <kbd>{toggleKey}</kbd>
+                  {isElectron ? " (raccourci global, fonctionne depuis un jeu)" : ""}. La traduction est copiée dans votre presse-papiers.
+                </>
+              )}
+            </p>
           </div>
-          {!userStatus?.subscribed && (
-            <Link
-              to="/pricing"
-              className="rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Passer à l'illimité
-            </Link>
+
+          {/* Language selectors */}
+          <div className={isElectron ? "native-group mb-3" : "mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]"}>
+            {isElectron && <div className="native-group-title">Langues</div>}
+            <div className={isElectron ? "grid gap-3 sm:grid-cols-[1fr_auto_1fr] items-end" : "contents"}>
+              <div>
+                <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Depuis</label>
+                <select
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="auto">Détection auto</option>
+                  {LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={swap}
+                  disabled={source === "auto"}
+                  title="Inverser les langues"
+                  className="rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-40"
+                >
+                  ⇄
+                </button>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Vers</label>
+                <select
+                  value={target}
+                  onChange={(e) => setTarget(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  {LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop app download - hidden in Electron */}
+          {!isElectron && (
+            <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
+              <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Application Windows - raccourci global</h2>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
+                globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
+                automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
+                et peut lancer TalKing masqué avec Windows.
+                {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
+                  download="TalKing-Setup-0.9.4.exe"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  ⬇ Télécharger l'installeur v0.9.4 (.exe, 118 Mo)
+                </a>
+                <a
+                  href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
+                  download="TalKing-win32-x64.zip"
+                  className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+                  title="ZIP portable - pas d'installation, décompresser et lancer"
+                >
+                  ZIP portable (148 Mo)
+                </a>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Windows SmartScreen peut avertir au premier lancement (app non signée). Cliquez sur <em>Informations complémentaires</em> → <em>Exécuter quand même</em>.
+              </p>
+            </div>
+          )}
+
+          {/* Current result */}
+          {current && (
+            <div className={isElectron ? "native-group mb-3" : "mb-6 rounded-xl border border-border bg-card p-4"}>
+              <div className={isElectron ? "native-group-title" : "mb-3 text-sm font-semibold"}>Dernière traduction</div>
+              <div className="mb-2">
+                <div className="text-xs uppercase text-muted-foreground">Entendu</div>
+                <div className="text-sm">{current.transcript}</div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-muted-foreground">Traduction (dans le presse-papiers)</div>
+                <div className="text-base font-medium">{current.translation}</div>
+              </div>
+            </div>
           )}
         </div>
 
-        {isElectron && hotkeyBlocked && (
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
-            <div>
-              <div className="font-semibold">⚠ Le raccourci {toggleKey} est déjà utilisé par une autre application</div>
-              <div className="text-xs opacity-80">Discord, OBS, Steam ou un jeu l'a peut-être déjà pris. Ouvrez les paramètres et choisissez une autre touche.</div>
-            </div>
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-2 text-xs font-medium hover:bg-amber-500/30"
-            >
-              Changer le raccourci
-            </button>
-          </div>
-        )}
-
-        {/* Status + single toggle record button */}
-
-        <div className="mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6">
-          <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-            {statusBadge.label}
-          </div>
-          {isMobile ? (
-            <button
-              onClick={toggleRecording}
-              disabled={status === "processing"}
-              className={`grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                recordingRef.current || status === "recording"
-                  ? "animate-pulse bg-red-500"
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
-            >
-              <span className="flex flex-col items-center gap-1">
-                <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
-                <span className="text-sm">
-                  {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
-                </span>
-              </span>
-            </button>
-          ) : (
-            <button
-              onClick={toggleRecording}
-              disabled={status === "processing"}
-              className={`flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-5 text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                recordingRef.current || status === "recording"
-                  ? "animate-pulse bg-red-500"
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-              aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
-            >
-              <span className="text-2xl">{status === "recording" ? "⏹" : "🎙"}</span>
-              <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
-            </button>
-          )}
-          <p className="text-center text-xs text-muted-foreground">
-            {isMobile ? (
-              <>
-                Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.
-              </>
-            ) : (
-              <>
-                Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter - ou appuyez sur{" "}
-                <kbd className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{toggleKey}</kbd>
-                {isElectron ? " (global - fonctionne depuis un jeu)" : ""}. La traduction est copiée dans votre presse-papiers.
-              </>
-            )}
-          </p>
-        </div>
-
-        {/* Language selectors */}
-        <div className="mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]">
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Depuis</label>
-            <select
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              <option value="auto">Détection auto</option>
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={swap}
-              disabled={source === "auto"}
-              title="Inverser les langues"
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-accent disabled:opacity-40"
-            >
-              ⇄
-            </button>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Vers</label>
-            <select
-              value={target}
-              onChange={(e) => setTarget(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>
-                  {l.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-
-        {/* Desktop app download - shown on all devices so you can grab the file from phone too */}
-        {!isElectron && (
-          <div className="mb-6 rounded-xl border border-primary/40 bg-primary/5 p-4">
-            <h2 className="mb-1 text-sm font-semibold inline-flex items-center gap-2"><HardDrive className="h-4 w-4" /> Application Windows - raccourci global</h2>
-            <p className="mb-3 text-xs text-muted-foreground">
-              Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
-              globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
-              automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
-              et peut lancer TalKing masqué avec Windows.
-              {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <a
-                href="/__l5e/assets-v1/51a172c0-5369-49c8-aba9-0670ea4bc623/TalKing-Setup-0.9.4.exe"
-                download="TalKing-Setup-0.9.4.exe"
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                ⬇ Télécharger l'installeur v0.9.4 (.exe, 118 Mo)
-              </a>
-              <a
-                href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
-                download="TalKing-win32-x64.zip"
-                className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-                title="ZIP portable - pas d'installation, décompresser et lancer"
-              >
-                ZIP portable (148 Mo)
-              </a>
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Windows SmartScreen peut avertir au premier lancement (app non signée). Cliquez sur <em>Informations complémentaires</em> → <em>Exécuter quand même</em>.
-            </p>
-          </div>
-        )}
-
-
-        {/* Current result */}
-        {current && (
-          <div className="mb-6 rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
-            <div className="mb-2">
-              <div className="text-xs uppercase text-muted-foreground">Entendu</div>
-              <div className="text-sm">{current.transcript}</div>
-            </div>
-            <div>
-              <div className="text-xs uppercase text-muted-foreground">Traduction (dans le presse-papiers)</div>
-              <div className="text-base font-medium">{current.translation}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Last translation */}
-        {history.length > 0 && (
-          <div className="rounded-xl border border-border bg-card p-4">
-            <h2 className="mb-3 text-sm font-semibold">Dernière traduction</h2>
-            <ul className="divide-y divide-border">
-              {history.map((h) => (
-                <li key={h.id} className="flex items-start gap-3 py-3">
-                  <div className="flex-1">
-                    <div className="text-xs uppercase text-muted-foreground">
-                      {h.source} → {h.target}
-                    </div>
-                    <div className="text-sm text-muted-foreground line-clamp-1">{h.transcript}</div>
-                    <div className="text-sm font-medium">{h.translation}</div>
-                  </div>
-                  <button
-                    onClick={() => void copyAgain(h.translation)}
-                    className="rounded-md border border-input bg-background px-2 py-1 text-xs hover:bg-accent"
-                  >
-                    Copier
-                  </button>
-                </li>
-              ))}
-            </ul>
+        {/* Statusbar (Electron only) */}
+        {isElectron && (
+          <div className="native-statusbar">
+            <span>{statusBadge.label}</span>
+            <span className="native-status-sep" />
+            <span>{creditsLabel}</span>
+            <span className="native-status-sep" />
+            <span>Raccourci: <kbd>{toggleKey}</kbd></span>
+            <span className="ml-auto flex items-center gap-2">
+              {!userStatus?.subscribed && (
+                <Link to="/pricing" className="text-[11px] underline">Passer à l'illimité</Link>
+              )}
+            </span>
           </div>
         )}
       </div>
+
 
       {/* Settings modal */}
       {settingsOpen && (
