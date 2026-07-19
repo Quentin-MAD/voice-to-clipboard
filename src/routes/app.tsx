@@ -779,24 +779,54 @@ function Home() {
   const voiceCount = userStatus?.voice_balance ?? 0;
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
-  const creditBadge = userStatus ? (
-    userStatus.subscribed ? (
-      <span className="native-credits-text">
-        ⭐ Abonné · <span title="Lectures vocales restantes aujourd'hui">🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap}</span>
-      </span>
-    ) : (
-      <span className="native-credits-text">
-        <span title="Crédits Texte achetés">{userStatus.purchased_balance}</span>
-        {" + "}
-        <span style={{ color: "var(--nx-warn)" }} title="Crédits Texte gratuits ce mois">{userStatus.free_remaining}</span>
-        {" texte · "}
-        <span title="Crédits Vocale achetés">🔊 {voiceCount}</span>
-        <span style={{ opacity: 0.6 }}> ({voiceUsed}/{voiceCap}/j)</span>
-      </span>
-    )
+  const textUsed = userStatus?.daily_used ?? 0;
+  const textCap = userStatus?.daily_limit ?? 150;
+  const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
+  const resetLabel = resetAt
+    ? new Date(resetAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+    : "00:00";
+  const resetDateLabel = resetAt
+    ? new Date(resetAt).toLocaleString("fr-FR", { weekday: "short", hour: "2-digit", minute: "2-digit" })
+    : "";
+  const pct = (u: number, c: number) => (c > 0 ? Math.min(100, Math.round((u / c) * 100)) : 0);
+  const barClass = (u: number, c: number) => {
+    const p = pct(u, c);
+    if (p >= 100) return "full";
+    if (p >= 80) return "warn";
+    return "";
+  };
+  const resetTooltip = `Les limites journalières se réinitialisent automatiquement à 00h00 (heure de Paris). Prochaine réinitialisation : ${resetDateLabel}.`;
+
+  const limitsPanel = userStatus ? (
+    <>
+      <div className="limits-stack" title={resetTooltip}>
+        <div className="limits-row">
+          <span className="limits-row-label">Texte</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(textUsed, textCap)}`} style={{ width: `${pct(textUsed, textCap)}%` }} /></span>
+          <span className="limits-row-count">{textUsed}/{textCap}</span>
+        </div>
+        <div className="limits-row">
+          <span className="limits-row-label">Vocale</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(voiceUsed, voiceCap)}`} style={{ width: `${pct(voiceUsed, voiceCap)}%` }} /></span>
+          <span className="limits-row-count">{voiceUsed}/{voiceCap}</span>
+        </div>
+      </div>
+      <span className="limits-sep" />
+      <div className="limits-meta" title={resetTooltip}>
+        {userStatus.subscribed ? (
+          <strong>⭐ Abonné illimité</strong>
+        ) : (
+          <strong>
+            {userStatus.purchased_balance + userStatus.free_remaining} crédits texte · 🔊 {voiceCount}
+          </strong>
+        )}
+        <span className="limits-reset">Reset {resetLabel} (24h)</span>
+      </div>
+    </>
   ) : (
     <span className="native-credits-text">…</span>
   );
+
 
 
   
