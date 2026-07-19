@@ -1356,6 +1356,29 @@ function Home() {
                     <p className="native-field-help">Langue dans laquelle l'IA vous lira le message traduit.</p>
                   </div>
 
+                  <div className="native-field">
+                    <span className="native-label">Microphone</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <select
+                        value={micDeviceId}
+                        onChange={(e) => setMicDeviceId(e.target.value)}
+                        onFocus={() => void refreshMicDevices()}
+                        style={{ flex: 1, height: 36, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
+                      >
+                        <option value="">Par défaut (système)</option>
+                        {micDevices.map((d, i) => (
+                          <option key={d.deviceId || i} value={d.deviceId}>
+                            {d.label || `Micro ${i + 1}`}
+                          </option>
+                        ))}
+                      </select>
+                      <button onClick={() => void refreshMicDevices()} title="Rafraîchir la liste">↻</button>
+                    </div>
+                    <p className="native-field-help">Sélectionnez le micro à utiliser pour l'enregistrement. Autorisez l'accès au micro pour voir les noms des appareils.</p>
+                  </div>
+
+
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
