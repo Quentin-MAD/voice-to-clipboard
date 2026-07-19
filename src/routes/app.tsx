@@ -1464,30 +1464,6 @@ function Home() {
                   </select>
                   <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
                 </div>
-                <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium">Microphone</label>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={micDeviceId}
-                      onChange={(e) => setMicDeviceId(e.target.value)}
-                      onFocus={() => void refreshMicDevices()}
-                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
-                    >
-                      <option value="">Par défaut (système)</option>
-                      {micDevices.map((d, i) => (
-                        <option key={d.deviceId || i} value={d.deviceId}>
-                          {d.label || `Micro ${i + 1}`}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() => void refreshMicDevices()}
-                      className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                      title="Rafraîchir"
-                    >↻</button>
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">Sélectionnez le micro à utiliser. Autorisez l'accès pour voir les noms.</p>
-                </div>
 
 
 
