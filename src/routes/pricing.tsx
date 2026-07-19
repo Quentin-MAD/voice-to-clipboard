@@ -117,6 +117,7 @@ function PricingPage() {
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ Traductions illimitées*</li>
+              <li>✓ 10 lectures F9/jour</li>
               <li>✓ Support prioritaire</li>
               <li>✓ Économie vs packs</li>
             </ul>
