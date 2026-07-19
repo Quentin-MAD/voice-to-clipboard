@@ -1132,7 +1132,7 @@ function Home() {
                 </div>
               )}
               <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                Appuyez, dites par ex. "Lis-moi le message de Xstarlord", ré-appuyez. L'IA analyse votre écran et lit la traduction à voix haute.
+                Appuyez, dites "Lis-moi le message de [pseudo du joueur]" en remplaçant [pseudo du joueur] par le pseudo réel visible dans le chat, ré-appuyez. L'IA analyse votre écran et lit la traduction à voix haute.
               </p>
             </div>
           </div>
