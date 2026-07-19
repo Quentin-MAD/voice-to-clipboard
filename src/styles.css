@@ -724,4 +724,181 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 }
 .native-app .native-switch:checked::after { transform: translateX(16px); background: var(--nx-accent-ink); }
 
+/* ============ Native login screen (Electron) ============ */
+.native-app .native-auth-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(1000px 500px at 50% -10%, rgba(88, 101, 242, 0.18), transparent 60%),
+    radial-gradient(600px 400px at 90% 110%, rgba(88, 101, 242, 0.10), transparent 60%),
+    var(--nx-bg-2);
+  overflow: auto;
+}
+.native-app .native-auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+  padding: 28px 26px 22px;
+  box-shadow:
+    0 24px 60px -20px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+}
+.native-app .native-auth-logo {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+}
+.native-app .native-auth-logo-mark {
+  position: relative;
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--nx-accent), var(--nx-accent-2));
+  color: var(--nx-accent-ink);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px -6px var(--nx-accent-glow);
+}
+.native-app .native-auth-logo-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 22px;
+  background: radial-gradient(closest-side, var(--nx-accent-glow), transparent 70%);
+  filter: blur(6px);
+  z-index: 1;
+}
+.native-app .native-auth-title {
+  color: var(--nx-text);
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.native-app .native-auth-sub {
+  color: var(--nx-text-mute);
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 22px;
+}
+.native-app .native-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.native-app .native-auth-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.native-app .native-auth-label > span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nx-text-mute);
+}
+.native-app .native-auth-input {
+  width: 100%;
+  background: var(--nx-bg);
+  border: 1px solid var(--nx-line-hi);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--nx-text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.native-app .native-auth-input::placeholder { color: #6d7078; }
+.native-app .native-auth-input:focus {
+  border-color: var(--nx-accent);
+  box-shadow: 0 0 0 3px var(--nx-accent-glow);
+}
+.native-app .native-auth-primary {
+  width: 100%;
+  margin-top: 4px;
+  background: var(--nx-accent) !important;
+  color: var(--nx-accent-ink) !important;
+  border: 1px solid var(--nx-accent) !important;
+  border-radius: 8px !important;
+  padding: 11px 14px !important;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+  box-shadow: 0 6px 18px -6px var(--nx-accent-glow);
+}
+.native-app .native-auth-primary:hover:not(:disabled) {
+  background: var(--nx-accent-2) !important;
+  border-color: var(--nx-accent-2) !important;
+}
+.native-app .native-auth-primary:active:not(:disabled) { transform: translateY(1px); }
+.native-app .native-auth-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.native-app .native-auth-sep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+  color: var(--nx-text-mute);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.native-app .native-auth-sep::before,
+.native-app .native-auth-sep::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--nx-line);
+}
+.native-app .native-auth-secondary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--nx-bg) !important;
+  color: var(--nx-text) !important;
+  border: 1px solid var(--nx-line-hi) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.native-app .native-auth-secondary:hover:not(:disabled) {
+  background: var(--nx-panel-hi) !important;
+  border-color: var(--nx-text-mute) !important;
+}
+.native-app .native-auth-gicon { width: 16px; height: 16px; }
+.native-app .native-auth-switch {
+  width: 100%;
+  margin-top: 14px;
+  background: transparent !important;
+  border: none !important;
+  color: var(--nx-text-mute) !important;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px !important;
+}
+.native-app .native-auth-switch:hover { color: var(--nx-accent-2) !important; }
+.native-app .native-auth-footnote {
+  margin-top: 18px;
+  color: #6d7078;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
 
