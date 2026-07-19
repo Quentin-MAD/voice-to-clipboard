@@ -59,7 +59,8 @@ export const Route = createFileRoute("/api/admin")({
         // cost_credits estimates are in USD, convert to EUR
         const USD_TO_EUR = 0.92;
         const SUB_PRICE_EUR = 29.99; // per year
-        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits = 2,99€
+        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits texte = 2,99€
+        const EUR_PER_VOICE_CREDIT = 2.99 / 10; // 10 crédits vocaux = 2,99€
 
         const dayKey = (iso: string) => startOfDayUTC(new Date(iso)).toISOString().slice(0, 10);
         const agg: Record<string, { views: number; translations: number; ai_credits: number }> = {};
