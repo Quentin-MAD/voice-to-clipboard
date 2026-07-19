@@ -659,6 +659,81 @@ function Home() {
             </div>
           )}
 
+          {/* Blocking banner - daily limit reached */}
+          {dailyLimitReached && (
+            <div
+              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
+              style={{
+                borderColor: "rgba(239,68,68,0.6)",
+                background: "rgba(239,68,68,0.1)",
+                marginBottom: isElectron ? 12 : undefined,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: isElectron ? "var(--nx-text)" : undefined, fontSize: 14 }}>
+                    🛑 Limite quotidienne atteinte (150 traductions / 24h)
+                  </div>
+                  <div style={{ fontSize: 12, color: isElectron ? "var(--nx-text-dim)" : undefined, opacity: 0.85, marginTop: 4 }}>
+                    Vous avez atteint la limite anti-abus. Toute nouvelle traduction est bloquée.
+                    {resetCountdown && (
+                      <>
+                        {" "}Prochain crédit disponible dans{" "}
+                        <strong style={{ fontFamily: "'JetBrains Mono', monospace" }}>{resetCountdown}</strong>.
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Blocking banner - out of credits */}
+          {!dailyLimitReached && noCreditsLeft && (
+            <div
+              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
+              style={{
+                borderColor: "rgba(245,158,11,0.6)",
+                background: "rgba(245,158,11,0.1)",
+                marginBottom: isElectron ? 12 : undefined,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>💳 Vous n'avez plus de crédits</div>
+                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>
+                    Vous avez utilisé vos 20 crédits gratuits du mois et n'avez plus de crédits achetés.
+                    Achetez un pack (50 crédits pour 2,99 €) ou passez à l'abonnement illimité (29,99 €/an) pour continuer.
+                  </div>
+                </div>
+                <a
+                  href="https://talking-translator.com/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={isElectron ? "" : "rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"}
+                  style={
+                    isElectron
+                      ? {
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          borderRadius: 6,
+                          background: "var(--nx-warn, #f59e0b)",
+                          color: "#0b0b0b",
+                          fontWeight: 600,
+                          fontSize: 12,
+                          textDecoration: "none",
+                          whiteSpace: "nowrap",
+                        }
+                      : undefined
+                  }
+                >
+                  Voir les plans →
+                </a>
+              </div>
+            </div>
+          )}
+
           {isElectron && hotkeyBlocked && (
             <div className="native-panel" style={{ borderColor: "rgba(245,158,11,0.5)", background: "rgba(245,158,11,0.08)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
