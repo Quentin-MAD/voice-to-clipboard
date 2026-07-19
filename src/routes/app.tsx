@@ -622,7 +622,7 @@ function Home() {
         return;
       }
     }
-    // Voice daily cap (5 free / 10 with credits or sub)
+    // Voice daily cap: 5/jour gratuit, 10/jour avec abonnement (les packs de credits ne touchent pas a cette limite)
     if ((userStatus?.voice_daily_used ?? 0) >= (userStatus?.voice_daily_limit ?? 5)) {
       toast.error(`🔊 Limite quotidienne atteinte (${userStatus?.voice_daily_limit ?? 5} lectures/jour).`, {
         duration: 7000,
