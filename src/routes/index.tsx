@@ -73,7 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          TalKing traduit votre voix en temps réel pendant que vous jouez.
+          <span className="notranslate">TalKing</span> traduit votre voix en temps réel pendant que vous jouez.
           Appuyez sur une touche, parlez, et la traduction arrive directement dans votre presse-papiers.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
