@@ -1061,7 +1061,7 @@ function Home() {
                     ? "bg-muted text-muted-foreground"
                     : "border border-input bg-background hover:bg-accent"
                 }`}
-                title={`Lire un message d'un joueur (${readKey}) - 2 crédits`}
+                title={`Lire un message d'un joueur (${readKey}) - 1 crédit vocal`}
               >
                 <span className="text-lg">{readActive ? "⏹" : readProcessing ? "⏳" : "🔊"}</span>
                 <span>
@@ -1069,7 +1069,7 @@ function Home() {
                     ? "Parlez... (ré-appuyez pour analyser)"
                     : readProcessing
                     ? "Analyse et lecture..."
-                    : `Lire un message de joueur (${readKey}) - 2 crédits`}
+                    : `Lire un message de joueur (${readKey}) - 1 crédit vocal`}
                 </span>
               </button>
               {readResult && !readActive && !readProcessing && (
@@ -1230,7 +1230,7 @@ function Home() {
                   </div>
 
                   <div className="native-field">
-                    <span className="native-label">Raccourci "Lire un message" (2 crédits)</span>
+                    <span className="native-label">Raccourci "Lire un message" (1 crédit vocal)</span>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => setCapturing("read")}
@@ -1317,7 +1317,7 @@ function Home() {
                   </div>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (2 crédits)</label>
+                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (1 crédit vocal)</label>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCapturing("read")}
