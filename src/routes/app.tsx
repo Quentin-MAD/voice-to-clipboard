@@ -127,6 +127,7 @@ type PersistedSettings = {
   toggleKey: string;
   readKey: string;
   readLang?: string;
+  micDeviceId?: string;
 };
 
 function loadSettings(): PersistedSettings | null {
@@ -173,6 +174,8 @@ function Home() {
   const [toggleKey, setToggleKey] = useState<string>("F8");
   const [readKey, setReadKey] = useState<string>("F9");
   const [readLang, setReadLang] = useState<string>("fr");
+  const [micDeviceId, setMicDeviceId] = useState<string>("");
+  const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
 
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -261,13 +264,44 @@ function Home() {
       setToggleKey(s.toggleKey ?? "F8");
       setReadKey(s.readKey ?? "F9");
       setReadLang(s.readLang ?? "fr");
+      setMicDeviceId(s.micDeviceId ?? "");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey, readLang }));
-  }, [source, target, toggleKey, readKey, readLang, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey, readLang, micDeviceId }));
+  }, [source, target, toggleKey, readKey, readLang, micDeviceId, hydrated]);
+
+  // Enumerate microphones
+  const refreshMicDevices = useCallback(async () => {
+    try {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      const mics = devices.filter((d) => d.kind === "audioinput");
+      // If labels are empty, we need permission first
+      if (mics.length > 0 && mics.every((d) => !d.label)) {
+        try {
+          const tmp = await navigator.mediaDevices.getUserMedia({ audio: true });
+          tmp.getTracks().forEach((t) => t.stop());
+          devices = await navigator.mediaDevices.enumerateDevices();
+        } catch {
+          /* ignore */
+        }
+      }
+      setMicDevices(devices.filter((d) => d.kind === "audioinput"));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshMicDevices();
+    if (typeof navigator === "undefined" || !navigator.mediaDevices) return;
+    const handler = () => void refreshMicDevices();
+    navigator.mediaDevices.addEventListener?.("devicechange", handler);
+    return () => navigator.mediaDevices.removeEventListener?.("devicechange", handler);
+  }, [refreshMicDevices]);
 
 
 
@@ -424,7 +458,10 @@ function Home() {
     setErrorMsg("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        audio: {
+          echoCancellation: true, noiseSuppression: true, autoGainControl: true,
+          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
+        },
       });
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
@@ -452,7 +489,7 @@ function Home() {
       setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
       setTimeout(() => setStatus("idle"), 2500);
     }
-  }, [dailyLimitReached, noCreditsLeft, resetCountdown]);
+  }, [dailyLimitReached, noCreditsLeft, resetCountdown, micDeviceId]);
 
   const toggleRecording = useCallback(() => {
     if (recordingRef.current) void stopRecording();
@@ -635,7 +672,10 @@ function Home() {
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        audio: {
+          echoCancellation: true, noiseSuppression: true, autoGainControl: true,
+          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
+        },
       });
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
@@ -660,7 +700,7 @@ function Home() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
     }
-  }, [dailyLimitReached, userStatus]);
+  }, [dailyLimitReached, userStatus, micDeviceId]);
 
   const toggleReadRecording = useCallback(() => {
     if (readRecordingRef.current) void stopReadRecording();
@@ -1316,6 +1356,29 @@ function Home() {
                     <p className="native-field-help">Langue dans laquelle l'IA vous lira le message traduit.</p>
                   </div>
 
+                  <div className="native-field">
+                    <span className="native-label">Microphone</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <select
+                        value={micDeviceId}
+                        onChange={(e) => setMicDeviceId(e.target.value)}
+                        onFocus={() => void refreshMicDevices()}
+                        style={{ flex: 1, height: 36, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
+                      >
+                        <option value="">Par défaut (système)</option>
+                        {micDevices.map((d, i) => (
+                          <option key={d.deviceId || i} value={d.deviceId}>
+                            {d.label || `Micro ${i + 1}`}
+                          </option>
+                        ))}
+                      </select>
+                      <button onClick={() => void refreshMicDevices()} title="Rafraîchir la liste">↻</button>
+                    </div>
+                    <p className="native-field-help">Sélectionnez le micro à utiliser pour l'enregistrement. Autorisez l'accès au micro pour voir les noms des appareils.</p>
+                  </div>
+
+
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
@@ -1401,6 +1464,32 @@ function Home() {
                   </select>
                   <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
                 </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Microphone</label>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={micDeviceId}
+                      onChange={(e) => setMicDeviceId(e.target.value)}
+                      onFocus={() => void refreshMicDevices()}
+                      className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="">Par défaut (système)</option>
+                      {micDevices.map((d, i) => (
+                        <option key={d.deviceId || i} value={d.deviceId}>
+                          {d.label || `Micro ${i + 1}`}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => void refreshMicDevices()}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
+                      title="Rafraîchir"
+                    >↻</button>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">Sélectionnez le micro à utiliser. Autorisez l'accès pour voir les noms.</p>
+                </div>
+
+
 
                 <button
                   onClick={() => { setSettingsOpen(false); setCapturing(null); }}
