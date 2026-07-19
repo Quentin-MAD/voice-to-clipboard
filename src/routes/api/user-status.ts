@@ -76,7 +76,7 @@ export const Route = createFileRoute("/api/user-status")({
           free_remaining: Number(row?.free_remaining ?? 0),
           purchased_balance: Number(row?.purchased_balance ?? 0),
           hourly_used: Number(row?.hourly_used ?? 0),
-          hourly_limit: Number(row?.hourly_limit ?? 50),
+          hourly_limit: Number(row?.hourly_limit ?? 150),
         };
 
         return Response.json(status);
