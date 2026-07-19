@@ -700,7 +700,7 @@ function Home() {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
     }
-  }, [dailyLimitReached, userStatus]);
+  }, [dailyLimitReached, userStatus, micDeviceId]);
 
   const toggleReadRecording = useCallback(() => {
     if (readRecordingRef.current) void stopReadRecording();
