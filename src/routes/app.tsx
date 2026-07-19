@@ -485,28 +485,32 @@ function Home() {
   return (
     <div className={`min-h-screen bg-background text-foreground ${isElectron ? "native-app" : ""}`}>
       <div className={isElectron ? "native-window" : ""}>
-        {/* Menubar (Electron only) */}
+        {/* Sidebar rail (Electron only) */}
         {isElectron && (
-          <div className="native-menubar">
-            <span className="native-title">TalKing</span>
-            <button onClick={() => setSettingsOpen(true)} title="Paramètres">Paramètres</button>
-            <button onClick={() => window.voxElectron?.hideWindow()} title="Réduire dans la barre">Réduire</button>
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-[11px] text-[color:#555]">{user.email}</span>
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  navigate({ to: "/auth" });
-                }}
-                title="Se déconnecter"
-              >
-                Déconnexion
-              </button>
-            </div>
-          </div>
+          <aside className="native-sidebar">
+            <div className="native-brand" title="TalKing">Tk</div>
+            <button className="native-side-btn is-active" title="Traduire">🎙</button>
+            <button className="native-side-btn" title="Paramètres" onClick={() => setSettingsOpen(true)}>⚙</button>
+            <div className="native-side-spacer" />
+            <button className="native-side-btn" title="Réduire dans la barre" onClick={() => window.voxElectron?.hideWindow()}>—</button>
+            <button
+              className="native-side-btn"
+              title="Se déconnecter"
+              onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
+            >⏻</button>
+          </aside>
         )}
 
-        <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+        <div className={isElectron ? "native-main" : ""}>
+          {/* Titlebar (Electron only) */}
+          {isElectron && (
+            <div className="native-menubar">
+              <span className="native-title"><b>TalKing</b> · Traducteur vocal</span>
+              <span className="ml-auto" style={{ fontSize: 11, color: "var(--nx-text-mute)" }}>{user.email}</span>
+            </div>
+          )}
+
+          <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
           {/* Web-only header */}
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
@@ -558,57 +562,57 @@ function Home() {
           )}
 
           {isElectron && hotkeyBlocked && (
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border border-amber-500/60 bg-amber-500/10 p-3 text-xs text-[color:#7a4a00]">
-              <div>
-                <div className="font-semibold">⚠ Le raccourci {toggleKey} est déjà utilisé par une autre application</div>
-                <div className="opacity-80">Discord, OBS, Steam ou un jeu l'a peut-être déjà pris.</div>
+            <div className="native-panel" style={{ borderColor: "rgba(245,158,11,0.5)", background: "rgba(245,158,11,0.08)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <div>
+                  <div style={{ fontWeight: 600, color: "var(--nx-text)" }}>⚠ Le raccourci {toggleKey} est déjà utilisé</div>
+                  <div style={{ fontSize: 11.5, color: "var(--nx-text-dim)", marginTop: 2 }}>Discord, OBS, Steam ou un jeu l'a peut-être déjà pris.</div>
+                </div>
+                <button onClick={() => setSettingsOpen(true)}>Changer</button>
               </div>
-              <button onClick={() => setSettingsOpen(true)}>Changer le raccourci</button>
             </div>
           )}
 
-          {/* Record group */}
-          <div className={isElectron ? "native-group mb-3" : "mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6"}>
-            {isElectron && <div className="native-group-title">Enregistrement</div>}
-            <div className={isElectron ? "flex items-center gap-4" : "flex flex-col items-center gap-4"}>
-              <div className={`rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
-                {statusBadge.label}
-              </div>
-              {isMobile ? (
-                <button
-                  onClick={toggleRecording}
-                  disabled={status === "processing"}
-                  className={`native-record grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                    recordingRef.current || status === "recording"
-                      ? "is-recording animate-pulse bg-red-500"
-                      : "bg-primary hover:bg-primary/90"
-                  }`}
-                  aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
-                >
-                  <span className="flex flex-col items-center gap-1">
-                    <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
-                    <span className="text-sm">
-                      {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
-                    </span>
-                  </span>
-                </button>
-              ) : (
-                <button
-                  onClick={toggleRecording}
-                  disabled={status === "processing"}
-                  className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
-                    recordingRef.current || status === "recording"
-                      ? "is-recording animate-pulse bg-red-500"
-                      : "bg-primary hover:bg-primary/90"
-                  }`}
-                  aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
-                >
-                  <span className="text-xl">{status === "recording" ? "⏹" : "🎙"}</span>
-                  <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
-                </button>
-              )}
+          {/* Record hero */}
+          <div className={isElectron ? "native-panel native-hero" : "mb-6 flex flex-col items-center gap-4 rounded-xl border border-border bg-card p-6"}>
+            {isElectron && <div className="native-eyebrow" style={{ marginBottom: 0 }}>Enregistrement</div>}
+            <div className={isElectron ? "native-status-pill" : `rounded-full px-3 py-1 text-sm font-medium ${statusBadge.color}`}>
+              {statusBadge.label}
             </div>
-            <p className={isElectron ? "mt-2 text-[11px] text-[color:#555]" : "text-center text-xs text-muted-foreground"}>
+            {isMobile ? (
+              <button
+                onClick={toggleRecording}
+                disabled={status === "processing"}
+                className={`native-record grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                  recordingRef.current || status === "recording"
+                    ? "is-recording animate-pulse bg-red-500"
+                    : "bg-primary hover:bg-primary/90"
+                }`}
+                aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+              >
+                <span className="flex flex-col items-center gap-1">
+                  <span className="text-4xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                  <span className="text-sm">
+                    {status === "recording" ? "Toucher pour arrêter" : "Toucher pour enregistrer"}
+                  </span>
+                </span>
+              </button>
+            ) : (
+              <button
+                onClick={toggleRecording}
+                disabled={status === "processing"}
+                className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
+                  recordingRef.current || status === "recording"
+                    ? "is-recording animate-pulse bg-red-500"
+                    : "bg-primary hover:bg-primary/90"
+                }`}
+                aria-label={status === "recording" ? "Arrêter l'enregistrement" : "Démarrer l'enregistrement"}
+              >
+                <span className="text-xl">{status === "recording" ? "⏹" : "🎙"}</span>
+                <span>{status === "recording" ? "Arrêter l'enregistrement" : "Appuyer pour enregistrer"}</span>
+              </button>
+            )}
+            <p className={isElectron ? "native-hero-hint" : "text-center text-xs text-muted-foreground"}>
               {isMobile ? (
                 <>Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.</>
               ) : (
@@ -622,8 +626,8 @@ function Home() {
           </div>
 
           {/* Language selectors */}
-          <div className={isElectron ? "native-group mb-3" : "mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]"}>
-            {isElectron && <div className="native-group-title">Langues</div>}
+          <div className={isElectron ? "native-panel" : "mb-6 grid gap-4 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_1fr]"}>
+            {isElectron && <div className="native-eyebrow">Langues</div>}
             <div className={isElectron ? "grid gap-3 sm:grid-cols-[1fr_auto_1fr] items-end" : "contents"}>
               <div>
                 <label className="mb-1 block text-xs font-medium uppercase text-muted-foreground">Depuis</label>
@@ -703,8 +707,8 @@ function Home() {
 
           {/* Current result */}
           {current && (
-            <div className={isElectron ? "native-group mb-3" : "mb-6 rounded-xl border border-border bg-card p-4"}>
-              <div className={isElectron ? "native-group-title" : "mb-3 text-sm font-semibold"}>Dernière traduction</div>
+            <div className={isElectron ? "native-panel" : "mb-6 rounded-xl border border-border bg-card p-4"}>
+              <div className={isElectron ? "native-eyebrow" : "mb-3 text-sm font-semibold"}>Dernière traduction</div>
               <div className="mb-2">
                 <div className="text-xs uppercase text-muted-foreground">Entendu</div>
                 <div className="text-sm">{current.transcript}</div>
@@ -715,24 +719,27 @@ function Home() {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Statusbar (Electron only) */}
-        {isElectron && (
-          <div className="native-statusbar">
-            <span>{statusBadge.label}</span>
-            <span className="native-status-sep" />
-            <span>{creditsLabel}</span>
-            <span className="native-status-sep" />
-            <span>Raccourci: <kbd>{toggleKey}</kbd></span>
-            <span className="ml-auto flex items-center gap-2">
-              {!userStatus?.subscribed && (
-                <Link to="/pricing" className="text-[11px] underline">Passer à l'illimité</Link>
-              )}
-            </span>
           </div>
-        )}
+
+          {/* Statusbar (Electron only) */}
+          {isElectron && (
+            <div className="native-statusbar">
+              <span className={`native-status-dot ${status === "recording" ? "rec" : status === "processing" ? "proc" : ""}`} />
+              <span>{status === "idle" ? "READY" : status.toUpperCase()}</span>
+              <span className="native-status-sep" />
+              <span>{creditsLabel}</span>
+              <span className="native-status-sep" />
+              <span>HOTKEY <kbd>{toggleKey}</kbd></span>
+              <span className="ml-auto flex items-center gap-2">
+                {!userStatus?.subscribed && (
+                  <Link to="/pricing" className="text-[11px] underline">Passer à l'illimité</Link>
+                )}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+
 
 
       {/* Settings modal */}
