@@ -275,6 +275,15 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   background: var(--nx-bg);
 }
 .native-app .native-menubar > * { -webkit-app-region: no-drag; }
+.native-app .native-menubar-center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  -webkit-app-region: drag;
+}
+.native-app .native-menubar-center > * { -webkit-app-region: no-drag; }
 .native-app .native-brand-inline {
   display: flex; align-items: center; gap: 10px;
 }
