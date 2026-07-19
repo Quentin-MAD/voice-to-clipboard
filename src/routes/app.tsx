@@ -668,21 +668,22 @@ function Home() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggleKey, capturing, toggleRecording]);
+  }, [toggleKey, readKey, capturing, toggleRecording, toggleReadRecording]);
 
   // Electron global hotkey (fires even when a game has focus)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(toggleKey).then((res) => {
+    void window.voxElectron.setHotkeys(toggleKey, readKey).then((res) => {
       if (res) setHotkeyBlocked(!res.ok);
     });
     const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
+      else if (kind === "read-toggle") toggleReadRecording();
     });
     const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
     return () => { offHotkey(); offStatus?.(); };
-  }, [toggleKey, toggleRecording]);
+  }, [toggleKey, readKey, toggleRecording, toggleReadRecording]);
 
   // Load current auto-start state from Electron
   useEffect(() => {
