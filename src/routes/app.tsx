@@ -113,6 +113,10 @@ type UserStatus = {
   daily_used: number;
   daily_limit: number;
   daily_reset_at: string | null;
+  voice_balance: number;
+  voice_daily_used: number;
+  voice_daily_limit: number;
+  voice_daily_reset_at: string | null;
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
