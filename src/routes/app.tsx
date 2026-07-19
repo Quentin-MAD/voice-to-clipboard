@@ -865,13 +865,15 @@ function Home() {
                 <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
                 <div className="text-sm font-semibold">
                   {userStatus?.subscribed ? (
-                    "⭐ Abonné - illimité"
+                    <>⭐ Abonné · 🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap} vocale/jour</>
                   ) : userStatus ? (
                     <>
                       <span>{userStatus.purchased_balance}</span>
                       {" + "}
                       <span className="text-amber-500">{userStatus.free_remaining}</span>
-                      {" crédits"}
+                      {" texte · 🔊 "}
+                      <span>{voiceCount}</span>
+                      <span className="ml-1 text-xs text-muted-foreground">({voiceUsed}/{voiceCap}/j)</span>
                     </>
                   ) : (
                     "…"
