@@ -110,6 +110,9 @@ type UserStatus = {
   purchased_balance: number;
   hourly_used: number;
   hourly_limit: number;
+  daily_used: number;
+  daily_limit: number;
+  daily_reset_at: string | null;
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v2";
@@ -180,7 +183,40 @@ function Home() {
   });
   const userStatus = statusQuery.data;
 
-  // Recording refs
+  // Access blocking
+  const dailyLimitReached = !!userStatus && userStatus.daily_used >= userStatus.daily_limit;
+  const noCreditsLeft =
+    !!userStatus && !userStatus.subscribed && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
+  const accessBlocked = dailyLimitReached || noCreditsLeft;
+
+  // Live countdown for daily reset
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!dailyLimitReached || !userStatus?.daily_reset_at) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [dailyLimitReached, userStatus?.daily_reset_at]);
+  const resetCountdown = useMemo(() => {
+    if (!userStatus?.daily_reset_at) return null;
+    const diff = new Date(userStatus.daily_reset_at).getTime() - now;
+    if (diff <= 0) return "moins d'une minute";
+    const h = Math.floor(diff / 3_600_000);
+    const m = Math.floor((diff % 3_600_000) / 60_000);
+    const s = Math.floor((diff % 60_000) / 1000);
+    if (h > 0) return `${h}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
+    if (m > 0) return `${m}m ${s.toString().padStart(2, "0")}s`;
+    return `${s}s`;
+  }, [userStatus?.daily_reset_at, now]);
+
+  // Auto-refetch status once countdown hits zero
+  useEffect(() => {
+    if (!dailyLimitReached || !userStatus?.daily_reset_at) return;
+    const diff = new Date(userStatus.daily_reset_at).getTime() - Date.now();
+    if (diff <= 0) return;
+    const id = setTimeout(() => statusQuery.refetch(), diff + 500);
+    return () => clearTimeout(id);
+  }, [dailyLimitReached, userStatus?.daily_reset_at, statusQuery]);
+
   const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
@@ -271,9 +307,18 @@ function Home() {
         // Refetch status so the UI reflects new usage/limits
         statusQuery.refetch();
         if (json.code === "daily_limit" || json.code === "hourly_limit") {
-          toast.error("🛑 Limite anti-spam atteinte (150/jour). Réessayez demain.", { duration: 6000 });
+          toast.error(
+            `🛑 Limite quotidienne atteinte (150 traductions/24h). Vous pourrez recommencer bientôt.`,
+            { duration: 7000 },
+          );
         } else if (json.code === "no_credits") {
-          toast.error("Plus de crédits. Passez à l'abonnement ou achetez un pack.", { duration: 6000 });
+          toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
+            duration: 7000,
+            action: {
+              label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
         } else if (json.code === "unauthorized") {
           toast.error("Session expirée");
           navigate({ to: "/auth" });
@@ -331,6 +376,23 @@ function Home() {
 
   const startRecording = useCallback(async () => {
     if (recordingRef.current) return;
+    if (dailyLimitReached) {
+      toast.error(
+        `🛑 Limite quotidienne atteinte (150 traductions/24h). Réessayez dans ${resetCountdown ?? "quelques instants"}.`,
+        { duration: 6000 },
+      );
+      return;
+    }
+    if (noCreditsLeft) {
+      toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
+        duration: 6000,
+        action: {
+          label: "Voir les plans",
+          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+        },
+      });
+      return;
+    }
     setErrorMsg("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -362,7 +424,7 @@ function Home() {
       setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
       setTimeout(() => setStatus("idle"), 2500);
     }
-  }, []);
+  }, [dailyLimitReached, noCreditsLeft, resetCountdown]);
 
   const toggleRecording = useCallback(() => {
     if (recordingRef.current) void stopRecording();
@@ -597,6 +659,81 @@ function Home() {
             </div>
           )}
 
+          {/* Blocking banner - daily limit reached */}
+          {dailyLimitReached && (
+            <div
+              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
+              style={{
+                borderColor: "rgba(239,68,68,0.6)",
+                background: "rgba(239,68,68,0.1)",
+                marginBottom: isElectron ? 12 : undefined,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: isElectron ? "var(--nx-text)" : undefined, fontSize: 14 }}>
+                    🛑 Limite quotidienne atteinte (150 traductions / 24h)
+                  </div>
+                  <div style={{ fontSize: 12, color: isElectron ? "var(--nx-text-dim)" : undefined, opacity: 0.85, marginTop: 4 }}>
+                    Vous avez atteint la limite anti-abus. Toute nouvelle traduction est bloquée.
+                    {resetCountdown && (
+                      <>
+                        {" "}Prochain crédit disponible dans{" "}
+                        <strong style={{ fontFamily: "'JetBrains Mono', monospace" }}>{resetCountdown}</strong>.
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Blocking banner - out of credits */}
+          {!dailyLimitReached && noCreditsLeft && (
+            <div
+              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
+              style={{
+                borderColor: "rgba(245,158,11,0.6)",
+                background: "rgba(245,158,11,0.1)",
+                marginBottom: isElectron ? 12 : undefined,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>💳 Vous n'avez plus de crédits</div>
+                  <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>
+                    Vous avez utilisé vos 20 crédits gratuits du mois et n'avez plus de crédits achetés.
+                    Achetez un pack (50 crédits pour 2,99 €) ou passez à l'abonnement illimité (29,99 €/an) pour continuer.
+                  </div>
+                </div>
+                <a
+                  href="https://talking-translator.com/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={isElectron ? "" : "rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"}
+                  style={
+                    isElectron
+                      ? {
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "6px 14px",
+                          borderRadius: 6,
+                          background: "var(--nx-warn, #f59e0b)",
+                          color: "#0b0b0b",
+                          fontWeight: 600,
+                          fontSize: 12,
+                          textDecoration: "none",
+                          whiteSpace: "nowrap",
+                        }
+                      : undefined
+                  }
+                >
+                  Voir les plans →
+                </a>
+              </div>
+            </div>
+          )}
+
           {isElectron && hotkeyBlocked && (
             <div className="native-panel" style={{ borderColor: "rgba(245,158,11,0.5)", background: "rgba(245,158,11,0.08)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
@@ -618,7 +755,8 @@ function Home() {
             {isMobile ? (
               <button
                 onClick={toggleRecording}
-                disabled={status === "processing"}
+                disabled={status === "processing" || accessBlocked}
+                title={accessBlocked ? (dailyLimitReached ? `Limite quotidienne atteinte (réinit. dans ${resetCountdown ?? "…"})` : "Plus de crédits - voir les plans") : undefined}
                 className={`native-record grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
                   recordingRef.current || status === "recording"
                     ? "is-recording animate-pulse bg-red-500"
@@ -636,7 +774,8 @@ function Home() {
             ) : (
               <button
                 onClick={toggleRecording}
-                disabled={status === "processing"}
+                disabled={status === "processing" || accessBlocked}
+                title={accessBlocked ? (dailyLimitReached ? `Limite quotidienne atteinte (réinit. dans ${resetCountdown ?? "…"})` : "Plus de crédits - voir les plans") : undefined}
                 className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
                   recordingRef.current || status === "recording"
                     ? "is-recording animate-pulse bg-red-500"

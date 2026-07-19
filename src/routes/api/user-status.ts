@@ -7,6 +7,9 @@ type UserStatus = {
   purchased_balance: number;
   hourly_used: number;
   hourly_limit: number;
+  daily_used: number;
+  daily_limit: number;
+  daily_reset_at: string | null;
 };
 
 function isNewSupabaseApiKey(value: string): boolean {
@@ -77,6 +80,9 @@ export const Route = createFileRoute("/api/user-status")({
           purchased_balance: Number(row?.purchased_balance ?? 0),
           hourly_used: Number(row?.hourly_used ?? 0),
           hourly_limit: Number(row?.hourly_limit ?? 150),
+          daily_used: Number(row?.daily_used ?? row?.hourly_used ?? 0),
+          daily_limit: Number(row?.daily_limit ?? 150),
+          daily_reset_at: row?.daily_reset_at ? new Date(row.daily_reset_at).toISOString() : null,
         };
 
         return Response.json(status);
