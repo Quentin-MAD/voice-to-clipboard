@@ -32,8 +32,9 @@ async function analyzeScreenshotAndAudio(
 Your job in ONE step:
 1. Listen to the audio and identify the target player's pseudo/username the user is naming.
 2. Look at the screenshot (a game / app screen) and find that exact player's MOST RECENT chat message.
-3. Translate that message into natural, idiomatic ${targetName} (as a native speaker would say it, not word-for-word). Preserve tone, slang, sarcasm, profanity - do not censor.
-4. Return ONLY a JSON object, no other text.
+3. Detect the language of the original message (use ISO 639-1 code: fr, en, es, de, it, ru, ja, zh, pt, ko, tr, pl, nl, ar, id, vi, th, sv, uk). If uncertain, pick the closest supported code.
+4. Translate that message into natural, idiomatic ${targetName} (as a native speaker would say it, not word-for-word). Preserve tone, slang, sarcasm, profanity - do not censor.
+5. Return ONLY a JSON object, no other text.
 
 JSON schema (STRICT - no extra fields, no markdown fence):
 {"found": boolean, "pseudo": "<the pseudo you heard>", "original": "<exact message text as it appears on screen>", "sourceLang": "<ISO 639-1 code of the original message language>", "translation": "<${targetName} translation>", "reason": "<if not found, brief reason in French>"}
