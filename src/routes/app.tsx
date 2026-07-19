@@ -614,16 +614,26 @@ function Home() {
       }
 
       // 3. Play the returned audio (MP3)
-      setReadResult({ pseudo: json.pseudo, original: json.original, translation: json.translation });
+      setReadResult({ pseudo: json.pseudo, original: json.original, sourceLang: json.sourceLang, translation: json.translation });
+      const sourceLabel = LANGUAGES.find((l) => l.code === json.sourceLang)?.label ?? "Langue détectée";
+      const targetLabel = LANGUAGES.find((l) => l.code === readLang)?.label ?? readLang;
+      setReadLangPair(`${sourceLabel} -> ${targetLabel}`);
       const audioUrl = `data:audio/${json.audioFormat ?? "mp3"};base64,${json.audio}`;
       try { readAudioPlayerRef.current?.pause(); } catch { /* ignore */ }
       const audio = new Audio(audioUrl);
       audio.volume = 1;
       readAudioPlayerRef.current = audio;
+      audio.onended = () => {
+        setReadLangPair(null);
+      };
+      audio.onerror = () => {
+        setReadLangPair(null);
+      };
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
       setTimeout(() => playSuccessChime(), 30);
       await audio.play().catch(() => {
+        setReadLangPair(null);
         toast.info("Cliquez dans la fenêtre pour autoriser la lecture audio.");
       });
       statusQuery.refetch();
