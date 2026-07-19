@@ -758,15 +758,22 @@ function Home() {
     );
   }
 
+  const voiceCount = userStatus?.voice_balance ?? 0;
+  const voiceUsed = userStatus?.voice_daily_used ?? 0;
+  const voiceCap = userStatus?.voice_daily_limit ?? 5;
   const creditBadge = userStatus ? (
     userStatus.subscribed ? (
-      <span className="native-credits-text">⭐ Abonné - illimité</span>
+      <span className="native-credits-text">
+        ⭐ Abonné · <span title="Lectures vocales restantes aujourd'hui">🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap}</span>
+      </span>
     ) : (
       <span className="native-credits-text">
-        <span>{userStatus.purchased_balance}</span>
+        <span title="Crédits Texte achetés">{userStatus.purchased_balance}</span>
         {" + "}
-        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
-        {" crédits"}
+        <span style={{ color: "var(--nx-warn)" }} title="Crédits Texte gratuits ce mois">{userStatus.free_remaining}</span>
+        {" texte · "}
+        <span title="Crédits Vocale achetés">🔊 {voiceCount}</span>
+        <span style={{ opacity: 0.6 }}> ({voiceUsed}/{voiceCap}/j)</span>
       </span>
     )
   ) : (
