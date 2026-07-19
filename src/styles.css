@@ -204,179 +204,233 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 }
 
 /* =========================================================================
-   Native desktop-app skin (applied only inside the Electron window)
-   Windows-like: system font, squared corners, beveled buttons, menubar
-   and statusbar. No global scrollbar on the body.
+   Native desktop-app skin (Electron only)
+   Modern dark theme inspired by Linear / Raycast / VSCode / Arc.
+   Clean, minimal, rounded, with subtle depth and a vivid accent.
    ========================================================================= */
 .native-app {
-  font-family: "Segoe UI", "SF Pro Text", system-ui, -apple-system, sans-serif;
+  --nx-bg: #0e0f13;
+  --nx-bg-2: #14161c;
+  --nx-panel: #191b22;
+  --nx-panel-2: #1f222b;
+  --nx-border: #262933;
+  --nx-border-strong: #333744;
+  --nx-text: #e6e8ee;
+  --nx-text-dim: #9096a4;
+  --nx-text-mute: #6b7180;
+  --nx-accent: #7c5cff;
+  --nx-accent-2: #4c8dff;
+  --nx-accent-glow: rgba(124, 92, 255, 0.35);
+  --nx-danger: #ff5c78;
+  --nx-success: #34d399;
+  --nx-warn: #fbbf24;
+
+  font-family: "Inter", "SF Pro Display", "Segoe UI Variable", "Segoe UI",
+    system-ui, -apple-system, sans-serif;
   font-size: 13px;
   height: 100vh;
   overflow: hidden;
-  color: #1f1f1f;
-  background: #f3f3f3;
+  color: var(--nx-text);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(124, 92, 255, 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(76, 141, 255, 0.08), transparent 60%),
+    var(--nx-bg);
   -webkit-font-smoothing: antialiased;
   user-select: none;
+  letter-spacing: -0.005em;
 }
-.native-app * { border-color: #c8c8c8; }
+.native-app * { border-color: var(--nx-border); }
 .native-app input, .native-app select, .native-app textarea,
 .native-app [contenteditable="true"] { user-select: text; }
 
-/* Layout: menubar / scroll area / statusbar */
+/* Layout */
 .native-app .native-window {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
+
+/* Titlebar (was menubar) — sleek, borderless, badge-style pills */
 .native-app .native-menubar {
   flex: 0 0 auto;
-  height: 32px;
+  height: 44px;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 8px;
-  background: linear-gradient(#f6f6f6, #e6e6e6);
-  border-bottom: 1px solid #b8b8b8;
-  font-size: 12px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  border-bottom: 1px solid var(--nx-border);
+  font-size: 12.5px;
+  -webkit-app-region: drag;
 }
+.native-app .native-menubar > * { -webkit-app-region: no-drag; }
 .native-app .native-menubar .native-title {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  padding-right: 12px;
-  color: #202020;
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+  padding-right: 14px;
+  color: var(--nx-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.native-app .native-menubar .native-menu-item {
-  padding: 4px 10px;
-  border-radius: 2px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #202020;
-  cursor: pointer;
+.native-app .native-menubar .native-title::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: conic-gradient(from 200deg, var(--nx-accent), var(--nx-accent-2), var(--nx-accent));
+  box-shadow: 0 0 12px var(--nx-accent-glow);
 }
-.native-app .native-menubar .native-menu-item:hover {
-  background: #d7ebfa;
-  border-color: #7fb1e6;
-}
+
 .native-app .native-scroll {
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 12px 16px;
-  background: #f3f3f3;
+  padding: 18px 22px 22px;
 }
+
+/* Statusbar — thin, muted, monospace-ish info */
 .native-app .native-statusbar {
   flex: 0 0 auto;
-  height: 24px;
+  height: 30px;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 0 10px;
-  background: #ececec;
-  border-top: 1px solid #c1c1c1;
-  font-size: 11px;
-  color: #333;
+  padding: 0 14px;
+  background: var(--nx-bg-2);
+  border-top: 1px solid var(--nx-border);
+  font-size: 11.5px;
+  color: var(--nx-text-dim);
 }
 .native-app .native-statusbar .native-status-sep {
   width: 1px;
   height: 14px;
-  background: #c1c1c1;
+  background: var(--nx-border);
 }
 
-/* Thin classic scrollbar */
-.native-app ::-webkit-scrollbar { width: 14px; height: 14px; }
-.native-app ::-webkit-scrollbar-track { background: #f0f0f0; }
+/* Scrollbar — modern thin, auto-hide feel */
+.native-app ::-webkit-scrollbar { width: 10px; height: 10px; }
+.native-app ::-webkit-scrollbar-track { background: transparent; }
 .native-app ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border: 3px solid #f0f0f0;
-  border-radius: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
-.native-app ::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
+.native-app ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); background-clip: padding-box; border: 2px solid transparent; }
 
-/* Squared corners everywhere except explicit round elements */
-.native-app [class*="rounded"] { border-radius: 2px !important; }
+/* Rounded corners: modern soft radii */
+.native-app [class*="rounded"] { border-radius: 10px !important; }
 .native-app .rounded-full,
 .native-app .native-round { border-radius: 999px !important; }
 
 /* Panels / cards */
 .native-app .native-panel,
 .native-app .bg-card {
-  background: #ffffff !important;
-  border: 1px solid #c8c8c8 !important;
-  box-shadow: none !important;
-  color: #1f1f1f !important;
+  background: linear-gradient(180deg, var(--nx-panel-2), var(--nx-panel)) !important;
+  border: 1px solid var(--nx-border) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 12px 32px -20px rgba(0, 0, 0, 0.6) !important;
+  color: var(--nx-text) !important;
 }
 
-/* Classic beveled button */
+/* Buttons — modern flat with subtle hover */
 .native-app button {
   font-family: inherit;
-  font-size: 12px;
-  padding: 4px 12px;
-  min-height: 26px;
-  border: 1px solid #8a8a8a;
-  background: linear-gradient(#fdfdfd, #e4e4e4);
-  color: #1f1f1f;
-  border-radius: 2px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 7px 14px;
+  min-height: 32px;
+  border: 1px solid var(--nx-border-strong);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--nx-text);
+  border-radius: 8px;
   cursor: pointer;
-  transition: none;
+  transition: background 120ms ease, border-color 120ms ease, transform 60ms ease;
+  box-shadow: none;
 }
 .native-app button:hover:not(:disabled) {
-  background: linear-gradient(#ffffff, #eaeaea);
-  border-color: #6e6e6e;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #414658;
 }
 .native-app button:active:not(:disabled) {
-  background: linear-gradient(#d5d5d5, #e6e6e6);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  transform: translateY(1px);
+  background: rgba(255, 255, 255, 0.02);
 }
 .native-app button:disabled {
-  color: #999;
-  background: #ececec;
-  border-color: #c1c1c1;
+  color: var(--nx-text-mute);
+  background: rgba(255, 255, 255, 0.02);
+  border-color: var(--nx-border);
   cursor: default;
 }
 .native-app button:focus-visible {
-  outline: 1px dotted #333;
-  outline-offset: -3px;
-}
-.native-app .native-menubar button {
-  min-height: 0;
-  padding: 3px 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  box-shadow: none;
-}
-.native-app .native-menubar button:hover:not(:disabled) {
-  background: #d7ebfa;
-  border-color: #7fb1e6;
+  outline: none;
+  border-color: var(--nx-accent);
+  box-shadow: 0 0 0 3px var(--nx-accent-glow);
 }
 
-/* Primary (accent) button */
+/* Titlebar buttons — ghost pills */
+.native-app .native-menubar button {
+  min-height: 28px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--nx-text-dim);
+  border-radius: 8px;
+  font-weight: 500;
+}
+.native-app .native-menubar button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: transparent;
+  color: var(--nx-text);
+}
+
+/* Primary accent */
 .native-app .native-btn-primary,
 .native-app .bg-primary {
-  background: linear-gradient(#2a8ddc, #0a5a9e) !important;
-  border: 1px solid #004b85 !important;
+  background: linear-gradient(180deg, #8a6dff, #6a49f2) !important;
+  border: 1px solid #5a3ce0 !important;
   color: #ffffff !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 8px 24px -12px var(--nx-accent-glow) !important;
 }
 .native-app .native-btn-primary:hover:not(:disabled),
 .native-app .bg-primary:hover:not(:disabled) {
-  background: linear-gradient(#3a9ce8, #1268ac) !important;
+  background: linear-gradient(180deg, #9a7fff, #7a5cff) !important;
 }
 
-/* Record button (round + prominent) */
+/* Record button — big soft glowing pill */
 .native-app .native-record {
-  border: 1px solid #004b85 !important;
-  background: radial-gradient(circle at 30% 25%, #4aa6e6, #0a5a9e 70%) !important;
+  border: 1px solid #5a3ce0 !important;
+  background: linear-gradient(180deg, #8a6dff, #6242ea) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 0 #003a6a, inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 12px 40px -10px var(--nx-accent-glow),
+    0 0 0 6px rgba(124, 92, 255, 0.08) !important;
   animation: none !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.native-app .native-record:hover:not(:disabled) {
+  background: linear-gradient(180deg, #9a7fff, #7250ff) !important;
 }
 .native-app .native-record.is-recording {
-  background: radial-gradient(circle at 30% 25%, #ff6a6a, #b41616 70%) !important;
-  border-color: #7a0d0d !important;
-  box-shadow: 0 2px 0 #6a0d0d, inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  background: linear-gradient(180deg, #ff6a8a, #e02a55) !important;
+  border-color: #b81f45 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 12px 40px -10px rgba(255, 92, 120, 0.5),
+    0 0 0 6px rgba(255, 92, 120, 0.10) !important;
 }
+@keyframes nx-pulse {
+  0%, 100% { box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 12px 40px -10px rgba(255,92,120,.55), 0 0 0 0 rgba(255,92,120,.35); }
+  50%      { box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 12px 40px -10px rgba(255,92,120,.55), 0 0 0 14px rgba(255,92,120,0);    }
+}
+.native-app .native-record.is-recording { animation: nx-pulse 1.6s ease-out infinite !important; }
 
 /* Inputs / selects */
 .native-app select,
@@ -385,56 +439,71 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .native-app input[type="email"],
 .native-app input[type="password"],
 .native-app input[type="number"] {
-  border: 1px solid #7a7a7a !important;
-  background: #ffffff !important;
-  color: #111 !important;
-  border-radius: 2px !important;
-  padding: 3px 6px !important;
-  height: 26px;
-  font-size: 12px;
+  border: 1px solid var(--nx-border-strong) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--nx-text) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  height: 36px;
+  font-size: 13px;
   font-family: inherit;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
-.native-app select { padding-right: 22px !important; }
+.native-app select { padding-right: 28px !important; }
+.native-app select option { background: var(--nx-panel); color: var(--nx-text); }
 .native-app input:focus,
 .native-app select:focus,
 .native-app textarea:focus {
   outline: none;
-  border-color: #0078d4 !important;
-  box-shadow: 0 0 0 1px #0078d4;
+  border-color: var(--nx-accent) !important;
+  box-shadow: 0 0 0 3px var(--nx-accent-glow);
 }
 
-/* Fieldset-like group */
+/* Groups / sections */
 .native-app .native-group {
-  background: #ffffff;
-  border: 1px solid #c8c8c8;
-  padding: 10px 12px;
-  border-radius: 2px;
+  background: linear-gradient(180deg, var(--nx-panel-2), var(--nx-panel));
+  border: 1px solid var(--nx-border);
+  padding: 16px 18px;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 12px 32px -20px rgba(0, 0, 0, 0.6);
 }
 .native-app .native-group-title {
-  font-size: 11px;
+  font-size: 10.5px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #555;
+  letter-spacing: 0.09em;
+  color: var(--nx-text-mute);
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 /* Kill web-ish backgrounds */
 .native-app .bg-background,
 .native-app .bg-muted,
 .native-app .bg-accent { background: transparent !important; }
-.native-app .text-muted-foreground { color: #555 !important; }
-.native-app .text-foreground { color: #1f1f1f !important; }
+.native-app .text-muted-foreground { color: var(--nx-text-dim) !important; }
+.native-app .text-foreground { color: var(--nx-text) !important; }
+.native-app .border-border,
+.native-app .border-input { border-color: var(--nx-border) !important; }
 
-/* kbd chip */
+/* Status badge (idle/recording/etc.) — subtle chips */
+.native-app .bg-muted { background: rgba(255,255,255,0.05) !important; }
+
+/* kbd chip — modern minimal */
 .native-app kbd {
-  font-family: "Consolas", "Menlo", monospace;
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
   font-size: 11px;
-  padding: 1px 5px;
-  border: 1px solid #a0a0a0;
-  border-bottom-width: 2px;
-  background: #fafafa;
-  border-radius: 2px;
-  color: #222;
+  padding: 2px 6px;
+  border: 1px solid var(--nx-border-strong);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 5px;
+  color: var(--nx-text);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
+
+/* Links */
+.native-app a { color: var(--nx-accent-2); }
+.native-app a:hover { color: #78a8ff; }
+
