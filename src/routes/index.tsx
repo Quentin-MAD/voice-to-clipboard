@@ -73,7 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur que vous pointez du doigt en jeu.
+          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur dont vous donnez le pseudo afin que l'IA puisse le trouver, le traduire et le synthétiser vocalement.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
