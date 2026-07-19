@@ -89,8 +89,8 @@ function TermsPage() {
             <h2 className="text-lg font-semibold">7. Plans, credits and payments</h2>
             <p>
               The service is offered on a freemium basis: free users receive 20 credits per month (1 credit = 1 translation).
-              Additional credits can be purchased (pack of 50 credits for €2.99) or an annual subscription (€20/year) grants
-              unlimited translations, subject to the 50/hour anti-abuse cap.
+              Additional credits can be purchased (pack of 50 credits for €2.99) or an annual subscription (€29.99/year) grants
+              unlimited translations, subject to the 150/day anti-abuse cap.
             </p>
             <p>
               Our order process is conducted by our online reseller <strong>Paddle.com</strong>. Paddle.com is the Merchant
