@@ -230,7 +230,7 @@ function AdminPage() {
                     <td className="p-2 font-mono">{d.date}</td>
                     <td className="p-2">{d.views}</td>
                     <td className="p-2">{d.translations}</td>
-                    <td className="p-2">{d.ai_credits.toFixed(6)}</td>
+                    <td className="p-2">{num(d.ai_credits).toFixed(6)}</td>
                   </tr>
                 ))}
               </tbody>
