@@ -515,7 +515,8 @@ function Home() {
       form.append("audio", wav, "recording.wav");
       form.append("audioFormat", "wav");
       form.append("screenshot", screenshotBlob, "screen.png");
-      form.append("targetLang", target);
+      form.append("targetLang", readLang);
+
 
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
