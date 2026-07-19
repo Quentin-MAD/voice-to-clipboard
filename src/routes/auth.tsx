@@ -42,8 +42,19 @@ function AuthPage() {
     });
   }, [navigate]);
 
+  const pwdChecks = {
+    length: password.length >= 8,
+    letter: /[A-Za-z]/.test(password),
+    digit: /\d/.test(password),
+  };
+  const pwdValid = pwdChecks.length && pwdChecks.letter && pwdChecks.digit;
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "signup" && !pwdValid) {
+      toast.error("Mot de passe : min. 8 caractères, dont 1 lettre et 1 chiffre.");
+      return;
+    }
     setLoading(true);
     try {
       if (mode === "signup") {
