@@ -473,13 +473,21 @@ function Home() {
     );
   }
 
-  const creditsLabel = userStatus
-    ? userStatus.subscribed
-      ? "⭐ Abonné - illimité"
-      : `${userStatus.free_remaining} gratuits ce mois${
-          userStatus.purchased_balance > 0 ? ` + ${userStatus.purchased_balance} achetés` : ""
-        }`
-    : "…";
+  const creditBadge = userStatus ? (
+    userStatus.subscribed ? (
+      <span className="native-credits-text">⭐ Abonné - illimité</span>
+    ) : (
+      <span className="native-credits-text">
+        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
+        {" + "}
+        <span>{userStatus.purchased_balance}</span>
+        {" crédits"}
+      </span>
+    )
+  ) : (
+    <span className="native-credits-text">…</span>
+  );
+
 
   
 
