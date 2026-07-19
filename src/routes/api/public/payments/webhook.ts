@@ -45,6 +45,12 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
   );
 }
 
+function centsToEur(v: any): number {
+  const n = Number(v ?? 0);
+  if (!isFinite(n)) return 0;
+  return n / 100;
+}
+
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
   const { id, status, currentBillingPeriod, scheduledChange } = data;
   await getSupabase()
