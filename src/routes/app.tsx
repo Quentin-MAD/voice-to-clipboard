@@ -774,7 +774,8 @@ function Home() {
             ) : (
               <button
                 onClick={toggleRecording}
-                disabled={status === "processing"}
+                disabled={status === "processing" || accessBlocked}
+                title={accessBlocked ? (dailyLimitReached ? `Limite quotidienne atteinte (réinit. dans ${resetCountdown ?? "…"})` : "Plus de crédits - voir les plans") : undefined}
                 className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
                   recordingRef.current || status === "recording"
                     ? "is-recording animate-pulse bg-red-500"
