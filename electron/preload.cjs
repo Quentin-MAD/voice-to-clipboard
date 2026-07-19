@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('voxElectron', {
     return () => ipcRenderer.removeListener('hotkey-status', listener);
   },
   writeClipboard: (text, meta) => ipcRenderer.invoke('clipboard:write', { text, meta }),
-  setHotkeys: (toggle) => ipcRenderer.invoke('hotkeys:set', { toggle }),
+  setHotkeys: (toggle, read) => ipcRenderer.invoke('hotkeys:set', { toggle, read }),
   getHotkey: () => ipcRenderer.invoke('hotkeys:get'),
   setRecordingState: (isRecording) => ipcRenderer.invoke('recording:state', isRecording),
   setOverlayStatus: (status) => ipcRenderer.invoke('overlay:status', status),
@@ -27,4 +27,5 @@ contextBridge.exposeInMainWorld('voxElectron', {
   getLogPaths: () => ipcRenderer.invoke('logs:paths'),
   tailLogs: (maxBytes) => ipcRenderer.invoke('logs:tail', maxBytes),
   writeLog: (level, message, extra) => ipcRenderer.invoke('logs:write', { level, message, extra }),
+  captureScreen: () => ipcRenderer.invoke('screenshot:capture'),
 });
