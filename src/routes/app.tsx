@@ -576,6 +576,7 @@ function Home() {
       const json = (await res.json()) as {
         pseudo?: string;
         original?: string;
+        sourceLang?: string;
         translation?: string;
         audio?: string;
         audioFormat?: string;
