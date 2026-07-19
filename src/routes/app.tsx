@@ -360,8 +360,8 @@ function Home() {
       setHistory([item]);
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
-      // Skip the web chime when the app is hidden — the native Windows toast already plays its own sound.
-      if (!windowHidden) playSuccessChime();
+      // Small delay so the chime doesn't overlap with processing-loop teardown.
+      setTimeout(() => playSuccessChime(), 40);
       setStatus("copied");
       statusQuery.refetch();
       setTimeout(() => setStatus("idle"), 1800);
