@@ -1008,6 +1008,41 @@ function Home() {
                 </>
               )}
             </p>
+
+            {/* Read player message (F9) */}
+            <div style={{ width: "100%", borderTop: isElectron ? "1px solid var(--nx-border, rgba(255,255,255,0.08))" : "1px solid hsl(var(--border))", marginTop: 12, paddingTop: 12 }}>
+              <button
+                onClick={toggleReadRecording}
+                disabled={readProcessing || accessBlocked}
+                className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition disabled:opacity-60 ${
+                  readActive
+                    ? "bg-amber-500 text-white animate-pulse"
+                    : readProcessing
+                    ? "bg-muted text-muted-foreground"
+                    : "border border-input bg-background hover:bg-accent"
+                }`}
+                title={`Lire un message d'un joueur (${readKey}) - 2 crédits`}
+              >
+                <span className="text-lg">{readActive ? "⏹" : readProcessing ? "⏳" : "🔊"}</span>
+                <span>
+                  {readActive
+                    ? "Parlez... (ré-appuyez pour analyser)"
+                    : readProcessing
+                    ? "Analyse et lecture..."
+                    : `Lire un message de joueur (${readKey}) - 2 crédits`}
+                </span>
+              </button>
+              {readResult && !readActive && !readProcessing && (
+                <div className="mt-3 rounded-lg border border-border bg-background/50 p-3 text-xs">
+                  {readResult.pseudo && <div className="mb-1 font-semibold text-primary">{readResult.pseudo}</div>}
+                  {readResult.original && <div className="text-muted-foreground italic">"{readResult.original}"</div>}
+                  {readResult.translation && <div className="mt-1 font-medium">→ {readResult.translation}</div>}
+                </div>
+              )}
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Appuyez, dites par ex. "Lis-moi le message de Xstarlord", ré-appuyez. L'IA analyse votre écran et lit la traduction à voix haute.
+              </p>
+            </div>
           </div>
 
           {/* Language selectors */}
