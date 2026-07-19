@@ -196,14 +196,12 @@ export const Route = createFileRoute("/api/read-message")({
             }, { status: 422 });
           }
 
-          // ---- Consume 2 credits AFTER success, BEFORE TTS ----
-          const { data: consumeData, error: consumeErr } = await admin.rpc("consume_translation_v2", {
+          // ---- Consume 1 voice credit AFTER success, BEFORE TTS ----
+          const { data: consumeData, error: consumeErr } = await admin.rpc("consume_voice_read", {
             _user_id: userId,
-            _amount: 2,
-            _operation: "read_message",
           });
           if (consumeErr) {
-            console.error("consume_translation_v2 failed:", consumeErr);
+            console.error("consume_voice_read failed:", consumeErr);
             return Response.json({ error: "Erreur crédits.", code: "server" }, { status: 500 });
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
@@ -211,10 +209,22 @@ export const Route = createFileRoute("/api/read-message")({
             if (row?.reason === "daily_limit") {
               return Response.json({ error: "Limite quotidienne atteinte (150/24h).", code: "daily_limit" }, { status: 429 });
             }
-            if (row?.reason === "no_credits") {
+            if (row?.reason === "voice_daily_limit_free") {
               return Response.json({
-                error: "Il vous faut 2 crédits pour une lecture. Passez à l'abonnement ou achetez un pack.",
-                code: "no_credits",
+                error: "Limite atteinte : 5 lectures vocales/jour en gratuit. Achetez un Pack crédits Vocale pour passer à 10/jour.",
+                code: "voice_daily_limit",
+              }, { status: 429 });
+            }
+            if (row?.reason === "voice_daily_limit") {
+              return Response.json({
+                error: "Limite atteinte : 10 lectures vocales/jour maximum.",
+                code: "voice_daily_limit",
+              }, { status: 429 });
+            }
+            if (row?.reason === "no_voice_credits") {
+              return Response.json({
+                error: "Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €) ou passez à l'abonnement.",
+                code: "no_voice_credits",
               }, { status: 402 });
             }
             return Response.json({ error: "Lecture refusée.", code: "denied" }, { status: 402 });
