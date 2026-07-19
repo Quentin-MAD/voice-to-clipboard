@@ -295,10 +295,11 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 }
 .native-app .native-menubar .native-title b { color: var(--nx-text); font-weight: 700; }
 .native-app .native-trademark {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--nx-text-mute);
-  vertical-align: super;
+  position: relative;
+  top: -2px;
   margin-left: 2px;
   line-height: 1;
 }
