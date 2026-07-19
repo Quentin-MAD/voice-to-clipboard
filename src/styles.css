@@ -420,7 +420,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .native-app .native-email {
   font-size: 10px;
   color: var(--nx-text-mute);
-  max-width: 260px;
+  max-width: 220px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 0 4px;
   flex-shrink: 0;
