@@ -745,91 +745,113 @@ function Home() {
       {/* Settings modal */}
       {settingsOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className={isElectron ? "native-modal-backdrop" : "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"}
           onClick={() => {
             setSettingsOpen(false);
             setCapturing(false);
           }}
         >
           <div
-            className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl"
+            className={isElectron ? "native-modal" : "w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl"}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Paramètres</h2>
-              <button
-                onClick={() => {
-                  setSettingsOpen(false);
-                  setCapturing(false);
-                }}
-                className="rounded p-1 text-muted-foreground hover:bg-accent"
-                aria-label="Fermer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setCapturing(true)}
-                  className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
-                    capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
-                  }`}
-                >
-                  {capturing ? "Appuyez sur une touche…" : toggleKey}
-                </button>
-                <button
-                  onClick={() => {
-                    setToggleKey("F8");
-                    setCapturing(false);
-                  }}
-                  className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                  title="Réinitialiser (F8)"
-                >
-                  Réinit.
-                </button>
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter.{" "}
-                {isElectron
-                  ? "Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus."
-                  : "Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global."}
-              </p>
-            </div>
-
-            {isElectron && (
-              <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
-                <label className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium">Lancer TalKing au démarrage de Windows</div>
-                    <div className="text-xs text-muted-foreground">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
+            {isElectron ? (
+              <>
+                <div className="native-modal-head">
+                  <span className="native-modal-title">Paramètres</span>
+                  <button
+                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    aria-label="Fermer"
+                    style={{ minHeight: 26, padding: "2px 10px" }}
+                  >✕</button>
+                </div>
+                <div className="native-modal-body">
+                  <div className="native-field">
+                    <span className="native-label">Raccourci d'enregistrement</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => setCapturing(true)}
+                        style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
+                                 background: capturing ? "rgba(245,158,11,0.15)" : undefined,
+                                 borderColor: capturing ? "rgba(245,158,11,0.6)" : undefined,
+                                 color: capturing ? "#fbbf24" : undefined }}
+                      >
+                        {capturing ? "Appuyez sur une touche…" : toggleKey}
+                      </button>
+                      <button onClick={() => { setToggleKey("F8"); setCapturing(false); }} title="Réinitialiser (F8)">
+                        Réinit.
+                      </button>
+                    </div>
+                    <p className="native-field-help">
+                      Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus.
+                    </p>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={autoStart}
-                    onChange={async (e) => {
-                      const next = e.target.checked;
-                      setAutoStartState(next);
-                      const r = await window.voxElectron?.setAutoStart?.(next);
-                      if (r) setAutoStartState(!!r.enabled);
-                    }}
-                    className="h-5 w-5 shrink-0 accent-primary"
-                  />
-                </label>
-              </div>
-            )}
 
-            <button
-              onClick={() => {
-                setSettingsOpen(false);
-                setCapturing(false);
-              }}
-              className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              Terminé
-            </button>
+                  <div className="native-row">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="native-row-title">Lancer TalKing au démarrage de Windows</div>
+                      <div className="native-row-desc">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="native-switch"
+                      checked={autoStart}
+                      onChange={async (e) => {
+                        const next = e.target.checked;
+                        setAutoStartState(next);
+                        const r = await window.voxElectron?.setAutoStart?.(next);
+                        if (r) setAutoStartState(!!r.enabled);
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="native-modal-foot">
+                  <button onClick={() => { setSettingsOpen(false); setCapturing(false); }} className="native-btn-primary">
+                    Terminé
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Paramètres</h2>
+                  <button
+                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    className="rounded p-1 text-muted-foreground hover:bg-accent"
+                    aria-label="Fermer"
+                  >✕</button>
+                </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCapturing(true)}
+                      className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
+                        capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                      }`}
+                    >
+                      {capturing ? "Appuyez sur une touche…" : toggleKey}
+                    </button>
+                    <button
+                      onClick={() => { setToggleKey("F8"); setCapturing(false); }}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
+                      title="Réinitialiser (F8)"
+                    >
+                      Réinit.
+                    </button>
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global.
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                  className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Terminé
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -837,6 +859,7 @@ function Home() {
     </div>
   );
 }
+
 
 
 
