@@ -929,6 +929,12 @@ function Home() {
 
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+          {/* Floating language-pair banner during F9 voice playback */}
+          {isElectron && readLangPair && (
+            <div className="native-lang-banner">
+              <span className="native-lang-pair">{readLangPair}</span>
+            </div>
+          )}
           {/* Web-only header */}
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
