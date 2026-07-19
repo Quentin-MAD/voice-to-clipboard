@@ -1,5 +1,5 @@
 {
-  "version": "0.9.6",
-  "url": "https://talking-translator.com/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe",
-  "notes": "v0.9.6 - Bulle credits centree dans la barre du haut, barre de statut inferieure retiree, titre de fenetre 'TalKing (R), v0.9.6', mise a jour automatique silencieuse."
+  "version": "0.9.7",
+  "url": "https://talking-translator.com/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe",
+  "notes": "v0.9.7 - Nouvelle fonction 'Lire un message de joueur' (F9) : capture d'ecran + reconnaissance vocale + traduction lue a voix haute. Corrige l'erreur 'Fonction disponible uniquement dans l'application Windows' qui apparaissait meme sur l'app Windows."
 }
