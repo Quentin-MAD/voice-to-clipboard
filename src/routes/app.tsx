@@ -806,7 +806,7 @@ function Home() {
           <span className="limits-row-count">{textUsed}/{textCap}</span>
         </div>
         <div className="limits-row">
-          <span className="limits-row-label">Vocale</span>
+          <span className="limits-row-label">Voix</span>
           <span className="limits-bar"><span className={`limits-bar-fill ${barClass(voiceUsed, voiceCap)}`} style={{ width: `${pct(voiceUsed, voiceCap)}%` }} /></span>
           <span className="limits-row-count">{voiceUsed}/{voiceCap}</span>
         </div>
@@ -814,13 +814,13 @@ function Home() {
       <span className="limits-sep" />
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
-          <strong>⭐ Illimité texte · 🔊 {voiceCount} vocaux</strong>
+          <strong>⭐ Illimité · 🔊 {voiceCount} voix</strong>
         ) : (
           <strong>
-            ✍️ {userStatus.purchased_balance + userStatus.free_remaining} texte · 🔊 {voiceCount} vocaux
+            ✍️ {userStatus.purchased_balance + userStatus.free_remaining} · 🔊 {voiceCount} voix
           </strong>
         )}
-        <span className="limits-reset">Reset {resetLabel} (24h)</span>
+        <span className="limits-reset">Reset {resetLabel}</span>
       </div>
     </>
   ) : (
