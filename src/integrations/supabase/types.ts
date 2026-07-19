@@ -92,6 +92,45 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount_eur: number
+          created_at: string
+          currency: string | null
+          environment: string
+          id: string
+          kind: string
+          paddle_subscription_id: string | null
+          paddle_transaction_id: string
+          raw: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_eur?: number
+          created_at?: string
+          currency?: string | null
+          environment: string
+          id?: string
+          kind: string
+          paddle_subscription_id?: string | null
+          paddle_transaction_id: string
+          raw?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_eur?: number
+          created_at?: string
+          currency?: string | null
+          environment?: string
+          id?: string
+          kind?: string
+          paddle_subscription_id?: string | null
+          paddle_transaction_id?: string
+          raw?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
