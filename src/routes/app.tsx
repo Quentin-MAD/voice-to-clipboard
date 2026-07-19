@@ -415,7 +415,7 @@ function Home() {
       setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
       setTimeout(() => setStatus("idle"), 2500);
     }
-  }, []);
+  }, [dailyLimitReached, noCreditsLeft, resetCountdown]);
 
   const toggleRecording = useCallback(() => {
     if (recordingRef.current) void stopRecording();
