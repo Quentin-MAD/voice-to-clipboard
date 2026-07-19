@@ -1215,9 +1215,24 @@ function Home() {
                       </button>
                     </div>
                     <p className="native-field-help">
-                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans votre langue cible.
+                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans la langue choisie ci-dessous.
                     </p>
                   </div>
+
+                  <div className="native-field">
+                    <span className="native-label">Langue de réponse (lecture vocale)</span>
+                    <select
+                      value={readLang}
+                      onChange={(e) => setReadLang(e.target.value)}
+                      style={{ width: "100%", height: 36, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
+                    >
+                      {LANGUAGES.map((l) => (
+                        <option key={l.code} value={l.code}>{l.label}</option>
+                      ))}
+                    </select>
+                    <p className="native-field-help">Langue dans laquelle l'IA vous lira le message traduit.</p>
+                  </div>
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
