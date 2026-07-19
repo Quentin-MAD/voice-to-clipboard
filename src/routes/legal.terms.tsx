@@ -66,7 +66,7 @@ function TermsPage() {
               <li>submit content you do not have the right to submit;</li>
               <li>use the service to generate content that is illegal, hateful, defamatory or that harms minors;</li>
               <li>reverse engineer, resell or redistribute the service or circumvent its technical limits (including the
-              50 translations per hour anti-abuse cap).</li>
+              150 translations per day anti-abuse cap).</li>
             </ul>
             <p>
               You are responsible for what you record, for how you use the translated output, and for verifying its accuracy
