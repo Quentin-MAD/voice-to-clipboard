@@ -73,8 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          <span className="notranslate">TalKing</span> traduit votre voix en temps réel pendant que vous jouez.
-          Appuyez sur une touche, parlez, et la traduction arrive directement dans votre presse-papiers.
+          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur que vous pointez du doigt en jeu.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
