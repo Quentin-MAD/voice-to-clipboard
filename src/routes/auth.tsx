@@ -144,8 +144,8 @@ function AuthPage() {
                   <input
                     type="password"
                     required
-                    minLength={mode === "signup" ? 8 : 6}
-                    placeholder="••••••••"
+                    minLength={6}
+                    placeholder="••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="native-auth-input"
