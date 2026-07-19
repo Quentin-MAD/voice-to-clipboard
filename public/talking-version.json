@@ -1,5 +1,5 @@
 {
-  "version": "0.9.7",
-  "url": "https://talking-translator.com/__l5e/assets-v1/056b9cc2-836a-424b-844c-1c44cb369b46/TalKing-Setup-0.9.7.exe",
-  "notes": "v0.9.7 - Nouvelle fonction 'Lire un message de joueur' (F9) : capture d'ecran + reconnaissance vocale + traduction lue a voix haute. Corrige l'erreur 'Fonction disponible uniquement dans l'application Windows' qui apparaissait meme sur l'app Windows."
+  "version": "0.9.8",
+  "url": "https://talking-translator.com/__l5e/assets-v1/75313d2a-dbd0-499e-8f82-98bcae5d872a/TalKing-Setup-0.9.8.exe",
+  "notes": "v0.9.8 - Ajout de la selection du microphone dans les Parametres (utile quand plusieurs micros sont branches)."
 }
