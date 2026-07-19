@@ -478,9 +478,9 @@ function Home() {
       <span className="native-credits-text">⭐ Abonné - illimité</span>
     ) : (
       <span className="native-credits-text">
-        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
-        {" + "}
         <span>{userStatus.purchased_balance}</span>
+        {" + "}
+        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
         {" crédits"}
       </span>
     )
