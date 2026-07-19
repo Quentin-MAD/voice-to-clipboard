@@ -166,7 +166,7 @@ function LandingPage() {
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <HardDrive className="h-5 w-5" />
-            Télécharger TalKing-Setup-0.9.6.exe (114 MB)
+            Télécharger <span className="notranslate">TalKing-Setup-0.9.6.exe</span> (114 MB)
           </a>
         </div>
       </section>
