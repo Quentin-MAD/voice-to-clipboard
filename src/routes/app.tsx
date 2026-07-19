@@ -187,7 +187,8 @@ function Home() {
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const [autoStart, setAutoStartState] = useState<boolean>(false);
-  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; translation?: string } | null>(null);
+  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
+  const [readLangPair, setReadLangPair] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
 
@@ -575,6 +576,7 @@ function Home() {
       const json = (await res.json()) as {
         pseudo?: string;
         original?: string;
+        sourceLang?: string;
         translation?: string;
         audio?: string;
         audioFormat?: string;
@@ -613,16 +615,26 @@ function Home() {
       }
 
       // 3. Play the returned audio (MP3)
-      setReadResult({ pseudo: json.pseudo, original: json.original, translation: json.translation });
+      setReadResult({ pseudo: json.pseudo, original: json.original, sourceLang: json.sourceLang, translation: json.translation });
+      const sourceLabel = LANGUAGES.find((l) => l.code === json.sourceLang)?.label ?? "Langue détectée";
+      const targetLabel = LANGUAGES.find((l) => l.code === readLang)?.label ?? readLang;
+      setReadLangPair(`${sourceLabel} -> ${targetLabel}`);
       const audioUrl = `data:audio/${json.audioFormat ?? "mp3"};base64,${json.audio}`;
       try { readAudioPlayerRef.current?.pause(); } catch { /* ignore */ }
       const audio = new Audio(audioUrl);
       audio.volume = 1;
       readAudioPlayerRef.current = audio;
+      audio.onended = () => {
+        setReadLangPair(null);
+      };
+      audio.onerror = () => {
+        setReadLangPair(null);
+      };
       stopProcessingSoundRef.current?.();
       stopProcessingSoundRef.current = null;
       setTimeout(() => playSuccessChime(), 30);
       await audio.play().catch(() => {
+        setReadLangPair(null);
         toast.info("Cliquez dans la fenêtre pour autoriser la lecture audio.");
       });
       statusQuery.refetch();
@@ -917,6 +929,12 @@ function Home() {
 
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+          {/* Floating language-pair banner during F9 voice playback */}
+          {isElectron && readLangPair && (
+            <div className="native-lang-banner">
+              <span className="native-lang-pair">{readLangPair}</span>
+            </div>
+          )}
           {/* Web-only header */}
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
