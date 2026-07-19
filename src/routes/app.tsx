@@ -217,6 +217,7 @@ function Home() {
     return () => clearTimeout(id);
   }, [dailyLimitReached, userStatus?.daily_reset_at, statusQuery]);
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
