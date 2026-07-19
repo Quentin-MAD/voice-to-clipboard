@@ -12,6 +12,7 @@ type VisionResult = {
   found: boolean;
   pseudo?: string;
   original?: string;
+  sourceLang?: string;
   translation?: string;
   reason?: string;
 };
