@@ -1240,7 +1240,7 @@ function Home() {
                   download="TalKing-Setup-0.9.8.exe"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v0.9.7 (.exe, 118 Mo)
+                  ⬇ Télécharger l'installeur v0.9.8 (.exe, 99 Mo)
                 </a>
                 <a
                   href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
