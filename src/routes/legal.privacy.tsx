@@ -26,7 +26,7 @@ function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold">1. Data controller</h2>
             <p>
-              The data controller for personal data processed through TalKing is <strong>Quentin Rosset</strong>, sole
+              The data controller for personal data processed through <span className="notranslate">TalKing</span> is <strong>Quentin Rosset</strong>, sole
               trader, registered in France under SIREN 107 314 445, contact{" "}
               <a className="underline" href="mailto:rossetquentin26@gmail.com">rossetquentin26@gmail.com</a>.
             </p>

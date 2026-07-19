@@ -35,7 +35,7 @@ function RefundsPage() {
             <h2 className="text-lg font-semibold">How to request a refund</h2>
             <p>
               Refunds are processed by our payment provider, <strong>Paddle</strong>, which is the Merchant of Record for
-              all TalKing orders.
+              all <span className="notranslate">TalKing</span> orders.
             </p>
             <ol className="list-decimal pl-6 space-y-1">
               <li>Go to <a className="underline" href="https://paddle.net" target="_blank" rel="noreferrer">paddle.net</a> and look up your order using the email you paid with.</li>
