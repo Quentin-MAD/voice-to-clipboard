@@ -94,7 +94,7 @@ function PricingPage() {
             </div>
             <h2 className="text-lg font-semibold">Abonnement</h2>
             <div className="my-3 text-3xl font-bold">
-              20 € <span className="text-sm font-normal text-muted-foreground">/an</span>
+              29,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ Traductions illimitées*</li>
@@ -106,10 +106,10 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "S'abonner - 20 €/an"}
+              {loading ? "Chargement..." : "S'abonner - 29,99 €/an"}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
-              *dans la limite de 50 traductions/heure (anti-spam).
+              *dans la limite de 150 traductions/jour (anti-spam).
             </p>
           </div>
         </div>
