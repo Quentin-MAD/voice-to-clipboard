@@ -11,6 +11,7 @@ const {
   powerSaveBlocker,
   screen,
   session,
+  desktopCapturer,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -34,7 +35,9 @@ let mainWindow = null;
 let overlayWindow = null;
 let tray = null;
 let toggleAccel = 'F8';
+let readAccel = 'F9';
 let hotkeyOk = true;
+let readHotkeyOk = true;
 let isRecording = false;
 let powerBlockerId = null;
 
@@ -46,13 +49,14 @@ function loadSettings() {
     if (fs.existsSync(SETTINGS_PATH)) {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
       if (raw && typeof raw.toggleAccel === 'string') toggleAccel = raw.toggleAccel;
+      if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
     }
   } catch (e) { console.error('loadSettings failed', e); }
 }
 function saveSettings() {
   try {
     if (!SETTINGS_PATH) return;
-    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel }, null, 2));
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel, readAccel }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
 
@@ -171,6 +175,7 @@ function notifyOnce() {
 function registerHotkeys() {
   globalShortcut.unregisterAll();
   hotkeyOk = false;
+  readHotkeyOk = false;
   try {
     hotkeyOk = globalShortcut.register(toggleAccel, () => {
       if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
@@ -182,9 +187,16 @@ function registerHotkeys() {
         urgent: true,
       });
     }
-  } catch (e) { console.error('Failed to register hotkey', e); }
+  } catch (e) { console.error('Failed to register toggle hotkey', e); }
+  try {
+    if (readAccel && readAccel !== toggleAccel) {
+      readHotkeyOk = globalShortcut.register(readAccel, () => {
+        if (mainWindow) mainWindow.webContents.send('hotkey', 'read-toggle');
+      });
+    }
+  } catch (e) { console.error('Failed to register read hotkey', e); }
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk });
+    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk });
   }
   rebuildTrayMenu();
 }
@@ -359,15 +371,19 @@ ipcMain.handle('window:show', () => { showWindow(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {
   const toggle = payload && (payload.toggle || payload.start);
+  const read = payload && payload.read;
   if (toggle && typeof toggle === 'string') {
     toggleAccel = toggle;
-    saveSettings();
   }
+  if (read && typeof read === 'string') {
+    readAccel = read;
+  }
+  saveSettings();
   registerHotkeys();
-  return { toggle: toggleAccel, ok: hotkeyOk };
+  return { toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk };
 });
 
-ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk }));
+ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk }));
 
 ipcMain.handle('recording:state', (_e, state) => {
   isRecording = !!state;
@@ -383,7 +399,31 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, readAccel, readHotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+
+// -------- Screenshot capture for "Read message" feature --------
+ipcMain.handle('screenshot:capture', async () => {
+  try {
+    const primary = screen.getPrimaryDisplay();
+    const { width, height } = primary.size;
+    const scale = primary.scaleFactor || 1;
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: {
+        width: Math.round(width * scale),
+        height: Math.round(height * scale),
+      },
+    });
+    if (!sources || sources.length === 0) return { ok: false, error: 'no-source' };
+    // Prefer primary screen (usually the first)
+    const src = sources[0];
+    const png = src.thumbnail.toPNG();
+    return { ok: true, dataBase64: png.toString('base64'), mime: 'image/png' };
+  } catch (e) {
+    console.error('screenshot:capture failed', e);
+    return { ok: false, error: String(e && e.message || e) };
+  }
+});
 
 // -------- Session sign-out (step 9) --------
 async function signOutAndReload({ confirm = false } = {}) {

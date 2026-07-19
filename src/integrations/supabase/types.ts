@@ -162,18 +162,21 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          operation_type: string
           source_type: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: number
+          operation_type?: string
           source_type: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: number
+          operation_type?: string
           source_type?: string
           user_id?: string
         }
@@ -233,6 +236,16 @@ export type Database = {
       }
       consume_translation: {
         Args: { _user_id: string }
+        Returns: {
+          ok: boolean
+          reason: string
+          remaining_free: number
+          remaining_purchased: number
+          subscribed: boolean
+        }[]
+      }
+      consume_translation_v2: {
+        Args: { _amount?: number; _operation?: string; _user_id: string }
         Returns: {
           ok: boolean
           reason: string

@@ -20,6 +20,7 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
+import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -79,6 +80,11 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   path: '/api/translate-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReadMessageRoute = ApiReadMessageRouteImport.update({
+  id: '/api/read-message',
+  path: '/api/read-message',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminRoute = ApiAdminRouteImport.update({
   id: '/api/admin',
   path: '/api/admin',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/admin'
+    | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/admin'
+    | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/pricing'
     | '/api/admin'
+    | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PricingRoute: typeof PricingRoute
   ApiAdminRoute: typeof ApiAdminRoute
+  ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranslateAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/read-message': {
+      id: '/api/read-message'
+      path: '/api/read-message'
+      fullPath: '/api/read-message'
+      preLoaderRoute: typeof ApiReadMessageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin': {
       id: '/api/admin'
       path: '/api/admin'
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PricingRoute: PricingRoute,
   ApiAdminRoute: ApiAdminRoute,
+  ApiReadMessageRoute: ApiReadMessageRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,

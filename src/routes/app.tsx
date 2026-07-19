@@ -115,12 +115,13 @@ type UserStatus = {
   daily_reset_at: string | null;
 };
 
-const STORAGE_KEY = "voxtranslate:settings:v2";
+const STORAGE_KEY = "voxtranslate:settings:v3";
 
 type PersistedSettings = {
   source: string;
   target: string;
   toggleKey: string;
+  readKey: string;
 };
 
 function loadSettings(): PersistedSettings | null {
@@ -128,7 +129,18 @@ function loadSettings(): PersistedSettings | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw) as PersistedSettings;
-    // Migrate old v1 settings
+    // Migrate v2
+    const v2 = localStorage.getItem("voxtranslate:settings:v2");
+    if (v2) {
+      const old = JSON.parse(v2) as { source?: string; target?: string; toggleKey?: string };
+      return {
+        source: old.source ?? "auto",
+        target: old.target ?? "en",
+        toggleKey: old.toggleKey ?? "F8",
+        readKey: "F9",
+      };
+    }
+    // Migrate v1
     const oldRaw = localStorage.getItem("voxtranslate:settings:v1");
     if (oldRaw) {
       const old = JSON.parse(oldRaw) as { source?: string; target?: string; startKey?: string };
@@ -136,6 +148,7 @@ function loadSettings(): PersistedSettings | null {
         source: old.source ?? "auto",
         target: old.target ?? "en",
         toggleKey: old.startKey ?? "F8",
+        readKey: "F9",
       };
     }
     return null;
@@ -150,16 +163,18 @@ function Home() {
   const [source, setSource] = useState<string>("auto");
   const [target, setTarget] = useState<string>("en");
   const [toggleKey, setToggleKey] = useState<string>("F8");
+  const [readKey, setReadKey] = useState<string>("F9");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<boolean>(false);
+  const [capturing, setCapturing] = useState<"toggle" | "read" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const [autoStart, setAutoStartState] = useState<boolean>(false);
+  const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; translation?: string } | null>(null);
   const isMobile = useIsMobile();
 
 
@@ -234,13 +249,14 @@ function Home() {
       setSource(s.source ?? "auto");
       setTarget(s.target ?? "en");
       setToggleKey(s.toggleKey ?? "F8");
+      setReadKey(s.readKey ?? "F9");
     }
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey }));
-  }, [source, target, toggleKey, hydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ source, target, toggleKey, readKey }));
+  }, [source, target, toggleKey, readKey, hydrated]);
 
 
   const stopRecording = useCallback(async () => {
@@ -431,6 +447,195 @@ function Home() {
     else void startRecording();
   }, [startRecording, stopRecording]);
 
+  // Read-message flow refs / state
+  const readAudioCtxRef = useRef<AudioContext | null>(null);
+  const readStreamRef = useRef<MediaStream | null>(null);
+  const readProcessorRef = useRef<ScriptProcessorNode | null>(null);
+  const readSourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null);
+  const readChunksRef = useRef<Float32Array[]>([]);
+  const readRecordingRef = useRef(false);
+  const readStartRef = useRef(0);
+  const [readActive, setReadActive] = useState(false);
+  const [readProcessing, setReadProcessing] = useState(false);
+  const readAudioPlayerRef = useRef<HTMLAudioElement | null>(null);
+
+  const stopReadRecording = useCallback(async () => {
+    if (!readRecordingRef.current) return;
+    readRecordingRef.current = false;
+    setReadActive(false);
+    if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+      void window.voxElectron.setRecordingState(false);
+    }
+    const duration = Date.now() - readStartRef.current;
+    readProcessorRef.current?.disconnect();
+    readSourceNodeRef.current?.disconnect();
+    readStreamRef.current?.getTracks().forEach((t) => t.stop());
+    const ctx = readAudioCtxRef.current;
+    const sampleRate = ctx?.sampleRate ?? 48000;
+    const chunks = readChunksRef.current;
+    readChunksRef.current = [];
+    readProcessorRef.current = null;
+    readSourceNodeRef.current = null;
+    readStreamRef.current = null;
+    if (ctx) await ctx.close().catch(() => {});
+    readAudioCtxRef.current = null;
+
+    if (duration < 400 || chunks.length === 0) {
+      toast.error("Enregistrement trop court");
+      return;
+    }
+    if (typeof window === "undefined" || !window.voxElectron?.captureScreen) {
+      toast.error("Fonction disponible uniquement dans l'application Windows");
+      return;
+    }
+
+    setReadProcessing(true);
+    stopProcessingSoundRef.current?.();
+    stopProcessingSoundRef.current = playProcessingLoop();
+    try {
+      // 1. Capture screenshot NOW (after speaking, chat is still visible)
+      const shot = await window.voxElectron.captureScreen();
+      if (!shot?.ok || !shot.dataBase64) {
+        throw new Error(shot?.error ?? "Capture d'écran impossible");
+      }
+      const screenshotBlob = await (await fetch(`data:${shot.mime ?? "image/png"};base64,${shot.dataBase64}`)).blob();
+
+      // 2. Encode audio to WAV
+      const wav = encodeWav(chunks, sampleRate, 16000);
+
+      const form = new FormData();
+      form.append("audio", wav, "recording.wav");
+      form.append("audioFormat", "wav");
+      form.append("screenshot", screenshotBlob, "screen.png");
+      form.append("targetLang", target);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Vous devez être connecté");
+        navigate({ to: "/auth" });
+        return;
+      }
+
+      const res = await fetch("/api/read-message", {
+        method: "POST",
+        body: form,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = (await res.json()) as {
+        pseudo?: string;
+        original?: string;
+        translation?: string;
+        audio?: string;
+        audioFormat?: string;
+        error?: string;
+        code?: string;
+      };
+      if (!res.ok || !json.translation || !json.audio) {
+        statusQuery.refetch();
+        if (json.code === "daily_limit") {
+          toast.error("🛑 Limite quotidienne atteinte (150 / 24h).", { duration: 6000 });
+        } else if (json.code === "no_credits") {
+          toast.error(json.error ?? "Il vous faut 2 crédits pour une lecture.", {
+            duration: 7000,
+            action: {
+              label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
+        } else if (json.code === "not_found") {
+          toast.error(json.error ?? "Message introuvable.", { duration: 5000 });
+        } else if (json.code === "unauthorized") {
+          toast.error("Session expirée");
+          navigate({ to: "/auth" });
+        } else {
+          toast.error(json.error ?? "Échec de la lecture");
+        }
+        throw new Error(json.error ?? `Request failed (${res.status})`);
+      }
+
+      // 3. Play the returned audio (MP3)
+      setReadResult({ pseudo: json.pseudo, original: json.original, translation: json.translation });
+      const audioUrl = `data:audio/${json.audioFormat ?? "mp3"};base64,${json.audio}`;
+      try { readAudioPlayerRef.current?.pause(); } catch { /* ignore */ }
+      const audio = new Audio(audioUrl);
+      audio.volume = 1;
+      readAudioPlayerRef.current = audio;
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      setTimeout(() => playSuccessChime(), 30);
+      await audio.play().catch(() => {
+        toast.info("Cliquez dans la fenêtre pour autoriser la lecture audio.");
+      });
+      statusQuery.refetch();
+    } catch (err) {
+      stopProcessingSoundRef.current?.();
+      stopProcessingSoundRef.current = null;
+      const msg = err instanceof Error ? err.message : "Erreur inconnue";
+      console.error("read-message flow failed:", msg);
+    } finally {
+      setReadProcessing(false);
+    }
+  }, [target, navigate, statusQuery]);
+
+  const startReadRecording = useCallback(async () => {
+    if (readRecordingRef.current || recordingRef.current) return;
+    if (typeof window === "undefined" || !window.voxElectron?.captureScreen) {
+      toast.error("Fonction disponible uniquement dans l'application Windows.");
+      return;
+    }
+    if (dailyLimitReached) {
+      toast.error("🛑 Limite quotidienne atteinte.");
+      return;
+    }
+    // Read-message needs 2 credits
+    if (!userStatus?.subscribed) {
+      const available = (userStatus?.free_remaining ?? 0) + (userStatus?.purchased_balance ?? 0);
+      if (available < 2) {
+        toast.error("Il vous faut 2 crédits pour une lecture de message.", {
+          duration: 7000,
+          action: {
+            label: "Voir les plans",
+            onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+          },
+        });
+        return;
+      }
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      });
+      const ctx = new AudioContext();
+      const src = ctx.createMediaStreamSource(stream);
+      const processor = ctx.createScriptProcessor(4096, 1, 1);
+      readChunksRef.current = [];
+      processor.onaudioprocess = (e) => {
+        if (!readRecordingRef.current) return;
+        readChunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+      };
+      src.connect(processor);
+      processor.connect(ctx.destination);
+      readAudioCtxRef.current = ctx;
+      readStreamRef.current = stream;
+      readSourceNodeRef.current = src;
+      readProcessorRef.current = processor;
+      readRecordingRef.current = true;
+      readStartRef.current = Date.now();
+      setReadActive(true);
+      if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
+        void window.voxElectron.setRecordingState(true);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
+    }
+  }, [dailyLimitReached, userStatus]);
+
+  const toggleReadRecording = useCallback(() => {
+    if (readRecordingRef.current) void stopReadRecording();
+    else void startReadRecording();
+  }, [startReadRecording, stopReadRecording]);
+
   // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -439,8 +644,9 @@ function Home() {
         e.preventDefault();
         const key = normalizeKey(e);
         if (key) {
-          setToggleKey(key);
-          setCapturing(false);
+          if (capturing === "toggle") setToggleKey(key);
+          else if (capturing === "read") setReadKey(key);
+          setCapturing(null);
         }
         return;
       }
@@ -455,25 +661,29 @@ function Home() {
       if (key === toggleKey) {
         e.preventDefault();
         toggleRecording();
+      } else if (key === readKey) {
+        e.preventDefault();
+        toggleReadRecording();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [toggleKey, capturing, toggleRecording]);
+  }, [toggleKey, readKey, capturing, toggleRecording, toggleReadRecording]);
 
   // Electron global hotkey (fires even when a game has focus)
   useEffect(() => {
     if (typeof window === "undefined" || !window.voxElectron) return;
     setIsElectron(true);
-    void window.voxElectron.setHotkeys(toggleKey).then((res) => {
+    void window.voxElectron.setHotkeys(toggleKey, readKey).then((res) => {
       if (res) setHotkeyBlocked(!res.ok);
     });
     const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
+      else if (kind === "read-toggle") toggleReadRecording();
     });
     const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
     return () => { offHotkey(); offStatus?.(); };
-  }, [toggleKey, toggleRecording]);
+  }, [toggleKey, readKey, toggleRecording, toggleReadRecording]);
 
   // Load current auto-start state from Electron
   useEffect(() => {
@@ -798,6 +1008,41 @@ function Home() {
                 </>
               )}
             </p>
+
+            {/* Read player message (F9) */}
+            <div style={{ width: "100%", borderTop: isElectron ? "1px solid var(--nx-border, rgba(255,255,255,0.08))" : "1px solid hsl(var(--border))", marginTop: 12, paddingTop: 12 }}>
+              <button
+                onClick={toggleReadRecording}
+                disabled={readProcessing || accessBlocked}
+                className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition disabled:opacity-60 ${
+                  readActive
+                    ? "bg-amber-500 text-white animate-pulse"
+                    : readProcessing
+                    ? "bg-muted text-muted-foreground"
+                    : "border border-input bg-background hover:bg-accent"
+                }`}
+                title={`Lire un message d'un joueur (${readKey}) - 2 crédits`}
+              >
+                <span className="text-lg">{readActive ? "⏹" : readProcessing ? "⏳" : "🔊"}</span>
+                <span>
+                  {readActive
+                    ? "Parlez... (ré-appuyez pour analyser)"
+                    : readProcessing
+                    ? "Analyse et lecture..."
+                    : `Lire un message de joueur (${readKey}) - 2 crédits`}
+                </span>
+              </button>
+              {readResult && !readActive && !readProcessing && (
+                <div className="mt-3 rounded-lg border border-border bg-background/50 p-3 text-xs">
+                  {readResult.pseudo && <div className="mb-1 font-semibold text-primary">{readResult.pseudo}</div>}
+                  {readResult.original && <div className="text-muted-foreground italic">"{readResult.original}"</div>}
+                  {readResult.translation && <div className="mt-1 font-medium">→ {readResult.translation}</div>}
+                </div>
+              )}
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Appuyez, dites par ex. "Lis-moi le message de Xstarlord", ré-appuyez. L'IA analyse votre écran et lit la traduction à voix haute.
+              </p>
+            </div>
           </div>
 
           {/* Language selectors */}
@@ -908,7 +1153,7 @@ function Home() {
           className={isElectron ? "native-modal-backdrop" : "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"}
           onClick={() => {
             setSettingsOpen(false);
-            setCapturing(false);
+            setCapturing(null);
           }}
         >
           <div
@@ -920,30 +1165,48 @@ function Home() {
                 <div className="native-modal-head">
                   <span className="native-modal-title">Paramètres</span>
                   <button
-                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                     aria-label="Fermer"
                     style={{ minHeight: 26, padding: "2px 10px" }}
                   >✕</button>
                 </div>
                 <div className="native-modal-body">
                   <div className="native-field">
-                    <span className="native-label">Raccourci d'enregistrement</span>
+                    <span className="native-label">Raccourci d'enregistrement (traduction)</span>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
-                        onClick={() => setCapturing(true)}
+                        onClick={() => setCapturing("toggle")}
                         style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
-                                 background: capturing ? "rgba(245,158,11,0.15)" : undefined,
-                                 borderColor: capturing ? "rgba(245,158,11,0.6)" : undefined,
-                                 color: capturing ? "#fbbf24" : undefined }}
+                                 background: capturing === "toggle" ? "rgba(245,158,11,0.15)" : undefined,
+                                 borderColor: capturing === "toggle" ? "rgba(245,158,11,0.6)" : undefined,
+                                 color: capturing === "toggle" ? "#fbbf24" : undefined }}
                       >
-                        {capturing ? "Appuyez sur une touche…" : toggleKey}
+                        {capturing === "toggle" ? "Appuyez sur une touche…" : toggleKey}
                       </button>
-                      <button onClick={() => { setToggleKey("F8"); setCapturing(false); }} title="Réinitialiser (F8)">
+                      <button onClick={() => { setToggleKey("F8"); setCapturing(null); }} title="Réinitialiser (F8)">
+                        Réinit.
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="native-field">
+                    <span className="native-label">Raccourci "Lire un message" (2 crédits)</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => setCapturing("read")}
+                        style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
+                                 background: capturing === "read" ? "rgba(245,158,11,0.15)" : undefined,
+                                 borderColor: capturing === "read" ? "rgba(245,158,11,0.6)" : undefined,
+                                 color: capturing === "read" ? "#fbbf24" : undefined }}
+                      >
+                        {capturing === "read" ? "Appuyez sur une touche…" : readKey}
+                      </button>
+                      <button onClick={() => { setReadKey("F9"); setCapturing(null); }} title="Réinitialiser (F9)">
                         Réinit.
                       </button>
                     </div>
                     <p className="native-field-help">
-                      Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus.
+                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans votre langue cible.
                     </p>
                   </div>
 
@@ -966,7 +1229,7 @@ function Home() {
                   </div>
                 </div>
                 <div className="native-modal-foot">
-                  <button onClick={() => { setSettingsOpen(false); setCapturing(false); }} className="native-btn-primary">
+                  <button onClick={() => { setSettingsOpen(false); setCapturing(null); }} className="native-btn-primary">
                     Terminé
                   </button>
                 </div>
@@ -976,36 +1239,50 @@ function Home() {
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Paramètres</h2>
                   <button
-                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                     className="rounded p-1 text-muted-foreground hover:bg-accent"
                     aria-label="Fermer"
                   >✕</button>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
+                  <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement (traduction)</label>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCapturing(true)}
+                      onClick={() => setCapturing("toggle")}
                       className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
-                        capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                        capturing === "toggle" ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
                       }`}
                     >
-                      {capturing ? "Appuyez sur une touche…" : toggleKey}
+                      {capturing === "toggle" ? "Appuyez sur une touche…" : toggleKey}
                     </button>
                     <button
-                      onClick={() => { setToggleKey("F8"); setCapturing(false); }}
+                      onClick={() => { setToggleKey("F8"); setCapturing(null); }}
                       className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                      title="Réinitialiser (F8)"
+                    >Réinit.</button>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (2 crédits)</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCapturing("read")}
+                      className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
+                        capturing === "read" ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                      }`}
                     >
-                      Réinit.
+                      {capturing === "read" ? "Appuyez sur une touche…" : readKey}
                     </button>
+                    <button
+                      onClick={() => { setReadKey("F9"); setCapturing(null); }}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
+                    >Réinit.</button>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global.
+                    Disponible uniquement dans l'app Windows (capture d'écran requise).
                   </p>
                 </div>
                 <button
-                  onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                  onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                   className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   Terminé

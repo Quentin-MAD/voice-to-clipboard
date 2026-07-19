@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.consume_translation_v2(uuid, int, text) FROM authenticated;
