@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { HardDrive, Mic, Globe, Zap } from "lucide-react";
+import { HardDrive, Mic, Globe, Zap, MessageSquare, Ear } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
@@ -14,13 +14,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci, la traduction arrive dans votre presse-papiers instantanément.",
+          "Traducteur vocal push-to-talk pour gamers. F8 : dites votre phrase, la traduction arrive dans votre presse-papiers. F9 : lisez à voix haute le message d'un joueur en jeu.",
       },
       { property: "og:title", content: "TalKing - Traducteur vocal en temps réel pour gamers" },
       {
         property: "og:description",
         content:
-          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci, la traduction arrive dans votre presse-papiers instantanément.",
+          "Traducteur vocal push-to-talk pour gamers. F8 : dites votre phrase, la traduction arrive dans votre presse-papiers. F9 : lisez à voix haute le message d'un joueur en jeu.",
       },
     ],
   }),
@@ -73,8 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          <span className="notranslate">TalKing</span> traduit votre voix en temps réel pendant que vous jouez.
-          Appuyez sur une touche, parlez, et la traduction arrive directement dans votre presse-papiers.
+          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur que vous pointez du doigt en jeu.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -100,12 +99,19 @@ function LandingPage() {
       {/* Features */}
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl border border-border bg-card p-6">
               <Mic className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">Push-to-talk</h3>
+              <h3 className="text-lg font-semibold">Traduction Vocale</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Une seule touche pour enregistrer et arrêter. Parfait quand vous jouez en plein écran.
+                Parlez, relâchez la touche, et la traduction écrite est immédiatement dans votre presse-papiers.
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6">
+              <Ear className="mb-3 h-8 w-8 text-primary" />
+              <h3 className="text-lg font-semibold">Lecture de Message Joueur</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Appuyez sur F9, dites le pseudo du joueur : l'IA lit à voix haute sa traduction dans votre langue.
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
@@ -127,28 +133,55 @@ function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-4xl px-4 py-16">
+      <section className="mx-auto max-w-5xl px-4 py-16">
         <h2 className="text-center text-2xl font-bold">Comment ça marche</h2>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              1
+        <div className="mt-8 grid gap-8 sm:grid-cols-2">
+          {/* F8 - Traduction Vocale */}
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                F8
+              </div>
+              <h3 className="text-lg font-semibold">Traduction Vocale</h3>
             </div>
-            <p className="mt-3 text-sm font-medium">Appuyez sur F8</p>
-            <p className="text-xs text-muted-foreground">Touche configurable dans l'app.</p>
+            <ol className="space-y-4">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">1</span>
+                <p className="text-sm text-muted-foreground">Appuyez sur la touche d'enregistrement (F8 par défaut, modifiable).</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">2</span>
+                <p className="text-sm text-muted-foreground">Parlez votre phrase, puis appuyez de nouveau sur la même touche pour arrêter.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">3</span>
+                <p className="text-sm text-muted-foreground">La traduction écrite est copiée dans votre presse-papiers. Collez-la directement dans le chat du jeu.</p>
+              </li>
+            </ol>
           </div>
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              2
+
+          {/* F9 - Lecture de Message Joueur */}
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                F9
+              </div>
+              <h3 className="text-lg font-semibold">Lecture de Message Joueur</h3>
             </div>
-            <p className="mt-3 text-sm font-medium">Dites votre phrase et appuyez de nouveau sur la touche d'enregistrement</p>
-          </div>
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              3
-            </div>
-            <p className="mt-3 text-sm font-medium">Collez</p>
-            <p className="text-xs text-muted-foreground">La traduction est déjà dans votre presse-papiers.</p>
+            <ol className="space-y-4">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">1</span>
+                <p className="text-sm text-muted-foreground">Appuyez sur la touche F9 (configurable) pendant que le message du joueur est visible à l'écran.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">2</span>
+                <p className="text-sm text-muted-foreground">Dites le pseudo du joueur. L'application capture votre écran et retrouve son message dans le chat.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">3</span>
+                <p className="text-sm text-muted-foreground">L'IA traduit le message et le lit à voix haute avec une voix féminine naturelle.</p>
+              </li>
+            </ol>
           </div>
         </div>
       </section>
