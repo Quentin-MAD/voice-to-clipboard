@@ -1,5 +1,5 @@
 {
-  "version": "0.9.8",
-  "url": "https://talking-translator.com/__l5e/assets-v1/75313d2a-dbd0-499e-8f82-98bcae5d872a/TalKing-Setup-0.9.8.exe",
-  "notes": "v0.9.8 - Ajout de la selection du microphone dans les Parametres (utile quand plusieurs micros sont branches)."
+  "version": "0.9.9",
+  "url": "https://talking-translator.com/__l5e/assets-v1/84a77fc2-7d8d-4466-a350-726e4910dcba/TalKing-Setup-0.9.9.exe",
+  "notes": "v0.9.9 - Hotkeys F8/F9 (et toute touche personnalisee) fonctionnent maintenant dans TOUS les jeux, y compris Star Citizen, Valorant, LoL, Fortnite, Apex, CS2 et les jeux plein ecran exclusif. Passage a un hook clavier bas niveau (meme technique que Discord/OBS)."
 }
