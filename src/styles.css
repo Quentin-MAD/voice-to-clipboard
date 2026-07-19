@@ -316,25 +316,26 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .native-app .native-credits-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 12px;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 14px;
   background: var(--nx-panel);
   border: 1px solid var(--nx-line-hi);
   color: var(--nx-text-dim);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   max-width: 100%;
   min-width: 0;
   white-space: nowrap;
   -webkit-app-region: no-drag;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.15);
 }
 .native-app .native-credits-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--nx-success);
-  box-shadow: 0 0 6px var(--nx-success);
+  box-shadow: 0 0 8px var(--nx-success);
   flex-shrink: 0;
 }
 .native-app .native-credits-text {
