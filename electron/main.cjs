@@ -25,7 +25,7 @@ const logger = require('./logger.cjs');
 // "Sign out" tray action / IPC clears it.
 
 const APP_URL = process.env.TALKING_URL || 'https://voice-to-clipboard.lovable.app/app';
-const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://voice-to-clipboard.lovable.app/talking-version.json';
+const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://talking-translator.com/talking-version.json';
 const ICON_PATH = path.join(__dirname, 'tray-icon.png');
 const START_HIDDEN = process.argv.includes('--hidden');
 const CURRENT_VERSION = app.getVersion();
