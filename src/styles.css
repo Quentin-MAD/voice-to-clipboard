@@ -263,27 +263,83 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 /* Top titlebar (draggable) */
 .native-app .native-menubar {
   flex: 0 0 auto;
-  height: 40px;
+  height: 48px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px 0 16px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--nx-line);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--nx-text-dim);
   -webkit-app-region: drag;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  background: var(--nx-bg);
 }
 .native-app .native-menubar > * { -webkit-app-region: no-drag; }
+.native-app .native-brand-inline {
+  display: flex; align-items: center; gap: 10px;
+}
+.native-app .native-brand-dot {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--nx-accent);
+  color: #fff;
+  font-weight: 800; font-size: 12px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 8px -2px var(--nx-accent-glow);
+}
 .native-app .native-menubar .native-title {
-  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
+  font-size: 15px;
   color: var(--nx-text-mute);
-  font-weight: 600;
+  font-weight: 500;
 }
 .native-app .native-menubar .native-title b { color: var(--nx-text); font-weight: 700; }
+.native-app .native-email {
+  font-size: 12.5px;
+  color: var(--nx-text-mute);
+  max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 0 4px;
+}
+.native-app .native-icon-btn {
+  width: 32px; height: 32px;
+  padding: 0 !important;
+  min-height: 0 !important;
+  display: grid; place-items: center;
+  background: transparent !important;
+  border: none !important;
+  color: var(--nx-text-mute) !important;
+  border-radius: 6px !important;
+}
+.native-app .native-icon-btn:hover:not(:disabled) {
+  background: var(--nx-panel-hi) !important;
+  color: var(--nx-text) !important;
+}
+.native-app .native-icon-btn-danger:hover:not(:disabled) {
+  background: rgba(242, 63, 66, 0.15) !important;
+  color: var(--nx-danger) !important;
+}
+.native-app .native-translate-slot {
+  display: flex; align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line-hi);
+  color: var(--nx-text-dim);
+}
+.native-app .native-translate-slot .gtranslate-select {
+  background: transparent !important;
+  border: none !important;
+  color: var(--nx-text) !important;
+  font-size: 12.5px !important;
+  height: auto !important;
+  padding: 2px 4px !important;
+  cursor: pointer;
+}
+.native-app .native-translate-slot .gtranslate-select option {
+  background: var(--nx-panel) !important;
+  color: var(--nx-text) !important;
+}
 
 .native-app .native-scroll {
   flex: 1 1 auto;
@@ -293,7 +349,9 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   display: flex;
   flex-direction: column;
   gap: 14px;
+  background: var(--nx-bg-2);
 }
+
 
 /* Statusbar */
 .native-app .native-statusbar {
