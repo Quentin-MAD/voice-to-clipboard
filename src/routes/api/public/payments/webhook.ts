@@ -76,17 +76,21 @@ async function handleTransactionCompleted(data: any) {
   if (data.subscriptionId) return;
 
   let creditsToAdd = 0;
+  let voiceCreditsToAdd = 0;
   for (const item of data.items ?? []) {
     const externalId = item.price?.importMeta?.externalId;
+    const qty = item.quantity ?? 1;
     if (externalId === "credits_pack_50_onetime") {
-      creditsToAdd += 50 * (item.quantity ?? 1);
+      creditsToAdd += 50 * qty;
+    } else if (externalId === "voice_pack_10_onetime") {
+      voiceCreditsToAdd += 10 * qty;
     }
   }
   if (creditsToAdd > 0) {
-    await getSupabase().rpc("add_purchased_credits", {
-      _user_id: userId,
-      _amount: creditsToAdd,
-    });
+    await getSupabase().rpc("add_purchased_credits", { _user_id: userId, _amount: creditsToAdd });
+  }
+  if (voiceCreditsToAdd > 0) {
+    await getSupabase().rpc("add_voice_credits", { _user_id: userId, _amount: voiceCreditsToAdd });
   }
 }
 
