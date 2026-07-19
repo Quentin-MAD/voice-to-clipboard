@@ -32,7 +32,7 @@ export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if ((window as any).voxElectron) return;
+    if (!alwaysShow && (window as any).voxElectron) return;
 
     const cookieLanguage = document.cookie
       .split("; ")
