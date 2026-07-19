@@ -715,7 +715,7 @@ function Home() {
                 Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
                 globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
                 automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
-                et peut lancer TalKing masqué avec Windows.
+                et peut lancer <span className="notranslate">TalKing</span> masqué avec Windows.
                 {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -810,7 +810,7 @@ function Home() {
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
-                      <div className="native-row-title">Lancer TalKing au démarrage de Windows</div>
+                      <div className="native-row-title">Lancer <span className="notranslate">TalKing</span> au démarrage de Windows</div>
                       <div className="native-row-desc">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
                     </div>
                     <input
