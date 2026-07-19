@@ -122,6 +122,7 @@ type PersistedSettings = {
   target: string;
   toggleKey: string;
   readKey: string;
+  readLang?: string;
 };
 
 function loadSettings(): PersistedSettings | null {
@@ -138,6 +139,7 @@ function loadSettings(): PersistedSettings | null {
         target: old.target ?? "en",
         toggleKey: old.toggleKey ?? "F8",
         readKey: "F9",
+        readLang: "fr",
       };
     }
     // Migrate v1
@@ -149,6 +151,7 @@ function loadSettings(): PersistedSettings | null {
         target: old.target ?? "en",
         toggleKey: old.startKey ?? "F8",
         readKey: "F9",
+        readLang: "fr",
       };
     }
     return null;
@@ -156,6 +159,7 @@ function loadSettings(): PersistedSettings | null {
     return null;
   }
 }
+
 
 function Home() {
   const { user, loading: authLoading } = useAuth();
