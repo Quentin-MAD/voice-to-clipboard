@@ -346,15 +346,15 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   display: flex;
   flex-direction: column;
   gap: 3px;
-  min-width: 120px;
-  max-width: 180px;
+  min-width: 110px;
+  max-width: 160px;
   flex-shrink: 1;
 }
 .limits-row {
   display: grid;
-  grid-template-columns: 42px 1fr 42px;
+  grid-template-columns: 38px 1fr 38px;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: 10px;
   color: var(--nx-text-dim, #cfd3dc);
 }
@@ -400,8 +400,8 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   font-size: 10px;
   line-height: 1.2;
   color: var(--nx-text-mute, #9aa0aa);
-  min-width: 70px;
-  max-width: 110px;
+  min-width: 60px;
+  max-width: 95px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -411,12 +411,12 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .limits-reset { font-size: 9px; opacity: 0.75; }
 
 .native-app .native-email {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--nx-text-mute);
-  max-width: 120px;
+  max-width: 260px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 0 4px;
-  flex-shrink: 1;
+  flex-shrink: 0;
 }
 .native-app .native-icon-btn {
   width: 30px; height: 30px;
