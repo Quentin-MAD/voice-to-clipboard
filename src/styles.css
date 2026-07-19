@@ -202,3 +202,239 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   cursor: pointer;
   appearance: auto;
 }
+
+/* =========================================================================
+   Native desktop-app skin (applied only inside the Electron window)
+   Windows-like: system font, squared corners, beveled buttons, menubar
+   and statusbar. No global scrollbar on the body.
+   ========================================================================= */
+.native-app {
+  font-family: "Segoe UI", "SF Pro Text", system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  height: 100vh;
+  overflow: hidden;
+  color: #1f1f1f;
+  background: #f3f3f3;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+.native-app * { border-color: #c8c8c8; }
+.native-app input, .native-app select, .native-app textarea,
+.native-app [contenteditable="true"] { user-select: text; }
+
+/* Layout: menubar / scroll area / statusbar */
+.native-app .native-window {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.native-app .native-menubar {
+  flex: 0 0 auto;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  background: linear-gradient(#f6f6f6, #e6e6e6);
+  border-bottom: 1px solid #b8b8b8;
+  font-size: 12px;
+}
+.native-app .native-menubar .native-title {
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  padding-right: 12px;
+  color: #202020;
+}
+.native-app .native-menubar .native-menu-item {
+  padding: 4px 10px;
+  border-radius: 2px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #202020;
+  cursor: pointer;
+}
+.native-app .native-menubar .native-menu-item:hover {
+  background: #d7ebfa;
+  border-color: #7fb1e6;
+}
+.native-app .native-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 16px;
+  background: #f3f3f3;
+}
+.native-app .native-statusbar {
+  flex: 0 0 auto;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 10px;
+  background: #ececec;
+  border-top: 1px solid #c1c1c1;
+  font-size: 11px;
+  color: #333;
+}
+.native-app .native-statusbar .native-status-sep {
+  width: 1px;
+  height: 14px;
+  background: #c1c1c1;
+}
+
+/* Thin classic scrollbar */
+.native-app ::-webkit-scrollbar { width: 14px; height: 14px; }
+.native-app ::-webkit-scrollbar-track { background: #f0f0f0; }
+.native-app ::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border: 3px solid #f0f0f0;
+  border-radius: 0;
+}
+.native-app ::-webkit-scrollbar-thumb:hover { background: #a6a6a6; }
+
+/* Squared corners everywhere except explicit round elements */
+.native-app [class*="rounded"] { border-radius: 2px !important; }
+.native-app .rounded-full,
+.native-app .native-round { border-radius: 999px !important; }
+
+/* Panels / cards */
+.native-app .native-panel,
+.native-app .bg-card {
+  background: #ffffff !important;
+  border: 1px solid #c8c8c8 !important;
+  box-shadow: none !important;
+  color: #1f1f1f !important;
+}
+
+/* Classic beveled button */
+.native-app button {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 12px;
+  min-height: 26px;
+  border: 1px solid #8a8a8a;
+  background: linear-gradient(#fdfdfd, #e4e4e4);
+  color: #1f1f1f;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: none;
+}
+.native-app button:hover:not(:disabled) {
+  background: linear-gradient(#ffffff, #eaeaea);
+  border-color: #6e6e6e;
+}
+.native-app button:active:not(:disabled) {
+  background: linear-gradient(#d5d5d5, #e6e6e6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.native-app button:disabled {
+  color: #999;
+  background: #ececec;
+  border-color: #c1c1c1;
+  cursor: default;
+}
+.native-app button:focus-visible {
+  outline: 1px dotted #333;
+  outline-offset: -3px;
+}
+.native-app .native-menubar button {
+  min-height: 0;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.native-app .native-menubar button:hover:not(:disabled) {
+  background: #d7ebfa;
+  border-color: #7fb1e6;
+}
+
+/* Primary (accent) button */
+.native-app .native-btn-primary,
+.native-app .bg-primary {
+  background: linear-gradient(#2a8ddc, #0a5a9e) !important;
+  border: 1px solid #004b85 !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+.native-app .native-btn-primary:hover:not(:disabled),
+.native-app .bg-primary:hover:not(:disabled) {
+  background: linear-gradient(#3a9ce8, #1268ac) !important;
+}
+
+/* Record button (round + prominent) */
+.native-app .native-record {
+  border: 1px solid #004b85 !important;
+  background: radial-gradient(circle at 30% 25%, #4aa6e6, #0a5a9e 70%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 0 #003a6a, inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  animation: none !important;
+}
+.native-app .native-record.is-recording {
+  background: radial-gradient(circle at 30% 25%, #ff6a6a, #b41616 70%) !important;
+  border-color: #7a0d0d !important;
+  box-shadow: 0 2px 0 #6a0d0d, inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Inputs / selects */
+.native-app select,
+.native-app input[type="text"],
+.native-app input[type="search"],
+.native-app input[type="email"],
+.native-app input[type="password"],
+.native-app input[type="number"] {
+  border: 1px solid #7a7a7a !important;
+  background: #ffffff !important;
+  color: #111 !important;
+  border-radius: 2px !important;
+  padding: 3px 6px !important;
+  height: 26px;
+  font-size: 12px;
+  font-family: inherit;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+.native-app select { padding-right: 22px !important; }
+.native-app input:focus,
+.native-app select:focus,
+.native-app textarea:focus {
+  outline: none;
+  border-color: #0078d4 !important;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+
+/* Fieldset-like group */
+.native-app .native-group {
+  background: #ffffff;
+  border: 1px solid #c8c8c8;
+  padding: 10px 12px;
+  border-radius: 2px;
+}
+.native-app .native-group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #555;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Kill web-ish backgrounds */
+.native-app .bg-background,
+.native-app .bg-muted,
+.native-app .bg-accent { background: transparent !important; }
+.native-app .text-muted-foreground { color: #555 !important; }
+.native-app .text-foreground { color: #1f1f1f !important; }
+
+/* kbd chip */
+.native-app kbd {
+  font-family: "Consolas", "Menlo", monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border: 1px solid #a0a0a0;
+  border-bottom-width: 2px;
+  background: #fafafa;
+  border-radius: 2px;
+  color: #222;
+}
