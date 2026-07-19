@@ -237,9 +237,9 @@ export const Route = createFileRoute("/api/read-message")({
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.error("TTS failed:", msg);
-            // TTS failed after debit — refund purchased credits (not free ones, they'll auto-reset)
+            // TTS failed after debit — refund 1 voice credit (best-effort; subscribers untouched)
             try {
-              await admin.rpc("add_purchased_credits", { _user_id: userId, _amount: 2 });
+              if (!row.subscribed) await admin.rpc("add_voice_credits", { _user_id: userId, _amount: 1 });
             } catch { /* best-effort */ }
             return Response.json({ error: "Synthèse vocale échouée.", code: "tts_failed" }, { status: 500 });
           }
