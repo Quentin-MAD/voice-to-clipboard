@@ -48,10 +48,10 @@ function BrowserBlocked() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex max-w-xl flex-col items-center gap-4 px-4 py-24 text-center">
         <HardDrive className="h-12 w-12 text-primary" />
-        <h1 className="text-2xl font-bold">TalKing s'utilise uniquement via l'application</h1>
+        <h1 className="text-2xl font-bold"><span className="notranslate">TalKing</span> s'utilise uniquement via l'application</h1>
         <p className="text-sm text-muted-foreground">
           Pour des raisons techniques (raccourcis clavier globaux et presse-papiers en arrière-plan),
-          TalKing ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
+          <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
           href="/__l5e/assets-v1/3e0fdc5b-d584-4e57-ae74-b0dac05bf59a/TalKing-Setup-0.9.6.exe"
@@ -478,9 +478,9 @@ function Home() {
       <span className="native-credits-text">⭐ Abonné - illimité</span>
     ) : (
       <span className="native-credits-text">
-        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
-        {" + "}
         <span>{userStatus.purchased_balance}</span>
+        {" + "}
+        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
         {" crédits"}
       </span>
     )
@@ -499,7 +499,7 @@ function Home() {
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
-                <span className="native-title"><b>TalKing</b><sup className="native-trademark">®</sup></span>
+                <span className="native-title notranslate"><b>TalKing</b><sup className="native-trademark">®</sup></span>
               </div>
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
@@ -538,7 +538,7 @@ function Home() {
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight">TalKing</h1>
+                <h1 className="text-3xl font-bold tracking-tight notranslate">TalKing</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
                 </p>
@@ -576,9 +576,9 @@ function Home() {
                     "⭐ Abonné - illimité"
                   ) : userStatus ? (
                     <>
-                      <span className="text-amber-500">{userStatus.free_remaining}</span>
-                      {" + "}
                       <span>{userStatus.purchased_balance}</span>
+                      {" + "}
+                      <span className="text-amber-500">{userStatus.free_remaining}</span>
                       {" crédits"}
                     </>
                   ) : (
@@ -715,7 +715,7 @@ function Home() {
                 Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
                 globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
                 automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
-                et peut lancer TalKing masqué avec Windows.
+                et peut lancer <span className="notranslate">TalKing</span> masqué avec Windows.
                 {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -810,7 +810,7 @@ function Home() {
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
-                      <div className="native-row-title">Lancer TalKing au démarrage de Windows</div>
+                      <div className="native-row-title">Lancer <span className="notranslate">TalKing</span> au démarrage de Windows</div>
                       <div className="native-row-desc">Démarre masqué dans la barre des tâches pour que votre raccourci fonctionne immédiatement, même avant d'ouvrir quoi que ce soit.</div>
                     </div>
                     <input

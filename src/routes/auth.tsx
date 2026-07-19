@@ -89,7 +89,7 @@ function AuthPage() {
         <div className="native-window">
           <div className="native-menubar" style={{ WebkitAppRegion: "drag" } as React.CSSProperties}>
             <div className="native-brand-inline">
-              <span className="native-title">
+              <span className="native-title notranslate">
                 <b>TalKing</b>
                 <span className="native-trademark">®</span>
               </span>
@@ -104,7 +104,11 @@ function AuthPage() {
               </div>
 
               <h1 className="native-auth-title">
-                {mode === "signin" ? "Connexion à TalKing" : "Créer un compte"}
+                {mode === "signin" ? (
+                  <>Connexion à <span className="notranslate">TalKing</span></>
+                ) : (
+                  <>Créer un compte <span className="notranslate">TalKing</span></>
+                )}
               </h1>
               <p className="native-auth-sub">
                 {mode === "signin"
@@ -178,7 +182,7 @@ function AuthPage() {
             </div>
 
             <div className="native-auth-footnote">
-              TalKing® v0.9.5 · Traducteur vocal
+              <span className="notranslate">TalKing®</span> v0.9.5 · Traducteur vocal
             </div>
           </div>
         </div>
@@ -198,7 +202,7 @@ function AuthPage() {
             {mode === "signin" ? "Connexion" : "Créer un compte"}
           </h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            Accédez à votre compte TalKing.
+            Accédez à votre compte <span className="notranslate">TalKing</span>.
           </p>
 
           <button

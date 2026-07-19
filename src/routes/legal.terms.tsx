@@ -26,16 +26,16 @@ function TermsPage() {
           <section>
             <h2 className="text-lg font-semibold">1. Seller</h2>
             <p>
-              TalKing is a service operated by <strong>Quentin Rosset</strong>, sole trader (entrepreneur individuel)
+              <span className="notranslate">TalKing</span> is a service operated by <strong>Quentin Rosset</strong>, sole trader (entrepreneur individuel)
               registered in France under SIREN 107 314 445 (SIRET 107 314 445 00019), hereinafter "we", "us" or the "Seller".
-              By using TalKing, you agree to contract with the Seller under these Terms.
+              By using <span className="notranslate">TalKing</span>, you agree to contract with the Seller under these Terms.
             </p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold">2. Service</h2>
             <p>
-              TalKing is a voice translation service: you record a short voice message using a hotkey or a button, the audio
+              <span className="notranslate">TalKing</span> is a voice translation service: you record a short voice message using a hotkey or a button, the audio
               is transcribed and translated by third-party AI providers, and the translated text is delivered to your
               clipboard. The service is available as a web app and a Windows desktop application.
             </p>

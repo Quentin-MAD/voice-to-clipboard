@@ -44,7 +44,7 @@ function LandingPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="text-xl font-bold">TalKing<sup className="relative -top-1 ml-0.5 text-base">®</sup></div>
+          <div className="text-xl font-bold notranslate">TalKing<sup className="relative -top-1 ml-0.5 text-base">®</sup></div>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
             <Link to="/pricing" className="rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground">
@@ -73,7 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          TalKing traduit votre voix en temps réel pendant que vous jouez.
+          <span className="notranslate">TalKing</span> traduit votre voix en temps réel pendant que vous jouez.
           Appuyez sur une touche, parlez, et la traduction arrive directement dans votre presse-papiers.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -166,7 +166,7 @@ function LandingPage() {
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <HardDrive className="h-5 w-5" />
-            Télécharger TalKing-Setup-0.9.6.exe (114 MB)
+            Télécharger <span className="notranslate">TalKing-Setup-0.9.6.exe</span> (114 MB)
           </a>
         </div>
       </section>

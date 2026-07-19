@@ -150,7 +150,7 @@ function AdminPage() {
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin - TalKing</h1>
+          <h1 className="text-3xl font-bold">Admin - <span className="notranslate">TalKing</span></h1>
           <button
             onClick={load}
             className="rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
