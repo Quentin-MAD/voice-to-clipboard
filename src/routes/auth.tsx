@@ -252,8 +252,8 @@ function AuthPage() {
             <input
               type="password"
               required
-              minLength={mode === "signup" ? 8 : 6}
-              placeholder={mode === "signup" ? "Mot de passe (min. 8 caractères)" : "Mot de passe"}
+              minLength={6}
+              placeholder={mode === "signup" ? "Mot de passe (min. 6 caractères)" : "Mot de passe"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -261,13 +261,10 @@ function AuthPage() {
             {mode === "signup" && (
               <ul className="space-y-1 rounded-md border border-border bg-muted/40 px-3 py-2 text-xs">
                 <li className={pwdChecks.length ? "text-emerald-600" : "text-muted-foreground"}>
-                  {pwdChecks.length ? "✓" : "○"} Au moins 8 caractères
+                  {pwdChecks.length ? "✓" : "○"} Au moins 6 caractères
                 </li>
                 <li className={pwdChecks.letter ? "text-emerald-600" : "text-muted-foreground"}>
                   {pwdChecks.letter ? "✓" : "○"} Au moins 1 lettre (a-z)
-                </li>
-                <li className={pwdChecks.digit ? "text-emerald-600" : "text-muted-foreground"}>
-                  {pwdChecks.digit ? "✓" : "○"} Au moins 1 chiffre (0-9)
                 </li>
               </ul>
             )}
