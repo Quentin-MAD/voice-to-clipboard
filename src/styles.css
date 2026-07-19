@@ -343,6 +343,35 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.native-app .native-lang-banner {
+  position: sticky;
+  top: 8px;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  margin: 8px 0 6px;
+}
+.native-app .native-lang-pair {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.95), rgba(37,99,235,0.95));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.12) inset;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  backdrop-filter: blur(6px);
+  animation: banner-pop 220ms ease-out both;
+}
+@keyframes banner-pop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 .limits-stack {
   display: flex;
   flex-direction: column;
