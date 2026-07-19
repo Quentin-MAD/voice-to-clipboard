@@ -852,7 +852,7 @@ function Home() {
                 <div className="native-translate-slot">
                   <GoogleTranslate alwaysShow />
                 </div>
-                <span className="native-email">{user.email}</span>
+                <span className="native-email" title={user.email}>{user.email}</span>
                 <button
                   className="native-icon-btn"
                   title="Paramètres"
