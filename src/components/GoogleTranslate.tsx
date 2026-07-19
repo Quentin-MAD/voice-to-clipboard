@@ -86,7 +86,7 @@ export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean }
     window.location.reload();
   };
 
-  if (typeof window !== "undefined" && (window as any).voxElectron) return null;
+  if (!alwaysShow && typeof window !== "undefined" && (window as any).voxElectron) return null;
 
   return (
     <div className="flex items-center gap-1.5 text-muted-foreground" title="Traduire la page">
