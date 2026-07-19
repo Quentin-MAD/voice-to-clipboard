@@ -207,23 +207,27 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
    Native desktop-app skin (Electron only)
    Modern dark theme inspired by Linear / Raycast / VSCode / Arc.
    Clean, minimal, rounded, with subtle depth and a vivid accent.
+   Native desktop-app skin (Electron only)
+   Direction: "Command deck" — carbon black, hairline dividers, cyan accent,
+   monospace micro-labels, a fixed left icon rail. Distinct from the web UI.
    ========================================================================= */
 .native-app {
-  --nx-bg: #0e0f13;
-  --nx-bg-2: #14161c;
-  --nx-panel: #191b22;
-  --nx-panel-2: #1f222b;
-  --nx-border: #262933;
-  --nx-border-strong: #333744;
-  --nx-text: #e6e8ee;
-  --nx-text-dim: #9096a4;
-  --nx-text-mute: #6b7180;
-  --nx-accent: #7c5cff;
-  --nx-accent-2: #4c8dff;
-  --nx-accent-glow: rgba(124, 92, 255, 0.35);
-  --nx-danger: #ff5c78;
-  --nx-success: #34d399;
-  --nx-warn: #fbbf24;
+  --nx-bg:            #07090d;
+  --nx-bg-2:          #0b0e14;
+  --nx-panel:         #0f1319;
+  --nx-panel-hi:      #131822;
+  --nx-line:          #1a2130;
+  --nx-line-hi:       #26304a;
+  --nx-text:          #e7ecf5;
+  --nx-text-dim:      #a5b0c4;
+  --nx-text-mute:     #6d7994;
+  --nx-accent:        #22d3ee;   /* cyan */
+  --nx-accent-2:      #38bdf8;   /* sky */
+  --nx-accent-ink:    #041018;
+  --nx-accent-glow:   rgba(34, 211, 238, 0.28);
+  --nx-danger:        #f43f5e;
+  --nx-success:       #34d399;
+  --nx-warn:          #f59e0b;
 
   font-family: "Inter", "SF Pro Display", "Segoe UI Variable", "Segoe UI",
     system-ui, -apple-system, sans-serif;
@@ -232,205 +236,284 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   overflow: hidden;
   color: var(--nx-text);
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(124, 92, 255, 0.10), transparent 60%),
-    radial-gradient(900px 500px at -10% 110%, rgba(76, 141, 255, 0.08), transparent 60%),
-    var(--nx-bg);
+    radial-gradient(1000px 500px at 100% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
+    radial-gradient(800px 400px at -10% 110%, rgba(56, 189, 248, 0.05), transparent 60%),
+    linear-gradient(180deg, var(--nx-bg-2), var(--nx-bg));
   -webkit-font-smoothing: antialiased;
   user-select: none;
   letter-spacing: -0.005em;
 }
-.native-app * { border-color: var(--nx-border); }
+/* Subtle dot grid — depth without noise */
+.native-app::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+.native-app > * { position: relative; z-index: 1; }
+.native-app * { border-color: var(--nx-line); }
 .native-app input, .native-app select, .native-app textarea,
 .native-app [contenteditable="true"] { user-select: text; }
 
-/* Layout */
+/* ============ Layout: sidebar rail + main column ============ */
 .native-app .native-window {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  grid-template-rows: 100vh;
+  height: 100vh;
+}
+.native-app .native-sidebar {
+  grid-row: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0;
+  background: rgba(0,0,0,0.35);
+  border-right: 1px solid var(--nx-line);
+}
+.native-app .native-brand {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(34,211,238,0.85), rgba(56,189,248,0.55) 55%, rgba(34,211,238,0.1) 100%);
+  color: var(--nx-accent-ink);
+  font-weight: 900; font-size: 15px;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  box-shadow: 0 0 0 1px rgba(34,211,238,0.35), 0 6px 20px -6px var(--nx-accent-glow);
+}
+.native-app .native-side-btn {
+  width: 40px; height: 40px;
+  padding: 0 !important;
+  min-height: 0 !important;
+  display: grid; place-items: center;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: var(--nx-text-mute) !important;
+  border-radius: 10px !important;
+  font-size: 15px;
+}
+.native-app .native-side-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.04) !important;
+  color: var(--nx-text) !important;
+  border-color: transparent !important;
+}
+.native-app .native-side-btn.is-active {
+  background: rgba(34,211,238,0.10) !important;
+  color: var(--nx-accent) !important;
+  box-shadow: inset 0 0 0 1px rgba(34,211,238,0.25);
+}
+.native-app .native-side-spacer { flex: 1 1 auto; }
+
+.native-app .native-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   height: 100vh;
 }
 
-/* Titlebar (was menubar) — sleek, borderless, badge-style pills */
+/* Top titlebar (draggable) */
 .native-app .native-menubar {
   flex: 0 0 auto;
-  height: 44px;
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  border-bottom: 1px solid var(--nx-border);
-  font-size: 12.5px;
+  gap: 10px;
+  padding: 0 14px 0 16px;
+  border-bottom: 1px solid var(--nx-line);
+  font-size: 12px;
+  color: var(--nx-text-dim);
   -webkit-app-region: drag;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
 }
 .native-app .native-menubar > * { -webkit-app-region: no-drag; }
 .native-app .native-menubar .native-title {
-  font-weight: 700;
-  font-size: 13.5px;
-  letter-spacing: -0.01em;
-  padding-right: 14px;
-  color: var(--nx-text);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--nx-text-mute);
+  font-weight: 600;
 }
-.native-app .native-menubar .native-title::before {
-  content: "";
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  background: conic-gradient(from 200deg, var(--nx-accent), var(--nx-accent-2), var(--nx-accent));
-  box-shadow: 0 0 12px var(--nx-accent-glow);
-}
+.native-app .native-menubar .native-title b { color: var(--nx-text); font-weight: 700; }
 
 .native-app .native-scroll {
   flex: 1 1 auto;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 18px 22px 22px;
+  padding: 20px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* Statusbar — thin, muted, monospace-ish info */
+/* Statusbar */
 .native-app .native-statusbar {
   flex: 0 0 auto;
-  height: 30px;
+  height: 26px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 0 14px;
-  background: var(--nx-bg-2);
-  border-top: 1px solid var(--nx-border);
-  font-size: 11.5px;
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid var(--nx-line);
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
   color: var(--nx-text-dim);
 }
 .native-app .native-statusbar .native-status-sep {
-  width: 1px;
-  height: 14px;
-  background: var(--nx-border);
+  width: 1px; height: 12px; background: var(--nx-line);
 }
+.native-app .native-statusbar .native-status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--nx-success);
+  box-shadow: 0 0 8px var(--nx-success);
+}
+.native-app .native-statusbar .native-status-dot.rec { background: var(--nx-danger); box-shadow: 0 0 8px var(--nx-danger); animation: nx-blink 1s ease-in-out infinite; }
+.native-app .native-statusbar .native-status-dot.proc { background: var(--nx-warn); box-shadow: 0 0 8px var(--nx-warn); }
+@keyframes nx-blink { 0%, 100% { opacity: 1 } 50% { opacity: 0.35 } }
 
-/* Scrollbar — modern thin, auto-hide feel */
-.native-app ::-webkit-scrollbar { width: 10px; height: 10px; }
+/* Scrollbar — thin, discreet */
+.native-app ::-webkit-scrollbar { width: 8px; height: 8px; }
 .native-app ::-webkit-scrollbar-track { background: transparent; }
-.native-app ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-.native-app ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); background-clip: padding-box; border: 2px solid transparent; }
+.native-app ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 8px; }
+.native-app ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.14); }
 
-/* Rounded corners: modern soft radii */
-.native-app [class*="rounded"] { border-radius: 10px !important; }
-.native-app .rounded-full,
-.native-app .native-round { border-radius: 999px !important; }
-
-/* Panels / cards */
+/* Panels — flat, hairline border, no gradients */
 .native-app .native-panel,
+.native-app .native-group,
 .native-app .bg-card {
-  background: linear-gradient(180deg, var(--nx-panel-2), var(--nx-panel)) !important;
-  border: 1px solid var(--nx-border) !important;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 12px 32px -20px rgba(0, 0, 0, 0.6) !important;
+  background: var(--nx-panel) !important;
+  border: 1px solid var(--nx-line) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
   color: var(--nx-text) !important;
+  padding: 16px 18px;
+}
+.native-app .native-group-title,
+.native-app .native-eyebrow {
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--nx-text-mute);
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
-/* Buttons — modern flat with subtle hover */
+/* Buttons — flat, hairline */
 .native-app button {
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 500;
-  padding: 7px 14px;
-  min-height: 32px;
-  border: 1px solid var(--nx-border-strong);
-  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  min-height: 30px;
+  border: 1px solid var(--nx-line-hi);
+  background: rgba(255,255,255,0.02);
   color: var(--nx-text);
   border-radius: 8px;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, transform 60ms ease;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, transform 60ms ease;
   box-shadow: none;
 }
 .native-app button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: #414658;
+  background: rgba(255,255,255,0.05);
+  border-color: #384566;
+  color: #fff;
 }
-.native-app button:active:not(:disabled) {
-  transform: translateY(1px);
-  background: rgba(255, 255, 255, 0.02);
-}
-.native-app button:disabled {
-  color: var(--nx-text-mute);
-  background: rgba(255, 255, 255, 0.02);
-  border-color: var(--nx-border);
-  cursor: default;
-}
+.native-app button:active:not(:disabled) { transform: translateY(1px); }
+.native-app button:disabled { color: var(--nx-text-mute); background: transparent; border-color: var(--nx-line); cursor: default; }
 .native-app button:focus-visible {
   outline: none;
   border-color: var(--nx-accent);
   box-shadow: 0 0 0 3px var(--nx-accent-glow);
 }
 
-/* Titlebar buttons — ghost pills */
+/* Titlebar buttons — pure ghost */
 .native-app .native-menubar button {
-  min-height: 28px;
-  padding: 5px 12px;
+  min-height: 26px;
+  padding: 3px 10px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--nx-text-dim);
-  border-radius: 8px;
-  font-weight: 500;
+  font-size: 11.5px;
+  border-radius: 6px;
 }
 .native-app .native-menubar button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255,255,255,0.05);
+  color: #fff;
   border-color: transparent;
-  color: var(--nx-text);
 }
 
-/* Primary accent */
+/* Primary + record — cyan */
 .native-app .native-btn-primary,
 .native-app .bg-primary {
-  background: linear-gradient(180deg, #8a6dff, #6a49f2) !important;
-  border: 1px solid #5a3ce0 !important;
-  color: #ffffff !important;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.15) inset,
-    0 8px 24px -12px var(--nx-accent-glow) !important;
+  background: linear-gradient(180deg, #2ee6ff, #0fb6d0) !important;
+  border: 1px solid #0aa2b8 !important;
+  color: var(--nx-accent-ink) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 22px -10px var(--nx-accent-glow) !important;
 }
 .native-app .native-btn-primary:hover:not(:disabled),
 .native-app .bg-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #9a7fff, #7a5cff) !important;
+  background: linear-gradient(180deg, #56edff, #26c6df) !important;
 }
 
-/* Record button — big soft glowing pill */
+/* Record hero */
+.native-app .native-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 34px 20px 28px !important;
+  text-align: center;
+}
 .native-app .native-record {
-  border: 1px solid #5a3ce0 !important;
-  background: linear-gradient(180deg, #8a6dff, #6242ea) !important;
-  color: #ffffff !important;
+  min-width: 260px;
+  padding: 16px 28px !important;
+  min-height: 56px;
+  border-radius: 999px !important;
+  border: 1px solid #0aa2b8 !important;
+  background: linear-gradient(180deg, #2ee6ff, #0fb6d0) !important;
+  color: var(--nx-accent-ink) !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: -0.005em;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 12px 40px -10px var(--nx-accent-glow),
-    0 0 0 6px rgba(124, 92, 255, 0.08) !important;
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 12px 40px -12px var(--nx-accent-glow),
+    0 0 0 6px rgba(34, 211, 238, 0.06) !important;
   animation: none !important;
-  font-weight: 600;
-  letter-spacing: -0.01em;
 }
 .native-app .native-record:hover:not(:disabled) {
-  background: linear-gradient(180deg, #9a7fff, #7250ff) !important;
+  background: linear-gradient(180deg, #56edff, #26c6df) !important;
 }
 .native-app .native-record.is-recording {
-  background: linear-gradient(180deg, #ff6a8a, #e02a55) !important;
-  border-color: #b81f45 !important;
+  background: linear-gradient(180deg, #ff5c78, #d81b47) !important;
+  border-color: #a01636 !important;
+  color: #fff !important;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 12px 40px -10px rgba(255, 92, 120, 0.5),
-    0 0 0 6px rgba(255, 92, 120, 0.10) !important;
+    0 0 0 1px rgba(255,255,255,0.15) inset,
+    0 12px 40px -12px rgba(255,92,120,0.55),
+    0 0 0 6px rgba(255,92,120,0.10) !important;
+  animation: nx-pulse 1.6s ease-out infinite !important;
 }
 @keyframes nx-pulse {
-  0%, 100% { box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 12px 40px -10px rgba(255,92,120,.55), 0 0 0 0 rgba(255,92,120,.35); }
-  50%      { box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 12px 40px -10px rgba(255,92,120,.55), 0 0 0 14px rgba(255,92,120,0);    }
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset, 0 12px 40px -12px rgba(255,92,120,.55), 0 0 0 0 rgba(255,92,120,.35); }
+  50%      { box-shadow: 0 0 0 1px rgba(255,255,255,.15) inset, 0 12px 40px -12px rgba(255,92,120,.55), 0 0 0 14px rgba(255,92,120,0);    }
 }
-.native-app .native-record.is-recording { animation: nx-pulse 1.6s ease-out infinite !important; }
+.native-app .native-hero-hint {
+  font-size: 12px;
+  color: var(--nx-text-dim);
+  max-width: 460px;
+  line-height: 1.55;
+}
 
 /* Inputs / selects */
 .native-app select,
@@ -439,15 +522,14 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .native-app input[type="email"],
 .native-app input[type="password"],
 .native-app input[type="number"] {
-  border: 1px solid var(--nx-border-strong) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--nx-line-hi) !important;
+  background: rgba(255,255,255,0.02) !important;
   color: var(--nx-text) !important;
   border-radius: 8px !important;
   padding: 8px 12px !important;
-  height: 36px;
-  font-size: 13px;
+  height: 34px;
+  font-size: 12.5px;
   font-family: inherit;
-  box-shadow: none;
   transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 .native-app select { padding-right: 28px !important; }
@@ -459,51 +541,148 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   border-color: var(--nx-accent) !important;
   box-shadow: 0 0 0 3px var(--nx-accent-glow);
 }
-
-/* Groups / sections */
-.native-app .native-group {
-  background: linear-gradient(180deg, var(--nx-panel-2), var(--nx-panel));
-  border: 1px solid var(--nx-border);
-  padding: 16px 18px;
-  border-radius: 12px;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 12px 32px -20px rgba(0, 0, 0, 0.6);
-}
-.native-app .native-group-title {
-  font-size: 10.5px;
+.native-app label,
+.native-app .native-label {
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 10px !important;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--nx-text-mute);
-  font-weight: 700;
-  margin-bottom: 12px;
+  color: var(--nx-text-mute) !important;
+  font-weight: 600 !important;
 }
 
-/* Kill web-ish backgrounds */
+/* Kill web-ish backgrounds inside the shell */
 .native-app .bg-background,
-.native-app .bg-muted,
 .native-app .bg-accent { background: transparent !important; }
+.native-app .bg-muted { background: rgba(255,255,255,0.04) !important; color: var(--nx-text) !important; }
 .native-app .text-muted-foreground { color: var(--nx-text-dim) !important; }
 .native-app .text-foreground { color: var(--nx-text) !important; }
 .native-app .border-border,
-.native-app .border-input { border-color: var(--nx-border) !important; }
+.native-app .border-input { border-color: var(--nx-line) !important; }
+.native-app .shadow-lg, .native-app .shadow-2xl, .native-app .shadow-md { box-shadow: none !important; }
 
-/* Status badge (idle/recording/etc.) — subtle chips */
-.native-app .bg-muted { background: rgba(255,255,255,0.05) !important; }
-
-/* kbd chip — modern minimal */
-.native-app kbd {
+/* Status pill */
+.native-app .native-status-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
   font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
   font-size: 11px;
-  padding: 2px 6px;
-  border: 1px solid var(--nx-border-strong);
-  background: rgba(255, 255, 255, 0.04);
+  letter-spacing: 0.06em;
+  background: rgba(255,255,255,0.04);
+  color: var(--nx-text-dim);
+  border: 1px solid var(--nx-line);
+}
+
+/* kbd */
+.native-app kbd {
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border: 1px solid var(--nx-line-hi);
+  background: rgba(255,255,255,0.05);
   border-radius: 5px;
   color: var(--nx-text);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.4);
 }
 
 /* Links */
 .native-app a { color: var(--nx-accent-2); }
-.native-app a:hover { color: #78a8ff; }
+.native-app a:hover { color: #7dd3fc; }
+
+/* ================= Settings modal (native) ================= */
+.native-app .native-modal-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(3, 5, 10, 0.72);
+  backdrop-filter: blur(6px);
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.native-app .native-modal {
+  width: 100%;
+  max-width: 480px;
+  background: var(--nx-panel-hi) !important;
+  border: 1px solid var(--nx-line) !important;
+  border-radius: 14px !important;
+  padding: 0 !important;
+  color: var(--nx-text) !important;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,0.7) !important;
+  overflow: hidden;
+}
+.native-app .native-modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--nx-line);
+}
+.native-app .native-modal-title {
+  font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--nx-text);
+  font-weight: 700;
+}
+.native-app .native-modal-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.native-app .native-modal-foot {
+  padding: 12px 18px;
+  border-top: 1px solid var(--nx-line);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+.native-app .native-field {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.native-app .native-field-help {
+  font-size: 11.5px;
+  color: var(--nx-text-dim) !important;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  font-family: inherit;
+  font-weight: 400 !important;
+}
+.native-app .native-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+  padding: 12px 14px;
+  background: var(--nx-panel) !important;
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+}
+.native-app .native-row-title {
+  font-size: 13px;
+  color: var(--nx-text) !important;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.native-app .native-row-desc {
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: var(--nx-text-dim) !important;
+  line-height: 1.5;
+}
+/* Switch */
+.native-app .native-switch {
+  appearance: none;
+  width: 36px; height: 20px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid var(--nx-line-hi) !important;
+  position: relative;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+  flex-shrink: 0;
+}
+.native-app .native-switch::after {
+  content: "";
+  position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #fff;
+  transition: transform 160ms ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.native-app .native-switch:checked {
+  background: var(--nx-accent) !important;
+  border-color: var(--nx-accent) !important;
+}
+.native-app .native-switch:checked::after { transform: translateX(16px); background: var(--nx-accent-ink); }
+
 
