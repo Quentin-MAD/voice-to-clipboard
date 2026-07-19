@@ -11,6 +11,7 @@ const {
   powerSaveBlocker,
   screen,
   session,
+  desktopCapturer,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
