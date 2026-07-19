@@ -54,15 +54,16 @@ function PricingPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          1 crédit = 1 traduction. Anti-spam : max 150 traductions/jour pour tout le monde.
+          Traduction (F8) : 1 crédit Texte = 1 traduction. Lecture d'un message (F9) : 1 crédit Vocale = 1 lecture. Anti-spam global : 150 traductions/jour maximum. Lectures vocales : 5/jour en gratuit, 10/jour avec crédits Vocale ou abonnement.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold">Gratuit</h2>
             <div className="my-3 text-3xl font-bold">0 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ 20 traductions/mois</li>
+              <li>✓ 20 traductions texte/mois</li>
+              <li>✓ 5 lectures vocales/jour</li>
               <li>✓ Toutes les langues</li>
               <li>✓ App Windows incluse</li>
             </ul>
@@ -72,21 +73,39 @@ function PricingPage() {
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold">Pack crédits</h2>
+            <h2 className="text-lg font-semibold">Pack crédits Texte</h2>
             <div className="my-3 text-3xl font-bold">2,99 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ 50 crédits</li>
-              <li>✓ Cumulables (jamais expirés)</li>
-              <li>✓ Paiement unique</li>
+              <li>✓ 50 crédits Texte</li>
+              <li>✓ Pour la traduction (F8)</li>
+              <li>✓ Cumulables, jamais expirés</li>
             </ul>
             <button
               onClick={() => buy("credits_pack_50_onetime")}
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "Acheter 50 crédits"}
+              {loading ? "Chargement..." : "Acheter 50 crédits Texte"}
             </button>
           </div>
+
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h2 className="text-lg font-semibold">Pack crédits Vocale</h2>
+            <div className="my-3 text-3xl font-bold">2,99 €</div>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>✓ 10 crédits Vocale</li>
+              <li>✓ Pour la lecture d'un message (F9)</li>
+              <li>✓ Passe la limite à 10/jour</li>
+            </ul>
+            <button
+              onClick={() => buy("voice_pack_10_onetime")}
+              disabled={loading || authLoading}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {loading ? "Chargement..." : "Acheter 10 crédits Vocale"}
+            </button>
+          </div>
+
 
           <div className="rounded-xl border-2 border-primary bg-card p-5">
             <div className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">

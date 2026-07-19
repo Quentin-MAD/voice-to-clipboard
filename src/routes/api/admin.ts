@@ -59,7 +59,8 @@ export const Route = createFileRoute("/api/admin")({
         // cost_credits estimates are in USD, convert to EUR
         const USD_TO_EUR = 0.92;
         const SUB_PRICE_EUR = 29.99; // per year
-        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits = 2,99€
+        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits texte = 2,99€
+        const EUR_PER_VOICE_CREDIT = 2.99 / 10; // 10 crédits vocaux = 2,99€
 
         const dayKey = (iso: string) => startOfDayUTC(new Date(iso)).toISOString().slice(0, 10);
         const agg: Record<string, { views: number; translations: number; ai_credits: number }> = {};
@@ -119,7 +120,12 @@ export const Route = createFileRoute("/api/admin")({
           (tl.data ?? []).filter(
             (r) => r.source_type === "purchased_credit" && inWindow(r.created_at, days),
           ).length;
-        const packRev = (days: number) => purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT;
+        const voiceInWindow = (days: number) =>
+          (tl.data ?? []).filter(
+            (r) => r.source_type === "voice_purchased" && inWindow(r.created_at, days),
+          ).length;
+        const packRev = (days: number) =>
+          purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT + voiceInWindow(days) * EUR_PER_VOICE_CREDIT;
 
         const revenue = {
           day: dailySubRevenue + packRev(1),
@@ -184,7 +190,7 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
-          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits";
+          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits";
           user_id?: string;
           amount?: number;
         };
@@ -194,6 +200,13 @@ export const Route = createFileRoute("/api/admin")({
         if (body.action === "add_credits") {
           const amt = Math.trunc(body.amount ?? 0);
           const { error } = await supabaseAdmin.rpc("admin_add_credits", {
+            _target_user: body.user_id,
+            _amount: amt,
+          });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (body.action === "add_voice_credits") {
+          const amt = Math.trunc(body.amount ?? 0);
+          const { error } = await supabaseAdmin.rpc("admin_add_voice_credits", {
             _target_user: body.user_id,
             _amount: amt,
           });

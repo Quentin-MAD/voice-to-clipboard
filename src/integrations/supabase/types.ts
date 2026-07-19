@@ -52,16 +52,19 @@ export type Database = {
           purchased_balance: number
           updated_at: string
           user_id: string
+          voice_balance: number
         }
         Insert: {
           purchased_balance?: number
           updated_at?: string
           user_id: string
+          voice_balance?: number
         }
         Update: {
           purchased_balance?: number
           updated_at?: string
           user_id?: string
+          voice_balance?: number
         }
         Relationships: []
       }
@@ -212,7 +215,15 @@ export type Database = {
         Args: { _amount: number; _user_id: string }
         Returns: undefined
       }
+      add_voice_credits: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
       admin_add_credits: {
+        Args: { _amount: number; _target_user: string }
+        Returns: undefined
+      }
+      admin_add_voice_credits: {
         Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
@@ -254,6 +265,17 @@ export type Database = {
           subscribed: boolean
         }[]
       }
+      consume_voice_read: {
+        Args: { _user_id: string }
+        Returns: {
+          ok: boolean
+          reason: string
+          remaining_voice: number
+          subscribed: boolean
+          voice_daily_limit: number
+          voice_daily_used: number
+        }[]
+      }
       get_user_status: {
         Args: { _user_id: string }
         Returns: {
@@ -265,6 +287,10 @@ export type Database = {
           hourly_used: number
           purchased_balance: number
           subscribed: boolean
+          voice_balance: number
+          voice_daily_limit: number
+          voice_daily_reset_at: string
+          voice_daily_used: number
         }[]
       }
       has_role: {

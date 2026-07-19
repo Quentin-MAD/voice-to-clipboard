@@ -113,6 +113,10 @@ type UserStatus = {
   daily_used: number;
   daily_limit: number;
   daily_reset_at: string | null;
+  voice_balance: number;
+  voice_daily_used: number;
+  voice_daily_limit: number;
+  voice_daily_reset_at: string | null;
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
@@ -544,11 +548,19 @@ function Home() {
         statusQuery.refetch();
         if (json.code === "daily_limit") {
           toast.error("🛑 Limite quotidienne atteinte (150 / 24h).", { duration: 6000 });
-        } else if (json.code === "no_credits") {
-          toast.error(json.error ?? "Il vous faut 2 crédits pour une lecture.", {
+        } else if (json.code === "voice_daily_limit") {
+          toast.error(json.error ?? "🔊 Limite quotidienne de lectures vocales atteinte.", {
             duration: 7000,
             action: {
               label: "Voir les plans",
+              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+            },
+          });
+        } else if (json.code === "no_voice_credits" || json.code === "no_credits") {
+          toast.error(json.error ?? "Vous n'avez plus de crédits vocaux.", {
+            duration: 7000,
+            action: {
+              label: "Acheter des crédits Vocale",
               onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
             },
           });
@@ -597,19 +609,29 @@ function Home() {
       toast.error("🛑 Limite quotidienne atteinte.");
       return;
     }
-    // Read-message needs 2 credits
+    // Read-message needs 1 voice credit (subscribers exempt from credit cost)
     if (!userStatus?.subscribed) {
-      const available = (userStatus?.free_remaining ?? 0) + (userStatus?.purchased_balance ?? 0);
-      if (available < 2) {
-        toast.error("Il vous faut 2 crédits pour une lecture de message.", {
+      if ((userStatus?.voice_balance ?? 0) < 1) {
+        toast.error("Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €).", {
           duration: 7000,
           action: {
-            label: "Voir les plans",
+            label: "Acheter",
             onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
           },
         });
         return;
       }
+    }
+    // Voice daily cap (5 free / 10 with credits or sub)
+    if ((userStatus?.voice_daily_used ?? 0) >= (userStatus?.voice_daily_limit ?? 5)) {
+      toast.error(`🔊 Limite quotidienne atteinte (${userStatus?.voice_daily_limit ?? 5} lectures/jour).`, {
+        duration: 7000,
+        action: {
+          label: "Voir les plans",
+          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
+        },
+      });
+      return;
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -754,15 +776,22 @@ function Home() {
     );
   }
 
+  const voiceCount = userStatus?.voice_balance ?? 0;
+  const voiceUsed = userStatus?.voice_daily_used ?? 0;
+  const voiceCap = userStatus?.voice_daily_limit ?? 5;
   const creditBadge = userStatus ? (
     userStatus.subscribed ? (
-      <span className="native-credits-text">⭐ Abonné - illimité</span>
+      <span className="native-credits-text">
+        ⭐ Abonné · <span title="Lectures vocales restantes aujourd'hui">🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap}</span>
+      </span>
     ) : (
       <span className="native-credits-text">
-        <span>{userStatus.purchased_balance}</span>
+        <span title="Crédits Texte achetés">{userStatus.purchased_balance}</span>
         {" + "}
-        <span style={{ color: "var(--nx-warn)" }}>{userStatus.free_remaining}</span>
-        {" crédits"}
+        <span style={{ color: "var(--nx-warn)" }} title="Crédits Texte gratuits ce mois">{userStatus.free_remaining}</span>
+        {" texte · "}
+        <span title="Crédits Vocale achetés">🔊 {voiceCount}</span>
+        <span style={{ opacity: 0.6 }}> ({voiceUsed}/{voiceCap}/j)</span>
       </span>
     )
   ) : (
@@ -854,13 +883,15 @@ function Home() {
                 <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
                 <div className="text-sm font-semibold">
                   {userStatus?.subscribed ? (
-                    "⭐ Abonné - illimité"
+                    <>⭐ Abonné · 🔊 {Math.max(0, voiceCap - voiceUsed)}/{voiceCap} vocale/jour</>
                   ) : userStatus ? (
                     <>
                       <span>{userStatus.purchased_balance}</span>
                       {" + "}
                       <span className="text-amber-500">{userStatus.free_remaining}</span>
-                      {" crédits"}
+                      {" texte · 🔊 "}
+                      <span>{voiceCount}</span>
+                      <span className="ml-1 text-xs text-muted-foreground">({voiceUsed}/{voiceCap}/j)</span>
                     </>
                   ) : (
                     "…"
@@ -1030,7 +1061,7 @@ function Home() {
                     ? "bg-muted text-muted-foreground"
                     : "border border-input bg-background hover:bg-accent"
                 }`}
-                title={`Lire un message d'un joueur (${readKey}) - 2 crédits`}
+                title={`Lire un message d'un joueur (${readKey}) - 1 crédit vocal`}
               >
                 <span className="text-lg">{readActive ? "⏹" : readProcessing ? "⏳" : "🔊"}</span>
                 <span>
@@ -1038,7 +1069,7 @@ function Home() {
                     ? "Parlez... (ré-appuyez pour analyser)"
                     : readProcessing
                     ? "Analyse et lecture..."
-                    : `Lire un message de joueur (${readKey}) - 2 crédits`}
+                    : `Lire un message de joueur (${readKey}) - 1 crédit vocal`}
                 </span>
               </button>
               {readResult && !readActive && !readProcessing && (
@@ -1199,7 +1230,7 @@ function Home() {
                   </div>
 
                   <div className="native-field">
-                    <span className="native-label">Raccourci "Lire un message" (2 crédits)</span>
+                    <span className="native-label">Raccourci "Lire un message" (1 crédit vocal)</span>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
                         onClick={() => setCapturing("read")}
@@ -1286,7 +1317,7 @@ function Home() {
                   </div>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (2 crédits)</label>
+                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (1 crédit vocal)</label>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setCapturing("read")}

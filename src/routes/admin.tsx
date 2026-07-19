@@ -414,13 +414,23 @@ function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, ac
           <hr className="my-1" />
           <button
             onClick={() => {
-              const n = Number(prompt("Ajouter combien de crédits ? (négatif pour retirer)", "50"));
+              const n = Number(prompt("Ajouter combien de crédits TEXTE ? (négatif pour retirer)", "50"));
               if (Number.isFinite(n) && n !== 0) onAct(userId, "add_credits", n);
               setOpen(false);
             }}
             className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
           >
-            Ajuster crédits…
+            Ajuster crédits Texte…
+          </button>
+          <button
+            onClick={() => {
+              const n = Number(prompt("Ajouter combien de crédits VOCALE ? (négatif pour retirer)", "10"));
+              if (Number.isFinite(n) && n !== 0) onAct(userId, "add_voice_credits", n);
+              setOpen(false);
+            }}
+            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
+          >
+            Ajuster crédits Vocale…
           </button>
         </div>
       )}
