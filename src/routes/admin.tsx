@@ -158,7 +158,8 @@ function AdminPage() {
     return true;
   });
 
-  const maxCredits = Math.max(...data.daily.map((d) => d.ai_credits), 0.0001);
+  const num = (v: unknown) => Number(v) || 0;
+  const maxCredits = Math.max(...data.daily.map((d) => num(d.ai_credits)), 0.0001);
 
   return (
     <div className="min-h-screen bg-background p-6">
