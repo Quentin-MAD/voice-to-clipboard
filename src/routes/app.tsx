@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { HardDrive, Settings, LogOut } from "lucide-react";
+import { HardDrive, Settings, LogOut, Wallet, Mic } from "lucide-react";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
@@ -814,10 +814,12 @@ function Home() {
       <span className="limits-sep" />
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
-          <strong>⭐ Illimité · 🔊 {voiceCount} voix</strong>
+          <strong>
+            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCount} voix
+          </strong>
         ) : (
           <strong>
-            ✍️ {userStatus.purchased_balance + userStatus.free_remaining} · 🔊 {voiceCount} voix
+            <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount} voix
           </strong>
         )}
         <span className="limits-reset">Reset {resetLabel}</span>
