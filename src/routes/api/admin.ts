@@ -46,15 +46,21 @@ export const Route = createFileRoute("/api/admin")({
         }
 
 
-        // Time series - last 90 days
-        const since = new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString();
-        const [pv, ai, tl] = await Promise.all([
-          supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(50000),
-          supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(50000),
-          supabaseAdmin.from("translations_log").select("created_at,source_type").gte("created_at", since).limit(50000),
+        // Time series - last 365 days
+        const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
+        const [pv, ai, tl, subs] = await Promise.all([
+          supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(100000),
+          supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(100000),
+          supabaseAdmin.from("translations_log").select("created_at,source_type").gte("created_at", since).limit(200000),
+          supabaseAdmin.from("subscriptions").select("status,current_period_end,updated_at,environment"),
         ]);
 
-        // Aggregate by day
+        // === Business constants (EUR) ===
+        // cost_credits estimates are in USD, convert to EUR
+        const USD_TO_EUR = 0.92;
+        const SUB_PRICE_EUR = 29.99; // per year
+        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits = 2,99€
+
         const dayKey = (iso: string) => startOfDayUTC(new Date(iso)).toISOString().slice(0, 10);
         const agg: Record<string, { views: number; translations: number; ai_credits: number }> = {};
         for (let i = 0; i < 90; i++) {
@@ -77,7 +83,6 @@ export const Route = createFileRoute("/api/admin")({
           .map(([date, v]) => ({ date, ...v }))
           .sort((a, b) => (a.date < b.date ? -1 : 1));
 
-        // Totals
         const totalAi = (ai.data ?? []).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
         const now = Date.now();
         const inWindow = (iso: string, days: number) => now - new Date(iso).getTime() < days * 86400000;
@@ -87,6 +92,73 @@ export const Route = createFileRoute("/api/admin")({
         const viewsToday = (pv.data ?? []).filter((r) => inWindow(r.created_at, 1)).length;
         const views7 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 7)).length;
         const views30 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 30)).length;
+
+        // === Coûts EUR par fenêtre ===
+        const costEurWindow = (days: number) =>
+          (ai.data ?? [])
+            .filter((r) => inWindow(r.created_at, days))
+            .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
+        const cost = {
+          day: costEurWindow(1),
+          week: costEurWindow(7),
+          month: costEurWindow(30),
+          year: costEurWindow(365),
+        };
+
+        // === Revenus EUR ===
+        // Exclut les abonnements offerts par admin (environment='admin')
+        const activeSubs = (subs.data ?? []).filter(
+          (s: any) =>
+            s.status === "active" &&
+            (s.environment === "sandbox" || s.environment === "live") &&
+            (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
+        );
+        const dailySubRevenue = activeSubs.length * (SUB_PRICE_EUR / 365);
+
+        const purchasedInWindow = (days: number) =>
+          (tl.data ?? []).filter(
+            (r) => r.source_type === "purchased_credit" && inWindow(r.created_at, days),
+          ).length;
+        const packRev = (days: number) => purchasedInWindow(days) * EUR_PER_PURCHASED_CREDIT;
+
+        const revenue = {
+          day: dailySubRevenue + packRev(1),
+          week: dailySubRevenue * 7 + packRev(7),
+          month: dailySubRevenue * 30 + packRev(30),
+          year: dailySubRevenue * 365 + packRev(365),
+        };
+
+        const profit = {
+          day: revenue.day - cost.day,
+          week: revenue.week - cost.week,
+          month: revenue.month - cost.month,
+          year: revenue.year - cost.year,
+        };
+        const ratio = (rev: number, cst: number) => (cst > 0 ? rev / cst : rev > 0 ? Infinity : 0);
+        const margin = (rev: number, cst: number) => (rev > 0 ? ((rev - cst) / rev) * 100 : 0);
+        const finance = {
+          cost,
+          revenue,
+          profit,
+          ratio: {
+            day: ratio(revenue.day, cost.day),
+            week: ratio(revenue.week, cost.week),
+            month: ratio(revenue.month, cost.month),
+            year: ratio(revenue.year, cost.year),
+          },
+          margin: {
+            day: margin(revenue.day, cost.day),
+            week: margin(revenue.week, cost.week),
+            month: margin(revenue.month, cost.month),
+            year: margin(revenue.year, cost.year),
+          },
+          assumptions: {
+            usd_to_eur: USD_TO_EUR,
+            sub_price_eur_year: SUB_PRICE_EUR,
+            eur_per_purchased_credit: EUR_PER_PURCHASED_CREDIT,
+            active_paying_subs: activeSubs.length,
+          },
+        };
 
         return Response.json({
           users,
@@ -102,6 +174,7 @@ export const Route = createFileRoute("/api/admin")({
             views_7d: views7,
             views_30d: views30,
           },
+          finance,
         });
       },
       POST: async ({ request }) => {
