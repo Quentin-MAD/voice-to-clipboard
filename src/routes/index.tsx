@@ -133,28 +133,55 @@ function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-4xl px-4 py-16">
+      <section className="mx-auto max-w-5xl px-4 py-16">
         <h2 className="text-center text-2xl font-bold">Comment ça marche</h2>
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              1
+        <div className="mt-8 grid gap-8 sm:grid-cols-2">
+          {/* F8 - Traduction Vocale */}
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                F8
+              </div>
+              <h3 className="text-lg font-semibold">Traduction Vocale</h3>
             </div>
-            <p className="mt-3 text-sm font-medium">Appuyez sur F8</p>
-            <p className="text-xs text-muted-foreground">Touche configurable dans l'app.</p>
+            <ol className="space-y-4">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">1</span>
+                <p className="text-sm text-muted-foreground">Appuyez sur la touche d'enregistrement (F8 par défaut, modifiable).</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">2</span>
+                <p className="text-sm text-muted-foreground">Parlez votre phrase, puis appuyez de nouveau sur la même touche pour arrêter.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">3</span>
+                <p className="text-sm text-muted-foreground">La traduction écrite est copiée dans votre presse-papiers. Collez-la directement dans le chat du jeu.</p>
+              </li>
+            </ol>
           </div>
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              2
+
+          {/* F9 - Lecture de Message Joueur */}
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                F9
+              </div>
+              <h3 className="text-lg font-semibold">Lecture de Message Joueur</h3>
             </div>
-            <p className="mt-3 text-sm font-medium">Dites votre phrase et appuyez de nouveau sur la touche d'enregistrement</p>
-          </div>
-          <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-              3
-            </div>
-            <p className="mt-3 text-sm font-medium">Collez</p>
-            <p className="text-xs text-muted-foreground">La traduction est déjà dans votre presse-papiers.</p>
+            <ol className="space-y-4">
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">1</span>
+                <p className="text-sm text-muted-foreground">Appuyez sur la touche F9 (configurable) pendant que le message du joueur est visible à l'écran.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">2</span>
+                <p className="text-sm text-muted-foreground">Dites le pseudo du joueur. L'application capture votre écran et retrouve son message dans le chat.</p>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">3</span>
+                <p className="text-sm text-muted-foreground">L'IA traduit le message et le lit à voix haute avec une voix féminine naturelle.</p>
+              </li>
+            </ol>
           </div>
         </div>
       </section>
