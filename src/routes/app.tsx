@@ -115,12 +115,13 @@ type UserStatus = {
   daily_reset_at: string | null;
 };
 
-const STORAGE_KEY = "voxtranslate:settings:v2";
+const STORAGE_KEY = "voxtranslate:settings:v3";
 
 type PersistedSettings = {
   source: string;
   target: string;
   toggleKey: string;
+  readKey: string;
 };
 
 function loadSettings(): PersistedSettings | null {
@@ -128,7 +129,18 @@ function loadSettings(): PersistedSettings | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw) as PersistedSettings;
-    // Migrate old v1 settings
+    // Migrate v2
+    const v2 = localStorage.getItem("voxtranslate:settings:v2");
+    if (v2) {
+      const old = JSON.parse(v2) as { source?: string; target?: string; toggleKey?: string };
+      return {
+        source: old.source ?? "auto",
+        target: old.target ?? "en",
+        toggleKey: old.toggleKey ?? "F8",
+        readKey: "F9",
+      };
+    }
+    // Migrate v1
     const oldRaw = localStorage.getItem("voxtranslate:settings:v1");
     if (oldRaw) {
       const old = JSON.parse(oldRaw) as { source?: string; target?: string; startKey?: string };
@@ -136,6 +148,7 @@ function loadSettings(): PersistedSettings | null {
         source: old.source ?? "auto",
         target: old.target ?? "en",
         toggleKey: old.startKey ?? "F8",
+        readKey: "F9",
       };
     }
     return null;
