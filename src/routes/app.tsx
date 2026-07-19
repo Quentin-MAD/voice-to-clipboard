@@ -736,22 +736,7 @@ function Home() {
           )}
           </div>
 
-          {/* Statusbar (Electron only) */}
-          {isElectron && (
-            <div className="native-statusbar">
-              <span className={`native-status-dot ${status === "recording" ? "rec" : status === "processing" ? "proc" : ""}`} />
-              <span>{status === "idle" ? "READY" : status.toUpperCase()}</span>
-              <span className="native-status-sep" />
-              <span>{creditsLabel}</span>
-              <span className="native-status-sep" />
-              <span>HOTKEY <kbd>{toggleKey}</kbd></span>
-              <span className="ml-auto flex items-center gap-2">
-                {!userStatus?.subscribed && (
-                  <Link to="/pricing" className="text-[11px] underline">Passer à l'illimité</Link>
-                )}
-              </span>
-            </div>
-          )}
+          {/* Bottom statusbar removed - all info already visible in the header */}
         </div>
       </div>
 
