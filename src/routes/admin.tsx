@@ -185,6 +185,11 @@ function AdminPage() {
           />
         </div>
 
+        {/* Finance: coûts / revenus / bénéfice */}
+        <FinancePanel finance={data.finance} />
+
+
+
         {/* AI usage chart */}
         <div className="rounded-lg border bg-card p-4">
           <h2 className="mb-3 text-lg font-semibold">Consommation IA - 90 derniers jours (crédits Lovable)</h2>
