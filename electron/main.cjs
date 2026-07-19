@@ -175,6 +175,7 @@ function notifyOnce() {
 function registerHotkeys() {
   globalShortcut.unregisterAll();
   hotkeyOk = false;
+  readHotkeyOk = false;
   try {
     hotkeyOk = globalShortcut.register(toggleAccel, () => {
       if (mainWindow) mainWindow.webContents.send('hotkey', 'toggle');
@@ -186,9 +187,16 @@ function registerHotkeys() {
         urgent: true,
       });
     }
-  } catch (e) { console.error('Failed to register hotkey', e); }
+  } catch (e) { console.error('Failed to register toggle hotkey', e); }
+  try {
+    if (readAccel && readAccel !== toggleAccel) {
+      readHotkeyOk = globalShortcut.register(readAccel, () => {
+        if (mainWindow) mainWindow.webContents.send('hotkey', 'read-toggle');
+      });
+    }
+  } catch (e) { console.error('Failed to register read hotkey', e); }
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk });
+    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk });
   }
   rebuildTrayMenu();
 }
