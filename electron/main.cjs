@@ -371,15 +371,19 @@ ipcMain.handle('window:show', () => { showWindow(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {
   const toggle = payload && (payload.toggle || payload.start);
+  const read = payload && payload.read;
   if (toggle && typeof toggle === 'string') {
     toggleAccel = toggle;
-    saveSettings();
   }
+  if (read && typeof read === 'string') {
+    readAccel = read;
+  }
+  saveSettings();
   registerHotkeys();
-  return { toggle: toggleAccel, ok: hotkeyOk };
+  return { toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk };
 });
 
-ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk }));
+ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk }));
 
 ipcMain.handle('recording:state', (_e, state) => {
   isRecording = !!state;
@@ -395,7 +399,31 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
-ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, readAccel, readHotkeyOk, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
+
+// -------- Screenshot capture for "Read message" feature --------
+ipcMain.handle('screenshot:capture', async () => {
+  try {
+    const primary = screen.getPrimaryDisplay();
+    const { width, height } = primary.size;
+    const scale = primary.scaleFactor || 1;
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: {
+        width: Math.round(width * scale),
+        height: Math.round(height * scale),
+      },
+    });
+    if (!sources || sources.length === 0) return { ok: false, error: 'no-source' };
+    // Prefer primary screen (usually the first)
+    const src = sources[0];
+    const png = src.thumbnail.toPNG();
+    return { ok: true, dataBase64: png.toString('base64'), mime: 'image/png' };
+  } catch (e) {
+    console.error('screenshot:capture failed', e);
+    return { ok: false, error: String(e && e.message || e) };
+  }
+});
 
 // -------- Session sign-out (step 9) --------
 async function signOutAndReload({ confirm = false } = {}) {
