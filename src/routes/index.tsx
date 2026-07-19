@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { HardDrive, Mic, Globe, Zap } from "lucide-react";
+import { HardDrive, Mic, Globe, Zap, MessageSquare, Ear } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
