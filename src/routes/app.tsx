@@ -842,10 +842,11 @@ function Home() {
                 <span className="native-title notranslate"><b>TalKing</b><sup className="native-trademark">®</sup></span>
               </div>
               <div className="native-menubar-center">
-                <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
+                <div className="native-credits-pill" title={resetTooltip}>
                   <span className="native-credits-dot" />
-                  {creditBadge}
+                  {limitsPanel}
                 </div>
+
               </div>
               <div className="flex items-center gap-2">
                 <div className="native-translate-slot">
