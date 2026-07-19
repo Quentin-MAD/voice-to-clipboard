@@ -571,7 +571,20 @@ function Home() {
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
               <div className="flex flex-col">
                 <div className="text-xs uppercase text-muted-foreground">{user.email}</div>
-                <div className="text-sm font-semibold">{creditsLabel}</div>
+                <div className="text-sm font-semibold">
+                  {userStatus?.subscribed ? (
+                    "⭐ Abonné - illimité"
+                  ) : userStatus ? (
+                    <>
+                      <span className="text-amber-500">{userStatus.free_remaining}</span>
+                      {" + "}
+                      <span>{userStatus.purchased_balance}</span>
+                      {" crédits"}
+                    </>
+                  ) : (
+                    "…"
+                  )}
+                </div>
               </div>
               {!userStatus?.subscribed && (
                 <Link
