@@ -271,9 +271,15 @@ export const Route = createFileRoute("/api/read-message")({
             },
           ]);
 
+          // Normalize sourceLang to one of our supported codes (zh-CN -> zh, etc.)
+          const supportedLangs = Object.keys(LANG_NAMES);
+          const rawSource = (vision.sourceLang ?? "").toLowerCase().trim();
+          const sourceLang = supportedLangs.find((c) => rawSource === c || rawSource.startsWith(c)) ?? undefined;
+
           return Response.json({
             pseudo: vision.pseudo,
             original: vision.original,
+            sourceLang,
             translation: vision.translation,
             audio: audioBase64Out,
             audioFormat: "mp3",
