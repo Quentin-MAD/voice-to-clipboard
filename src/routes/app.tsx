@@ -814,10 +814,12 @@ function Home() {
       <span className="limits-sep" />
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
-          <strong>⭐ Illimité · 🔊 {voiceCount} voix</strong>
+          <strong>
+            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCount} voix
+          </strong>
         ) : (
           <strong>
-            ✍️ {userStatus.purchased_balance + userStatus.free_remaining} · 🔊 {voiceCount} voix
+            <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount} voix
           </strong>
         )}
         <span className="limits-reset">Reset {resetLabel}</span>
