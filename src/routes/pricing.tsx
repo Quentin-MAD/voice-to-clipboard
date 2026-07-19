@@ -119,7 +119,6 @@ function PricingPage() {
               <li>✓ Traductions F8 illimitées*</li>
               <li>✓ 10 lectures F9/jour</li>
               <li>✓ Support prioritaire</li>
-              <li>✓ Moins cher que les packs</li>
             </ul>
             <button
               onClick={() => buy("vox_subscription_yearly")}
