@@ -16,6 +16,7 @@ const {
 const path = require('path');
 const fs = require('fs');
 const logger = require('./logger.cjs');
+const lowLevelHotkeys = require('./hotkeys.cjs');
 
 // -------- Session persistence (step 9) --------
 // Electron persists localStorage / cookies / IndexedDB in the userData
