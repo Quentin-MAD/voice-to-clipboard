@@ -1116,7 +1116,7 @@ function Home() {
           className={isElectron ? "native-modal-backdrop" : "fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"}
           onClick={() => {
             setSettingsOpen(false);
-            setCapturing(false);
+            setCapturing(null);
           }}
         >
           <div
@@ -1128,30 +1128,48 @@ function Home() {
                 <div className="native-modal-head">
                   <span className="native-modal-title">Paramètres</span>
                   <button
-                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                     aria-label="Fermer"
                     style={{ minHeight: 26, padding: "2px 10px" }}
                   >✕</button>
                 </div>
                 <div className="native-modal-body">
                   <div className="native-field">
-                    <span className="native-label">Raccourci d'enregistrement</span>
+                    <span className="native-label">Raccourci d'enregistrement (traduction)</span>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button
-                        onClick={() => setCapturing(true)}
+                        onClick={() => setCapturing("toggle")}
                         style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
-                                 background: capturing ? "rgba(245,158,11,0.15)" : undefined,
-                                 borderColor: capturing ? "rgba(245,158,11,0.6)" : undefined,
-                                 color: capturing ? "#fbbf24" : undefined }}
+                                 background: capturing === "toggle" ? "rgba(245,158,11,0.15)" : undefined,
+                                 borderColor: capturing === "toggle" ? "rgba(245,158,11,0.6)" : undefined,
+                                 color: capturing === "toggle" ? "#fbbf24" : undefined }}
                       >
-                        {capturing ? "Appuyez sur une touche…" : toggleKey}
+                        {capturing === "toggle" ? "Appuyez sur une touche…" : toggleKey}
                       </button>
-                      <button onClick={() => { setToggleKey("F8"); setCapturing(false); }} title="Réinitialiser (F8)">
+                      <button onClick={() => { setToggleKey("F8"); setCapturing(null); }} title="Réinitialiser (F8)">
+                        Réinit.
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="native-field">
+                    <span className="native-label">Raccourci "Lire un message" (2 crédits)</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={() => setCapturing("read")}
+                        style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
+                                 background: capturing === "read" ? "rgba(245,158,11,0.15)" : undefined,
+                                 borderColor: capturing === "read" ? "rgba(245,158,11,0.6)" : undefined,
+                                 color: capturing === "read" ? "#fbbf24" : undefined }}
+                      >
+                        {capturing === "read" ? "Appuyez sur une touche…" : readKey}
+                      </button>
+                      <button onClick={() => { setReadKey("F9"); setCapturing(null); }} title="Réinitialiser (F9)">
                         Réinit.
                       </button>
                     </div>
                     <p className="native-field-help">
-                      Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Ce raccourci est enregistré globalement et fonctionne même quand un jeu plein écran a le focus.
+                      Appuyez, dites "Lis-moi le message de [pseudo]", ré-appuyez. L'IA capture votre écran, trouve le message et le lit à voix haute traduit dans votre langue cible.
                     </p>
                   </div>
 
@@ -1174,7 +1192,7 @@ function Home() {
                   </div>
                 </div>
                 <div className="native-modal-foot">
-                  <button onClick={() => { setSettingsOpen(false); setCapturing(false); }} className="native-btn-primary">
+                  <button onClick={() => { setSettingsOpen(false); setCapturing(null); }} className="native-btn-primary">
                     Terminé
                   </button>
                 </div>
@@ -1184,36 +1202,50 @@ function Home() {
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Paramètres</h2>
                   <button
-                    onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                    onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                     className="rounded p-1 text-muted-foreground hover:bg-accent"
                     aria-label="Fermer"
                   >✕</button>
                 </div>
                 <div className="mb-4">
-                  <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement</label>
+                  <label className="mb-2 block text-sm font-medium">Raccourci d'enregistrement (traduction)</label>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCapturing(true)}
+                      onClick={() => setCapturing("toggle")}
                       className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
-                        capturing ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                        capturing === "toggle" ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
                       }`}
                     >
-                      {capturing ? "Appuyez sur une touche…" : toggleKey}
+                      {capturing === "toggle" ? "Appuyez sur une touche…" : toggleKey}
                     </button>
                     <button
-                      onClick={() => { setToggleKey("F8"); setCapturing(false); }}
+                      onClick={() => { setToggleKey("F8"); setCapturing(null); }}
                       className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
-                      title="Réinitialiser (F8)"
+                    >Réinit.</button>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="mb-2 block text-sm font-medium">Raccourci "Lire un message" (2 crédits)</label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCapturing("read")}
+                      className={`flex-1 rounded-md border border-input px-3 py-2 text-sm font-mono ${
+                        capturing === "read" ? "bg-amber-500/20 text-amber-600" : "bg-background hover:bg-accent"
+                      }`}
                     >
-                      Réinit.
+                      {capturing === "read" ? "Appuyez sur une touche…" : readKey}
                     </button>
+                    <button
+                      onClick={() => { setReadKey("F9"); setCapturing(null); }}
+                      className="rounded-md border border-input bg-background px-3 py-2 text-xs hover:bg-accent"
+                    >Réinit.</button>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Appuyez une fois pour démarrer l'enregistrement, à nouveau pour arrêter. Dans le navigateur, le raccourci ne s'active que quand cet onglet a le focus. Téléchargez l'app pour un raccourci global.
+                    Disponible uniquement dans l'app Windows (capture d'écran requise).
                   </p>
                 </div>
                 <button
-                  onClick={() => { setSettingsOpen(false); setCapturing(false); }}
+                  onClick={() => { setSettingsOpen(false); setCapturing(null); }}
                   className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   Terminé
