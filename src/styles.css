@@ -212,109 +212,53 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
    monospace micro-labels, a fixed left icon rail. Distinct from the web UI.
    ========================================================================= */
 .native-app {
-  --nx-bg:            #07090d;
-  --nx-bg-2:          #0b0e14;
-  --nx-panel:         #0f1319;
-  --nx-panel-hi:      #131822;
-  --nx-line:          #1a2130;
-  --nx-line-hi:       #26304a;
-  --nx-text:          #e7ecf5;
-  --nx-text-dim:      #a5b0c4;
-  --nx-text-mute:     #6d7994;
-  --nx-accent:        #22d3ee;   /* cyan */
-  --nx-accent-2:      #38bdf8;   /* sky */
-  --nx-accent-ink:    #041018;
-  --nx-accent-glow:   rgba(34, 211, 238, 0.28);
-  --nx-danger:        #f43f5e;
-  --nx-success:       #34d399;
-  --nx-warn:          #f59e0b;
+  /* Discord-inspired palette (lighter, friendly, high contrast) */
+  --nx-bg:            #1e1f22;    /* app background (Discord sidebar bg) */
+  --nx-bg-2:          #2b2d31;    /* channel/content bg */
+  --nx-panel:         #313338;    /* panels (Discord chat bg) */
+  --nx-panel-hi:      #383a40;    /* hover / raised panel */
+  --nx-line:          #3f4147;    /* dividers */
+  --nx-line-hi:       #4e5058;    /* borders on inputs / buttons */
+  --nx-text:          #f2f3f5;    /* primary text */
+  --nx-text-dim:      #dbdee1;    /* secondary text */
+  --nx-text-mute:     #b5bac1;    /* muted text */
+  --nx-accent:        #5865f2;    /* Discord blurple */
+  --nx-accent-2:      #7983f5;
+  --nx-accent-ink:    #ffffff;
+  --nx-accent-glow:   rgba(88, 101, 242, 0.35);
+  --nx-danger:        #f23f42;
+  --nx-success:       #23a559;
+  --nx-warn:          #f0b232;
 
-  font-family: "Inter", "SF Pro Display", "Segoe UI Variable", "Segoe UI",
+  font-family: "gg sans", "Inter", "Segoe UI Variable", "Segoe UI",
     system-ui, -apple-system, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   height: 100vh;
   overflow: hidden;
   color: var(--nx-text);
-  background:
-    radial-gradient(1000px 500px at 100% -10%, rgba(34, 211, 238, 0.06), transparent 60%),
-    radial-gradient(800px 400px at -10% 110%, rgba(56, 189, 248, 0.05), transparent 60%),
-    linear-gradient(180deg, var(--nx-bg-2), var(--nx-bg));
+  background: var(--nx-bg-2);
   -webkit-font-smoothing: antialiased;
   user-select: none;
-  letter-spacing: -0.005em;
 }
-/* Subtle dot grid — depth without noise */
-.native-app::before {
-  content: "";
-  position: fixed; inset: 0;
-  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
-  background-size: 22px 22px;
-  pointer-events: none;
-  z-index: 0;
-}
-.native-app > * { position: relative; z-index: 1; }
 .native-app * { border-color: var(--nx-line); }
 .native-app input, .native-app select, .native-app textarea,
 .native-app [contenteditable="true"] { user-select: text; }
 
-/* ============ Layout: sidebar rail + main column ============ */
+/* ============ Layout: single column, no sidebar ============ */
 .native-app .native-window {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  grid-template-rows: 100vh;
-  height: 100vh;
-}
-.native-app .native-sidebar {
-  grid-row: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 0;
-  background: rgba(0,0,0,0.35);
-  border-right: 1px solid var(--nx-line);
+  height: 100vh;
 }
-.native-app .native-brand {
-  width: 36px; height: 36px;
-  display: grid; place-items: center;
-  border-radius: 10px;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(34,211,238,0.85), rgba(56,189,248,0.55) 55%, rgba(34,211,238,0.1) 100%);
-  color: var(--nx-accent-ink);
-  font-weight: 900; font-size: 15px;
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-  box-shadow: 0 0 0 1px rgba(34,211,238,0.35), 0 6px 20px -6px var(--nx-accent-glow);
-}
-.native-app .native-side-btn {
-  width: 40px; height: 40px;
-  padding: 0 !important;
-  min-height: 0 !important;
-  display: grid; place-items: center;
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  color: var(--nx-text-mute) !important;
-  border-radius: 10px !important;
-  font-size: 15px;
-}
-.native-app .native-side-btn:hover:not(:disabled) {
-  background: rgba(255,255,255,0.04) !important;
-  color: var(--nx-text) !important;
-  border-color: transparent !important;
-}
-.native-app .native-side-btn.is-active {
-  background: rgba(34,211,238,0.10) !important;
-  color: var(--nx-accent) !important;
-  box-shadow: inset 0 0 0 1px rgba(34,211,238,0.25);
-}
-.native-app .native-side-spacer { flex: 1 1 auto; }
 
 .native-app .native-main {
   display: flex;
   flex-direction: column;
   min-width: 0;
   height: 100vh;
+  flex: 1;
 }
+
 
 /* Top titlebar (draggable) */
 .native-app .native-menubar {
