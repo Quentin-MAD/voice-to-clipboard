@@ -47,7 +47,7 @@ function PrivacyPage() {
             <h2 className="text-lg font-semibold">3. Purposes and legal bases</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Provide the service (account, translation, credit management) - <em>performance of contract</em>.</li>
-              <li>Security, fraud and abuse prevention (including the 50/hour cap) - <em>legitimate interests</em>.</li>
+              <li>Security, fraud and abuse prevention (including the 150/day cap) - <em>legitimate interests</em>.</li>
               <li>Billing, tax compliance and accounting - <em>legal obligation</em>.</li>
               <li>Customer support - <em>performance of contract</em> / <em>legitimate interests</em>.</li>
               <li>Product improvement (aggregated statistics only) - <em>legitimate interests</em>.</li>
