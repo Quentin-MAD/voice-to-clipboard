@@ -270,8 +270,8 @@ function Home() {
       if (!res.ok || !json.translation) {
         // Refetch status so the UI reflects new usage/limits
         statusQuery.refetch();
-        if (json.code === "hourly_limit") {
-          toast.error("🛑 Limite anti-spam atteinte (50/heure). Réessayez dans 1 heure.", { duration: 6000 });
+        if (json.code === "daily_limit" || json.code === "hourly_limit") {
+          toast.error("🛑 Limite anti-spam atteinte (150/jour). Réessayez demain.", { duration: 6000 });
         } else if (json.code === "no_credits") {
           toast.error("Plus de crédits. Passez à l'abonnement ou achetez un pack.", { duration: 6000 });
         } else if (json.code === "unauthorized") {

@@ -153,12 +153,12 @@ export const Route = createFileRoute("/api/translate-audio")({
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
           if (!row?.ok) {
-            if (row?.reason === "hourly_limit") {
+            if (row?.reason === "daily_limit" || row?.reason === "hourly_limit") {
               return Response.json(
                 {
                   error:
-                    "Limite anti-spam atteinte : 50 traductions dans la dernière heure. Réessayez dans 1 heure.",
-                  code: "hourly_limit",
+                    "Limite anti-spam atteinte : 150 traductions sur les dernières 24 heures. Réessayez demain.",
+                  code: "daily_limit",
                 },
                 { status: 429 },
               );
@@ -167,7 +167,7 @@ export const Route = createFileRoute("/api/translate-audio")({
               return Response.json(
                 {
                   error:
-                    "Vous n'avez plus de crédits. Passez à l'abonnement (20 €/an, illimité) ou achetez un pack (50 crédits pour 2,99 €).",
+                    "Vous n'avez plus de crédits. Passez à l'abonnement (29,99 €/an, illimité) ou achetez un pack (50 crédits pour 2,99 €).",
                   code: "no_credits",
                 },
                 { status: 402 },

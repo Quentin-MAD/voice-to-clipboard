@@ -10,7 +10,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Tarifs - TalKing" },
-      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 20€/an." },
+      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 29,99€/an." },
     ],
   }),
   component: PricingPage,
@@ -54,7 +54,7 @@ function PricingPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          1 crédit = 1 traduction. Anti-spam : max 50 traductions/heure pour tout le monde.
+          1 crédit = 1 traduction. Anti-spam : max 150 traductions/jour pour tout le monde.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -94,7 +94,7 @@ function PricingPage() {
             </div>
             <h2 className="text-lg font-semibold">Abonnement</h2>
             <div className="my-3 text-3xl font-bold">
-              20 € <span className="text-sm font-normal text-muted-foreground">/an</span>
+              29,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ Traductions illimitées*</li>
@@ -106,10 +106,10 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "S'abonner - 20 €/an"}
+              {loading ? "Chargement..." : "S'abonner - 29,99 €/an"}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
-              *dans la limite de 50 traductions/heure (anti-spam).
+              *dans la limite de 150 traductions/jour (anti-spam).
             </p>
           </div>
         </div>
