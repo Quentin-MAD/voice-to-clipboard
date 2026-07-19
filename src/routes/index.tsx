@@ -207,9 +207,6 @@ function LandingPage() {
       {/* Pricing teaser */}
       <section className="mx-auto max-w-4xl px-4 py-16 text-center">
         <h2 className="text-2xl font-bold">Une formule pour chaque usage</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Gratuit : 20 traductions/mois. Pack 50 crédits 2,99€. Abonnement illimité 29,99€/an.
-        </p>
         <Link
           to="/pricing"
           className="mt-6 inline-block rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
