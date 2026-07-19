@@ -543,7 +543,8 @@ app.whenReady().then(() => {
 });
 
 app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
+  try { globalShortcut.unregisterAll(); } catch {}
+  try { lowLevelHotkeys.unregisterAll(); lowLevelHotkeys.stop(); } catch {}
   if (powerBlockerId !== null) { try { powerSaveBlocker.stop(powerBlockerId); } catch {} powerBlockerId = null; }
 });
 app.on('window-all-closed', () => { /* keep alive in tray */ });
