@@ -504,7 +504,7 @@ function Home() {
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={userStatus?.subscribed ? "Abonnement actif - traductions illimitées" : "Crédits disponibles ce mois"}>
                   <span className="native-credits-dot" />
-                  <span className="native-credits-text">{creditsLabel}</span>
+                  {creditBadge}
                 </div>
               </div>
               <div className="flex items-center gap-2">
