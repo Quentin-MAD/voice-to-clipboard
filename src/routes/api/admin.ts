@@ -199,26 +199,22 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
-          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits";
+          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits";
           user_id?: string;
           amount?: number;
         };
         if (!body.user_id || !body.action) {
           return Response.json({ error: "bad_request" }, { status: 400 });
         }
-        if (body.action === "add_credits") {
+        if (body.action === "add_credits" || body.action === "set_credits") {
           const amt = Math.trunc(body.amount ?? 0);
-          const { error } = await supabaseAdmin.rpc("admin_add_credits", {
-            _target_user: body.user_id,
-            _amount: amt,
-          });
+          const rpc = body.action === "add_credits" ? "admin_add_credits" : "admin_set_credits";
+          const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
-        } else if (body.action === "add_voice_credits") {
+        } else if (body.action === "add_voice_credits" || body.action === "set_voice_credits") {
           const amt = Math.trunc(body.amount ?? 0);
-          const { error } = await supabaseAdmin.rpc("admin_add_voice_credits", {
-            _target_user: body.user_id,
-            _amount: amt,
-          });
+          const rpc = body.action === "add_voice_credits" ? "admin_add_voice_credits" : "admin_set_voice_credits";
+          const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         } else {
           const { error } = await supabaseAdmin.rpc("admin_set_subscription", {

@@ -278,10 +278,19 @@ export type Database = {
           translations_30d: number
           translations_total: number
           user_id: string
+          voice_balance: number
         }[]
+      }
+      admin_set_credits: {
+        Args: { _amount: number; _target_user: string }
+        Returns: undefined
       }
       admin_set_subscription: {
         Args: { _action: string; _target_user: string }
+        Returns: undefined
+      }
+      admin_set_voice_credits: {
+        Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
       consume_translation: {
