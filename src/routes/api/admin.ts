@@ -46,14 +46,18 @@ export const Route = createFileRoute("/api/admin")({
         }
 
 
-        // Time series - last 365 days
+        // Time series - last 365 days for chart
         const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
-        const [pv, ai, tl, subs, tx] = await Promise.all([
+        const [pv, ai, tl, subs, tx, aiAll, txAll, aiFirst] = await Promise.all([
           supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(100000),
           supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(100000),
           supabaseAdmin.from("translations_log").select("created_at,source_type").gte("created_at", since).limit(200000),
           supabaseAdmin.from("subscriptions").select("status,current_period_end,updated_at,environment"),
           supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment").gte("created_at", since).limit(100000),
+          // All-time (minimal fields)
+          supabaseAdmin.from("ai_usage_log").select("cost_credits").limit(500000),
+          supabaseAdmin.from("payment_transactions").select("amount_eur,environment").limit(500000),
+          supabaseAdmin.from("ai_usage_log").select("created_at").order("created_at", { ascending: true }).limit(1),
         ]);
 
         // === Business constants (EUR) ===
@@ -100,16 +104,23 @@ export const Route = createFileRoute("/api/admin")({
           (ai.data ?? [])
             .filter((r) => inWindow(r.created_at, days))
             .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
+        // All-time totals
+        const aiAllTotalCredits = (aiAll.data ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
+        const costAllEur = aiAllTotalCredits * USD_TO_EUR;
+        const revenueAllEur = (txAll.data ?? [])
+          .filter((t: any) => t.environment === "live")
+          .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
+        const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
+
         const cost = {
           day: costEurWindow(1),
           week: costEurWindow(7),
           month: costEurWindow(30),
           year: costEurWindow(365),
+          all: costAllEur,
         };
 
         // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
-        // Les abonnements/crédits offerts par l'admin (environment='admin') ne comptent pas.
-        // Sandbox exclu du revenu réel : seul 'live' compte comme vente.
         const realTx = (tx.data ?? []).filter((t: any) => t.environment === "live");
         const revenueInWindow = (days: number) =>
           realTx
@@ -121,6 +132,7 @@ export const Route = createFileRoute("/api/admin")({
           week: revenueInWindow(7),
           month: revenueInWindow(30),
           year: revenueInWindow(365),
+          all: revenueAllEur,
         };
 
         const profit = {
@@ -128,6 +140,7 @@ export const Route = createFileRoute("/api/admin")({
           week: revenue.week - cost.week,
           month: revenue.month - cost.month,
           year: revenue.year - cost.year,
+          all: revenue.all - cost.all,
         };
         const ratio = (rev: number, cst: number) => (cst > 0 ? rev / cst : rev > 0 ? Infinity : 0);
         const margin = (rev: number, cst: number) => (rev > 0 ? ((rev - cst) / rev) * 100 : 0);
@@ -140,12 +153,14 @@ export const Route = createFileRoute("/api/admin")({
             week: ratio(revenue.week, cost.week),
             month: ratio(revenue.month, cost.month),
             year: ratio(revenue.year, cost.year),
+            all: ratio(revenue.all, cost.all),
           },
           margin: {
             day: margin(revenue.day, cost.day),
             week: margin(revenue.week, cost.week),
             month: margin(revenue.month, cost.month),
             year: margin(revenue.year, cost.year),
+            all: margin(revenue.all, cost.all),
           },
           assumptions: {
             usd_to_eur: USD_TO_EUR,
@@ -155,6 +170,7 @@ export const Route = createFileRoute("/api/admin")({
               (s: any) => s.status === "active" && s.environment === "live" &&
                 (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
             ).length,
+            first_ai_date: firstAiDate,
           },
         };
 
@@ -168,6 +184,7 @@ export const Route = createFileRoute("/api/admin")({
             ai_credits_today: aiToday,
             ai_credits_7d: ai7,
             ai_credits_30d: ai30,
+            ai_credits_all: aiAllTotalCredits,
             views_today: viewsToday,
             views_7d: views7,
             views_30d: views30,

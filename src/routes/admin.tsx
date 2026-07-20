@@ -26,7 +26,7 @@ type AdminUser = {
   translations_30d: number;
 };
 
-type Windowed = { day: number; week: number; month: number; year: number };
+type Windowed = { day: number; week: number; month: number; year: number; all: number };
 type AdminData = {
   users: AdminUser[];
   daily: Array<{ date: string; views: number; translations: number; ai_credits: number }>;
@@ -37,6 +37,7 @@ type AdminData = {
     ai_credits_today: number;
     ai_credits_7d: number;
     ai_credits_30d: number;
+    ai_credits_all: number;
     views_today: number;
     views_7d: number;
     views_30d: number;
@@ -52,6 +53,7 @@ type AdminData = {
       sub_price_eur_year: number;
       eur_per_purchased_credit: number;
       active_paying_subs: number;
+      first_ai_date: string | null;
     };
   };
 };
@@ -324,27 +326,41 @@ const EUR = (n: number | null | undefined) =>
   (Number(n) || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
 
 function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
-  const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" }> = [
+  const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" | "all" }> = [
     { label: "Jour", key: "day" },
     { label: "Semaine", key: "week" },
     { label: "Mois", key: "month" },
     { label: "Année", key: "year" },
+    { label: "All time", key: "all" },
   ];
   const fmtRatio = (r: number | null | undefined) => {
     const v = Number(r);
     return !isFinite(v) ? "∞" : v === 0 ? "—" : `${v.toFixed(2)}×`;
   };
   const fmtMargin = (m: number | null | undefined) => `${(Number(m) || 0).toFixed(1)}%`;
+  const firstDate = finance.assumptions.first_ai_date
+    ? new Date(finance.assumptions.first_ai_date).toLocaleDateString("fr-FR")
+    : null;
   return (
     <div className="rounded-lg border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold">Finances (EUR)</h2>
         <div className="text-xs text-muted-foreground">
-          Abo. payants actifs : {finance.assumptions.active_paying_subs} · Base :{" "}
-          {EUR(finance.assumptions.sub_price_eur_year)}/an, 50 crédits ={" "}
-          {EUR(finance.assumptions.eur_per_purchased_credit * 50)}
+          Abo. payants actifs : {finance.assumptions.active_paying_subs}
+          {firstDate ? ` · Depuis le ${firstDate}` : ""}
         </div>
       </div>
+
+      {/* Cost highlight cards */}
+      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+        {rows.map((r) => (
+          <div key={r.key} className="rounded-md border bg-background p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">Coût {r.label}</div>
+            <div className="mt-1 text-xl font-bold text-red-500">{EUR(finance.cost[r.key])}</div>
+          </div>
+        ))}
+      </div>
+
       <div className="overflow-auto">
         <table className="w-full text-sm">
           <thead>
@@ -363,7 +379,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
               const rev = finance.revenue[r.key];
               const prof = finance.profit[r.key];
               return (
-                <tr key={r.key} className="border-b">
+                <tr key={r.key} className={`border-b ${r.key === "all" ? "bg-accent/30 font-medium" : ""}`}>
                   <td className="p-2 font-medium">{r.label}</td>
                   <td className="p-2 text-red-500">{EUR(cost)}</td>
                   <td className="p-2 text-green-500">{EUR(rev)}</td>
@@ -379,9 +395,8 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
         </table>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Estimation. Coût = usage IA (USD → EUR × {finance.assumptions.usd_to_eur}). Revenus = abonnements
-        actifs pro-ratisés + crédits consommés depuis les packs. Ne compte pas les crédits achetés mais non
-        consommés (revenus réels ≥ estimation).
+        Coût = usage IA converti USD → EUR (× {finance.assumptions.usd_to_eur}). Revenus = transactions Paddle
+        live uniquement (les crédits/abonnements offerts par l'admin ne comptent pas).
       </p>
     </div>
   );
