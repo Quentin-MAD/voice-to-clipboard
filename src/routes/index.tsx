@@ -83,8 +83,7 @@ function LandingPage() {
             Essayer gratuitement
           </Link>
           <a
-            href="/__l5e/assets-v1/39d8fd2c-52cb-43ea-b5e5-c42166360267/TalKing-Setup-0.9.9.exe"
-            download="TalKing-Setup-0.9.9.exe"
+            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup-0.10.2.exe"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
           >
             <HardDrive className="h-5 w-5" />
