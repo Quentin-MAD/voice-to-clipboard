@@ -336,12 +336,15 @@ function AdminPage() {
                   const profit = num(u.profit_eur_total);
                   const abuseToday = num(u.ops_today) > 100;
                   const heavy30 = cost30 > 1;
-                  const losing = profit < -0.5;
+                  const losing = !u.is_tester && profit < -0.5;
+                  const unlimited = u.subscribed || u.is_tester;
                   return (
                     <tr
                       key={u.user_id}
                       className={
-                        losing
+                        u.is_tester
+                          ? "border-b bg-blue-500/10 hover:bg-blue-500/20"
+                          : losing
                           ? "border-b bg-red-500/10 hover:bg-red-500/20"
                           : abuseToday
                           ? "border-b bg-amber-500/10 hover:bg-amber-500/20"
@@ -356,15 +359,24 @@ function AdminPage() {
                         </div>
                       </td>
                       <td className="p-2">
-                        <span
-                          className={
-                            u.subscribed
-                              ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                              : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
-                          }
-                        >
-                          {u.subscribed ? "Abonné" : "Gratuit"}
-                        </span>
+                        {u.is_tester ? (
+                          <span
+                            className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
+                            title="Testeur - accès gratuit accordé par l'admin, exclu de la rentabilité"
+                          >
+                            Testeur
+                          </span>
+                        ) : (
+                          <span
+                            className={
+                              u.subscribed
+                                ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
+                                : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
+                            }
+                          >
+                            {u.subscribed ? "Abonné" : "Gratuit"}
+                          </span>
+                        )}
                       </td>
                       <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
                         {u.ops_today ?? 0}
@@ -376,27 +388,37 @@ function AdminPage() {
                         {EUR(cost30)}
                       </td>
                       <td className="p-2 tabular-nums">{EUR(costTotal)}</td>
-                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">{EUR(revenue)}</td>
-                      <td className={"p-2 tabular-nums font-semibold " + (profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
-                        {EUR(profit)}
+                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
+                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
+                      </td>
+                      <td className="p-2 tabular-nums font-semibold">
+                        {u.is_tester ? (
+                          <span className="text-muted-foreground" title="Exclu du calcul de rentabilité">exclu</span>
+                        ) : (
+                          <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+                            {EUR(profit)}
+                          </span>
+                        )}
                       </td>
                       <td className="p-2 font-medium">
-                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - crédits illimités (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
+                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="Accès illimité (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
                       </td>
                       <td className="p-2 font-medium">
-                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - lectures vocales limitées à 10/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
+                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="10 lectures vocales/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
                       </td>
                       <td className="p-2">
                         <UserActions
                           userId={u.user_id}
                           currentText={u.purchased_balance}
                           currentVoice={u.voice_balance ?? 0}
+                          isTester={u.is_tester}
                           onAct={act}
                         />
                       </td>
                     </tr>
                   );
                 })}
+
               </tbody>
             </table>
           </div>
