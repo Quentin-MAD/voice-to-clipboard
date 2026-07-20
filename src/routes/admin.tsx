@@ -172,11 +172,13 @@ function AdminPage() {
 
   const users = data.users
     .filter((u) => {
-      if (filter === "free" && u.subscribed) return false;
+      if (filter === "free" && (u.subscribed || u.is_tester)) return false;
       if (filter === "subscribed" && !u.subscribed) return false;
+      if (filter === "tester" && !u.is_tester) return false;
       if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     })
+
     .sort((a, b) => {
       switch (sortBy) {
         case "cost_total": return num(b.cost_usd_total) - num(a.cost_usd_total);
