@@ -13,9 +13,15 @@ declare global {
     mime?: string;
     error?: string;
   }
+  interface VoxAutoTypeConfig {
+    enabled: boolean;
+    accel: string;
+    ok?: boolean;
+    hasPending?: boolean;
+  }
   interface VoxElectronAPI {
     isElectron: true;
-    onHotkey: (cb: (kind: "toggle" | "start" | "stop" | "read-toggle") => void) => () => void;
+    onHotkey: (cb: (kind: "toggle" | "start" | "stop" | "read-toggle" | "auto-type") => void) => () => void;
     onHotkeyStatus: (cb: (status: VoxHotkeyStatus) => void) => () => void;
     writeClipboard: (
       text: string,
@@ -31,6 +37,11 @@ declare global {
     getAutoStart: () => Promise<{ enabled: boolean }>;
     setAutoStart: (enabled: boolean) => Promise<{ enabled: boolean }>;
     captureScreen: () => Promise<VoxScreenshotResult>;
+    getAutoType: () => Promise<VoxAutoTypeConfig>;
+    setAutoType: (cfg: { enabled?: boolean; accel?: string }) => Promise<VoxAutoTypeConfig>;
+    setAutoTypePending: (text: string, meta?: { targetLangName?: string }) => Promise<{ ok: boolean }>;
+    clearAutoTypePending: () => Promise<{ ok: boolean }>;
+    onAutoTypeCleared: (cb: () => void) => () => void;
   }
   interface Window {
     voxElectron?: VoxElectronAPI;

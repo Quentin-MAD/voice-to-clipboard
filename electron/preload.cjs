@@ -28,4 +28,13 @@ contextBridge.exposeInMainWorld('voxElectron', {
   tailLogs: (maxBytes) => ipcRenderer.invoke('logs:tail', maxBytes),
   writeLog: (level, message, extra) => ipcRenderer.invoke('logs:write', { level, message, extra }),
   captureScreen: () => ipcRenderer.invoke('screenshot:capture'),
+  getAutoType: () => ipcRenderer.invoke('autotype:get-config'),
+  setAutoType: (cfg) => ipcRenderer.invoke('autotype:set-config', cfg),
+  setAutoTypePending: (text, meta) => ipcRenderer.invoke('autotype:set-pending', { text, meta }),
+  clearAutoTypePending: () => ipcRenderer.invoke('autotype:clear'),
+  onAutoTypeCleared: (cb) => {
+    const listener = () => cb();
+    ipcRenderer.on('autotype:cleared', listener);
+    return () => ipcRenderer.removeListener('autotype:cleared', listener);
+  },
 });
