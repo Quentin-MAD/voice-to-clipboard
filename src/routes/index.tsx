@@ -198,12 +198,11 @@ function LandingPage() {
             L'application fonctionne en arrière-plan et reste active même quand vous jouez.
           </p>
           <a
-            href="/__l5e/assets-v1/39d8fd2c-52cb-43ea-b5e5-c42166360267/TalKing-Setup-0.9.9.exe"
-            download="TalKing-Setup-0.9.9.exe"
+            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup-0.10.2.exe"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <HardDrive className="h-5 w-5" />
-            Télécharger <span className="notranslate">TalKing-Setup-0.9.9.exe</span> (99 MB)
+            Télécharger la dernière version (Windows)
           </a>
         </div>
       </section>
