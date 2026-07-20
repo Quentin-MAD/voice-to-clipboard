@@ -450,7 +450,7 @@ function Home() {
       setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
     }
-  }, [source, target, navigate, statusQuery]);
+  }, [source, target, navigate, statusQuery, autoTypeEnabled, autoTypeKey]);
 
   const startRecording = useCallback(async () => {
     if (recordingRef.current) return;
