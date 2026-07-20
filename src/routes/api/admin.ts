@@ -242,7 +242,10 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
-          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits";
+          action?:
+            | "grant_lifetime" | "grant_year" | "cancel"
+            | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
+            | "grant_tester" | "revoke_tester";
           user_id?: string;
           amount?: number;
         };
@@ -259,6 +262,12 @@ export const Route = createFileRoute("/api/admin")({
           const rpc = body.action === "add_voice_credits" ? "admin_add_voice_credits" : "admin_set_voice_credits";
           const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (body.action === "grant_tester" || body.action === "revoke_tester") {
+          const { error } = await supabaseAdmin.rpc("admin_set_tester", {
+            _target_user: body.user_id,
+            _enable: body.action === "grant_tester",
+          });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
         } else {
           const { error } = await supabaseAdmin.rpc("admin_set_subscription", {
             _target_user: body.user_id,
@@ -266,6 +275,7 @@ export const Route = createFileRoute("/api/admin")({
           });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         }
+
 
         return Response.json({ ok: true });
       },
