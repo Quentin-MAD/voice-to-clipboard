@@ -192,7 +192,7 @@ function Home() {
   const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
   const [readLangPair, setReadLangPair] = useState<string | null>(null);
   const [autoTypeEnabled, setAutoTypeEnabled] = useState<boolean>(false);
-  const [autoTypeKey, setAutoTypeKey] = useState<string>("F10");
+  const [autoTypeKey, setAutoTypeKey] = useState<string>("Backspace");
   const [autoTypePending, setAutoTypePending] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
@@ -1479,7 +1479,7 @@ function Home() {
                         >
                           {capturing === "autotype" ? "Appuyez sur une touche…" : autoTypeKey}
                         </button>
-                        <button onClick={() => { setAutoTypeKey("F10"); setCapturing(null); }} title="Réinitialiser (F10)">
+                        <button onClick={() => { setAutoTypeKey("Backspace"); setCapturing(null); }} title="Réinitialiser (Backspace)">
                           Réinit.
                         </button>
                       </div>
