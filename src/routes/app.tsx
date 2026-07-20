@@ -1489,7 +1489,7 @@ function Home() {
                     <div style={{ minWidth: 0 }}>
                       <div className="native-row-title">Mon jeu ne prend pas en compte le copier-coller</div>
                       <div className="native-row-desc">
-                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage (Star Citizen, MMO, etc.). Certains anti-triche très stricts peuvent malgré tout la bloquer.
+                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage. Certains anti-triche très stricts peuvent malgré tout la bloquer.
                       </div>
                     </div>
                     <input
