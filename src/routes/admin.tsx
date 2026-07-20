@@ -463,6 +463,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
         <h2 className="text-lg font-semibold">Finances (EUR)</h2>
         <div className="text-xs text-muted-foreground">
           Abo. payants actifs : {finance.assumptions.active_paying_subs}
+          {" · "}Testeurs : {finance.assumptions.testers_count}
           {firstDate ? ` · Depuis le ${firstDate}` : ""}
         </div>
       </div>
@@ -473,6 +474,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <div key={r.key} className="rounded-md border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Coût {r.label}</div>
             <div className="mt-1 text-xl font-bold text-red-500">{EUR(finance.cost[r.key])}</div>
+            {Number(finance.costTesters[r.key]) > 0 && (
+              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (exclus de la rentabilité)">
+                dont testeurs : {EUR(finance.costTesters[r.key])}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -482,9 +488,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <thead>
             <tr className="border-b text-left">
               <th className="p-2">Période</th>
-              <th className="p-2">Coût IA</th>
+              <th className="p-2" title="Coût IA total, tous membres inclus (testeurs compris)">Coût IA total</th>
+              <th className="p-2" title="Coût IA généré par les testeurs (exclu de la rentabilité)">dont testeurs</th>
+              <th className="p-2" title="Coût IA utilisé pour la rentabilité (testeurs exclus)">Coût facturable</th>
               <th className="p-2">Revenus</th>
-              <th className="p-2">Bénéfice</th>
+              <th className="p-2" title="Revenus - coût facturable">Bénéfice</th>
               <th className="p-2">Ratio R/C</th>
               <th className="p-2">Marge</th>
             </tr>
@@ -492,12 +500,16 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <tbody>
             {rows.map((r) => {
               const cost = finance.cost[r.key];
+              const costT = finance.costTesters[r.key];
+              const costP = finance.costPaying[r.key];
               const rev = finance.revenue[r.key];
               const prof = finance.profit[r.key];
               return (
                 <tr key={r.key} className={`border-b ${r.key === "all" ? "bg-accent/30 font-medium" : ""}`}>
                   <td className="p-2 font-medium">{r.label}</td>
                   <td className="p-2 text-red-500">{EUR(cost)}</td>
+                  <td className="p-2 text-blue-600 dark:text-blue-400">{EUR(costT)}</td>
+                  <td className="p-2 text-red-500">{EUR(costP)}</td>
                   <td className="p-2 text-green-500">{EUR(rev)}</td>
                   <td className={`p-2 font-semibold ${prof >= 0 ? "text-green-500" : "text-red-500"}`}>
                     {EUR(prof)}
@@ -513,10 +525,13 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
       <p className="mt-3 text-xs text-muted-foreground">
         Coût = usage IA converti USD → EUR (× {finance.assumptions.usd_to_eur}). Revenus = transactions Paddle
         live uniquement (les crédits/abonnements offerts par l'admin ne comptent pas).
+        Les membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> ont un accès gratuit accordé manuellement :
+        leur coût est affiché mais exclu de la rentabilité (bénéfice / ratio / marge).
       </p>
     </div>
   );
 }
+
 
 function UserActions({
   userId,
