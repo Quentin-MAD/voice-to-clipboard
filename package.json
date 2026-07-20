@@ -14,7 +14,46 @@
     "format": "prettier --write .",
     "electron:package:win": "npx @electron/packager . TalKing --platform=win32 --arch=x64 --out=electron-release --overwrite --ignore='node_modules' --ignore='^/src' --ignore='^/public' --ignore='^/electron-release' --ignore='^/supabase' --ignore='^/.lovable' --ignore='^/.git' --icon=electron/tray-icon.ico",
     "electron:installer": "node electron/build-installer.cjs",
+    "electron:dist:win": "electron-builder --win nsis --x64 --publish never",
     "electron:build:win": "npm run build && npm run electron:package:win && npm run electron:installer"
+  },
+  "build": {
+    "appId": "com.talking.desktop",
+    "productName": "TalKing",
+    "copyright": "Copyright © Quentin Rosset",
+    "directories": {
+      "output": "electron-release"
+    },
+    "files": [
+      "electron/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/uiohook-napi/**/*"
+    ],
+    "win": {
+      "icon": "electron/tray-icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "TalKing-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TalKing",
+      "deleteAppDataOnUninstall": false
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -83,6 +122,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
     "electron": "^43.1.1",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
