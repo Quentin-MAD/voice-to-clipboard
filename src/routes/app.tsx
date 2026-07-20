@@ -744,6 +744,7 @@ function Home() {
         if (key) {
           if (capturing === "toggle") setToggleKey(key);
           else if (capturing === "read") setReadKey(key);
+          else if (capturing === "autotype") setAutoTypeKey(key);
           setCapturing(null);
         }
         return;
@@ -788,6 +789,26 @@ function Home() {
     if (typeof window === "undefined" || !window.voxElectron?.getAutoStart) return;
     void window.voxElectron.getAutoStart().then((r) => setAutoStartState(!!r?.enabled));
   }, []);
+
+  // Load auto-type config from Electron main and subscribe to "buffer cleared" events.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.getAutoType) return;
+    void window.voxElectron.getAutoType().then((cfg) => {
+      if (!cfg) return;
+      setAutoTypeEnabled(!!cfg.enabled);
+      if (cfg.accel) setAutoTypeKey(cfg.accel);
+      setAutoTypePending(!!cfg.hasPending);
+    });
+    const off = window.voxElectron.onAutoTypeCleared?.(() => setAutoTypePending(false));
+    return () => { off?.(); };
+  }, []);
+
+  // Push auto-type config changes to Electron main.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.setAutoType) return;
+    void window.voxElectron.setAutoType({ enabled: autoTypeEnabled, accel: autoTypeKey });
+  }, [autoTypeEnabled, autoTypeKey]);
+
 
   // Sync status to Electron overlay (shows over fullscreen games)
   useEffect(() => {
