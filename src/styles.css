@@ -786,6 +786,9 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 .native-app .native-modal {
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   background: var(--nx-panel-hi) !important;
   border: 1px solid var(--nx-line) !important;
   border-radius: 14px !important;
@@ -798,6 +801,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 18px;
   border-bottom: 1px solid var(--nx-line);
+  flex-shrink: 0;
 }
 .native-app .native-modal-title {
   font-family: "JetBrains Mono", "SF Mono", "Consolas", monospace;
@@ -807,7 +811,8 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   color: var(--nx-text);
   font-weight: 700;
 }
-.native-app .native-modal-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.native-app .native-modal-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+
 .native-app .native-modal-foot {
   padding: 12px 18px;
   border-top: 1px solid var(--nx-line);
