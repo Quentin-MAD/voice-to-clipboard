@@ -1,57 +1,84 @@
 ## Objectif
 
-Ajouter un système de **crédits vocaux séparés** pour la fonction F9 (lecture de message), avec plafonds journaliers stricts pour garantir la rentabilité, et un nouveau pack payant dédié.
+Ajouter une option (case à cocher) dans les **Paramètres** de l'app Windows qui, quand elle est activée, change le comportement de **F8** : au lieu de copier la traduction dans le presse-papiers, l'app **tape automatiquement le texte au clavier** dans la fenêtre active (utile pour les jeux qui bloquent le collage : Star Citizen, certains MMO, anti-triche, etc.).
 
-## Règles métier
+F9 (lecture vocale) et le comportement F8 par défaut (copier-coller) restent **strictement identiques**.
 
-**Consommation F9 (lecture vocale)** :
-- Coûte désormais **1 crédit vocal** (au lieu de 2 crédits mixtes).
-- Plafond journalier **strict** appliqué AVANT tout débit :
-  - **Compte gratuit** (0 crédit vocal acheté, non abonné) : **5 F9/jour** max.
-  - **Compte abonné OU ayant des crédits vocaux** : **10 F9/jour** max.
-- Source des crédits :
-  - Abonnés : illimité dans la limite du plafond journalier F9 + plafond global 150/jour.
-  - Non-abonnés : consomme 1 crédit du solde `voice_balance`.
-  - Les crédits gratuits mensuels (20/mois) et le pack Texte **ne financent plus** F9.
+## UX
 
-**Consommation F8 (traduction texte)** : inchangée (1 crédit, wallet actuel).
+Dans le modal **Paramètres** (bouton engrenage), sous la section hotkeys, nouvelle case à cocher :
 
-## Packs
+- **Label** : « Mon jeu ne prend pas en compte le copier-coller »
+- **Description** (sous le label, en petit gris) :
+  > Quand cette option est activée, F8 n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat du jeu puis appuyez sur la touche d'écriture (par défaut **F10**, modifiable ci-dessous) : TalKing prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec tous les jeux, même ceux qui bloquent le collage.
 
-| Pack | Prix | Contenu |
-|---|---|---|
-| Pack crédits **Texte** (renommé) | 2,99 € | 50 crédits texte (F8) |
-| Pack crédits **Vocale** (nouveau) | 2,99 € | 10 crédits vocaux (F9) |
+Sous la case, quand cochée, apparaît :
+- Champ **Touche d'écriture automatique** (par défaut `F10`, modifiable via le même sélecteur que les autres hotkeys).
+- Petit indicateur d'état : `En attente de traduction` / `Prête à écrire` / `Écriture…`
+
+## Flux utilisateur (mode auto-type activé)
+
+1. F8 pressée → enregistrement (identique).
+2. F8 pressée à nouveau → transcription + traduction (identique).
+3. Différence : le texte n'est **pas** copié dans le presse-papiers. Il est stocké en mémoire dans l'app avec un état `pending`. Une notification / overlay affiche « Traduction prête · appuyez sur F10 dans le chat ».
+4. L'utilisateur bascule vers son jeu, clique dans la zone de chat, appuie sur **F10**.
+5. L'app tape le texte caractère par caractère dans la fenêtre active via une simulation clavier bas-niveau, puis vide le buffer.
+6. Si aucune traduction n'est en attente au moment du F10 → petit son d'erreur + notification « Aucune traduction prête ».
+
+Détection automatique de « zone de chat » : **non implémentée** (impossible de manière fiable et cross-jeu sans hooks intrusifs qui déclencheraient les anti-triche). On utilise donc uniquement la touche d'action F10 comme demandé en secours.
 
 ## Changements techniques
 
-### 1. Base de données (migration)
-- `credit_wallets` : ajouter colonne `voice_balance INT NOT NULL DEFAULT 0`.
-- Nouvelle RPC `consume_voice_read(_user_id uuid)` :
-  - Vérifie plafond global 150/24h.
-  - Vérifie plafond F9 journalier (5 pour gratuit, 10 sinon) en comptant `translations_log.operation_type = 'read_message'` sur 24h.
-  - Débite `voice_balance` si non-abonné.
-  - Log dans `translations_log` avec `source_type = 'voice_purchased' | 'subscription'` et `operation_type = 'read_message'`.
-  - Retourne `{ok, reason, remaining_voice, subscribed, voice_daily_used, voice_daily_limit}`.
-- Nouvelle RPC `add_voice_credits(_user_id, _amount)`.
-- Étendre `get_user_status` pour retourner `voice_balance`, `voice_daily_used`, `voice_daily_limit`.
+### 1. Electron – simulation clavier
 
-### 2. Backend
-- `src/routes/api/read-message.ts` : remplacer `consume_translation_v2(_amount=2)` par `consume_voice_read`. Gérer les codes `voice_daily_limit_free` (message : "5 F9/jour en gratuit, passez à un pack Vocale") et `voice_daily_limit` (10/j max même en abonné) et `no_voice_credits`.
-- `src/routes/api/public/payments/webhook.ts` : détecter `voice_pack_10_onetime` → appeler `add_voice_credits(10)`. Renommer aucun ID existant côté webhook (garder `credits_pack_50_onetime` pour compat).
-- Créer produit Paddle `voice_pack_10_onetime` à 299 (EUR).
+Ajouter la dépendance **`@nut-tree-fork/nut-js`** (ou `robotjs` en fallback) — permet de taper du texte Unicode dans la fenêtre active via l'API Windows `SendInput`, ce qui fonctionne dans la quasi-totalité des jeux (y compris ceux avec Raw Input, comme F8/F9 le font déjà via `uiohook-napi`).
 
-### 3. Frontend
-- `src/routes/pricing.tsx` : renommer le pack existant en "Pack crédits Texte" + ajouter carte "Pack crédits Vocale" 2,99 € / 10 crédits vocaux, avec explication ("crédits vocaux = fonction F9 Lire un message").
-- `src/routes/app.tsx` : afficher un 3ᵉ compteur vocal (violet) à côté des crédits texte, format `X crédits vocaux`. Bannière blocante si plafond F9 atteint, distincte du plafond 150/j global.
-- Toasts mis à jour selon le code d'erreur reçu.
+Nouveau module `electron/autotype.cjs` :
+- `typeText(text)` : tape le texte avec un petit délai configurable entre les caractères (~5-10 ms) pour éviter que les jeux perdent des touches.
+- Gère les caractères accentués via `keyboard.type()` (SendInput unicode).
 
-### 4. Admin
-- `src/routes/api/admin.ts` + `admin.tsx` : ajouter ligne "Crédits vocaux" par utilisateur, et bouton admin d'ajout de crédits vocaux (nouvelle RPC `admin_add_voice_credits`).
+### 2. Electron – main.cjs
 
-## Ce qui reste inchangé
-- Prix abonnement 29,99 €/an, plafond global 150/j, F8 (1 crédit), UI settings, hotkeys, logs AI.
+- Nouveaux settings persistés (dans le fichier settings existant) :
+  - `autoTypeEnabled: false`
+  - `autoTypeAccel: 'F10'`
+- Nouvel IPC :
+  - `autotype:set-pending` (renderer → main) : stocke `{ text, langName }` en mémoire main.
+  - `autotype:clear` (renderer → main).
+  - `autotype:get-config` / `autotype:set-config` pour la case à cocher + hotkey.
+- Enregistrer un 3ᵉ hotkey global (F10 par défaut) via `hotkeys.cjs` uniquement si `autoTypeEnabled === true`. Sur trigger : lire le buffer, appeler `autotype.typeText`, vider le buffer, notif discrète.
+- **Ne pas** modifier le handler `clipboard:write` : le renderer choisit lui-même la voie (clipboard classique OU auto-type) selon l'option.
 
-## Notes rentabilité
-- Coût F9 moyen ≈ 0,012 € → pack 2,99 € / 10 = 0,299 €/F9 → **marge ~96 %**.
-- Abusif abonné plafonné à 10 F9/j → coût max ≈ 0,12 €/jour = 3,60 €/mois, largement couvert par 29,99 €/an amorti + fenêtre journalière.
+### 3. Preload + types
+
+Ajouter dans `electron/preload.cjs` et `src/types/vox-electron.d.ts` :
+- `getAutoType()` / `setAutoType({ enabled, accel })`
+- `setAutoTypePending(text, meta)` / `clearAutoTypePending()`
+- Étendre `onHotkey` avec le kind `'auto-type'`.
+
+### 4. Renderer – src/routes/app.tsx
+
+- Charger la config auto-type au démarrage.
+- Après une traduction F8 réussie :
+  - Si `autoTypeEnabled` → appeler `setAutoTypePending(text, meta)` + toast « Prête à écrire · appuyez sur F10 dans le chat » ; **ne pas** écrire dans le clipboard.
+  - Sinon → comportement actuel `writeClipboard`.
+- Écouter `onHotkey('auto-type')` pour afficher un feedback visuel (l'écriture réelle est faite côté main).
+- Modal Paramètres : ajouter la case à cocher + champ hotkey + description.
+
+### 5. Version & release
+
+- Bump `package.json` → `0.10.2`.
+- Modifier `public/talking-version.json` uniquement après build GitHub Actions et upload manuel du nouveau `.exe` (workflow existant).
+
+## Ce qui ne change pas
+
+- F8 comportement par défaut (case décochée) : identique à aujourd'hui.
+- F9 lecture vocale : identique.
+- UI web / mobile / crédits / plafonds / admin : aucun changement.
+- Aucune modification backend, DB, ni API.
+
+## Limites & notes
+
+- La détection automatique « je suis dans un chat » n'est pas fiable cross-jeu → on garde la touche F10 comme demandé.
+- `nut-js` embarque un binaire natif : vérifier qu'il est bien packagé par electron-builder (ajouter à `asarUnpack` si besoin). Si l'installation échoue en CI, fallback sur `robotjs` (mais support Unicode moins bon → dans ce cas fallback vers PowerShell `SendKeys` via `child_process` déjà présent).
+- Certains anti-triche très stricts (ex. Vanguard) peuvent bloquer même `SendInput`. Ce sera indiqué dans la description sous forme d'avertissement discret.
