@@ -1024,6 +1024,15 @@ function Home() {
               <span className="native-lang-pair">{readLangPair}</span>
             </div>
           )}
+          {/* Floating banner: auto-type translation ready, waiting for user key */}
+          {isElectron && autoTypeEnabled && autoTypePending && (
+            <div className="native-lang-banner">
+              <span className="native-lang-pair">
+                Cliquez dans le chat puis appuyez sur{" "}
+                <kbd className="native-kbd">{formatKeyLabel(autoTypeKey)}</kbd>
+              </span>
+            </div>
+          )}
           {/* Web-only header */}
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
