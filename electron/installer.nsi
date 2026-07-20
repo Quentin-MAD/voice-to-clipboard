@@ -17,11 +17,12 @@ SetCompressor /SOLID lzma
 !define APP_VERSION    "0.10.1"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
+!define SOURCE_DIR     "electron-release\TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
 !define REG_RUN        "Software\Microsoft\Windows\CurrentVersion\Run"
 
 Name "${APP_NAME}"
-OutFile "TalKing-Setup-${APP_VERSION}.exe"
+OutFile "electron-release\TalKing-Setup-${APP_VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\${APP_NAME}"
 InstallDirRegKey HKCU "Software\${APP_NAME}" "InstallDir"
 RequestExecutionLevel user
@@ -38,8 +39,8 @@ VIAddVersionKey "ProductVersion"  "${APP_VERSION}"
 VIAddVersionKey "LegalCopyright"  "(c) ${APP_PUBLISHER}"
 
 !define MUI_ABORTWARNING
-!define MUI_ICON   "tray-icon.ico"
-!define MUI_UNICON "tray-icon.ico"
+!define MUI_ICON   "electron\tray-icon.ico"
+!define MUI_UNICON "electron\tray-icon.ico"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
@@ -77,7 +78,7 @@ Section "Install"
   Delete  "$INSTDIR\*.bin"
 
   ; Copy the entire packaged app tree
-  File /r "TalKing-win32-x64\*.*"
+  File /r "${SOURCE_DIR}\*.*"
 
   ; Shortcuts
   CreateDirectory "$SMPROGRAMS\${APP_NAME}"

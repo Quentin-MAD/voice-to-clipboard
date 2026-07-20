@@ -26,7 +26,7 @@ console.log(`NSIS utilise: ${makensis}`);
 const result = spawnSync(makensis, [installerScript], {
   cwd: repoRoot,
   stdio: 'inherit',
-  shell: process.platform === 'win32',
+  shell: false,
 });
 
 process.exit(result.status ?? 1);
