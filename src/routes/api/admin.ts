@@ -104,16 +104,23 @@ export const Route = createFileRoute("/api/admin")({
           (ai.data ?? [])
             .filter((r) => inWindow(r.created_at, days))
             .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
+        // All-time totals
+        const aiAllTotalCredits = (aiAll.data ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
+        const costAllEur = aiAllTotalCredits * USD_TO_EUR;
+        const revenueAllEur = (txAll.data ?? [])
+          .filter((t: any) => t.environment === "live")
+          .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
+        const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
+
         const cost = {
           day: costEurWindow(1),
           week: costEurWindow(7),
           month: costEurWindow(30),
           year: costEurWindow(365),
+          all: costAllEur,
         };
 
         // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
-        // Les abonnements/crédits offerts par l'admin (environment='admin') ne comptent pas.
-        // Sandbox exclu du revenu réel : seul 'live' compte comme vente.
         const realTx = (tx.data ?? []).filter((t: any) => t.environment === "live");
         const revenueInWindow = (days: number) =>
           realTx
@@ -125,6 +132,7 @@ export const Route = createFileRoute("/api/admin")({
           week: revenueInWindow(7),
           month: revenueInWindow(30),
           year: revenueInWindow(365),
+          all: revenueAllEur,
         };
 
         const profit = {
@@ -132,6 +140,7 @@ export const Route = createFileRoute("/api/admin")({
           week: revenue.week - cost.week,
           month: revenue.month - cost.month,
           year: revenue.year - cost.year,
+          all: revenue.all - cost.all,
         };
         const ratio = (rev: number, cst: number) => (cst > 0 ? rev / cst : rev > 0 ? Infinity : 0);
         const margin = (rev: number, cst: number) => (rev > 0 ? ((rev - cst) / rev) * 100 : 0);
@@ -144,12 +153,14 @@ export const Route = createFileRoute("/api/admin")({
             week: ratio(revenue.week, cost.week),
             month: ratio(revenue.month, cost.month),
             year: ratio(revenue.year, cost.year),
+            all: ratio(revenue.all, cost.all),
           },
           margin: {
             day: margin(revenue.day, cost.day),
             week: margin(revenue.week, cost.week),
             month: margin(revenue.month, cost.month),
             year: margin(revenue.year, cost.year),
+            all: margin(revenue.all, cost.all),
           },
           assumptions: {
             usd_to_eur: USD_TO_EUR,
@@ -159,6 +170,7 @@ export const Route = createFileRoute("/api/admin")({
               (s: any) => s.status === "active" && s.environment === "live" &&
                 (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
             ).length,
+            first_ai_date: firstAiDate,
           },
         };
 
