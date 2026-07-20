@@ -73,7 +73,7 @@ function LandingPage() {
           Ctrl+v dans la leur.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur dont vous donnez le pseudo afin que l'IA puisse le trouver, le traduire et le synthétiser vocalement.
+          <span className="notranslate">TalKing</span> comprend deux fonctions : la Traduction Vocale (F8) traduit ce que vous dites et le copie dans votre presse-papiers, tandis que la Lecture de Message Joueur (F9) lit à voix haute, dans votre langue, le message d'un joueur dont vous donnez le pseudo afin que l'IA puisse le trouver, le traduire et le synthétiser vocalement. Si votre jeu ne prend pas en charge le copier-coller, activez l'option d'auto-écriture : TalKing tapera la traduction directement dans la zone de chat.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
@@ -155,7 +155,12 @@ function LandingPage() {
               </li>
               <li className="flex gap-3">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold">3</span>
-                <p className="text-sm text-muted-foreground">La traduction écrite est copiée dans votre presse-papiers. Collez-la directement dans le chat du jeu.</p>
+                <div className="text-sm text-muted-foreground">
+                  <p>La traduction écrite est copiée dans votre presse-papiers. Collez-la directement dans le chat du jeu.</p>
+                  <p className="mt-2 text-xs text-primary">
+                    Votre jeu bloque le copier-coller ? Activez dans les paramètres l'option « Mon jeu ne prend pas en compte le copier-coller » : la traduction sera tapée automatiquement dans la zone de chat, lettre par lettre.
+                  </p>
+                </div>
               </li>
             </ol>
           </div>
