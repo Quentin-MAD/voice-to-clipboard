@@ -1,5 +1,5 @@
 {
-  "version": "0.10.1",
+  "version": "0.9.9",
   "url": "https://talking-translator.com/__l5e/assets-v1/39d8fd2c-52cb-43ea-b5e5-c42166360267/TalKing-Setup-0.9.9.exe",
-  "notes": "v0.10.1 - Affichage clair du type de membre (Testeur / Abonne / Gratuit+ / Gratuit) au-dessus de l'adresse email dans l'application."
+  "notes": "v0.9.9 - Version stable. La 0.10.1 sera publiee des que l'installateur Windows sera genere."
 }
