@@ -640,6 +640,7 @@ app.whenReady().then(() => {
   logger.init(app.getPath('userData'));
   console.log('[TalKing] userData (persistent session):', app.getPath('userData'));
   loadSettings();
+  saveSettings();
   createWindow();
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
   try { buildTray(); } catch (e) { console.error('Tray failed', e); }
