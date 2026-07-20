@@ -275,6 +275,7 @@ export type Database = {
           created_at: string
           current_period_end: string
           email: string
+          is_tester: boolean
           ops_today: number
           profit_eur_total: number
           purchased_balance: number
@@ -293,6 +294,10 @@ export type Database = {
       }
       admin_set_subscription: {
         Args: { _action: string; _target_user: string }
+        Returns: undefined
+      }
+      admin_set_tester: {
+        Args: { _enable: boolean; _target_user: string }
         Returns: undefined
       }
       admin_set_voice_credits: {
@@ -356,7 +361,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin"
+      app_role: "admin" | "tester"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -484,7 +489,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin"],
+      app_role: ["admin", "tester"],
     },
   },
 } as const

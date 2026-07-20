@@ -19,6 +19,7 @@ type AdminUser = {
   email: string;
   created_at: string;
   subscribed: boolean;
+  is_tester: boolean;
   sub_status: string | null;
   current_period_end: string | null;
   purchased_balance: number;
@@ -51,6 +52,8 @@ type AdminData = {
   };
   finance: {
     cost: Windowed;
+    costTesters: Windowed;
+    costPaying: Windowed;
     revenue: Windowed;
     profit: Windowed;
     ratio: Windowed;
@@ -60,10 +63,12 @@ type AdminData = {
       sub_price_eur_year: number;
       eur_per_purchased_credit: number;
       active_paying_subs: number;
+      testers_count: number;
       first_ai_date: string | null;
     };
   };
 };
+
 
 async function authedFetch(url: string, init?: RequestInit) {
   const { data } = await supabase.auth.getSession();
@@ -85,9 +90,10 @@ function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "free" | "subscribed">("all");
+  const [filter, setFilter] = useState<"all" | "free" | "subscribed" | "tester">("all");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
+
 
   async function load() {
     setLoading(true);
@@ -166,11 +172,13 @@ function AdminPage() {
 
   const users = data.users
     .filter((u) => {
-      if (filter === "free" && u.subscribed) return false;
+      if (filter === "free" && (u.subscribed || u.is_tester)) return false;
       if (filter === "subscribed" && !u.subscribed) return false;
+      if (filter === "tester" && !u.is_tester) return false;
       if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     })
+
     .sort((a, b) => {
       switch (sortBy) {
         case "cost_total": return num(b.cost_usd_total) - num(a.cost_usd_total);
@@ -285,6 +293,8 @@ function AdminPage() {
                 <option value="all">Tous</option>
                 <option value="free">Gratuits</option>
                 <option value="subscribed">Abonnés</option>
+                <option value="tester">Testeurs</option>
+
               </select>
               <input
                 value={search}
@@ -326,12 +336,15 @@ function AdminPage() {
                   const profit = num(u.profit_eur_total);
                   const abuseToday = num(u.ops_today) > 100;
                   const heavy30 = cost30 > 1;
-                  const losing = profit < -0.5;
+                  const losing = !u.is_tester && profit < -0.5;
+                  const unlimited = u.subscribed || u.is_tester;
                   return (
                     <tr
                       key={u.user_id}
                       className={
-                        losing
+                        u.is_tester
+                          ? "border-b bg-blue-500/10 hover:bg-blue-500/20"
+                          : losing
                           ? "border-b bg-red-500/10 hover:bg-red-500/20"
                           : abuseToday
                           ? "border-b bg-amber-500/10 hover:bg-amber-500/20"
@@ -346,15 +359,24 @@ function AdminPage() {
                         </div>
                       </td>
                       <td className="p-2">
-                        <span
-                          className={
-                            u.subscribed
-                              ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                              : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
-                          }
-                        >
-                          {u.subscribed ? "Abonné" : "Gratuit"}
-                        </span>
+                        {u.is_tester ? (
+                          <span
+                            className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
+                            title="Testeur - accès gratuit accordé par l'admin, exclu de la rentabilité"
+                          >
+                            Testeur
+                          </span>
+                        ) : (
+                          <span
+                            className={
+                              u.subscribed
+                                ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
+                                : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
+                            }
+                          >
+                            {u.subscribed ? "Abonné" : "Gratuit"}
+                          </span>
+                        )}
                       </td>
                       <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
                         {u.ops_today ?? 0}
@@ -366,27 +388,37 @@ function AdminPage() {
                         {EUR(cost30)}
                       </td>
                       <td className="p-2 tabular-nums">{EUR(costTotal)}</td>
-                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">{EUR(revenue)}</td>
-                      <td className={"p-2 tabular-nums font-semibold " + (profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
-                        {EUR(profit)}
+                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
+                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
+                      </td>
+                      <td className="p-2 tabular-nums font-semibold">
+                        {u.is_tester ? (
+                          <span className="text-muted-foreground" title="Exclu du calcul de rentabilité">exclu</span>
+                        ) : (
+                          <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+                            {EUR(profit)}
+                          </span>
+                        )}
                       </td>
                       <td className="p-2 font-medium">
-                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - crédits illimités (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
+                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="Accès illimité (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
                       </td>
                       <td className="p-2 font-medium">
-                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - lectures vocales limitées à 10/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
+                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="10 lectures vocales/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
                       </td>
                       <td className="p-2">
                         <UserActions
                           userId={u.user_id}
                           currentText={u.purchased_balance}
                           currentVoice={u.voice_balance ?? 0}
+                          isTester={u.is_tester}
                           onAct={act}
                         />
                       </td>
                     </tr>
                   );
                 })}
+
               </tbody>
             </table>
           </div>
@@ -431,6 +463,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
         <h2 className="text-lg font-semibold">Finances (EUR)</h2>
         <div className="text-xs text-muted-foreground">
           Abo. payants actifs : {finance.assumptions.active_paying_subs}
+          {" · "}Testeurs : {finance.assumptions.testers_count}
           {firstDate ? ` · Depuis le ${firstDate}` : ""}
         </div>
       </div>
@@ -441,6 +474,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <div key={r.key} className="rounded-md border bg-background p-3">
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Coût {r.label}</div>
             <div className="mt-1 text-xl font-bold text-red-500">{EUR(finance.cost[r.key])}</div>
+            {Number(finance.costTesters[r.key]) > 0 && (
+              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (exclus de la rentabilité)">
+                dont testeurs : {EUR(finance.costTesters[r.key])}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -450,9 +488,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <thead>
             <tr className="border-b text-left">
               <th className="p-2">Période</th>
-              <th className="p-2">Coût IA</th>
+              <th className="p-2" title="Coût IA total, tous membres inclus (testeurs compris)">Coût IA total</th>
+              <th className="p-2" title="Coût IA généré par les testeurs (exclu de la rentabilité)">dont testeurs</th>
+              <th className="p-2" title="Coût IA utilisé pour la rentabilité (testeurs exclus)">Coût facturable</th>
               <th className="p-2">Revenus</th>
-              <th className="p-2">Bénéfice</th>
+              <th className="p-2" title="Revenus - coût facturable">Bénéfice</th>
               <th className="p-2">Ratio R/C</th>
               <th className="p-2">Marge</th>
             </tr>
@@ -460,12 +500,16 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
           <tbody>
             {rows.map((r) => {
               const cost = finance.cost[r.key];
+              const costT = finance.costTesters[r.key];
+              const costP = finance.costPaying[r.key];
               const rev = finance.revenue[r.key];
               const prof = finance.profit[r.key];
               return (
                 <tr key={r.key} className={`border-b ${r.key === "all" ? "bg-accent/30 font-medium" : ""}`}>
                   <td className="p-2 font-medium">{r.label}</td>
                   <td className="p-2 text-red-500">{EUR(cost)}</td>
+                  <td className="p-2 text-blue-600 dark:text-blue-400">{EUR(costT)}</td>
+                  <td className="p-2 text-red-500">{EUR(costP)}</td>
                   <td className="p-2 text-green-500">{EUR(rev)}</td>
                   <td className={`p-2 font-semibold ${prof >= 0 ? "text-green-500" : "text-red-500"}`}>
                     {EUR(prof)}
@@ -481,20 +525,25 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
       <p className="mt-3 text-xs text-muted-foreground">
         Coût = usage IA converti USD → EUR (× {finance.assumptions.usd_to_eur}). Revenus = transactions Paddle
         live uniquement (les crédits/abonnements offerts par l'admin ne comptent pas).
+        Les membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> ont un accès gratuit accordé manuellement :
+        leur coût est affiché mais exclu de la rentabilité (bénéfice / ratio / marge).
       </p>
     </div>
   );
 }
 
+
 function UserActions({
   userId,
   currentText,
   currentVoice,
+  isTester,
   onAct,
 }: {
   userId: string;
   currentText: number;
   currentVoice: number;
+  isTester: boolean;
   onAct: (id: string, action: string, amount?: number) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -523,6 +572,26 @@ function UserActions({
           >
             Annuler l'abonnement
           </button>
+          <hr className="my-1" />
+          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Statut Testeur (gratuit, hors rentabilité)
+          </div>
+          {isTester ? (
+            <button
+              onClick={() => { onAct(userId, "revoke_tester"); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
+            >
+              Retirer le statut Testeur
+            </button>
+          ) : (
+            <button
+              onClick={() => { onAct(userId, "grant_tester"); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-xs text-blue-600 dark:text-blue-400 hover:bg-accent"
+            >
+              Accorder le statut Testeur
+            </button>
+          )}
+
           <hr className="my-1" />
           <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
             Crédits texte (actuel : {currentText})

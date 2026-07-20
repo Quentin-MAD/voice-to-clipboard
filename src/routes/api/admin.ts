@@ -99,25 +99,63 @@ export const Route = createFileRoute("/api/admin")({
         const views7 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 7)).length;
         const views30 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 30)).length;
 
-        // === Coûts EUR par fenêtre ===
-        const costEurWindow = (days: number) =>
-          (ai.data ?? [])
-            .filter((r) => inWindow(r.created_at, days))
-            .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
-        // All-time totals
-        const aiAllTotalCredits = (aiAll.data ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
+        // === IDs des membres testeurs (exclus des revenus / rentabilité) ===
+        const testerIds = new Set<string>(
+          ((users ?? []) as any[]).filter((u) => u.is_tester).map((u) => u.user_id as string),
+        );
+
+        // === Fetch ai_usage_log user_ids sur la fenêtre 365j pour pouvoir séparer testeurs ===
+        const { data: aiWithUser } = await supabaseAdmin
+          .from("ai_usage_log")
+          .select("created_at,cost_credits,user_id")
+          .gte("created_at", since)
+          .limit(200000);
+
+        const costEurWindowFiltered = (days: number, includeTesters: boolean) =>
+          (aiWithUser ?? [])
+            .filter((r: any) => inWindow(r.created_at, days))
+            .filter((r: any) => (includeTesters ? true : !testerIds.has(r.user_id)))
+            .reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
+
+        // All-time - séparer coût testeurs
+        const { data: aiAllWithUser } = await supabaseAdmin
+          .from("ai_usage_log")
+          .select("cost_credits,user_id")
+          .limit(500000);
+        const aiAllTotalCredits = (aiAllWithUser ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
         const costAllEur = aiAllTotalCredits * USD_TO_EUR;
+        const costAllEurExclTesters =
+          (aiAllWithUser ?? [])
+            .filter((r: any) => !testerIds.has(r.user_id))
+            .reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
         const revenueAllEur = (txAll.data ?? [])
           .filter((t: any) => t.environment === "live")
           .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
         const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
 
+        // Coût total (tous membres inclus, testeurs compris) - pour affichage brut
         const cost = {
-          day: costEurWindow(1),
-          week: costEurWindow(7),
-          month: costEurWindow(30),
-          year: costEurWindow(365),
+          day: costEurWindowFiltered(1, true),
+          week: costEurWindowFiltered(7, true),
+          month: costEurWindowFiltered(30, true),
+          year: costEurWindowFiltered(365, true),
           all: costAllEur,
+        };
+        // Coût des testeurs uniquement (à afficher séparément)
+        const costTesters = {
+          day: cost.day - costEurWindowFiltered(1, false),
+          week: cost.week - costEurWindowFiltered(7, false),
+          month: cost.month - costEurWindowFiltered(30, false),
+          year: cost.year - costEurWindowFiltered(365, false),
+          all: costAllEur - costAllEurExclTesters,
+        };
+        // Coût "payant" utilisé pour le calcul de rentabilité (exclut testeurs)
+        const costPaying = {
+          day: cost.day - costTesters.day,
+          week: cost.week - costTesters.week,
+          month: cost.month - costTesters.month,
+          year: cost.year - costTesters.year,
+          all: cost.all - costTesters.all,
         };
 
         // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
@@ -135,32 +173,35 @@ export const Route = createFileRoute("/api/admin")({
           all: revenueAllEur,
         };
 
+        // Rentabilité = revenus - coût des membres payants (testeurs exclus)
         const profit = {
-          day: revenue.day - cost.day,
-          week: revenue.week - cost.week,
-          month: revenue.month - cost.month,
-          year: revenue.year - cost.year,
-          all: revenue.all - cost.all,
+          day: revenue.day - costPaying.day,
+          week: revenue.week - costPaying.week,
+          month: revenue.month - costPaying.month,
+          year: revenue.year - costPaying.year,
+          all: revenue.all - costPaying.all,
         };
         const ratio = (rev: number, cst: number) => (cst > 0 ? rev / cst : rev > 0 ? Infinity : 0);
         const margin = (rev: number, cst: number) => (rev > 0 ? ((rev - cst) / rev) * 100 : 0);
         const finance = {
           cost,
+          costTesters,
+          costPaying,
           revenue,
           profit,
           ratio: {
-            day: ratio(revenue.day, cost.day),
-            week: ratio(revenue.week, cost.week),
-            month: ratio(revenue.month, cost.month),
-            year: ratio(revenue.year, cost.year),
-            all: ratio(revenue.all, cost.all),
+            day: ratio(revenue.day, costPaying.day),
+            week: ratio(revenue.week, costPaying.week),
+            month: ratio(revenue.month, costPaying.month),
+            year: ratio(revenue.year, costPaying.year),
+            all: ratio(revenue.all, costPaying.all),
           },
           margin: {
-            day: margin(revenue.day, cost.day),
-            week: margin(revenue.week, cost.week),
-            month: margin(revenue.month, cost.month),
-            year: margin(revenue.year, cost.year),
-            all: margin(revenue.all, cost.all),
+            day: margin(revenue.day, costPaying.day),
+            week: margin(revenue.week, costPaying.week),
+            month: margin(revenue.month, costPaying.month),
+            year: margin(revenue.year, costPaying.year),
+            all: margin(revenue.all, costPaying.all),
           },
           assumptions: {
             usd_to_eur: USD_TO_EUR,
@@ -170,9 +211,11 @@ export const Route = createFileRoute("/api/admin")({
               (s: any) => s.status === "active" && s.environment === "live" &&
                 (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
             ).length,
+            testers_count: testerIds.size,
             first_ai_date: firstAiDate,
           },
         };
+
 
         return Response.json({
           users,
@@ -199,7 +242,10 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
         const body = (await request.json().catch(() => ({}))) as {
-          action?: "grant_lifetime" | "grant_year" | "cancel" | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits";
+          action?:
+            | "grant_lifetime" | "grant_year" | "cancel"
+            | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
+            | "grant_tester" | "revoke_tester";
           user_id?: string;
           amount?: number;
         };
@@ -216,6 +262,12 @@ export const Route = createFileRoute("/api/admin")({
           const rpc = body.action === "add_voice_credits" ? "admin_add_voice_credits" : "admin_set_voice_credits";
           const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (body.action === "grant_tester" || body.action === "revoke_tester") {
+          const { error } = await supabaseAdmin.rpc("admin_set_tester", {
+            _target_user: body.user_id,
+            _enable: body.action === "grant_tester",
+          });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
         } else {
           const { error } = await supabaseAdmin.rpc("admin_set_subscription", {
             _target_user: body.user_id,
@@ -223,6 +275,7 @@ export const Route = createFileRoute("/api/admin")({
           });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         }
+
 
         return Response.json({ ok: true });
       },
