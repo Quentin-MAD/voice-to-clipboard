@@ -264,7 +264,19 @@ function AdminPage() {
         <div className="rounded-lg border bg-card p-4">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-semibold">Utilisateurs ({users.length})</h2>
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex flex-wrap gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="rounded-md border bg-background px-2 py-1 text-sm"
+                title="Trier par"
+              >
+                <option value="cost_30d">Trier : coût 30j ↓</option>
+                <option value="cost_total">Trier : coût total ↓</option>
+                <option value="ops_today">Trier : ops aujourd'hui ↓</option>
+                <option value="profit">Trier : rentabilité ↑ (pires d'abord)</option>
+                <option value="created">Trier : plus récents</option>
+              </select>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
@@ -282,54 +294,95 @@ function AdminPage() {
               />
             </div>
           </div>
+          <p className="mb-2 text-xs text-muted-foreground">
+            Coûts IA réels par membre (USD converti en € × {USD_TO_EUR}). Rentabilité = revenus payés - coût IA total.
+            Une ligne rouge = membre en perte. Ops aujourd'hui &gt; 100 = à surveiller (abus potentiel).
+          </p>
           <div className="overflow-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left">
                   <th className="p-2">Email</th>
-                  <th className="p-2">Inscrit</th>
                   <th className="p-2">Statut</th>
-                  <th className="p-2">Fin abo.</th>
-                  <th className="p-2">Crédits texte</th>
-                  <th className="p-2">Crédits vocaux</th>
+                  <th className="p-2" title="Opérations IA aujourd'hui (F8 + F9)">Ops 24h</th>
                   <th className="p-2">Trad. 30j</th>
                   <th className="p-2">Trad. total</th>
+                  <th className="p-2" title="Coût IA en € sur 7 jours">Coût 7j</th>
+                  <th className="p-2" title="Coût IA en € sur 30 jours">Coût 30j</th>
+                  <th className="p-2" title="Coût IA total depuis inscription">Coût total</th>
+                  <th className="p-2" title="Revenus Paddle live payés par ce membre">Revenus</th>
+                  <th className="p-2" title="Revenus - coût IA">Rentabilité</th>
+                  <th className="p-2">Crédits texte</th>
+                  <th className="p-2">Crédits vocaux</th>
                   <th className="p-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((u) => (
-                  <tr key={u.user_id} className="border-b hover:bg-accent/40">
-                    <td className="p-2">{u.email ?? "—"}</td>
-                    <td className="p-2">{new Date(u.created_at).toLocaleDateString()}</td>
-                    <td className="p-2">
-                      <span
-                        className={
-                          u.subscribed
-                            ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                            : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
-                        }
-                      >
-                        {u.subscribed ? "Abonné" : "Gratuit"}
-                      </span>
-                    </td>
-                    <td className="p-2 text-xs">
-                      {u.current_period_end ? new Date(u.current_period_end).toLocaleDateString() : "—"}
-                    </td>
-                    <td className="p-2 font-medium">{u.purchased_balance}</td>
-                    <td className="p-2 font-medium">{u.voice_balance ?? 0}</td>
-                    <td className="p-2">{u.translations_30d}</td>
-                    <td className="p-2">{u.translations_total}</td>
-                    <td className="p-2">
-                      <UserActions
-                        userId={u.user_id}
-                        currentText={u.purchased_balance}
-                        currentVoice={u.voice_balance ?? 0}
-                        onAct={act}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {users.map((u) => {
+                  const cost7 = num(u.cost_usd_7d) * USD_TO_EUR;
+                  const cost30 = num(u.cost_usd_30d) * USD_TO_EUR;
+                  const costTotal = num(u.cost_usd_total) * USD_TO_EUR;
+                  const revenue = num(u.revenue_eur_total);
+                  const profit = num(u.profit_eur_total);
+                  const abuseToday = num(u.ops_today) > 100;
+                  const heavy30 = cost30 > 1;
+                  const losing = profit < -0.5;
+                  return (
+                    <tr
+                      key={u.user_id}
+                      className={
+                        losing
+                          ? "border-b bg-red-500/10 hover:bg-red-500/20"
+                          : abuseToday
+                          ? "border-b bg-amber-500/10 hover:bg-amber-500/20"
+                          : "border-b hover:bg-accent/40"
+                      }
+                    >
+                      <td className="p-2">
+                        <div>{u.email ?? "—"}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Inscrit {new Date(u.created_at).toLocaleDateString()}
+                          {u.current_period_end && ` • fin abo ${new Date(u.current_period_end).toLocaleDateString()}`}
+                        </div>
+                      </td>
+                      <td className="p-2">
+                        <span
+                          className={
+                            u.subscribed
+                              ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
+                              : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
+                          }
+                        >
+                          {u.subscribed ? "Abonné" : "Gratuit"}
+                        </span>
+                      </td>
+                      <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
+                        {u.ops_today ?? 0}
+                      </td>
+                      <td className="p-2">{u.translations_30d}</td>
+                      <td className="p-2">{u.translations_total}</td>
+                      <td className="p-2 tabular-nums">{EUR(cost7)}</td>
+                      <td className={"p-2 tabular-nums " + (heavy30 ? "font-semibold text-amber-600 dark:text-amber-400" : "")}>
+                        {EUR(cost30)}
+                      </td>
+                      <td className="p-2 tabular-nums">{EUR(costTotal)}</td>
+                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">{EUR(revenue)}</td>
+                      <td className={"p-2 tabular-nums font-semibold " + (profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
+                        {EUR(profit)}
+                      </td>
+                      <td className="p-2 font-medium">{u.purchased_balance}</td>
+                      <td className="p-2 font-medium">{u.voice_balance ?? 0}</td>
+                      <td className="p-2">
+                        <UserActions
+                          userId={u.user_id}
+                          currentText={u.purchased_balance}
+                          currentVoice={u.voice_balance ?? 0}
+                          onAct={act}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
