@@ -22,6 +22,7 @@ type AdminUser = {
   sub_status: string | null;
   current_period_end: string | null;
   purchased_balance: number;
+  voice_balance: number;
   translations_total: number;
   translations_30d: number;
 };
