@@ -31,6 +31,29 @@ export const Route = createFileRoute("/app")({
   component: AppGate,
 });
 
+// Pretty label for a hotkey (e.g. "Backspace" -> "⌫ Backspace", "Space" -> "Espace").
+function formatKeyLabel(key: string): string {
+  const k = (key || "").trim();
+  if (!k) return "?";
+  const up = k.toUpperCase();
+  const map: Record<string, string> = {
+    BACKSPACE: "⌫ Backspace",
+    ENTER: "⏎ Entrée",
+    RETURN: "⏎ Entrée",
+    SPACE: "␣ Espace",
+    TAB: "⇥ Tab",
+    ESCAPE: "⎋ Échap",
+    ESC: "⎋ Échap",
+    UP: "↑",
+    DOWN: "↓",
+    LEFT: "←",
+    RIGHT: "→",
+    DELETE: "⌦ Suppr",
+  };
+  return map[up] || k;
+}
+
+
 function AppGate() {
   const [checked, setChecked] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
@@ -1024,6 +1047,15 @@ function Home() {
               <span className="native-lang-pair">{readLangPair}</span>
             </div>
           )}
+          {/* Floating banner: auto-type translation ready, waiting for user key */}
+          {isElectron && autoTypeEnabled && autoTypePending && (
+            <div className="native-lang-banner">
+              <span className="native-lang-pair">
+                Cliquez dans le chat puis appuyez sur{" "}
+                <kbd className="native-kbd">{formatKeyLabel(autoTypeKey)}</kbd>
+              </span>
+            </div>
+          )}
           {/* Web-only header */}
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
@@ -1489,7 +1521,7 @@ function Home() {
                     <div style={{ minWidth: 0 }}>
                       <div className="native-row-title">Mon jeu ne prend pas en compte le copier-coller</div>
                       <div className="native-row-desc">
-                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage (Star Citizen, MMO, etc.). Certains anti-triche très stricts peuvent malgré tout la bloquer.
+                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage. Certains anti-triche très stricts peuvent malgré tout la bloquer.
                       </div>
                     </div>
                     <input
