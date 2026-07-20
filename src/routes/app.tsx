@@ -194,6 +194,9 @@ function Home() {
   const [autoTypeEnabled, setAutoTypeEnabled] = useState<boolean>(false);
   const [autoTypeKey, setAutoTypeKey] = useState<string>("Backspace");
   const [autoTypePending, setAutoTypePending] = useState<boolean>(false);
+  const [micSetupOpen, setMicSetupOpen] = useState<boolean>(false);
+  const [micSetupVersion, setMicSetupVersion] = useState<string>("");
+  const [micSetupChoice, setMicSetupChoice] = useState<string>("");
   const isMobile = useIsMobile();
 
 
@@ -809,6 +812,37 @@ function Home() {
     if (typeof window === "undefined" || !window.voxElectron?.setAutoType) return;
     void window.voxElectron.setAutoType({ enabled: autoTypeEnabled, accel: autoTypeKey });
   }, [autoTypeEnabled, autoTypeKey]);
+
+  // First-run / post-update mic selection prompt.
+  // Show a blocking modal until the user has explicitly picked (or confirmed)
+  // a microphone. We key the "done" flag by app version so every update
+  // re-prompts, per product requirement.
+  const micSetupCheckedRef = useRef(false);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (micSetupCheckedRef.current) return;
+    if (typeof window === "undefined") return;
+    micSetupCheckedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      let version = "web-v1";
+      try {
+        const info = await window.voxElectron?.info?.();
+        if (info?.version) version = `electron-${info.version}`;
+      } catch { /* ignore */ }
+      if (cancelled) return;
+      setMicSetupVersion(version);
+      let done = "";
+      try { done = localStorage.getItem("tk_mic_setup_ver") ?? ""; } catch {}
+      if (done !== version) {
+        setMicSetupChoice(micDeviceId);
+        setMicSetupOpen(true);
+        void refreshMicDevices();
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [hydrated, refreshMicDevices, micDeviceId]);
+
 
 
   // Sync status to Electron overlay (shows over fullscreen games)
@@ -1585,6 +1619,66 @@ function Home() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+      {micSetupOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111] p-6 text-white shadow-2xl">
+            <div className="flex items-center gap-3">
+              <Mic className="h-6 w-6 text-primary" />
+              <h2 className="text-lg font-semibold">Choisissez votre microphone</h2>
+            </div>
+            <p className="mt-3 text-sm text-white/70">
+              Avant de commencer, sélectionnez le micro que <span className="notranslate">TalKing</span> doit utiliser pour vos enregistrements. Cette étape est obligatoire à la première utilisation et après chaque mise à jour.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <select
+                value={micSetupChoice}
+                onChange={(e) => setMicSetupChoice(e.target.value)}
+                onFocus={() => void refreshMicDevices()}
+                style={{ flex: 1, height: 40, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 8, padding: "0 10px" }}
+              >
+                <option value="">Par défaut (système)</option>
+                {micDevices.map((d, i) => (
+                  <option key={d.deviceId || i} value={d.deviceId}>
+                    {d.label || `Micro ${i + 1}`}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => void refreshMicDevices()}
+                title="Rafraîchir la liste"
+                className="rounded-lg border border-white/15 bg-white/5 px-3 text-sm hover:bg-white/10"
+              >
+                ↻
+              </button>
+            </div>
+            {micDevices.every((d) => !d.label) && (
+              <p className="mt-2 text-xs text-amber-400">
+                Autorisez l'accès au micro dans la fenêtre système qui vient d'apparaître pour voir les noms des appareils, puis cliquez sur ↻.
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setMicDeviceId(micSetupChoice);
+                try { localStorage.setItem("tk_mic_setup_ver", micSetupVersion); } catch {}
+                setMicSetupOpen(false);
+                toast.success("Microphone enregistré");
+              }}
+              className="mt-5 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              Confirmer et continuer
+            </button>
+            <p className="mt-3 text-center text-[11px] text-white/40">
+              Vous pourrez le changer à tout moment dans les Paramètres (⚙).
+            </p>
           </div>
         </div>
       )}

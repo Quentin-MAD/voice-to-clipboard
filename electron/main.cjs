@@ -50,6 +50,7 @@ let powerBlockerId = null;
 
 // -------- Persistent settings (userData/settings.json) --------
 let SETTINGS_PATH = null;
+let autoTypeMigratedV2 = false;
 function loadSettings() {
   try {
     SETTINGS_PATH = path.join(app.getPath('userData'), 'settings.json');
@@ -59,6 +60,16 @@ function loadSettings() {
       if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
       if (raw && typeof raw.autoTypeAccel === 'string') autoTypeAccel = raw.autoTypeAccel;
       if (raw && typeof raw.autoTypeEnabled === 'boolean') autoTypeEnabled = raw.autoTypeEnabled;
+      autoTypeMigratedV2 = !!(raw && raw.autoTypeMigratedV2);
+      // One-time migration: earlier builds shipped F10 as the default auto-type
+      // key. New default is Backspace. Reset it once so existing installs pick
+      // up the new default without wiping user-chosen non-F10 values.
+      if (!autoTypeMigratedV2 && autoTypeAccel === 'F10') {
+        autoTypeAccel = 'Backspace';
+      }
+      autoTypeMigratedV2 = true;
+    } else {
+      autoTypeMigratedV2 = true;
     }
   } catch (e) { console.error('loadSettings failed', e); }
 }
@@ -66,7 +77,7 @@ function saveSettings() {
   try {
     if (!SETTINGS_PATH) return;
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify({
-      toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled,
+      toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled, autoTypeMigratedV2,
     }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
@@ -629,6 +640,7 @@ app.whenReady().then(() => {
   logger.init(app.getPath('userData'));
   console.log('[TalKing] userData (persistent session):', app.getPath('userData'));
   loadSettings();
+  saveSettings();
   createWindow();
   try { createOverlay(); } catch (e) { console.error('Overlay failed', e); }
   try { buildTray(); } catch (e) { console.error('Tray failed', e); }
