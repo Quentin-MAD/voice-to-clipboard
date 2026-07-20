@@ -3,6 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 type UserStatus = {
   subscribed: boolean;
+  is_tester: boolean;
+  has_purchased: boolean;
   free_remaining: number;
   purchased_balance: number;
   hourly_used: number;
@@ -80,6 +82,8 @@ export const Route = createFileRoute("/api/user-status")({
         const row = Array.isArray(data) ? data[0] : data;
         const status: UserStatus = {
           subscribed: !!row?.subscribed,
+          is_tester: !!row?.is_tester,
+          has_purchased: !!row?.has_purchased,
           free_remaining: Number(row?.free_remaining ?? 0),
           purchased_balance: Number(row?.purchased_balance ?? 0),
           hourly_used: Number(row?.hourly_used ?? 0),
