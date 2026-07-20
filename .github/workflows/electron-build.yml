@@ -29,28 +29,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Vite app
-        run: npm run build
-
-      - name: Package Electron app for Windows
-        run: npm run electron:package:win
-
-      - name: Install NSIS
-        shell: pwsh
-        run: |
-          choco install nsis -y --no-progress
-          $nsisDir = Join-Path ${env:ProgramFiles(x86)} 'NSIS'
-          $makensis = Join-Path $nsisDir 'makensis.exe'
-          if (!(Test-Path $makensis)) {
-            throw "makensis.exe not found at $makensis"
-          }
-          Add-Content $env:GITHUB_PATH $nsisDir
-          & $makensis /VERSION
-
-      - name: Build NSIS installer
-        shell: pwsh
-        run: |
-          npm run electron:installer
+      - name: Build Windows installer
+        run: npm run electron:dist:win
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
