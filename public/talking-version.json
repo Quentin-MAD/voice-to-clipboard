@@ -1,5 +1,5 @@
 {
-  "version": "0.10.3",
+  "version": "0.10.4",
   "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe",
-  "notes": "v0.10.3 - Popup de selection micro obligatoire au premier lancement, defaut auto-ecriture passe a Backspace, F8/F9 compatibles avec tous les jeux."
+  "notes": "v0.10.4 - Limites journalieres infinies pour les comptes Testeur, UI avec badge ∞, correction de l'affichage des statuts."
 }
