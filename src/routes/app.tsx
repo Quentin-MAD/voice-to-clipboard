@@ -31,6 +31,29 @@ export const Route = createFileRoute("/app")({
   component: AppGate,
 });
 
+// Pretty label for a hotkey (e.g. "Backspace" -> "⌫ Backspace", "Space" -> "Espace").
+function formatKeyLabel(key: string): string {
+  const k = (key || "").trim();
+  if (!k) return "?";
+  const up = k.toUpperCase();
+  const map: Record<string, string> = {
+    BACKSPACE: "⌫ Backspace",
+    ENTER: "⏎ Entrée",
+    RETURN: "⏎ Entrée",
+    SPACE: "␣ Espace",
+    TAB: "⇥ Tab",
+    ESCAPE: "⎋ Échap",
+    ESC: "⎋ Échap",
+    UP: "↑",
+    DOWN: "↓",
+    LEFT: "←",
+    RIGHT: "→",
+    DELETE: "⌦ Suppr",
+  };
+  return map[up] || k;
+}
+
+
 function AppGate() {
   const [checked, setChecked] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
