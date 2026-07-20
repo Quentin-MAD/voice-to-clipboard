@@ -400,10 +400,20 @@ function Home() {
       }
 
       // Write to clipboard - prefer Electron API (works without focus, even from a game)
+      // If auto-type is enabled, we bypass the clipboard entirely and store the
+      // translation in the Electron main process so the auto-type hotkey can
+      // inject it as keystrokes into the focused game window.
       let windowHidden = false;
       try {
-        if (typeof window !== "undefined" && window.voxElectron) {
-          const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+        const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+        if (typeof window !== "undefined" && window.voxElectron && autoTypeEnabled) {
+          await window.voxElectron.setAutoTypePending(json.translation, { targetLangName });
+          setAutoTypePending(true);
+          windowHidden = true;
+          toast.success(`Traduction prête. Cliquez dans le chat puis appuyez sur ${autoTypeKey} pour l'écrire.`, {
+            duration: 6000,
+          });
+        } else if (typeof window !== "undefined" && window.voxElectron) {
           const result = await window.voxElectron.writeClipboard(json.translation, {
             targetLangName,
             preview: json.translation,
