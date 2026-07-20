@@ -90,9 +90,10 @@ function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "free" | "subscribed">("all");
+  const [filter, setFilter] = useState<"all" | "free" | "subscribed" | "tester">("all");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
+
 
   async function load() {
     setLoading(true);
