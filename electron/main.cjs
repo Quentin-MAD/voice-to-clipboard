@@ -457,6 +457,47 @@ ipcMain.handle('hotkeys:set', (_e, payload) => {
 
 ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk }));
 
+// -------- Auto-type IPC (F8 sans presse-papiers) --------
+ipcMain.handle('autotype:get-config', () => ({
+  enabled: autoTypeEnabled,
+  accel: autoTypeAccel,
+  ok: autoTypeHotkeyOk,
+  hasPending: !!pendingAutoTypeText,
+}));
+
+ipcMain.handle('autotype:set-config', (_e, payload) => {
+  if (payload && typeof payload.enabled === 'boolean') autoTypeEnabled = payload.enabled;
+  if (payload && typeof payload.accel === 'string' && payload.accel.trim()) autoTypeAccel = payload.accel.trim();
+  if (!autoTypeEnabled) { pendingAutoTypeText = ''; pendingAutoTypeMeta = null; }
+  saveSettings();
+  registerHotkeys();
+  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk };
+});
+
+ipcMain.handle('autotype:set-pending', (_e, payload) => {
+  const text = payload && typeof payload === 'object' ? payload.text : payload;
+  pendingAutoTypeText = String(text ?? '');
+  pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  if (pendingAutoTypeText) {
+    const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
+    const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
+    notify({
+      title: langName ? `Traduction prête · ${langName}` : 'Traduction prête',
+      body: `Cliquez dans le chat du jeu puis appuyez sur ${autoTypeAccel}. ${preview ? '\n' + preview : ''}`.trim(),
+      silent: false,
+    });
+  }
+  return { ok: true };
+});
+
+ipcMain.handle('autotype:clear', () => {
+  pendingAutoTypeText = '';
+  pendingAutoTypeMeta = null;
+  return { ok: true };
+});
+
+
+
 ipcMain.handle('recording:state', (_e, state) => {
   isRecording = !!state;
   rebuildTrayMenu();
