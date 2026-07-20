@@ -1654,7 +1654,7 @@ function Home() {
                   type="button"
                   onClick={() => void refreshMicDevices()}
                   title="Rafraîchir la liste"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--nx-line-hi)] bg-[var(--nx-panel)] text-[var(--nx-text-dim)] transition-colors hover:bg-[var(--nx-panel-hi)] hover:text-[var(--nx-text)]"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center"
                 >
                   ↻
                 </button>
