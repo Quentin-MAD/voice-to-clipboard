@@ -19,6 +19,7 @@ type AdminUser = {
   email: string;
   created_at: string;
   subscribed: boolean;
+  is_tester: boolean;
   sub_status: string | null;
   current_period_end: string | null;
   purchased_balance: number;
@@ -51,6 +52,8 @@ type AdminData = {
   };
   finance: {
     cost: Windowed;
+    costTesters: Windowed;
+    costPaying: Windowed;
     revenue: Windowed;
     profit: Windowed;
     ratio: Windowed;
@@ -60,10 +63,12 @@ type AdminData = {
       sub_price_eur_year: number;
       eur_per_purchased_credit: number;
       active_paying_subs: number;
+      testers_count: number;
       first_ai_date: string | null;
     };
   };
 };
+
 
 async function authedFetch(url: string, init?: RequestInit) {
   const { data } = await supabase.auth.getSession();
