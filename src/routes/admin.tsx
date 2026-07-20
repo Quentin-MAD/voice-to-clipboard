@@ -25,6 +25,12 @@ type AdminUser = {
   voice_balance: number;
   translations_total: number;
   translations_30d: number;
+  ops_today: number;
+  cost_usd_7d: number;
+  cost_usd_30d: number;
+  cost_usd_total: number;
+  revenue_eur_total: number;
+  profit_eur_total: number;
 };
 
 type Windowed = { day: number; week: number; month: number; year: number; all: number };
