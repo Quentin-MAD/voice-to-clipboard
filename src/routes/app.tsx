@@ -779,6 +779,7 @@ function Home() {
     const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
       else if (kind === "read-toggle") toggleReadRecording();
+      else if (kind === "auto-type") setAutoTypePending(false);
     });
     const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
     return () => { offHotkey(); offStatus?.(); };
