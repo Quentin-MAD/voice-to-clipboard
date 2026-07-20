@@ -522,11 +522,13 @@ function UserActions({
   userId,
   currentText,
   currentVoice,
+  isTester,
   onAct,
 }: {
   userId: string;
   currentText: number;
   currentVoice: number;
+  isTester: boolean;
   onAct: (id: string, action: string, amount?: number) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -555,6 +557,26 @@ function UserActions({
           >
             Annuler l'abonnement
           </button>
+          <hr className="my-1" />
+          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Statut Testeur (gratuit, hors rentabilité)
+          </div>
+          {isTester ? (
+            <button
+              onClick={() => { onAct(userId, "revoke_tester"); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
+            >
+              Retirer le statut Testeur
+            </button>
+          ) : (
+            <button
+              onClick={() => { onAct(userId, "grant_tester"); setOpen(false); }}
+              className="block w-full rounded px-2 py-1 text-left text-xs text-blue-600 dark:text-blue-400 hover:bg-accent"
+            >
+              Accorder le statut Testeur
+            </button>
+          )}
+
           <hr className="my-1" />
           <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
             Crédits texte (actuel : {currentText})
