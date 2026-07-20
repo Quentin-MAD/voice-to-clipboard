@@ -28,11 +28,23 @@ jobs:
         run: npm run electron:package:win
 
       - name: Install NSIS
-        run: choco install nsis -y
+        shell: pwsh
+        run: |
+          choco install nsis -y --no-progress
+          $nsisDir = Join-Path ${env:ProgramFiles(x86)} 'NSIS'
+          $makensis = Join-Path $nsisDir 'makensis.exe'
+          if (!(Test-Path $makensis)) {
+            throw "makensis.exe not found at $makensis"
+          }
+          Add-Content $env:GITHUB_PATH $nsisDir
+          & $makensis /VERSION
 
       - name: Build NSIS installer
-        run: npm run electron:installer
         shell: pwsh
+        run: |
+          $makensis = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          & $makensis electron/installer.nsi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
