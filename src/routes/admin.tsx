@@ -293,6 +293,8 @@ function AdminPage() {
                 <option value="all">Tous</option>
                 <option value="free">Gratuits</option>
                 <option value="subscribed">Abonnés</option>
+                <option value="tester">Testeurs</option>
+
               </select>
               <input
                 value={search}
