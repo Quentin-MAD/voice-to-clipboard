@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "electron:package:win": "npx @electron/packager . TalKing --platform=win32 --arch=x64 --out=electron-release --overwrite --ignore='node_modules' --ignore='^/src' --ignore='^/public' --ignore='^/electron-release' --ignore='^/supabase' --ignore='^/.lovable' --ignore='^/.git' --icon=electron/tray-icon.ico",
-    "electron:installer": "makensis electron/installer.nsi",
+    "electron:installer": "node electron/build-installer.cjs",
     "electron:build:win": "npm run build && npm run electron:package:win && npm run electron:installer"
   },
   "dependencies": {

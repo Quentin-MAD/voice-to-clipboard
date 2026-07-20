@@ -11,6 +11,9 @@ on:
         required: true
         default: 'v0.10.1'
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -47,9 +50,7 @@ jobs:
       - name: Build NSIS installer
         shell: pwsh
         run: |
-          $makensis = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
-          & $makensis electron/installer.nsi
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run electron:installer
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
