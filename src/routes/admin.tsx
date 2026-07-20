@@ -26,7 +26,7 @@ type AdminUser = {
   translations_30d: number;
 };
 
-type Windowed = { day: number; week: number; month: number; year: number };
+type Windowed = { day: number; week: number; month: number; year: number; all: number };
 type AdminData = {
   users: AdminUser[];
   daily: Array<{ date: string; views: number; translations: number; ai_credits: number }>;
@@ -37,6 +37,7 @@ type AdminData = {
     ai_credits_today: number;
     ai_credits_7d: number;
     ai_credits_30d: number;
+    ai_credits_all: number;
     views_today: number;
     views_7d: number;
     views_30d: number;
@@ -52,6 +53,7 @@ type AdminData = {
       sub_price_eur_year: number;
       eur_per_purchased_credit: number;
       active_paying_subs: number;
+      first_ai_date: string | null;
     };
   };
 };
