@@ -161,14 +161,26 @@ function AdminPage() {
   }
   if (!data) return null;
 
-  const users = data.users.filter((u) => {
-    if (filter === "free" && u.subscribed) return false;
-    if (filter === "subscribed" && !u.subscribed) return false;
-    if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
-
   const num = (v: unknown) => Number(v) || 0;
+  const USD_TO_EUR = data.finance?.assumptions?.usd_to_eur ?? 0.92;
+
+  const users = data.users
+    .filter((u) => {
+      if (filter === "free" && u.subscribed) return false;
+      if (filter === "subscribed" && !u.subscribed) return false;
+      if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "cost_total": return num(b.cost_usd_total) - num(a.cost_usd_total);
+        case "cost_30d": return num(b.cost_usd_30d) - num(a.cost_usd_30d);
+        case "ops_today": return num(b.ops_today) - num(a.ops_today);
+        case "profit": return num(a.profit_eur_total) - num(b.profit_eur_total);
+        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
   const maxCredits = Math.max(...data.daily.map((d) => num(d.ai_credits)), 0.0001);
 
   return (
