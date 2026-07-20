@@ -183,7 +183,7 @@ function Home() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<"toggle" | "read" | null>(null);
+  const [capturing, setCapturing] = useState<"toggle" | "read" | "autotype" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
@@ -191,6 +191,9 @@ function Home() {
   const [autoStart, setAutoStartState] = useState<boolean>(false);
   const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
   const [readLangPair, setReadLangPair] = useState<string | null>(null);
+  const [autoTypeEnabled, setAutoTypeEnabled] = useState<boolean>(false);
+  const [autoTypeKey, setAutoTypeKey] = useState<string>("F10");
+  const [autoTypePending, setAutoTypePending] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
 
