@@ -17,6 +17,7 @@ const path = require('path');
 const fs = require('fs');
 const logger = require('./logger.cjs');
 const lowLevelHotkeys = require('./hotkeys.cjs');
+const autotype = require('./autotype.cjs');
 
 // -------- Session persistence (step 9) --------
 // Electron persists localStorage / cookies / IndexedDB in the userData
@@ -37,6 +38,11 @@ let overlayWindow = null;
 let tray = null;
 let toggleAccel = 'F8';
 let readAccel = 'F9';
+let autoTypeAccel = 'F10';
+let autoTypeEnabled = false;
+let autoTypeHotkeyOk = false;
+let pendingAutoTypeText = '';
+let pendingAutoTypeMeta = null;
 let hotkeyOk = true;
 let readHotkeyOk = true;
 let isRecording = false;
@@ -51,13 +57,17 @@ function loadSettings() {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
       if (raw && typeof raw.toggleAccel === 'string') toggleAccel = raw.toggleAccel;
       if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
+      if (raw && typeof raw.autoTypeAccel === 'string') autoTypeAccel = raw.autoTypeAccel;
+      if (raw && typeof raw.autoTypeEnabled === 'boolean') autoTypeEnabled = raw.autoTypeEnabled;
     }
   } catch (e) { console.error('loadSettings failed', e); }
 }
 function saveSettings() {
   try {
     if (!SETTINGS_PATH) return;
-    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel, readAccel }, null, 2));
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({
+      toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled,
+    }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
 
