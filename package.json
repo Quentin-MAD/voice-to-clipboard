@@ -1,6 +1,6 @@
 {
   "name": "tanstack_start_ts",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -43,7 +43,7 @@
           ]
         }
       ],
-      "artifactName": "TalKing-Setup-${version}.${ext}"
+      "artifactName": "TalKing-Setup.${ext}"
     },
     "nsis": {
       "oneClick": false,
