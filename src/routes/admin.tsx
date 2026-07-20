@@ -410,7 +410,17 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
   );
 }
 
-function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, action: string, amount?: number) => void }) {
+function UserActions({
+  userId,
+  currentText,
+  currentVoice,
+  onAct,
+}: {
+  userId: string;
+  currentText: number;
+  currentVoice: number;
+  onAct: (id: string, action: string, amount?: number) => void;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -418,7 +428,7 @@ function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, ac
         Gérer
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border bg-popover p-1 shadow-lg">
+        <div className="absolute right-0 z-10 mt-1 w-64 rounded-md border bg-popover p-1 shadow-lg">
           <button
             onClick={() => { onAct(userId, "grant_lifetime"); setOpen(false); }}
             className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
@@ -438,6 +448,21 @@ function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, ac
             Annuler l'abonnement
           </button>
           <hr className="my-1" />
+          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Crédits texte (actuel : {currentText})
+          </div>
+          <button
+            onClick={() => {
+              const raw = prompt(`Définir le solde EXACT de crédits TEXTE (actuel : ${currentText})`, String(currentText));
+              if (raw === null) return;
+              const n = Number(raw);
+              if (Number.isFinite(n) && n >= 0) onAct(userId, "set_credits", Math.trunc(n));
+              setOpen(false);
+            }}
+            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
+          >
+            Définir solde texte…
+          </button>
           <button
             onClick={() => {
               const n = Number(prompt("Ajouter combien de crédits TEXTE ? (négatif pour retirer)", "50"));
@@ -446,7 +471,23 @@ function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, ac
             }}
             className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
           >
-            Ajuster crédits Texte…
+            Ajuster crédits texte (±)…
+          </button>
+          <hr className="my-1" />
+          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Crédits vocaux (actuel : {currentVoice})
+          </div>
+          <button
+            onClick={() => {
+              const raw = prompt(`Définir le solde EXACT de crédits VOCAUX (actuel : ${currentVoice})`, String(currentVoice));
+              if (raw === null) return;
+              const n = Number(raw);
+              if (Number.isFinite(n) && n >= 0) onAct(userId, "set_voice_credits", Math.trunc(n));
+              setOpen(false);
+            }}
+            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
+          >
+            Définir solde vocal…
           </button>
           <button
             onClick={() => {
@@ -456,7 +497,7 @@ function UserActions({ userId, onAct }: { userId: string; onAct: (id: string, ac
             }}
             className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
           >
-            Ajuster crédits Vocale…
+            Ajuster crédits vocaux (±)…
           </button>
         </div>
       )}
