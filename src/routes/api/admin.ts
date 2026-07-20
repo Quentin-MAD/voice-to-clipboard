@@ -46,14 +46,18 @@ export const Route = createFileRoute("/api/admin")({
         }
 
 
-        // Time series - last 365 days
+        // Time series - last 365 days for chart
         const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
-        const [pv, ai, tl, subs, tx] = await Promise.all([
+        const [pv, ai, tl, subs, tx, aiAll, txAll, aiFirst] = await Promise.all([
           supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(100000),
           supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(100000),
           supabaseAdmin.from("translations_log").select("created_at,source_type").gte("created_at", since).limit(200000),
           supabaseAdmin.from("subscriptions").select("status,current_period_end,updated_at,environment"),
           supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment").gte("created_at", since).limit(100000),
+          // All-time (minimal fields)
+          supabaseAdmin.from("ai_usage_log").select("cost_credits").limit(500000),
+          supabaseAdmin.from("payment_transactions").select("amount_eur,environment").limit(500000),
+          supabaseAdmin.from("ai_usage_log").select("created_at").order("created_at", { ascending: true }).limit(1),
         ]);
 
         // === Business constants (EUR) ===
