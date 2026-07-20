@@ -184,6 +184,7 @@ export const Route = createFileRoute("/api/admin")({
             ai_credits_today: aiToday,
             ai_credits_7d: ai7,
             ai_credits_30d: ai30,
+            ai_credits_all: aiAllTotalCredits,
             views_today: viewsToday,
             views_7d: views7,
             views_30d: views30,
