@@ -106,6 +106,8 @@ type HistoryItem = {
 
 type UserStatus = {
   subscribed: boolean;
+  is_tester: boolean;
+  has_purchased: boolean;
   free_remaining: number;
   purchased_balance: number;
   hourly_used: number;
@@ -906,7 +908,21 @@ function Home() {
                 <div className="native-translate-slot">
                   <GoogleTranslate alwaysShow />
                 </div>
-                <span className="native-email" title={user.email}>{user.email}</span>
+                {(() => {
+                  const tier = userStatus?.is_tester
+                    ? { label: "Testeur", cls: "tier-tester" }
+                    : userStatus?.subscribed
+                      ? { label: "Abonné", cls: "tier-sub" }
+                      : userStatus?.has_purchased
+                        ? { label: "Gratuit+", cls: "tier-freeplus" }
+                        : { label: "Gratuit", cls: "tier-free" };
+                  return (
+                    <div className={`native-email-box ${tier.cls}`}>
+                      <span className="native-email-tier">{tier.label}</span>
+                      <span className="native-email" title={user.email}>{user.email}</span>
+                    </div>
+                  );
+                })()}
                 <button
                   className="native-icon-btn"
                   title="Paramètres"

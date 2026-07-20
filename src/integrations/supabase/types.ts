@@ -342,8 +342,10 @@ export type Database = {
           daily_reset_at: string
           daily_used: number
           free_remaining: number
+          has_purchased: boolean
           hourly_limit: number
           hourly_used: number
+          is_tester: boolean
           purchased_balance: number
           subscribed: boolean
           voice_balance: number
