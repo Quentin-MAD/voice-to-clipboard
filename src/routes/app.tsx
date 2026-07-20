@@ -872,9 +872,10 @@ function Home() {
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
           <strong>
-            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCount} voix
+            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCountDisplay} voix
           </strong>
         ) : (
+
           <strong>
             <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount} voix
           </strong>
