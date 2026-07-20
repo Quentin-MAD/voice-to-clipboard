@@ -271,7 +271,8 @@ function AdminPage() {
                   <th className="p-2">Inscrit</th>
                   <th className="p-2">Statut</th>
                   <th className="p-2">Fin abo.</th>
-                  <th className="p-2">Crédits</th>
+                  <th className="p-2">Crédits texte</th>
+                  <th className="p-2">Crédits vocaux</th>
                   <th className="p-2">Trad. 30j</th>
                   <th className="p-2">Trad. total</th>
                   <th className="p-2">Actions</th>
@@ -296,11 +297,17 @@ function AdminPage() {
                     <td className="p-2 text-xs">
                       {u.current_period_end ? new Date(u.current_period_end).toLocaleDateString() : "—"}
                     </td>
-                    <td className="p-2">{u.purchased_balance}</td>
+                    <td className="p-2 font-medium">{u.purchased_balance}</td>
+                    <td className="p-2 font-medium">{u.voice_balance ?? 0}</td>
                     <td className="p-2">{u.translations_30d}</td>
                     <td className="p-2">{u.translations_total}</td>
                     <td className="p-2">
-                      <UserActions userId={u.user_id} onAct={act} />
+                      <UserActions
+                        userId={u.user_id}
+                        currentText={u.purchased_balance}
+                        currentVoice={u.voice_balance ?? 0}
+                        onAct={act}
+                      />
                     </td>
                   </tr>
                 ))}
