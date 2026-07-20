@@ -830,9 +830,12 @@ function Home() {
     );
   }
 
+  const unlimitedVoice = !!(userStatus?.subscribed || userStatus?.is_tester);
   const voiceCount = userStatus?.voice_balance ?? 0;
+  const voiceCountDisplay = unlimitedVoice ? "∞" : String(voiceCount);
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
+
   const textUsed = userStatus?.daily_used ?? 0;
   const textCap = userStatus?.daily_limit ?? 150;
   const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
@@ -869,9 +872,10 @@ function Home() {
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
           <strong>
-            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCount} voix
+            <Wallet size={12} className="limits-icon" /> Illimité · <Mic size={12} className="limits-icon" /> {voiceCountDisplay} voix
           </strong>
         ) : (
+
           <strong>
             <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount} voix
           </strong>
