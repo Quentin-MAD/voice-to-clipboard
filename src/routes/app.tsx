@@ -830,9 +830,12 @@ function Home() {
     );
   }
 
+  const unlimitedVoice = !!(userStatus?.subscribed || userStatus?.is_tester);
   const voiceCount = userStatus?.voice_balance ?? 0;
+  const voiceCountDisplay = unlimitedVoice ? "∞" : String(voiceCount);
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
+
   const textUsed = userStatus?.daily_used ?? 0;
   const textCap = userStatus?.daily_limit ?? 150;
   const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
