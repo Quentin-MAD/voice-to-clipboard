@@ -813,6 +813,34 @@ function Home() {
     void window.voxElectron.setAutoType({ enabled: autoTypeEnabled, accel: autoTypeKey });
   }, [autoTypeEnabled, autoTypeKey]);
 
+  // First-run / post-update mic selection prompt.
+  // Show a blocking modal until the user has explicitly picked (or confirmed)
+  // a microphone. We key the "done" flag by app version so every update
+  // re-prompts, per product requirement.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (typeof window === "undefined") return;
+    let cancelled = false;
+    (async () => {
+      let version = "web-v1";
+      try {
+        const info = await window.voxElectron?.info?.();
+        if (info?.version) version = `electron-${info.version}`;
+      } catch { /* ignore */ }
+      if (cancelled) return;
+      setMicSetupVersion(version);
+      let done = "";
+      try { done = localStorage.getItem("tk_mic_setup_ver") ?? ""; } catch {}
+      if (done !== version) {
+        setMicSetupChoice(micDeviceId);
+        setMicSetupOpen(true);
+        void refreshMicDevices();
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [hydrated, refreshMicDevices, micDeviceId]);
+
+
 
   // Sync status to Electron overlay (shows over fullscreen games)
   useEffect(() => {
