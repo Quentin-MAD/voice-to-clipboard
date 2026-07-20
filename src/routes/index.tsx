@@ -83,7 +83,7 @@ function LandingPage() {
             Essayer gratuitement
           </Link>
           <a
-            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup-0.10.2.exe"
+            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
           >
             <HardDrive className="h-5 w-5" />
@@ -198,7 +198,7 @@ function LandingPage() {
             L'application fonctionne en arrière-plan et reste active même quand vous jouez.
           </p>
           <a
-            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup-0.10.2.exe"
+            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <HardDrive className="h-5 w-5" />
