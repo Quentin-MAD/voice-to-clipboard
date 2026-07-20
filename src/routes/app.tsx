@@ -183,7 +183,7 @@ function Home() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [current, setCurrent] = useState<{ transcript: string; translation: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [capturing, setCapturing] = useState<"toggle" | "read" | null>(null);
+  const [capturing, setCapturing] = useState<"toggle" | "read" | "autotype" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
@@ -191,6 +191,9 @@ function Home() {
   const [autoStart, setAutoStartState] = useState<boolean>(false);
   const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
   const [readLangPair, setReadLangPair] = useState<string | null>(null);
+  const [autoTypeEnabled, setAutoTypeEnabled] = useState<boolean>(false);
+  const [autoTypeKey, setAutoTypeKey] = useState<string>("F10");
+  const [autoTypePending, setAutoTypePending] = useState<boolean>(false);
   const isMobile = useIsMobile();
 
 
@@ -397,10 +400,20 @@ function Home() {
       }
 
       // Write to clipboard - prefer Electron API (works without focus, even from a game)
+      // If auto-type is enabled, we bypass the clipboard entirely and store the
+      // translation in the Electron main process so the auto-type hotkey can
+      // inject it as keystrokes into the focused game window.
       let windowHidden = false;
       try {
-        if (typeof window !== "undefined" && window.voxElectron) {
-          const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+        const targetLangName = LANGUAGES.find((l) => l.code === target)?.label ?? target;
+        if (typeof window !== "undefined" && window.voxElectron && autoTypeEnabled) {
+          await window.voxElectron.setAutoTypePending(json.translation, { targetLangName });
+          setAutoTypePending(true);
+          windowHidden = true;
+          toast.success(`Traduction prête. Cliquez dans le chat puis appuyez sur ${autoTypeKey} pour l'écrire.`, {
+            duration: 6000,
+          });
+        } else if (typeof window !== "undefined" && window.voxElectron) {
           const result = await window.voxElectron.writeClipboard(json.translation, {
             targetLangName,
             preview: json.translation,
@@ -437,7 +450,7 @@ function Home() {
       setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
     }
-  }, [source, target, navigate, statusQuery]);
+  }, [source, target, navigate, statusQuery, autoTypeEnabled, autoTypeKey]);
 
   const startRecording = useCallback(async () => {
     if (recordingRef.current) return;
@@ -731,6 +744,7 @@ function Home() {
         if (key) {
           if (capturing === "toggle") setToggleKey(key);
           else if (capturing === "read") setReadKey(key);
+          else if (capturing === "autotype") setAutoTypeKey(key);
           setCapturing(null);
         }
         return;
@@ -765,6 +779,7 @@ function Home() {
     const offHotkey = window.voxElectron.onHotkey((kind) => {
       if (kind === "toggle" || kind === "start" || kind === "stop") toggleRecording();
       else if (kind === "read-toggle") toggleReadRecording();
+      else if (kind === "auto-type") setAutoTypePending(false);
     });
     const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
     return () => { offHotkey(); offStatus?.(); };
@@ -775,6 +790,26 @@ function Home() {
     if (typeof window === "undefined" || !window.voxElectron?.getAutoStart) return;
     void window.voxElectron.getAutoStart().then((r) => setAutoStartState(!!r?.enabled));
   }, []);
+
+  // Load auto-type config from Electron main and subscribe to "buffer cleared" events.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.getAutoType) return;
+    void window.voxElectron.getAutoType().then((cfg) => {
+      if (!cfg) return;
+      setAutoTypeEnabled(!!cfg.enabled);
+      if (cfg.accel) setAutoTypeKey(cfg.accel);
+      setAutoTypePending(!!cfg.hasPending);
+    });
+    const off = window.voxElectron.onAutoTypeCleared?.(() => setAutoTypePending(false));
+    return () => { off?.(); };
+  }, []);
+
+  // Push auto-type config changes to Electron main.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.voxElectron?.setAutoType) return;
+    void window.voxElectron.setAutoType({ enabled: autoTypeEnabled, accel: autoTypeKey });
+  }, [autoTypeEnabled, autoTypeKey]);
+
 
   // Sync status to Electron overlay (shows over fullscreen games)
   useEffect(() => {
@@ -1416,6 +1451,43 @@ function Home() {
                   </div>
 
 
+                  <div className="native-row">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="native-row-title">Mon jeu ne prend pas en compte le copier-coller</div>
+                      <div className="native-row-desc">
+                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage (Star Citizen, MMO, etc.). Certains anti-triche très stricts peuvent malgré tout la bloquer.
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="native-switch"
+                      checked={autoTypeEnabled}
+                      onChange={(e) => setAutoTypeEnabled(e.target.checked)}
+                    />
+                  </div>
+
+                  {autoTypeEnabled && (
+                    <div className="native-field">
+                      <span className="native-label">Touche d'écriture automatique</span>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => setCapturing("autotype")}
+                          style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
+                                   background: capturing === "autotype" ? "rgba(245,158,11,0.15)" : undefined,
+                                   borderColor: capturing === "autotype" ? "rgba(245,158,11,0.6)" : undefined,
+                                   color: capturing === "autotype" ? "#fbbf24" : undefined }}
+                        >
+                          {capturing === "autotype" ? "Appuyez sur une touche…" : autoTypeKey}
+                        </button>
+                        <button onClick={() => { setAutoTypeKey("F10"); setCapturing(null); }} title="Réinitialiser (F10)">
+                          Réinit.
+                        </button>
+                      </div>
+                      <p className="native-field-help">
+                        État : {autoTypePending ? "🟢 Traduction prête à écrire" : "En attente de traduction"}. Assurez-vous que cette touche n'est pas déjà utilisée par votre jeu.
+                      </p>
+                    </div>
+                  )}
 
 
                   <div className="native-row">

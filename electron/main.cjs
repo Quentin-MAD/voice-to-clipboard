@@ -17,6 +17,7 @@ const path = require('path');
 const fs = require('fs');
 const logger = require('./logger.cjs');
 const lowLevelHotkeys = require('./hotkeys.cjs');
+const autotype = require('./autotype.cjs');
 
 // -------- Session persistence (step 9) --------
 // Electron persists localStorage / cookies / IndexedDB in the userData
@@ -37,6 +38,11 @@ let overlayWindow = null;
 let tray = null;
 let toggleAccel = 'F8';
 let readAccel = 'F9';
+let autoTypeAccel = 'F10';
+let autoTypeEnabled = false;
+let autoTypeHotkeyOk = false;
+let pendingAutoTypeText = '';
+let pendingAutoTypeMeta = null;
 let hotkeyOk = true;
 let readHotkeyOk = true;
 let isRecording = false;
@@ -51,13 +57,17 @@ function loadSettings() {
       const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8'));
       if (raw && typeof raw.toggleAccel === 'string') toggleAccel = raw.toggleAccel;
       if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
+      if (raw && typeof raw.autoTypeAccel === 'string') autoTypeAccel = raw.autoTypeAccel;
+      if (raw && typeof raw.autoTypeEnabled === 'boolean') autoTypeEnabled = raw.autoTypeEnabled;
     }
   } catch (e) { console.error('loadSettings failed', e); }
 }
 function saveSettings() {
   try {
     if (!SETTINGS_PATH) return;
-    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({ toggleAccel, readAccel }, null, 2));
+    fs.writeFileSync(SETTINGS_PATH, JSON.stringify({
+      toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled,
+    }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
 
@@ -184,9 +194,10 @@ function registerHotkeys() {
 
   hotkeyOk = false;
   readHotkeyOk = false;
+  autoTypeHotkeyOk = false;
 
-  const bind = (accel, kind) => {
-    const cb = () => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); };
+  const bind = (accel, kind, customCb) => {
+    const cb = customCb || (() => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); });
     if (useLowLevel) {
       const ok = lowLevelHotkeys.register(accel, cb);
       if (ok) return true;
@@ -210,12 +221,56 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register read hotkey', e); }
 
-  console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk})`);
+  // Auto-type hotkey: only registered when the "my game blocks paste" option is on.
+  try {
+    if (autoTypeEnabled && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
+      autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType);
+    }
+  } catch (e) { console.error('Failed to register auto-type hotkey', e); }
+
+  console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk });
+    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk, autoTypeAccel, autoTypeOk: autoTypeHotkeyOk, autoTypeEnabled });
   }
   rebuildTrayMenu();
+}
+
+// Fire from the global hotkey: if a translation is pending, type it into the focused window.
+async function fireAutoType() {
+  if (mainWindow) {
+    try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
+  }
+  const text = pendingAutoTypeText;
+  if (!text) {
+    notify({
+      title: 'TalKing — auto-écriture',
+      body: `Aucune traduction en attente. Enregistrez d'abord avec ${toggleAccel}.`,
+      silent: false,
+    });
+    return;
+  }
+  // Clear the buffer immediately so a second press doesn't re-type.
+  pendingAutoTypeText = '';
+  const meta = pendingAutoTypeMeta;
+  pendingAutoTypeMeta = null;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('autotype:cleared'); } catch {}
+  }
+  try {
+    const res = await autotype.typeText(text);
+    if (!res.ok) {
+      notify({
+        title: 'TalKing — auto-écriture',
+        body: `Échec de l'écriture (${res.error || 'inconnu'}). La traduction a été copiée dans le presse-papiers à la place.`,
+        urgent: true,
+      });
+      try { clipboard.writeText(text); } catch {}
+    }
+  } catch (e) {
+    console.error('autotype failed', e);
+    try { clipboard.writeText(text); } catch {}
+  }
 }
 
 function rebuildTrayMenu() {
@@ -401,6 +456,47 @@ ipcMain.handle('hotkeys:set', (_e, payload) => {
 });
 
 ipcMain.handle('hotkeys:get', () => ({ toggle: toggleAccel, ok: hotkeyOk, read: readAccel, readOk: readHotkeyOk }));
+
+// -------- Auto-type IPC (F8 sans presse-papiers) --------
+ipcMain.handle('autotype:get-config', () => ({
+  enabled: autoTypeEnabled,
+  accel: autoTypeAccel,
+  ok: autoTypeHotkeyOk,
+  hasPending: !!pendingAutoTypeText,
+}));
+
+ipcMain.handle('autotype:set-config', (_e, payload) => {
+  if (payload && typeof payload.enabled === 'boolean') autoTypeEnabled = payload.enabled;
+  if (payload && typeof payload.accel === 'string' && payload.accel.trim()) autoTypeAccel = payload.accel.trim();
+  if (!autoTypeEnabled) { pendingAutoTypeText = ''; pendingAutoTypeMeta = null; }
+  saveSettings();
+  registerHotkeys();
+  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk };
+});
+
+ipcMain.handle('autotype:set-pending', (_e, payload) => {
+  const text = payload && typeof payload === 'object' ? payload.text : payload;
+  pendingAutoTypeText = String(text ?? '');
+  pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  if (pendingAutoTypeText) {
+    const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
+    const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
+    notify({
+      title: langName ? `Traduction prête · ${langName}` : 'Traduction prête',
+      body: `Cliquez dans le chat du jeu puis appuyez sur ${autoTypeAccel}. ${preview ? '\n' + preview : ''}`.trim(),
+      silent: false,
+    });
+  }
+  return { ok: true };
+});
+
+ipcMain.handle('autotype:clear', () => {
+  pendingAutoTypeText = '';
+  pendingAutoTypeMeta = null;
+  return { ok: true };
+});
+
+
 
 ipcMain.handle('recording:state', (_e, state) => {
   isRecording = !!state;
