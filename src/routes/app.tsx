@@ -1451,6 +1451,43 @@ function Home() {
                   </div>
 
 
+                  <div className="native-row">
+                    <div style={{ minWidth: 0 }}>
+                      <div className="native-row-title">Mon jeu ne prend pas en compte le copier-coller</div>
+                      <div className="native-row-desc">
+                        Quand cette option est activée, {toggleKey} n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat de votre jeu puis appuyez sur la touche d'écriture ci-dessous : <span className="notranslate">TalKing</span> prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec la plupart des jeux qui bloquent le collage (Star Citizen, MMO, etc.). Certains anti-triche très stricts peuvent malgré tout la bloquer.
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      className="native-switch"
+                      checked={autoTypeEnabled}
+                      onChange={(e) => setAutoTypeEnabled(e.target.checked)}
+                    />
+                  </div>
+
+                  {autoTypeEnabled && (
+                    <div className="native-field">
+                      <span className="native-label">Touche d'écriture automatique</span>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button
+                          onClick={() => setCapturing("autotype")}
+                          style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", height: 36,
+                                   background: capturing === "autotype" ? "rgba(245,158,11,0.15)" : undefined,
+                                   borderColor: capturing === "autotype" ? "rgba(245,158,11,0.6)" : undefined,
+                                   color: capturing === "autotype" ? "#fbbf24" : undefined }}
+                        >
+                          {capturing === "autotype" ? "Appuyez sur une touche…" : autoTypeKey}
+                        </button>
+                        <button onClick={() => { setAutoTypeKey("F10"); setCapturing(null); }} title="Réinitialiser (F10)">
+                          Réinit.
+                        </button>
+                      </div>
+                      <p className="native-field-help">
+                        État : {autoTypePending ? "🟢 Traduction prête à écrire" : "En attente de traduction"}. Assurez-vous que cette touche n'est pas déjà utilisée par votre jeu.
+                      </p>
+                    </div>
+                  )}
 
 
                   <div className="native-row">
