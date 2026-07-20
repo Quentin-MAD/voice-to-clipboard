@@ -817,9 +817,12 @@ function Home() {
   // Show a blocking modal until the user has explicitly picked (or confirmed)
   // a microphone. We key the "done" flag by app version so every update
   // re-prompts, per product requirement.
+  const micSetupCheckedRef = useRef(false);
   useEffect(() => {
     if (!hydrated) return;
+    if (micSetupCheckedRef.current) return;
     if (typeof window === "undefined") return;
+    micSetupCheckedRef.current = true;
     let cancelled = false;
     (async () => {
       let version = "web-v1";
