@@ -194,9 +194,10 @@ function registerHotkeys() {
 
   hotkeyOk = false;
   readHotkeyOk = false;
+  autoTypeHotkeyOk = false;
 
-  const bind = (accel, kind) => {
-    const cb = () => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); };
+  const bind = (accel, kind, customCb) => {
+    const cb = customCb || (() => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); });
     if (useLowLevel) {
       const ok = lowLevelHotkeys.register(accel, cb);
       if (ok) return true;
@@ -220,12 +221,56 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register read hotkey', e); }
 
-  console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk})`);
+  // Auto-type hotkey: only registered when the "my game blocks paste" option is on.
+  try {
+    if (autoTypeEnabled && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
+      autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType);
+    }
+  } catch (e) { console.error('Failed to register auto-type hotkey', e); }
+
+  console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk });
+    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk, autoTypeAccel, autoTypeOk: autoTypeHotkeyOk, autoTypeEnabled });
   }
   rebuildTrayMenu();
+}
+
+// Fire from the global hotkey: if a translation is pending, type it into the focused window.
+async function fireAutoType() {
+  if (mainWindow) {
+    try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
+  }
+  const text = pendingAutoTypeText;
+  if (!text) {
+    notify({
+      title: 'TalKing — auto-écriture',
+      body: `Aucune traduction en attente. Enregistrez d'abord avec ${toggleAccel}.`,
+      silent: false,
+    });
+    return;
+  }
+  // Clear the buffer immediately so a second press doesn't re-type.
+  pendingAutoTypeText = '';
+  const meta = pendingAutoTypeMeta;
+  pendingAutoTypeMeta = null;
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('autotype:cleared'); } catch {}
+  }
+  try {
+    const res = await autotype.typeText(text);
+    if (!res.ok) {
+      notify({
+        title: 'TalKing — auto-écriture',
+        body: `Échec de l'écriture (${res.error || 'inconnu'}). La traduction a été copiée dans le presse-papiers à la place.`,
+        urgent: true,
+      });
+      try { clipboard.writeText(text); } catch {}
+    }
+  } catch (e) {
+    console.error('autotype failed', e);
+    try { clipboard.writeText(text); } catch {}
+  }
 }
 
 function rebuildTrayMenu() {
