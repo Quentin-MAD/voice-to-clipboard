@@ -194,6 +194,9 @@ function Home() {
   const [autoTypeEnabled, setAutoTypeEnabled] = useState<boolean>(false);
   const [autoTypeKey, setAutoTypeKey] = useState<string>("Backspace");
   const [autoTypePending, setAutoTypePending] = useState<boolean>(false);
+  const [micSetupOpen, setMicSetupOpen] = useState<boolean>(false);
+  const [micSetupVersion, setMicSetupVersion] = useState<string>("");
+  const [micSetupChoice, setMicSetupChoice] = useState<string>("");
   const isMobile = useIsMobile();
 
 
