@@ -27,6 +27,9 @@ jobs:
       - name: Package Electron app for Windows
         run: npm run electron:package:win
 
+      - name: Install NSIS
+        run: choco install nsis -y
+
       - name: Build NSIS installer
         run: npm run electron:installer
         shell: pwsh
