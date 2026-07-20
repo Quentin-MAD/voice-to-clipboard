@@ -370,8 +370,12 @@ function AdminPage() {
                       <td className={"p-2 tabular-nums font-semibold " + (profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400")}>
                         {EUR(profit)}
                       </td>
-                      <td className="p-2 font-medium">{u.purchased_balance}</td>
-                      <td className="p-2 font-medium">{u.voice_balance ?? 0}</td>
+                      <td className="p-2 font-medium">
+                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - crédits illimités (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
+                      </td>
+                      <td className="p-2 font-medium">
+                        {u.subscribed ? <span className="text-green-700 dark:text-green-400" title="Abonné - lectures vocales limitées à 10/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
+                      </td>
                       <td className="p-2">
                         <UserActions
                           userId={u.user_id}
