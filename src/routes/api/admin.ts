@@ -283,7 +283,10 @@ export const Route = createFileRoute("/api/admin")({
             views_30d: views30,
           },
           finance,
+          breakdown,
+          recent,
         });
+
       },
       POST: async ({ request }) => {
         const check = await getUserAndCheckAdmin(request);
