@@ -237,12 +237,28 @@ function AdminPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Admin - <span className="notranslate">TalKing</span></h1>
-          <button
-            onClick={load}
-            className="rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
-          >
-            Rafraîchir
-          </button>
+          <div className="flex items-center gap-3">
+            {lastUpdate && (
+              <span className="text-xs text-muted-foreground">
+                MAJ {lastUpdate.toLocaleTimeString("fr-FR")}
+              </span>
+            )}
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={autoRefresh}
+                onChange={(e) => setAutoRefresh(e.target.checked)}
+              />
+              Auto (15s)
+            </label>
+            <button
+              onClick={() => load()}
+              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm hover:bg-accent"
+            >
+              Rafraîchir
+            </button>
+          </div>
+
         </div>
 
         {/* Stats cards */}
