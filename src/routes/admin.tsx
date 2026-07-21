@@ -127,8 +127,8 @@ function AdminPage() {
 
 
 
-  async function load() {
-    setLoading(true);
+  async function load(silent = false) {
+    if (!silent) setLoading(true);
     setErr(null);
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData.user) {
@@ -152,6 +152,7 @@ function AdminPage() {
       return;
     }
     setData((await res.json()) as AdminData);
+    setLastUpdate(new Date());
     setLoading(false);
   }
 
@@ -161,6 +162,14 @@ function AdminPage() {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
     }
   }, [authLoading, user, navigate]);
+
+  useEffect(() => {
+    if (!autoRefresh || !user) return;
+    const id = setInterval(() => load(true), 15000);
+    return () => clearInterval(id);
+  }, [autoRefresh, user]);
+
+
 
 
 
