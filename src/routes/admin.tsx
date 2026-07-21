@@ -276,6 +276,14 @@ function AdminPage() {
         {/* Finance: coûts / revenus / bénéfice */}
         <FinancePanel finance={data.finance} />
 
+        {/* Détail coût IA par opération / modèle */}
+        <AiBreakdownPanel breakdown={data.breakdown} />
+
+        {/* Activité IA en temps réel (50 derniers événements) */}
+        <RecentAiFeed recent={data.recent} />
+
+
+
 
 
         {/* AI usage chart */}
