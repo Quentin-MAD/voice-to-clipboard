@@ -122,6 +122,9 @@ function AdminPage() {
   const [filter, setFilter] = useState<"all" | "free" | "subscribed" | "tester">("all");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+
 
 
   async function load() {
