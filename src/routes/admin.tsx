@@ -35,6 +35,26 @@ type AdminUser = {
 };
 
 type Windowed = { day: number; week: number; month: number; year: number; all: number };
+type Bucket = {
+  operation: string;
+  model: string;
+  calls: number;
+  cost_eur: number;
+  in_tokens: number;
+  out_tokens: number;
+  avg_cost_eur: number;
+};
+type RecentEvent = {
+  created_at: string;
+  operation: string;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  cost_eur: number;
+  user_id: string;
+  email: string;
+  is_tester: boolean;
+};
 type AdminData = {
   users: AdminUser[];
   daily: Array<{ date: string; views: number; translations: number; ai_credits: number }>;
@@ -67,7 +87,16 @@ type AdminData = {
       first_ai_date: string | null;
     };
   };
+  breakdown: {
+    day: Bucket[];
+    week: Bucket[];
+    month: Bucket[];
+    year: Bucket[];
+    all: Bucket[];
+  };
+  recent: RecentEvent[];
 };
+
 
 
 async function authedFetch(url: string, init?: RequestInit) {
