@@ -104,10 +104,10 @@ export const Route = createFileRoute("/api/admin")({
           ((users ?? []) as any[]).filter((u) => u.is_tester).map((u) => u.user_id as string),
         );
 
-        // === Fetch ai_usage_log user_ids sur la fenêtre 365j pour pouvoir séparer testeurs ===
+        // === Fetch ai_usage_log user_ids + détails sur la fenêtre 365j ===
         const { data: aiWithUser } = await supabaseAdmin
           .from("ai_usage_log")
-          .select("created_at,cost_credits,user_id")
+          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
           .gte("created_at", since)
           .limit(200000);
 
@@ -120,7 +120,7 @@ export const Route = createFileRoute("/api/admin")({
         // All-time - séparer coût testeurs
         const { data: aiAllWithUser } = await supabaseAdmin
           .from("ai_usage_log")
-          .select("cost_credits,user_id")
+          .select("cost_credits,user_id,model,operation,input_tokens,output_tokens")
           .limit(500000);
         const aiAllTotalCredits = (aiAllWithUser ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
         const costAllEur = aiAllTotalCredits * USD_TO_EUR;
@@ -132,6 +132,56 @@ export const Route = createFileRoute("/api/admin")({
           .filter((t: any) => t.environment === "live")
           .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
         const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
+
+        // === Breakdown par opération + modèle, par fenêtre ===
+        type Bucket = { operation: string; model: string; calls: number; cost_eur: number; in_tokens: number; out_tokens: number; avg_cost_eur: number };
+        const breakdownFor = (rows: any[]): Bucket[] => {
+          const map = new Map<string, Bucket>();
+          for (const r of rows) {
+            const op = r.operation ?? "unknown";
+            const mdl = r.model ?? "unknown";
+            const k = `${op}|${mdl}`;
+            const b = map.get(k) ?? { operation: op, model: mdl, calls: 0, cost_eur: 0, in_tokens: 0, out_tokens: 0, avg_cost_eur: 0 };
+            b.calls++;
+            b.cost_eur += Number(r.cost_credits ?? 0) * USD_TO_EUR;
+            b.in_tokens += Number(r.input_tokens ?? 0);
+            b.out_tokens += Number(r.output_tokens ?? 0);
+            map.set(k, b);
+          }
+          return [...map.values()]
+            .map((b) => ({ ...b, avg_cost_eur: b.calls > 0 ? b.cost_eur / b.calls : 0 }))
+            .sort((a, b) => b.cost_eur - a.cost_eur);
+        };
+        const rows365 = aiWithUser ?? [];
+        const breakdown = {
+          day: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 1))),
+          week: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 7))),
+          month: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 30))),
+          year: breakdownFor(rows365),
+          all: breakdownFor(aiAllWithUser ?? []),
+        };
+
+        // === Activité IA récente (50 derniers événements) - live feed ===
+        const { data: recentAi } = await supabaseAdmin
+          .from("ai_usage_log")
+          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
+          .order("created_at", { ascending: false })
+          .limit(50);
+        const emailById = new Map<string, string>(
+          ((users ?? []) as any[]).map((u) => [u.user_id, u.email ?? ""]),
+        );
+        const recent = (recentAi ?? []).map((r: any) => ({
+          created_at: r.created_at,
+          operation: r.operation,
+          model: r.model,
+          input_tokens: r.input_tokens ?? 0,
+          output_tokens: r.output_tokens ?? 0,
+          cost_eur: Number(r.cost_credits ?? 0) * USD_TO_EUR,
+          user_id: r.user_id,
+          email: emailById.get(r.user_id) ?? "—",
+          is_tester: testerIds.has(r.user_id),
+        }));
+
 
         // Coût total (tous membres inclus, testeurs compris) - pour affichage brut
         const cost = {
@@ -233,7 +283,10 @@ export const Route = createFileRoute("/api/admin")({
             views_30d: views30,
           },
           finance,
+          breakdown,
+          recent,
         });
+
       },
       POST: async ({ request }) => {
         const check = await getUserAndCheckAdmin(request);
