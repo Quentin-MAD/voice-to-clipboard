@@ -714,3 +714,182 @@ function UserActions({
     </div>
   );
 }
+
+function operationLabel(op: string) {
+  switch (op) {
+    case "transcription": return "Transcription (F8 - Whisper)";
+    case "translation": return "Traduction (F8 - Gemini)";
+    case "tts": return "Synthèse vocale (F9 - TTS)";
+    case "vision_read": return "Lecture écran (F9 - Vision)";
+    default: return op;
+  }
+}
+
+function AiBreakdownPanel({ breakdown }: { breakdown: AdminData["breakdown"] }) {
+  const [period, setPeriod] = useState<"day" | "week" | "month" | "year" | "all">("day");
+  const periods: Array<{ key: typeof period; label: string }> = [
+    { key: "day", label: "24h" },
+    { key: "week", label: "7j" },
+    { key: "month", label: "30j" },
+    { key: "year", label: "1 an" },
+    { key: "all", label: "All time" },
+  ];
+  const rows = breakdown[period] ?? [];
+  const totalCost = rows.reduce((s, b) => s + b.cost_eur, 0);
+  const totalCalls = rows.reduce((s, b) => s + b.calls, 0);
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h2 className="text-lg font-semibold">Détail coût IA - par opération / modèle</h2>
+        <div className="ml-auto flex gap-1">
+          {periods.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => setPeriod(p.key)}
+              className={
+                "rounded px-2 py-1 text-xs " +
+                (period === p.key ? "bg-primary text-primary-foreground" : "border hover:bg-accent")
+              }
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="mb-2 text-xs text-muted-foreground">
+        Total période : <span className="font-semibold text-red-500">{EUR(totalCost)}</span> · {totalCalls} appels
+      </div>
+      {rows.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted-foreground">Aucune activité IA sur cette période.</p>
+      ) : (
+        <div className="overflow-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b text-left">
+                <th className="p-2">Opération</th>
+                <th className="p-2">Modèle</th>
+                <th className="p-2 text-right">Appels</th>
+                <th className="p-2 text-right">Tokens in</th>
+                <th className="p-2 text-right">Tokens out</th>
+                <th className="p-2 text-right">Coût moy./appel</th>
+                <th className="p-2 text-right">Coût total</th>
+                <th className="p-2 text-right">% coût</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((b) => {
+                const pct = totalCost > 0 ? (b.cost_eur / totalCost) * 100 : 0;
+                return (
+                  <tr key={`${b.operation}|${b.model}`} className="border-b hover:bg-accent/40">
+                    <td className="p-2 font-medium">{operationLabel(b.operation)}</td>
+                    <td className="p-2 font-mono text-xs text-muted-foreground">{b.model}</td>
+                    <td className="p-2 text-right tabular-nums">{b.calls}</td>
+                    <td className="p-2 text-right tabular-nums">{b.in_tokens.toLocaleString("fr-FR")}</td>
+                    <td className="p-2 text-right tabular-nums">{b.out_tokens.toLocaleString("fr-FR")}</td>
+                    <td className="p-2 text-right tabular-nums">
+                      {b.avg_cost_eur.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 5 })}
+                    </td>
+                    <td className="p-2 text-right tabular-nums font-semibold text-red-500">{EUR(b.cost_eur)}</td>
+                    <td className="p-2 text-right tabular-nums">
+                      <div className="flex items-center justify-end gap-2">
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                          <div className="h-full bg-primary" style={{ width: `${Math.min(100, pct)}%` }} />
+                        </div>
+                        <span className="w-10 text-right">{pct.toFixed(1)}%</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RecentAiFeed({ recent }: { recent: AdminData["recent"] }) {
+  const [filterOp, setFilterOp] = useState<string>("all");
+  const ops = Array.from(new Set(recent.map((r) => r.operation)));
+  const filtered = recent.filter((r) => filterOp === "all" || r.operation === filterOp);
+  const fmtTime = (iso: string) => {
+    const d = new Date(iso);
+    const diffSec = Math.round((Date.now() - d.getTime()) / 1000);
+    if (diffSec < 60) return `il y a ${diffSec}s`;
+    if (diffSec < 3600) return `il y a ${Math.round(diffSec / 60)} min`;
+    if (diffSec < 86400) return `il y a ${Math.round(diffSec / 3600)} h`;
+    return d.toLocaleString("fr-FR");
+  };
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <h2 className="text-lg font-semibold">Activité IA en direct</h2>
+        <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
+          LIVE
+        </span>
+        <div className="ml-auto flex gap-1">
+          <button
+            onClick={() => setFilterOp("all")}
+            className={"rounded px-2 py-1 text-xs " + (filterOp === "all" ? "bg-primary text-primary-foreground" : "border hover:bg-accent")}
+          >
+            Tout
+          </button>
+          {ops.map((op) => (
+            <button
+              key={op}
+              onClick={() => setFilterOp(op)}
+              className={"rounded px-2 py-1 text-xs " + (filterOp === op ? "bg-primary text-primary-foreground" : "border hover:bg-accent")}
+            >
+              {op}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="max-h-96 overflow-auto">
+        {filtered.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">Aucun événement.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 bg-card">
+              <tr className="border-b text-left">
+                <th className="p-2">Quand</th>
+                <th className="p-2">Membre</th>
+                <th className="p-2">Opération</th>
+                <th className="p-2">Modèle</th>
+                <th className="p-2 text-right">Tokens</th>
+                <th className="p-2 text-right">Coût</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r, i) => (
+                <tr key={`${r.created_at}-${i}`} className="border-b hover:bg-accent/40">
+                  <td className="p-2 text-xs text-muted-foreground">{fmtTime(r.created_at)}</td>
+                  <td className="p-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate max-w-[220px]">{r.email || "—"}</span>
+                      {r.is_tester && (
+                        <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[9px] text-blue-700 dark:text-blue-300">
+                          T
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-2">{operationLabel(r.operation)}</td>
+                  <td className="p-2 font-mono text-xs text-muted-foreground">{r.model}</td>
+                  <td className="p-2 text-right tabular-nums text-xs">
+                    {r.input_tokens}<span className="text-muted-foreground"> → </span>{r.output_tokens}
+                  </td>
+                  <td className="p-2 text-right tabular-nums font-semibold text-red-500">
+                    {r.cost_eur.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 5 })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
