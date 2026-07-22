@@ -161,25 +161,29 @@ export const Route = createFileRoute("/api/admin")({
           all: breakdownFor(aiAllWithUser ?? []),
         };
 
-        // === Activité IA récente (50 derniers événements) - live feed ===
-        const { data: recentAi } = await supabaseAdmin
-          .from("ai_usage_log")
-          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
+        // === Activité utilisateurs récente (100 derniers événements) - live feed ===
+        // Basé sur translations_log qui a toujours user_id + operation_type fiables
+        const { data: recentTl } = await supabaseAdmin
+          .from("translations_log")
+          .select("created_at,user_id,source_type,operation_type")
           .order("created_at", { ascending: false })
-          .limit(50);
+          .limit(100);
         const emailById = new Map<string, string>(
           ((users ?? []) as any[]).map((u) => [u.user_id, u.email ?? ""]),
         );
-        const recent = (recentAi ?? []).map((r: any) => ({
+        // Coût moyen approximatif par opération (EUR) - pour info dans le feed
+        const avgCostByOp = new Map<string, number>();
+        for (const b of breakdown.all) {
+          if (b.avg_cost_eur > 0) avgCostByOp.set(b.operation, b.avg_cost_eur);
+        }
+        const recent = (recentTl ?? []).map((r: any) => ({
           created_at: r.created_at,
-          operation: r.operation,
-          model: r.model,
-          input_tokens: r.input_tokens ?? 0,
-          output_tokens: r.output_tokens ?? 0,
-          cost_eur: Number(r.cost_credits ?? 0) * USD_TO_EUR,
+          operation: r.operation_type ?? "translate",
+          source_type: r.source_type ?? "unknown",
           user_id: r.user_id,
           email: emailById.get(r.user_id) ?? "—",
           is_tester: testerIds.has(r.user_id),
+          approx_cost_eur: avgCostByOp.get(r.operation_type ?? "translate") ?? 0,
         }));
 
 

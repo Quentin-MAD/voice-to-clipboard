@@ -47,13 +47,11 @@ type Bucket = {
 type RecentEvent = {
   created_at: string;
   operation: string;
-  model: string;
-  input_tokens: number;
-  output_tokens: number;
-  cost_eur: number;
+  source_type: string;
   user_id: string;
   email: string;
   is_tester: boolean;
+  approx_cost_eur: number;
 };
 type AdminData = {
   users: AdminUser[];
@@ -719,6 +717,8 @@ function operationLabel(op: string) {
   switch (op) {
     case "transcription": return "Transcription (F8 - Whisper)";
     case "translation": return "Traduction (F8 - Gemini)";
+    case "translate": return "Traduction texte (F8)";
+    case "read_message": return "Lecture message (F9)";
     case "tts": return "Synthèse vocale (F9 - TTS)";
     case "vision_read": return "Lecture écran (F9 - Vision)";
     default: return op;
@@ -816,19 +816,33 @@ function RecentAiFeed({ recent }: { recent: AdminData["recent"] }) {
   const fmtTime = (iso: string) => {
     const d = new Date(iso);
     const diffSec = Math.round((Date.now() - d.getTime()) / 1000);
-    if (diffSec < 60) return `il y a ${diffSec}s`;
-    if (diffSec < 3600) return `il y a ${Math.round(diffSec / 60)} min`;
-    if (diffSec < 86400) return `il y a ${Math.round(diffSec / 3600)} h`;
-    return d.toLocaleString("fr-FR");
+    const rel =
+      diffSec < 60 ? `il y a ${diffSec}s`
+      : diffSec < 3600 ? `il y a ${Math.round(diffSec / 60)} min`
+      : diffSec < 86400 ? `il y a ${Math.round(diffSec / 3600)} h`
+      : d.toLocaleString("fr-FR");
+    const abs = d.toLocaleString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit", day: "2-digit", month: "2-digit" });
+    return { rel, abs };
+  };
+  const sourceLabel = (s: string) => {
+    switch (s) {
+      case "subscription": return { label: "Abonné", cls: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" };
+      case "tester": return { label: "Testeur", cls: "bg-blue-500/20 text-blue-700 dark:text-blue-300" };
+      case "free_monthly": return { label: "Gratuit", cls: "bg-slate-500/20 text-slate-700 dark:text-slate-300" };
+      case "purchased_credit": return { label: "Crédit texte", cls: "bg-amber-500/20 text-amber-700 dark:text-amber-300" };
+      case "voice_purchased": return { label: "Crédit vocal", cls: "bg-purple-500/20 text-purple-700 dark:text-purple-300" };
+      default: return { label: s, cls: "bg-muted text-muted-foreground" };
+    }
   };
   return (
     <div className="rounded-lg border bg-card p-4">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <h2 className="text-lg font-semibold">Activité IA en direct</h2>
+        <h2 className="text-lg font-semibold">Activité utilisateurs en direct</h2>
         <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
           LIVE
         </span>
-        <div className="ml-auto flex gap-1">
+        <span className="text-xs text-muted-foreground">({filtered.length} événements)</span>
+        <div className="ml-auto flex flex-wrap gap-1">
           <button
             onClick={() => setFilterOp("all")}
             className={"rounded px-2 py-1 text-xs " + (filterOp === "all" ? "bg-primary text-primary-foreground" : "border hover:bg-accent")}
@@ -841,12 +855,12 @@ function RecentAiFeed({ recent }: { recent: AdminData["recent"] }) {
               onClick={() => setFilterOp(op)}
               className={"rounded px-2 py-1 text-xs " + (filterOp === op ? "bg-primary text-primary-foreground" : "border hover:bg-accent")}
             >
-              {op}
+              {operationLabel(op)}
             </button>
           ))}
         </div>
       </div>
-      <div className="max-h-96 overflow-auto">
+      <div className="max-h-[32rem] overflow-auto">
         {filtered.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Aucun événement.</p>
         ) : (
@@ -855,36 +869,43 @@ function RecentAiFeed({ recent }: { recent: AdminData["recent"] }) {
               <tr className="border-b text-left">
                 <th className="p-2">Quand</th>
                 <th className="p-2">Membre</th>
-                <th className="p-2">Opération</th>
-                <th className="p-2">Modèle</th>
-                <th className="p-2 text-right">Tokens</th>
-                <th className="p-2 text-right">Coût</th>
+                <th className="p-2">Action</th>
+                <th className="p-2">Origine</th>
+                <th className="p-2 text-right">Coût est.</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((r, i) => (
-                <tr key={`${r.created_at}-${i}`} className="border-b hover:bg-accent/40">
-                  <td className="p-2 text-xs text-muted-foreground">{fmtTime(r.created_at)}</td>
-                  <td className="p-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="truncate max-w-[220px]">{r.email || "—"}</span>
-                      {r.is_tester && (
-                        <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[9px] text-blue-700 dark:text-blue-300">
-                          T
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2">{operationLabel(r.operation)}</td>
-                  <td className="p-2 font-mono text-xs text-muted-foreground">{r.model}</td>
-                  <td className="p-2 text-right tabular-nums text-xs">
-                    {r.input_tokens}<span className="text-muted-foreground"> → </span>{r.output_tokens}
-                  </td>
-                  <td className="p-2 text-right tabular-nums font-semibold text-red-500">
-                    {r.cost_eur.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 5 })}
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((r, i) => {
+                const t = fmtTime(r.created_at);
+                const src = sourceLabel(r.source_type);
+                return (
+                  <tr key={`${r.created_at}-${i}`} className="border-b hover:bg-accent/40">
+                    <td className="p-2 text-xs">
+                      <div>{t.rel}</div>
+                      <div className="text-[10px] text-muted-foreground">{t.abs}</div>
+                    </td>
+                    <td className="p-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate max-w-[240px]" title={r.email}>{r.email || "—"}</span>
+                        {r.is_tester && (
+                          <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[9px] text-blue-700 dark:text-blue-300">
+                            T
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-2">{operationLabel(r.operation)}</td>
+                    <td className="p-2">
+                      <span className={"rounded px-1.5 py-0.5 text-[10px] font-medium " + src.cls}>{src.label}</span>
+                    </td>
+                    <td className="p-2 text-right tabular-nums text-xs text-muted-foreground">
+                      {r.approx_cost_eur > 0
+                        ? r.approx_cost_eur.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 5 })
+                        : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
