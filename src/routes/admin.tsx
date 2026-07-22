@@ -717,6 +717,8 @@ function operationLabel(op: string) {
   switch (op) {
     case "transcription": return "Transcription (F8 - Whisper)";
     case "translation": return "Traduction (F8 - Gemini)";
+    case "translate": return "Traduction texte (F8)";
+    case "read_message": return "Lecture message (F9)";
     case "tts": return "Synthèse vocale (F9 - TTS)";
     case "vision_read": return "Lecture écran (F9 - Vision)";
     default: return op;
