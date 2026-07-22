@@ -47,13 +47,11 @@ type Bucket = {
 type RecentEvent = {
   created_at: string;
   operation: string;
-  model: string;
-  input_tokens: number;
-  output_tokens: number;
-  cost_eur: number;
+  source_type: string;
   user_id: string;
   email: string;
   is_tester: boolean;
+  approx_cost_eur: number;
 };
 type AdminData = {
   users: AdminUser[];
