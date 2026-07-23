@@ -96,7 +96,7 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "Acheter 50 crédits Texte"}
+              {buttonLabel("Acheter 50 crédits Texte")}
             </button>
           </div>
 
@@ -113,7 +113,7 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "Acheter 10 crédits Vocale"}
+              {buttonLabel("Acheter 10 crédits Vocale")}
             </button>
           </div>
 
@@ -136,13 +136,34 @@ function PricingPage() {
               disabled={loading || authLoading}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Chargement..." : "S'abonner - 29,99 €/an"}
+              {buttonLabel("S'abonner - 29,99 €/an")}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
               *dans la limite de 150 traductions/jour (anti-spam).
             </p>
           </div>
         </div>
+
+        {!authLoading && !user && (
+          <div className="mt-6 rounded-lg border border-primary/40 bg-primary/5 p-4 text-sm">
+            <p className="font-medium text-foreground">Connexion requise pour acheter</p>
+            <p className="mt-1 text-muted-foreground">
+              Pour que vos crédits ou votre abonnement soient correctement attribués à votre compte, vous devez être connecté avant de payer.
+              {" "}
+              <Link to="/auth" className="text-primary underline">Se connecter ou créer un compte</Link>.
+            </p>
+          </div>
+        )}
+
+        <p className="mt-8 text-xs text-muted-foreground">
+          En finalisant votre achat, vous acceptez nos{" "}
+          <Link to="/legal/terms" className="underline hover:text-foreground">Conditions Générales de Vente</Link>,
+          notre{" "}
+          <Link to="/legal/privacy" className="underline hover:text-foreground">Politique de confidentialité</Link>{" "}
+          et notre{" "}
+          <Link to="/legal/refunds" className="underline hover:text-foreground">Politique de remboursement</Link>.
+          Les paiements sont traités de manière sécurisée par <span className="notranslate">Paddle</span> (Merchant of Record), qui gère la TVA applicable dans votre pays.
+        </p>
       </div>
       <Footer />
     </div>
