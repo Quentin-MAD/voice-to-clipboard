@@ -31,20 +31,31 @@ function PricingPage() {
   const buy = async (priceId: string) => {
     if (authLoading) return;
     if (!user) {
-      toast.info("Connectez-vous pour finaliser l'achat.");
-      navigate({ to: "/auth" });
+      toast.info("Connectez-vous pour finaliser l'achat en toute sécurité.");
+      navigate({ to: "/auth", search: { redirect: `/pricing` } as any });
+      return;
+    }
+    if (!user.email) {
+      toast.error("Votre compte n'a pas d'adresse email vérifiée. Impossible de procéder au paiement.");
       return;
     }
     try {
       await openCheckout({
         priceId,
-        customerEmail: user.email ?? undefined,
+        customerEmail: user.email,
         customData: { userId: user.id },
         successUrl: `${window.location.origin}/pricing?checkout=success`,
       });
     } catch (e: any) {
       toast.error(e?.message ?? "Impossible d'ouvrir le paiement.");
     }
+  };
+
+  const buttonLabel = (defaultLabel: string) => {
+    if (authLoading) return "Chargement...";
+    if (!user) return "Se connecter pour acheter";
+    if (loading) return "Chargement...";
+    return defaultLabel;
   };
 
   return (
