@@ -353,7 +353,7 @@ function MobileApp() {
 
       {/* Credits card */}
       <div className="px-5 pb-2">
-        <CreditsCard variant="dark" />
+        <CreditsCard variant="dark" manageHref="/mobile/account" showMobile />
       </div>
 
       {/* Usage */}
