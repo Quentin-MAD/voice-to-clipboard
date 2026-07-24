@@ -27,6 +27,52 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
+function MobileDownloadCard() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [canInstall, setCanInstall] = useState(false);
+  const promptRef = { current: null as unknown as { prompt?: () => Promise<void> } | null };
+  useEffect(() => {
+    const ua = navigator.userAgent || "";
+    const touch = matchMedia("(pointer: coarse)").matches;
+    setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (touch && window.innerWidth < 900));
+    const handler = (e: Event) => {
+      e.preventDefault();
+      promptRef.current = e as unknown as { prompt?: () => Promise<void> };
+      setCanInstall(true);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-8 text-center">
+      <Smartphone className="mx-auto h-10 w-10 text-primary" />
+      <h2 className="mt-4 text-xl font-bold">App Mobile</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Dialoguez avec des étrangers : parlez, l'IA traduit et lit à voix haute dans 19 langues. 50 traductions gratuites par jour.
+      </p>
+      {isMobile ? (
+        <Link
+          to="/mobile"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          <Smartphone className="h-5 w-5" />
+          {canInstall ? "Installer sur mon téléphone" : "Ouvrir sur mobile"}
+        </Link>
+      ) : (
+        <div className="mt-6 space-y-3">
+          <div className="rounded-xl border border-dashed border-border bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
+            Réservé aux téléphones. Ouvrez ce lien depuis votre mobile :
+          </div>
+          <div className="rounded-lg bg-muted px-3 py-2 font-mono text-sm">
+            talking-translator.com/mobile
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LandingPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
