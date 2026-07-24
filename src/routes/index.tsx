@@ -170,10 +170,7 @@ function LandingPage() {
               Tarifs
             </Link>
             {loading ? null : user ? (
-              <>
-                <CreditsBadge />
-                <UserMenu />
-              </>
+              <UserMenu />
             ) : (
               <Link
                 to="/auth"
