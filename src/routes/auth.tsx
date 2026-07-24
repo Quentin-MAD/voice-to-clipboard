@@ -90,7 +90,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth${search.redirect === "/admin" ? "?redirect=/admin" : ""}`,
+        redirect_uri: `${window.location.origin}/auth${search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""}`,
       });
       if (result.error) throw new Error(String(result.error));
       if (!result.redirected) navigate({ to: getPostAuthPath(), replace: true });
