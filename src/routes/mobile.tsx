@@ -118,7 +118,7 @@ function MobileApp() {
   }, [targetLang]);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", search: { next: "/mobile" } as never, replace: true });
+    if (!loading && !user) navigate({ to: "/auth", replace: true });
   }, [loading, user, navigate]);
 
   useEffect(() => {

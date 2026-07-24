@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -21,6 +22,7 @@ import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
+import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -28,6 +30,11 @@ import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/publi
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MobileRoute = MobileRouteImport.update({
+  id: '/mobile',
+  path: '/mobile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -85,6 +92,11 @@ const ApiReadMessageRoute = ApiReadMessageRouteImport.update({
   path: '/api/read-message',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMobileDialogRoute = ApiMobileDialogRouteImport.update({
+  id: '/api/mobile-dialog',
+  path: '/api/mobile-dialog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminRoute = ApiAdminRouteImport.update({
   id: '/api/admin',
   path: '/api/admin',
@@ -107,8 +119,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
+  '/mobile': typeof MobileRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
@@ -124,8 +138,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
+  '/mobile': typeof MobileRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
@@ -142,8 +158,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
+  '/mobile': typeof MobileRoute
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
@@ -161,8 +179,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/auth'
+    | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
@@ -178,8 +198,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/auth'
+    | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
@@ -195,8 +217,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/auth'
+    | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/translate-audio'
     | '/api/user-status'
@@ -213,8 +237,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRoute
+  MobileRoute: typeof MobileRoute
   PricingRoute: typeof PricingRoute
   ApiAdminRoute: typeof ApiAdminRoute
+  ApiMobileDialogRoute: typeof ApiMobileDialogRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
@@ -233,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mobile': {
+      id: '/mobile'
+      path: '/mobile'
+      fullPath: '/mobile'
+      preLoaderRoute: typeof MobileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -312,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiReadMessageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mobile-dialog': {
+      id: '/api/mobile-dialog'
+      path: '/api/mobile-dialog'
+      fullPath: '/api/mobile-dialog'
+      preLoaderRoute: typeof ApiMobileDialogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin': {
       id: '/api/admin'
       path: '/api/admin'
@@ -341,8 +381,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AppRoute: AppRoute,
   AuthRoute: AuthRoute,
+  MobileRoute: MobileRoute,
   PricingRoute: PricingRoute,
   ApiAdminRoute: ApiAdminRoute,
+  ApiMobileDialogRoute: ApiMobileDialogRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
