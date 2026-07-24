@@ -117,7 +117,7 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
 }
 
 /** Framed detail card — used on mobile and inside the profile modal. */
-export function CreditsCard({ variant = "light" }: { variant?: "light" | "dark" }) {
+export function CreditsCard({ variant = "light", manageHref = "/pricing", showMobile = false }: { variant?: "light" | "dark"; manageHref?: string; showMobile?: boolean }) {
   const status = useUserStatus();
   if (!status) return null;
 
@@ -138,14 +138,35 @@ export function CreditsCard({ variant = "light" }: { variant?: "light" | "dark" 
           <span className="text-sm font-semibold">{label}</span>
         </div>
         <Link
-          to="/pricing"
+          to={manageHref}
           className={`text-[11px] underline-offset-2 hover:underline ${muted}`}
         >
           Gérer / recharger
         </Link>
       </div>
 
-      {unlimited ? (
+      {showMobile ? (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <Gift className="h-3 w-3" /> Gratuits <span>(aujourd'hui)</span>
+            </div>
+            <div className="mt-0.5 text-lg font-bold">
+              {Math.max(0, (status.mobile_daily_limit ?? 50) - (status.mobile_daily_used ?? 0))}
+              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 50}</span>
+            </div>
+          </div>
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <Smartphone className="h-3 w-3" /> Mobile achetés
+            </div>
+            <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
+          </div>
+          <p className={`col-span-2 text-[11px] leading-relaxed ${muted}`}>
+            Les <strong>50 traductions gratuites/jour</strong> sont consommées <strong>avant</strong> les crédits mobiles achetés.
+          </p>
+        </div>
+      ) : unlimited ? (
         <div className={`mt-3 rounded-xl px-3 py-3 ${rowBg} text-center`}>
           <div className={`text-[11px] uppercase tracking-wider ${muted}`}>Crédits</div>
           <div className="mt-0.5 text-2xl font-bold">∞ illimités</div>
@@ -173,7 +194,7 @@ export function CreditsCard({ variant = "light" }: { variant?: "light" | "dark" 
         </div>
       )}
 
-      {!unlimited && (
+      {!unlimited && !showMobile && (
         <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
           Les <strong>crédits gratuits</strong> sont toujours consommés <strong>avant</strong> les crédits achetés.
         </p>
