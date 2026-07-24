@@ -29,20 +29,40 @@ export const Route = createFileRoute("/")({
 
 function MobileDownloadCard() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
   const [canInstall, setCanInstall] = useState(false);
-  const promptRef = { current: null as unknown as { prompt?: () => Promise<void> } | null };
+  const [installed, setInstalled] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const promptRef = { current: null as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> } | null };
+
   useEffect(() => {
     const ua = navigator.userAgent || "";
     const touch = matchMedia("(pointer: coarse)").matches;
     setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (touch && window.innerWidth < 900));
+    setIsIOS(/iPhone|iPad|iPod/i.test(ua) || (ua.includes("Mac") && "ontouchend" in document));
+    const standalone = matchMedia("(display-mode: standalone)").matches
+      || (navigator as unknown as { standalone?: boolean }).standalone === true;
+    setInstalled(standalone);
     const handler = (e: Event) => {
       e.preventDefault();
-      promptRef.current = e as unknown as { prompt?: () => Promise<void> };
+      promptRef.current = e as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> };
       setCanInstall(true);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
+
+  const onInstallClick = async () => {
+    if (installed) {
+      window.location.href = "/mobile";
+      return;
+    }
+    if (canInstall && promptRef.current?.prompt) {
+      await promptRef.current.prompt();
+      return;
+    }
+    setShowHelp(true);
+  };
 
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center">
@@ -52,20 +72,72 @@ function MobileDownloadCard() {
         Dialoguez avec des étrangers : parlez, l'IA traduit et lit à voix haute dans 19 langues. 50 traductions gratuites par jour.
       </p>
       {isMobile ? (
-        <Link
-          to="/mobile"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <Smartphone className="h-5 w-5" />
-          {canInstall ? "Installer sur mon téléphone" : "Ouvrir sur mobile"}
-        </Link>
+        <div className="mt-6 space-y-3">
+          <button
+            onClick={onInstallClick}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Smartphone className="h-5 w-5" />
+            {installed ? "Ouvrir TalKing" : "Installer TalKing sur mon téléphone"}
+          </button>
+          {!installed && (
+            <p className="text-xs text-muted-foreground">
+              Une fois installée, l'icône <b>Tk</b> apparaît sur votre écran d'accueil et se lance en plein écran comme une vraie app - sans passer par le navigateur.
+            </p>
+          )}
+          <Link
+            to="/mobile"
+            className="inline-flex items-center justify-center text-xs text-muted-foreground underline underline-offset-4"
+          >
+            ou ouvrir dans le navigateur
+          </Link>
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           <div className="rounded-xl border border-dashed border-border bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
             Réservé aux téléphones. Ouvrez ce lien depuis votre mobile :
           </div>
           <div className="rounded-lg bg-muted px-3 py-2 font-mono text-sm">
-            talking-translator.com/mobile
+            talking-translator.com
+          </div>
+        </div>
+      )}
+
+      {showHelp && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/70 sm:items-center sm:justify-center" onClick={() => setShowHelp(false)}>
+          <div
+            className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-card p-6 text-left sm:max-w-md sm:rounded-3xl"
+            onClick={(e) => e.stopPropagation()}
+            style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
+          >
+            <div className="text-lg font-bold">Installer TalKing sur votre téléphone</div>
+            {isIOS ? (
+              <div className="mt-4 space-y-3 text-sm">
+                <p className="text-muted-foreground">Sur iPhone/iPad, l'installation se fait en 3 gestes depuis <b>Safari</b> (obligatoire, Apple bloque les autres navigateurs) :</p>
+                <ol className="list-decimal space-y-2 pl-5">
+                  <li>Touchez l'icône <b>Partager</b> en bas de l'écran (carré avec flèche vers le haut).</li>
+                  <li>Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.</li>
+                  <li>Touchez <b>Ajouter</b> en haut à droite. L'icône <b>Tk</b> apparaît sur votre écran d'accueil.</li>
+                </ol>
+                <p className="text-xs text-muted-foreground">Ensuite, ouvrez TalKing depuis cette icône : ça se lance en plein écran, sans barre Safari, comme une vraie app.</p>
+              </div>
+            ) : (
+              <div className="mt-4 space-y-3 text-sm">
+                <p className="text-muted-foreground">Sur Android, avec <b>Chrome</b> ou <b>Edge</b> :</p>
+                <ol className="list-decimal space-y-2 pl-5">
+                  <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
+                  <li>Choisissez <b>« Installer l'application »</b> (ou <b>« Ajouter à l'écran d'accueil »</b>).</li>
+                  <li>Confirmez avec <b>Installer</b>. L'icône <b>Tk</b> apparaît dans votre liste d'applications.</li>
+                </ol>
+                <p className="text-xs text-muted-foreground">Sur Samsung Internet, l'option est dans le menu <b>≡</b> en bas. Sur Firefox Android, menu <b>⋮</b> → « Installer ».</p>
+              </div>
+            )}
+            <button
+              onClick={() => setShowHelp(false)}
+              className="mt-6 w-full rounded-xl border border-border py-3 text-sm hover:bg-muted"
+            >
+              J'ai compris
+            </button>
           </div>
         </div>
       )}

@@ -148,6 +148,19 @@ function MobileApp() {
       if (!standalone) setInstallVisible(true);
     };
     window.addEventListener("beforeinstallprompt", handler);
+
+    // Ouvre automatiquement le guide d'installation à la première visite
+    // si l'app n'est pas déjà installée (crucial iOS : pas d'invite native).
+    try {
+      const standalone = matchMedia("(display-mode: standalone)").matches
+        || (navigator as unknown as { standalone?: boolean }).standalone === true;
+      const seen = localStorage.getItem("tk_install_help_seen");
+      if (!standalone && !seen) {
+        setShowInstallHelp(true);
+        localStorage.setItem("tk_install_help_seen", "1");
+      }
+    } catch {}
+
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
