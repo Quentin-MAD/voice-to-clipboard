@@ -106,9 +106,9 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
     const externalId = item.price?.importMeta?.externalId;
     const qty = item.quantity ?? 1;
     if (externalId === "credits_pack_50_onetime") {
-      creditsToAdd += 50 * qty;
+      creditsToAdd += 75 * qty;
     } else if (externalId === "voice_pack_10_onetime") {
-      voiceCreditsToAdd += 10 * qty;
+      voiceCreditsToAdd += 45 * qty;
     } else if (externalId === "mobile_credits_pack_75_onetime") {
       mobileCreditsToAdd += 75 * qty;
     }

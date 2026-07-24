@@ -175,9 +175,9 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <Gift className="h-3 w-3" /> Gratuits <span>(ce mois)</span>
+              <Gift className="h-3 w-3" /> Gratuits <span>(aujourd'hui)</span>
             </div>
-            <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 20</span></div>
+            <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 30</span></div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
@@ -196,7 +196,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
 
       {!unlimited && !showMobile && (
         <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
-          Les <strong>crédits gratuits</strong> sont toujours consommés <strong>avant</strong> les crédits achetés.
+          Les <strong>crédits gratuits journaliers</strong> sont toujours consommés <strong>avant</strong> les crédits achetés.
         </p>
       )}
     </div>
