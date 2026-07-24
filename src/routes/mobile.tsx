@@ -137,8 +137,37 @@ function MobileApp() {
   useEffect(() => { localStorage.setItem("tk_mobile_theirlang", theirLang); }, [theirLang]);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", replace: true });
+    if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/mobile" }, replace: true });
   }, [loading, user, navigate]);
+
+  // Auto-update: check for a new build every time the app comes to foreground
+  useEffect(() => {
+    let lastVersion: string | null = localStorage.getItem("tk_mobile_version");
+    const check = async () => {
+      try {
+        const res = await fetch(`/version.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const { version } = await res.json();
+        if (!version) return;
+        if (lastVersion && lastVersion !== version) {
+          localStorage.setItem("tk_mobile_version", version);
+          // Hard reload bypassing cache
+          window.location.reload();
+          return;
+        }
+        if (!lastVersion) {
+          lastVersion = version;
+          localStorage.setItem("tk_mobile_version", version);
+        }
+      } catch {}
+    };
+    check();
+    const onVis = () => { if (document.visibilityState === "visible") check(); };
+    document.addEventListener("visibilitychange", onVis);
+    const iv = setInterval(check, 5 * 60 * 1000);
+    return () => { document.removeEventListener("visibilitychange", onVis); clearInterval(iv); };
+  }, []);
+
 
   useEffect(() => {
     const handler = (e: Event) => {
