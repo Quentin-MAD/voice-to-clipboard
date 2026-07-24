@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Crown, Coins, Volume2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Crown, Coins, Volume2, Gift, ShoppingBag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
-type Status = {
+export type UserStatus = {
   subscribed: boolean;
   is_tester: boolean;
   free_remaining: number;
@@ -11,22 +12,60 @@ type Status = {
   voice_balance: number;
 };
 
-export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark" }) {
+export function useUserStatus() {
   const { user } = useAuth();
-  const [status, setStatus] = useState<Status | null>(null);
+  const [status, setStatus] = useState<UserStatus | null>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) { setStatus(null); return; }
     let cancelled = false;
     const load = async () => {
       const { data, error } = await supabase.rpc("get_user_status", { _user_id: user.id });
-      if (!cancelled && !error && data && data[0]) setStatus(data[0] as Status);
+      if (!cancelled && !error && data && data[0]) setStatus(data[0] as UserStatus);
     };
     load();
     const iv = setInterval(load, 30000);
     return () => { cancelled = true; clearInterval(iv); };
   }, [user]);
 
+  return status;
+}
+
+export function planLabelOf(s: UserStatus): "Abonné" | "Testeur" | "Gratuit+" | "Gratuit" {
+  if (s.subscribed) return "Abonné";
+  if (s.is_tester) return "Testeur";
+  if (s.purchased_balance > 0) return "Gratuit+";
+  return "Gratuit";
+}
+
+/** Small pill: "Gratuit · 12" — use next to the email. */
+export function StatusPill({ variant = "light" }: { variant?: "light" | "dark" }) {
+  const status = useUserStatus();
+  if (!status) return null;
+  const isDark = variant === "dark";
+  const base = isDark
+    ? "border-white/10 bg-white/5 text-white"
+    : "border-border bg-card text-foreground";
+  const muted = isDark ? "text-white/60" : "text-muted-foreground";
+  const label = planLabelOf(status);
+  const unlimited = status.subscribed || status.is_tester;
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${base}`}
+      title={unlimited ? `${label} · crédits illimités` : `${label} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés`}
+    >
+      {unlimited && <Crown className="h-3 w-3 text-amber-400" />}
+      <span>{label}</span>
+      <span className={muted}>·</span>
+      <span>{unlimited ? "∞" : status.free_remaining + status.purchased_balance}</span>
+    </span>
+  );
+}
+
+/** Compact header badge (existing usage). */
+export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark" }) {
+  const status = useUserStatus();
+  const { user } = useAuth();
   if (!user || !status) return null;
 
   const isDark = variant === "dark";
@@ -38,23 +77,25 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
   if (status.subscribed || status.is_tester) {
     const label = status.is_tester && !status.subscribed ? "Testeur" : "Abonné";
     return (
-      <div
-        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${base}`}
+      <Link
+        to="/pricing"
+        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium hover:opacity-90 ${base}`}
         title={`${label} · crédits illimités`}
       >
         <Crown className="h-3.5 w-3.5 text-amber-400" />
         <span>{label}</span>
         <span className={muted}>·</span>
         <span>∞</span>
-      </div>
+      </Link>
     );
   }
 
   const total = status.free_remaining + status.purchased_balance;
   const planLabel = status.purchased_balance > 0 ? "Gratuit+" : "Gratuit";
   return (
-    <div
-      className={`flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs ${base}`}
+    <Link
+      to="/pricing"
+      className={`flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs hover:opacity-90 ${base}`}
       title={`${planLabel} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés · ${status.voice_balance} crédits vocaux`}
     >
       <span className="font-semibold">{planLabel}</span>
@@ -68,6 +109,72 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
         <Volume2 className="h-3.5 w-3.5" />
         <span className="font-medium">{status.voice_balance}</span>
       </span>
+    </Link>
+  );
+}
+
+/** Framed detail card — used on mobile and inside the profile modal. */
+export function CreditsCard({ variant = "light" }: { variant?: "light" | "dark" }) {
+  const status = useUserStatus();
+  if (!status) return null;
+
+  const isDark = variant === "dark";
+  const wrap = isDark
+    ? "border-white/10 bg-white/5 text-white"
+    : "border-border bg-card text-foreground";
+  const rowBg = isDark ? "bg-white/5" : "bg-muted/40";
+  const muted = isDark ? "text-white/60" : "text-muted-foreground";
+  const label = planLabelOf(status);
+  const unlimited = status.subscribed || status.is_tester;
+
+  return (
+    <div className={`w-full rounded-2xl border p-4 ${wrap}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {unlimited && <Crown className="h-4 w-4 text-amber-400" />}
+          <span className="text-sm font-semibold">{label}</span>
+        </div>
+        <Link
+          to="/pricing"
+          className={`text-[11px] underline-offset-2 hover:underline ${muted}`}
+        >
+          Gérer / recharger
+        </Link>
+      </div>
+
+      {unlimited ? (
+        <div className={`mt-3 rounded-xl px-3 py-3 ${rowBg} text-center`}>
+          <div className={`text-[11px] uppercase tracking-wider ${muted}`}>Crédits</div>
+          <div className="mt-0.5 text-2xl font-bold">∞ illimités</div>
+        </div>
+      ) : (
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <Gift className="h-3 w-3" /> Gratuits <span>(ce mois)</span>
+            </div>
+            <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 20</span></div>
+          </div>
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <ShoppingBag className="h-3 w-3" /> Achetés
+            </div>
+            <div className="mt-0.5 text-lg font-bold">{status.purchased_balance}</div>
+          </div>
+          <div className={`col-span-2 rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <Volume2 className="h-3 w-3" /> Crédits vocaux (lecture IA)
+            </div>
+            <div className="mt-0.5 text-lg font-bold">{status.voice_balance}</div>
+          </div>
+        </div>
+      )}
+
+      {!unlimited && (
+        <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
+          Les <strong>crédits gratuits</strong> sont toujours consommés <strong>avant</strong> les crédits achetés.
+        </p>
+      )}
     </div>
   );
 }
