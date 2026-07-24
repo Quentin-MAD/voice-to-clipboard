@@ -78,7 +78,7 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
   const muted = isDark ? "text-white/60" : "text-muted-foreground";
 
   if (status.subscribed || status.is_tester) {
-    const label = status.is_tester && !status.subscribed ? "Testeur" : "Abonné";
+    const label = status.is_tester ? "Testeur" : "Abonné";
     return (
       <Link
         to="/pricing"
