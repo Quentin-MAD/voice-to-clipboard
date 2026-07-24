@@ -4,6 +4,7 @@ import { LogOut, Mail, User as UserIcon, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 
 const SUPPORT_EMAIL = "rossetquentin26@gmail.com";
 
@@ -47,6 +48,7 @@ export function UserMenu() {
           <span className="hidden sm:inline max-w-[160px] truncate text-muted-foreground">
             {user.email}
           </span>
+          <span className="hidden sm:inline"><StatusPill /></span>
         </button>
         {open && (
           <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
@@ -144,6 +146,9 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
         <p className="mt-1 text-xs text-muted-foreground">
           Modifiez votre email ou votre mot de passe.
         </p>
+        <div className="mt-4">
+          <CreditsCard />
+        </div>
         <form onSubmit={save} className="mt-4 space-y-3">
           <div>
             <label className="text-xs text-muted-foreground">Email</label>
