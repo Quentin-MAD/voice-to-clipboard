@@ -1,0 +1,140 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { ArrowLeft, Crown, ShoppingBag, Settings2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { CreditsCard } from "@/components/CreditsBadge";
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/mobile/account")({
+  head: () => ({
+    meta: [
+      { title: "Mon compte - TalKing Mobile" },
+      { name: "description", content: "Gérez votre compte, rechargez vos crédits mobiles et votre abonnement TalKing depuis votre téléphone." },
+    ],
+  }),
+  component: MobileAccountPage,
+});
+
+function MobileAccountPage() {
+  const { user, loading: authLoading } = useAuth();
+  const { openCheckout, loading } = usePaddleCheckout();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      toast.success("Merci ! Votre paiement a été enregistré. Vos crédits arrivent dans quelques secondes.");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate({ to: "/auth", search: { redirect: "/mobile/account" } as any });
+    }
+  }, [authLoading, user, navigate]);
+
+  const buy = async (priceId: string) => {
+    if (!user?.email) {
+      toast.error("Adresse email introuvable.");
+      return;
+    }
+    try {
+      await openCheckout({
+        priceId,
+        customerEmail: user.email,
+        customData: { userId: user.id },
+        successUrl: `${window.location.origin}/mobile/account?checkout=success`,
+      });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Impossible d'ouvrir le paiement.");
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/mobile" });
+  };
+
+  const btn = (label: string) => (loading ? "Chargement..." : label);
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-white">
+      <PaymentTestModeBanner />
+      <div className="mx-auto max-w-md px-5 py-6">
+        <button
+          onClick={() => navigate({ to: "/mobile" })}
+          className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" /> Retour à l'app
+        </button>
+
+        <h1 className="mt-4 text-2xl font-bold">Mon compte</h1>
+        <p className="mt-1 text-sm text-white/60">{user?.email}</p>
+
+        <div className="mt-5">
+          <CreditsCard variant="dark" manageHref="/mobile/account" showMobile />
+        </div>
+
+        <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-white/60">Recharger</h2>
+
+        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="h-4 w-4 text-emerald-400" />
+            <span className="font-semibold">Pack crédits Mobile</span>
+          </div>
+          <div className="mt-2 text-2xl font-bold">2,99 €</div>
+          <ul className="mt-1 space-y-0.5 text-sm text-white/70">
+            <li>✓ 75 traductions app mobile</li>
+            <li>✓ Utilisées après vos 50 gratuites/jour</li>
+            <li>✓ Cumulables, sans expiration</li>
+          </ul>
+          <button
+            onClick={() => buy("mobile_credits_pack_75_onetime")}
+            disabled={loading || authLoading}
+            className="mt-3 w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
+          >
+            {btn("Acheter 75 crédits Mobile")}
+          </button>
+        </div>
+
+        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="flex items-center gap-2">
+            <Crown className="h-4 w-4 text-amber-400" />
+            <span className="font-semibold">Abonnement illimité</span>
+          </div>
+          <div className="mt-2 text-2xl font-bold">29,99 € <span className="text-sm font-normal text-white/60">/ an</span></div>
+          <ul className="mt-1 space-y-0.5 text-sm text-white/70">
+            <li>✓ Traductions illimitées (mobile, web et app Windows)</li>
+            <li>✓ Lecture IA F9 : 10/jour</li>
+            <li>✓ Prioritaire sur les nouveautés</li>
+          </ul>
+          <button
+            onClick={() => buy("vox_subscription_yearly")}
+            disabled={loading || authLoading}
+            className="mt-3 w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
+          >
+            {btn("S'abonner")}
+          </button>
+        </div>
+
+        <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-white/60">Compte</h2>
+        <div className="mt-3 space-y-2">
+          <button
+            onClick={signOut}
+            className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm hover:bg-white/10"
+          >
+            <span className="flex items-center gap-2"><Settings2 className="h-4 w-4" /> Se déconnecter</span>
+            <span className="text-white/40">→</span>
+          </button>
+        </div>
+
+        <p className="mt-6 text-center text-[11px] leading-relaxed text-white/40">
+          Paiements sécurisés Paddle. TVA incluse. Consultez les <a href="/legal/terms" className="underline">CGV</a>, la <a href="/legal/privacy" className="underline">politique de confidentialité</a> et notre <a href="/legal/refund" className="underline">politique de remboursement</a>.
+        </p>
+      </div>
+    </div>
+  );
+}

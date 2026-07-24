@@ -61,14 +61,14 @@ function PricingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PaymentTestModeBanner />
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 py-12">
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           1 crédit Texte = 1 traduction vocale (F8) : vous parlez, TalKing écrit la traduction dans votre presse-papiers. 1 crédit Vocale = 1 lecture à voix haute (F9) : vous donnez un pseudo, TalKing lit le message du joueur dans votre langue. Limite anti-spam : 150 traductions/jour. Lectures F9 : 5/jour en gratuit, 10/jour avec abonnement.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-lg font-semibold">Gratuit</h2>
             <div className="my-3 text-3xl font-bold">0 €</div>
@@ -116,6 +116,24 @@ function PricingPage() {
               {buttonLabel("Acheter 10 crédits Vocale")}
             </button>
           </div>
+
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h2 className="text-lg font-semibold">Pack crédits Mobile</h2>
+            <div className="my-3 text-3xl font-bold">2,99 €</div>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>✓ 75 traductions app mobile</li>
+              <li>✓ Utilisées après vos 50 gratuites/jour</li>
+              <li>✓ Cumulables, sans expiration</li>
+            </ul>
+            <button
+              onClick={() => buy("mobile_credits_pack_75_onetime")}
+              disabled={loading || authLoading}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {buttonLabel("Acheter 75 crédits Mobile")}
+            </button>
+          </div>
+
 
 
           <div className="rounded-xl border-2 border-primary bg-card p-5">

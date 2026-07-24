@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MobileAccountRouteImport } from './routes/mobile.account'
 import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as LegalRefundsRouteImport } from './routes/legal.refunds'
 import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
@@ -56,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MobileAccountRoute = MobileAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => MobileRoute,
 } as any)
 const LegalTermsRoute = LegalTermsRouteImport.update({
   id: '/legal/terms',
@@ -119,7 +125,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
-  '/mobile': typeof MobileRoute
+  '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -138,7 +145,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
-  '/mobile': typeof MobileRoute
+  '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -158,7 +166,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/app': typeof AppRoute
   '/auth': typeof AuthRoute
-  '/mobile': typeof MobileRoute
+  '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
+  '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -209,6 +219,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
   id:
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/refunds'
     | '/legal/terms'
+    | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -237,7 +249,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AppRoute: typeof AppRoute
   AuthRoute: typeof AuthRoute
-  MobileRoute: typeof MobileRoute
+  MobileRoute: typeof MobileRouteWithChildren
   PricingRoute: typeof PricingRoute
   ApiAdminRoute: typeof ApiAdminRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
@@ -295,6 +307,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/mobile/account': {
+      id: '/mobile/account'
+      path: '/account'
+      fullPath: '/mobile/account'
+      preLoaderRoute: typeof MobileAccountRouteImport
+      parentRoute: typeof MobileRoute
     }
     '/legal/terms': {
       id: '/legal/terms'
@@ -376,12 +395,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MobileRouteChildren {
+  MobileAccountRoute: typeof MobileAccountRoute
+}
+
+const MobileRouteChildren: MobileRouteChildren = {
+  MobileAccountRoute: MobileAccountRoute,
+}
+
+const MobileRouteWithChildren =
+  MobileRoute._addFileChildren(MobileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AppRoute: AppRoute,
   AuthRoute: AuthRoute,
-  MobileRoute: MobileRoute,
+  MobileRoute: MobileRouteWithChildren,
   PricingRoute: PricingRoute,
   ApiAdminRoute: ApiAdminRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,

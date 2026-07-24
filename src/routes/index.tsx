@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
-import { CreditsBadge } from "@/components/CreditsBadge";
+
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -170,10 +170,7 @@ function LandingPage() {
               Tarifs
             </Link>
             {loading ? null : user ? (
-              <>
-                <CreditsBadge />
-                <UserMenu />
-              </>
+              <UserMenu />
             ) : (
               <Link
                 to="/auth"
