@@ -143,6 +143,8 @@ export const Route = createFileRoute("/api/mobile-dialog")({
           const form = await request.formData();
           const audio = form.get("audio");
           const targetLang = String(form.get("targetLang") ?? "en");
+          const sourceLangRaw = form.get("sourceLang");
+          const sourceLang = sourceLangRaw ? String(sourceLangRaw) : null;
 
           if (!(audio instanceof Blob) || audio.size < 1024) {
             return Response.json({ error: "Audio trop court.", code: "bad_input" }, { status: 400 });
@@ -153,15 +155,18 @@ export const Route = createFileRoute("/api/mobile-dialog")({
           if (!LANG_NAMES[targetLang]) {
             return Response.json({ error: "Langue non supportée.", code: "bad_lang" }, { status: 400 });
           }
+          if (sourceLang && !LANG_NAMES[sourceLang]) {
+            return Response.json({ error: "Langue source non supportée.", code: "bad_lang" }, { status: 400 });
+          }
 
           const filename = (audio as File).name || "recording.wav";
-          const transcript = await transcribe(audio, filename);
+          const transcript = await transcribe(audio, filename, sourceLang);
           if (!transcript) {
             return Response.json({ error: "Aucune parole détectée.", code: "no_speech" }, { status: 422 });
           }
 
-          const translation = await translate(transcript, targetLang);
-          const audioB64 = await synthesize(translation.text);
+          const translation = await translate(transcript, sourceLang, targetLang);
+          const audioB64 = await synthesize(translation.text, targetLang);
 
           const audioSec = Math.max(1, Math.round(audio.size / 32000));
           const transcribeCost = 0.00018 * (audioSec / 5);
