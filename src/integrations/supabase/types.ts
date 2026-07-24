@@ -304,6 +304,16 @@ export type Database = {
         Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
+      consume_mobile_translation: {
+        Args: { _user_id: string }
+        Returns: {
+          daily_limit: number
+          daily_used: number
+          ok: boolean
+          reason: string
+          remaining: number
+        }[]
+      }
       consume_translation: {
         Args: { _user_id: string }
         Returns: {
