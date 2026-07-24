@@ -1,84 +1,91 @@
 ## Objectif
 
-Ajouter une option (case à cocher) dans les **Paramètres** de l'app Windows qui, quand elle est activée, change le comportement de **F8** : au lieu de copier la traduction dans le presse-papiers, l'app **tape automatiquement le texte au clavier** dans la fenêtre active (utile pour les jeux qui bloquent le collage : Star Citizen, certains MMO, anti-triche, etc.).
-
-F9 (lecture vocale) et le comportement F8 par défaut (copier-coller) restent **strictement identiques**.
+Ajouter une **app mobile PWA installable** (Android + iOS) dédiée uniquement au dialogue vocal traduit : j'appuie → je parle → l'IA transcrit, traduit et lit la traduction à voix haute dans la langue cible. Aucun impact sur l'app Windows ni sur la page web actuelle.
 
 ## UX
 
-Dans le modal **Paramètres** (bouton engrenage), sous la section hotkeys, nouvelle case à cocher :
+### Nouvelle route `/mobile`
+- Détection auto : si l'utilisateur charge le site depuis un ordinateur (desktop non-tactile), afficher un écran « Cette application est réservée aux téléphones » avec bouton retour vers l'accueil. Si mobile, afficher directement l'app.
+- Interface qui reprend le style dark de l'app Windows (même Tk logo, mêmes couleurs, même typo) mais pensée tactile plein écran.
+- Header compact : logo TalKing®, badge d'abonnement (Gratuit / Abonné / Testeur), compteur « X/50 traductions aujourd'hui ».
+- Sélecteur unique **langue cible** (19 langues déjà répertoriées). Langue source = auto-détectée par le STT.
+- Gros **bouton central circulaire** (style Push-to-talk) :
+  - État repos : « Appuyer pour parler »
+  - État enregistrement : anneau rouge pulsant + timer + « Relâcher pour traduire » (tap toggle : 1er tap start, 2ᵉ tap stop, plus fiable que hold sur mobile).
+  - État traitement : spinner « Traduction… »
+  - État lecture : icône haut-parleur animée « Lecture en cours… »
+- Sous le bouton : dernière transcription (source) + dernière traduction (cible), avec bouton « Rejouer 🔊 » pour réécouter sans reconsommer de crédit.
+- Bouton discret « Bloquer / Débloquer l'audio » (iOS exige un tap utilisateur pour autoriser l'audio, on gère ça au 1er tap).
 
-- **Label** : « Mon jeu ne prend pas en compte le copier-coller »
-- **Description** (sous le label, en petit gris) :
-  > Quand cette option est activée, F8 n'utilise plus le presse-papiers. Après votre phrase, cliquez dans la zone de chat du jeu puis appuyez sur la touche d'écriture (par défaut **F10**, modifiable ci-dessous) : TalKing prendra le contrôle du clavier et tapera la traduction lettre par lettre, comme si vous l'écriviez vous-même. Compatible avec tous les jeux, même ceux qui bloquent le collage.
+### Téléchargement / Installation
+- Sur la landing page (`/`), ajouter une section **« TalKing Mobile »** avec bouton **« Installer sur mobile »**.
+- Bouton visible uniquement si l'appareil est détecté comme mobile (user-agent + touch + largeur). Sur desktop : bouton grisé avec message « Scanne le QR code depuis ton téléphone » + QR code vers l'URL `/mobile`.
+- Sur mobile, le bouton déclenche l'installation PWA (event `beforeinstallprompt` sur Android ; sur iOS, ouvre un mini-tuto « Partager → Sur l'écran d'accueil »).
 
-Sous la case, quand cochée, apparaît :
-- Champ **Touche d'écriture automatique** (par défaut `F10`, modifiable via le même sélecteur que les autres hotkeys).
-- Petit indicateur d'état : `En attente de traduction` / `Prête à écrire` / `Écriture…`
+## Flux utilisateur
 
-## Flux utilisateur (mode auto-type activé)
+1. Ouvre `talking-translator.com/mobile` sur son téléphone → invité à installer la PWA (icône home screen).
+2. Ouvre l'app depuis l'icône → page login si non connecté (même auth Supabase que le reste).
+3. Choisit la langue cible (ex : Anglais).
+4. Tape le gros bouton → parle → retape → l'IA transcrit + traduit + lit à voix haute la traduction.
+5. Peut réécouter la dernière traduction gratuitement.
 
-1. F8 pressée → enregistrement (identique).
-2. F8 pressée à nouveau → transcription + traduction (identique).
-3. Différence : le texte n'est **pas** copié dans le presse-papiers. Il est stocké en mémoire dans l'app avec un état `pending`. Une notification / overlay affiche « Traduction prête · appuyez sur F10 dans le chat ».
-4. L'utilisateur bascule vers son jeu, clique dans la zone de chat, appuie sur **F10**.
-5. L'app tape le texte caractère par caractère dans la fenêtre active via une simulation clavier bas-niveau, puis vide le buffer.
-6. Si aucune traduction n'est en attente au moment du F10 → petit son d'erreur + notification « Aucune traduction prête ».
+## Crédits & limites
 
-Détection automatique de « zone de chat » : **non implémentée** (impossible de manière fiable et cross-jeu sans hooks intrusifs qui déclencheraient les anti-triche). On utilise donc uniquement la touche d'action F10 comme demandé en secours.
+Nouveau système dédié mobile (indépendant du texte/vocal Windows) :
+
+- **50 traductions gratuites/jour** pour tous (gratuits, gratuit+, abonnés, testeurs).
+- Chaque traduction = 1 appel STT + 1 appel traduction + 1 appel TTS. Consomme **1 « crédit mobile »** comptabilisé côté serveur via un nouveau compteur journalier.
+- Reset quotidien Europe/Paris.
+- Au-delà de 50/jour → message « Limite quotidienne atteinte, revenez demain » (pas de vente de crédits supplémentaires pour cette v1).
+- Testeurs = **également plafonnés à 50/jour** (compromis assumé car le coût unitaire mobile est plus élevé à cause du TTS).
+- Réécoute de la dernière traduction en cache local → gratuite.
 
 ## Changements techniques
 
-### 1. Electron – simulation clavier
+### 1. Base de données (migration)
+- Nouvelle fonction `consume_mobile_translation(_user_id uuid)` : vérifie < 50 usages `operation_type = 'mobile_dialog'` dans les dernières 24h Europe/Paris, insère un log, retourne `{ ok, remaining, reason }`.
+- Étendre `get_user_status` pour renvoyer `mobile_daily_used` et `mobile_daily_limit` (=50).
+- Réutilise `translations_log` (colonne `operation_type` existante).
+- Réutilise `ai_usage_log` pour tracer coûts STT + traduction + TTS.
 
-Ajouter la dépendance **`@nut-tree-fork/nut-js`** (ou `robotjs` en fallback) — permet de taper du texte Unicode dans la fenêtre active via l'API Windows `SendInput`, ce qui fonctionne dans la quasi-totalité des jeux (y compris ceux avec Raw Input, comme F8/F9 le font déjà via `uiohook-napi`).
+### 2. Nouveau endpoint serveur
+- `src/routes/api/mobile-dialog.ts` (server route POST, auth bearer obligatoire).
+- Reçoit : `audio` (Blob WAV/webm), `targetLang`.
+- Étapes : auth → `consume_mobile_translation` → STT (`openai/gpt-4o-mini-transcribe`, langue auto) → traduction (`google/gemini-2.5-flash-lite`) → TTS (`openai/gpt-4o-mini-tts`, voix `nova`, streaming SSE `pcm`).
+- Réponse : SSE stream mixant `{ type: "transcript" }`, `{ type: "translation", text, sourceLang }`, puis les événements `speech.audio.delta` / `speech.audio.done` de la TTS.
+- Log dans `ai_usage_log` en fin de requête (fire-and-forget).
 
-Nouveau module `electron/autotype.cjs` :
-- `typeText(text)` : tape le texte avec un petit délai configurable entre les caractères (~5-10 ms) pour éviter que les jeux perdent des touches.
-- Gère les caractères accentués via `keyboard.type()` (SendInput unicode).
+### 3. Front mobile
+- `src/routes/mobile.tsx` : nouvelle route, `head()` SEO propre + `apple-mobile-web-app-*` meta.
+- `src/hooks/useMobilePushToTalk.ts` : gère `MediaRecorder`, encodage WAV via `wav-encoder.ts` existant, appel fetch vers `/api/mobile-dialog`, lecture PCM 24 kHz via `AudioContext` (réutilise pattern déjà présent pour F9).
+- `src/components/MobileGate.tsx` : détecte desktop → écran « Réservé mobile ».
+- `src/lib/pwa.ts` : manifest + registration guardée (Lovable preview safe).
+- Ajouts landing page : section download avec QR code (généré client via `qrcode` npm) + bouton install.
 
-### 2. Electron – main.cjs
+### 4. PWA installable
+- Suivre la skill PWA (option **manifest-only**, pas d'offline) :
+  - `public/manifest.webmanifest` : name « TalKing Mobile », short_name « TalKing », `display: standalone`, theme dark, icons 192 + 512.
+  - Icônes générées via imagegen (fond dark, « Tk » blanc).
+  - Meta tags dans `__root.tsx` : `manifest`, `theme-color`, `apple-touch-icon`.
+  - Pas de service worker (respect de la règle « no SW en preview »).
 
-- Nouveaux settings persistés (dans le fichier settings existant) :
-  - `autoTypeEnabled: false`
-  - `autoTypeAccel: 'F10'`
-- Nouvel IPC :
-  - `autotype:set-pending` (renderer → main) : stocke `{ text, langName }` en mémoire main.
-  - `autotype:clear` (renderer → main).
-  - `autotype:get-config` / `autotype:set-config` pour la case à cocher + hotkey.
-- Enregistrer un 3ᵉ hotkey global (F10 par défaut) via `hotkeys.cjs` uniquement si `autoTypeEnabled === true`. Sur trigger : lire le buffer, appeler `autotype.typeText`, vider le buffer, notif discrète.
-- **Ne pas** modifier le handler `clipboard:write` : le renderer choisit lui-même la voie (clipboard classique OU auto-type) selon l'option.
-
-### 3. Preload + types
-
-Ajouter dans `electron/preload.cjs` et `src/types/vox-electron.d.ts` :
-- `getAutoType()` / `setAutoType({ enabled, accel })`
-- `setAutoTypePending(text, meta)` / `clearAutoTypePending()`
-- Étendre `onHotkey` avec le kind `'auto-type'`.
-
-### 4. Renderer – src/routes/app.tsx
-
-- Charger la config auto-type au démarrage.
-- Après une traduction F8 réussie :
-  - Si `autoTypeEnabled` → appeler `setAutoTypePending(text, meta)` + toast « Prête à écrire · appuyez sur F10 dans le chat » ; **ne pas** écrire dans le clipboard.
-  - Sinon → comportement actuel `writeClipboard`.
-- Écouter `onHotkey('auto-type')` pour afficher un feedback visuel (l'écriture réelle est faite côté main).
-- Modal Paramètres : ajouter la case à cocher + champ hotkey + description.
-
-### 5. Version & release
-
-- Bump `package.json` → `0.10.2`.
-- Modifier `public/talking-version.json` uniquement après build GitHub Actions et upload manuel du nouveau `.exe` (workflow existant).
+### 5. Landing & navigation
+- Section download sur `/` : « TalKing Mobile - dialoguez en 19 langues à voix haute » + bouton conditionnel install/QR.
+- Ajout d'un lien discret dans le footer.
+- Pas de bouton dans l'app Windows (Electron reste inchangé).
 
 ## Ce qui ne change pas
 
-- F8 comportement par défaut (case décochée) : identique à aujourd'hui.
-- F9 lecture vocale : identique.
-- UI web / mobile / crédits / plafonds / admin : aucun changement.
-- Aucune modification backend, DB, ni API.
+- App Windows Electron (F8 / F9 / auto-type / Backspace) : strictement identique.
+- Système de crédits texte + vocal Windows : identique.
+- Système d'abonnement Paddle : identique.
+- Page admin : inchangée (les logs mobile apparaîtront naturellement dans `ai_usage_log` et l'activité).
+- Aucune modif du webhook paiement.
 
 ## Limites & notes
 
-- La détection automatique « je suis dans un chat » n'est pas fiable cross-jeu → on garde la touche F10 comme demandé.
-- `nut-js` embarque un binaire natif : vérifier qu'il est bien packagé par electron-builder (ajouter à `asarUnpack` si besoin). Si l'installation échoue en CI, fallback sur `robotjs` (mais support Unicode moins bon → dans ce cas fallback vers PowerShell `SendKeys` via `child_process` déjà présent).
-- Certains anti-triche très stricts (ex. Vanguard) peuvent bloquer même `SendInput`. Ce sera indiqué dans la description sous forme d'avertissement discret.
+- iOS Safari impose un tap utilisateur pour démarrer l'audio → géré au 1er appui du bouton.
+- iOS n'a pas de `beforeinstallprompt` → on affiche un mini-tuto « Partager → Ajouter à l'écran d'accueil ».
+- 50 traductions/jour est un compromis anti-abus : le coût mobile ≈ 3× le coût texte à cause du TTS. À réévaluer selon usage réel.
+- La détection desktop est faite en frontend (user-agent + `pointer: coarse`) : contournable, mais bloque 99 % des cas.
