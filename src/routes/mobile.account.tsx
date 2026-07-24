@@ -112,7 +112,7 @@ function MobileAccountPage() {
             <li>✓ Prioritaire sur les nouveautés</li>
           </ul>
           <button
-            onClick={() => buy("subscription_yearly")}
+            onClick={() => buy("vox_subscription_yearly")}
             disabled={loading || authLoading}
             className="mt-3 w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
           >
