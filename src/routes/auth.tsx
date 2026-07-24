@@ -31,9 +31,17 @@ function AuthPage() {
     setIsElectron(typeof window !== "undefined" && !!window.voxElectron?.isElectron);
   }, []);
 
-  const getPostAuthPath = (): "/" | "/app" | "/admin" => {
+  const getPostAuthPath = (): "/" | "/app" | "/admin" | "/mobile" => {
     if (search.redirect === "/admin") return "/admin";
-    return typeof window !== "undefined" && window.voxElectron?.isElectron ? "/app" : "/";
+    if (search.redirect === "/mobile") return "/mobile";
+    if (search.redirect === "/app") return "/app";
+    if (typeof window !== "undefined") {
+      if (window.voxElectron?.isElectron) return "/app";
+      const standalone = window.matchMedia?.("(display-mode: standalone)").matches
+        || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      if (standalone) return "/mobile";
+    }
+    return "/";
   };
 
   useEffect(() => {
