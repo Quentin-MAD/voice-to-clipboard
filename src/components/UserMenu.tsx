@@ -4,6 +4,7 @@ import { LogOut, Mail, User as UserIcon, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 
 const SUPPORT_EMAIL = "rossetquentin26@gmail.com";
 
