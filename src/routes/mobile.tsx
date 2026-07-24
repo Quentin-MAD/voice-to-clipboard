@@ -343,9 +343,17 @@ function MobileApp() {
         </button>
       </header>
 
-      {/* Status + credits */}
-      <div className="px-5 pt-1 pb-2 flex justify-center">
-        <CreditsBadge variant="dark" />
+      {/* Email + status */}
+      <div className="px-5 pt-1 pb-2 flex items-center justify-center gap-2 flex-wrap">
+        {user?.email && (
+          <span className="max-w-[220px] truncate text-xs text-white/70">{user.email}</span>
+        )}
+        <StatusPill variant="dark" />
+      </div>
+
+      {/* Credits card */}
+      <div className="px-5 pb-2">
+        <CreditsCard variant="dark" />
       </div>
 
       {/* Usage */}
