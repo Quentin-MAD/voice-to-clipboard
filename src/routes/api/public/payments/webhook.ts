@@ -101,6 +101,7 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
 
   let creditsToAdd = 0;
   let voiceCreditsToAdd = 0;
+  let mobileCreditsToAdd = 0;
   for (const item of data.items ?? []) {
     const externalId = item.price?.importMeta?.externalId;
     const qty = item.quantity ?? 1;
@@ -108,6 +109,8 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
       creditsToAdd += 50 * qty;
     } else if (externalId === "voice_pack_10_onetime") {
       voiceCreditsToAdd += 10 * qty;
+    } else if (externalId === "mobile_credits_pack_75_onetime") {
+      mobileCreditsToAdd += 75 * qty;
     }
   }
   if (creditsToAdd > 0) {
@@ -115,6 +118,9 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   }
   if (voiceCreditsToAdd > 0) {
     await getSupabase().rpc("add_voice_credits", { _user_id: userId, _amount: voiceCreditsToAdd });
+  }
+  if (mobileCreditsToAdd > 0) {
+    await getSupabase().rpc("add_mobile_credits", { _user_id: userId, _amount: mobileCreditsToAdd });
   }
 }
 
