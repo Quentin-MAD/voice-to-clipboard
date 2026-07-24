@@ -146,26 +146,59 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
       </div>
 
       {showMobile ? (
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
-            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <Gift className="h-3 w-3" /> Gratuits <span>(aujourd'hui)</span>
+        unlimited ? (
+          <div className="mt-3 space-y-2">
+            <div className={`rounded-xl px-3 py-2.5 ${rowBg} text-center`}>
+              <div className={`text-[11px] uppercase tracking-wider ${muted}`}>
+                {status.is_tester ? "Testeur - traductions mobile" : "Ce mois-ci (abonnement)"}
+              </div>
+              <div className="mt-0.5 text-2xl font-bold">
+                {status.is_tester ? (
+                  "∞ illimité"
+                ) : (
+                  <>
+                    {Math.max(0, (status.mobile_daily_limit ?? 500) - (status.mobile_daily_used ?? 0))}
+                    <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 500} ce mois</span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="mt-0.5 text-lg font-bold">
-              {Math.max(0, (status.mobile_daily_limit ?? 35) - (status.mobile_daily_used ?? 0))}
-              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 35}</span>
-            </div>
+            {(status.mobile_balance ?? 0) > 0 && (
+              <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+                <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+                  <Smartphone className="h-3 w-3" /> Crédits mobiles achetés (sans expiration)
+                </div>
+                <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
+              </div>
+            )}
+            <p className={`text-[11px] leading-relaxed ${muted}`}>
+              {status.is_tester
+                ? "Compte testeur : aucune limite sur les traductions mobiles."
+                : "Votre abonnement couvre 500 traductions mobiles par mois. Le compteur est mensuel, il repart à zéro chaque début de mois."}
+            </p>
           </div>
-          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
-            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <Smartphone className="h-3 w-3" /> Mobile achetés
+        ) : (
+          <div className="mt-3 space-y-2">
+            <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+              <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+                <Gift className="h-3 w-3" /> Gratuits aujourd'hui <span className={muted}>(reset chaque jour)</span>
+              </div>
+              <div className="mt-0.5 text-lg font-bold">
+                {Math.max(0, (status.mobile_daily_limit ?? 35) - (status.mobile_daily_used ?? 0))}
+                <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 35}</span>
+              </div>
             </div>
-            <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
+            <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+              <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+                <Smartphone className="h-3 w-3" /> Crédits mobiles achetés (sans expiration)
+              </div>
+              <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
+            </div>
+            <p className={`text-[11px] leading-relaxed ${muted}`}>
+              Les <strong>35 gratuits/jour</strong> sont consommés en priorité et se réinitialisent chaque jour (non cumulables). Les <strong>crédits achetés</strong> ne sont utilisés qu'ensuite et restent disponibles sans expiration.
+            </p>
           </div>
-          <p className={`col-span-2 text-[11px] leading-relaxed ${muted}`}>
-            Les <strong>35 traductions gratuites/jour</strong> sont consommées <strong>avant</strong> les crédits mobiles achetés.
-          </p>
-        </div>
+        )
       ) : unlimited ? (
         <div className={`mt-3 rounded-xl px-3 py-3 ${rowBg} text-center`}>
           <div className={`text-[11px] uppercase tracking-wider ${muted}`}>Crédits</div>
@@ -175,13 +208,13 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <Gift className="h-3 w-3" /> Gratuits <span>(aujourd'hui)</span>
+              <Gift className="h-3 w-3" /> Gratuits aujourd'hui <span>(reset chaque jour)</span>
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 30</span></div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <ShoppingBag className="h-3 w-3" /> Achetés
+              <ShoppingBag className="h-3 w-3" /> Achetés (sans expiration)
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.purchased_balance}</div>
           </div>
@@ -196,7 +229,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
 
       {!unlimited && !showMobile && (
         <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
-          Les <strong>crédits gratuits journaliers</strong> sont toujours consommés <strong>avant</strong> les crédits achetés.
+          Les <strong>crédits gratuits journaliers</strong> se réinitialisent chaque jour (non cumulables) et sont toujours consommés <strong>avant</strong> les crédits achetés, qui eux restent sans expiration.
         </p>
       )}
     </div>
