@@ -8,11 +8,18 @@ const LANG_NAMES: Record<string, string> = {
   id: "Indonesian", vi: "Vietnamese", th: "Thai", sv: "Swedish", uk: "Ukrainian",
 };
 
-async function transcribe(audio: Blob, filename: string) {
+const STT_LANG: Record<string, string> = {
+  fr: "fr", en: "en", es: "es", de: "de", it: "it", ru: "ru", ja: "ja", zh: "zh",
+  pt: "pt", ko: "ko", tr: "tr", pl: "pl", nl: "nl", ar: "ar", id: "id", vi: "vi",
+  th: "th", sv: "sv", uk: "uk",
+};
+
+async function transcribe(audio: Blob, filename: string, sourceLang: string | null) {
   const key = process.env.LOVABLE_API_KEY!;
   const form = new FormData();
   form.append("file", audio, filename);
   form.append("model", "openai/gpt-4o-mini-transcribe");
+  if (sourceLang && STT_LANG[sourceLang]) form.append("language", STT_LANG[sourceLang]);
   const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}` },
@@ -23,9 +30,10 @@ async function transcribe(audio: Blob, filename: string) {
   return (json.text ?? "").trim();
 }
 
-async function translate(text: string, targetLang: string) {
+async function translate(text: string, sourceLang: string | null, targetLang: string) {
   const key = process.env.LOVABLE_API_KEY!;
   const targetName = LANG_NAMES[targetLang] ?? targetLang;
+  const sourceName = sourceLang && LANG_NAMES[sourceLang] ? LANG_NAMES[sourceLang] : "the detected language";
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
@@ -35,7 +43,7 @@ async function translate(text: string, targetLang: string) {
       messages: [
         {
           role: "system",
-          content: `You are a natural, idiomatic translator into ${targetName}. Translate the user's spoken message into ${targetName} the way a native speaker would actually say it in a real conversation. Preserve tone, register, emotion, humor. Adapt idioms. Fix obvious speech-to-text mistakes silently. Output ONLY the translation, no quotes, no comments.`,
+          content: `You are a natural, idiomatic translator from ${sourceName} into ${targetName}. Translate the spoken message the way a native ${targetName} speaker would actually say it in a real face-to-face conversation. Preserve tone, register, emotion, humor. Adapt idioms. Fix obvious speech-to-text mistakes silently. Output ONLY the translation in ${targetName}, no quotes, no comments, no language labels.`,
         },
         { role: "user", content: text },
       ],
@@ -53,15 +61,18 @@ async function translate(text: string, targetLang: string) {
   };
 }
 
-async function synthesize(text: string): Promise<string> {
+async function synthesize(text: string, targetLang: string): Promise<string> {
   const key = process.env.LOVABLE_API_KEY!;
+  // Alternate voices so the two speakers sound different
+  const maleLangs = new Set(["fr"]);
+  const voice = maleLangs.has(targetLang) ? "onyx" : "nova";
   const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
       model: "openai/gpt-4o-mini-tts",
       input: text,
-      voice: "nova",
+      voice,
       response_format: "mp3",
       speed: 1.05,
     }),
