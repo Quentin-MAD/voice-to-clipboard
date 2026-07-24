@@ -31,9 +31,17 @@ function AuthPage() {
     setIsElectron(typeof window !== "undefined" && !!window.voxElectron?.isElectron);
   }, []);
 
-  const getPostAuthPath = (): "/" | "/app" | "/admin" => {
+  const getPostAuthPath = (): "/" | "/app" | "/admin" | "/mobile" => {
     if (search.redirect === "/admin") return "/admin";
-    return typeof window !== "undefined" && window.voxElectron?.isElectron ? "/app" : "/";
+    if (search.redirect === "/mobile") return "/mobile";
+    if (search.redirect === "/app") return "/app";
+    if (typeof window !== "undefined") {
+      if (window.voxElectron?.isElectron) return "/app";
+      const standalone = window.matchMedia?.("(display-mode: standalone)").matches
+        || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      if (standalone) return "/mobile";
+    }
+    return "/";
   };
 
   useEffect(() => {
@@ -82,7 +90,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/auth${search.redirect === "/admin" ? "?redirect=/admin" : ""}`,
+        redirect_uri: `${window.location.origin}/auth${search.redirect ? `?redirect=${encodeURIComponent(search.redirect)}` : ""}`,
       });
       if (result.error) throw new Error(String(result.error));
       if (!result.redirected) navigate({ to: getPostAuthPath(), replace: true });
