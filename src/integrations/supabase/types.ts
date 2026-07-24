@@ -49,18 +49,21 @@ export type Database = {
       }
       credit_wallets: {
         Row: {
+          mobile_balance: number
           purchased_balance: number
           updated_at: string
           user_id: string
           voice_balance: number
         }
         Insert: {
+          mobile_balance?: number
           purchased_balance?: number
           updated_at?: string
           user_id: string
           voice_balance?: number
         }
         Update: {
+          mobile_balance?: number
           purchased_balance?: number
           updated_at?: string
           user_id?: string
@@ -250,6 +253,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_mobile_credits: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
       add_purchased_credits: {
         Args: { _amount: number; _user_id: string }
         Returns: undefined
@@ -259,6 +266,10 @@ export type Database = {
         Returns: undefined
       }
       admin_add_credits: {
+        Args: { _amount: number; _target_user: string }
+        Returns: undefined
+      }
+      admin_add_mobile_credits: {
         Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
@@ -292,6 +303,10 @@ export type Database = {
         Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
+      admin_set_mobile_credits: {
+        Args: { _amount: number; _target_user: string }
+        Returns: undefined
+      }
       admin_set_subscription: {
         Args: { _action: string; _target_user: string }
         Returns: undefined
@@ -309,6 +324,7 @@ export type Database = {
         Returns: {
           daily_limit: number
           daily_used: number
+          mobile_balance: number
           ok: boolean
           reason: string
           remaining: number
@@ -356,6 +372,9 @@ export type Database = {
           hourly_limit: number
           hourly_used: number
           is_tester: boolean
+          mobile_balance: number
+          mobile_daily_limit: number
+          mobile_daily_used: number
           purchased_balance: number
           subscribed: boolean
           voice_balance: number
