@@ -140,24 +140,31 @@ function MobileApp() {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/mobile" }, replace: true });
   }, [loading, user, navigate]);
 
-  // Auto-update: check for a new build every time the app comes to foreground
+  // Auto-update: detect a new build by hashing the served HTML shell
   useEffect(() => {
-    let lastVersion: string | null = localStorage.getItem("tk_mobile_version");
+    let lastHash: string | null = localStorage.getItem("tk_mobile_html_hash");
+    const hashString = async (s: string) => {
+      const buf = new TextEncoder().encode(s);
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, "0")).join("");
+    };
     const check = async () => {
       try {
-        const res = await fetch(`/version.json?t=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch(`/mobile?u=${Date.now()}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
         if (!res.ok) return;
-        const { version } = await res.json();
-        if (!version) return;
-        if (lastVersion && lastVersion !== version) {
-          localStorage.setItem("tk_mobile_version", version);
-          // Hard reload bypassing cache
+        const html = await res.text();
+        // Only keep the <script>/<link> asset references — they change on every build
+        const assets = (html.match(/(?:src|href)="\/[^"]+\.(?:js|css)[^"]*"/g) || []).sort().join("|");
+        if (!assets) return;
+        const hash = await hashString(assets);
+        if (lastHash && lastHash !== hash) {
+          localStorage.setItem("tk_mobile_html_hash", hash);
           window.location.reload();
           return;
         }
-        if (!lastVersion) {
-          lastVersion = version;
-          localStorage.setItem("tk_mobile_version", version);
+        if (!lastHash) {
+          lastHash = hash;
+          localStorage.setItem("tk_mobile_html_hash", hash);
         }
       } catch {}
     };
@@ -167,6 +174,7 @@ function MobileApp() {
     const iv = setInterval(check, 5 * 60 * 1000);
     return () => { document.removeEventListener("visibilitychange", onVis); clearInterval(iv); };
   }, []);
+
 
 
   useEffect(() => {
