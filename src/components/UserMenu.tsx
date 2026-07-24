@@ -48,6 +48,7 @@ export function UserMenu() {
           <span className="hidden sm:inline max-w-[160px] truncate text-muted-foreground">
             {user.email}
           </span>
+          <span className="hidden sm:inline"><StatusPill /></span>
         </button>
         {open && (
           <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
