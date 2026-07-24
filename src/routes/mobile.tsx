@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useMobileRecorder } from "@/hooks/useMobileRecorder";
 import { supabase } from "@/integrations/supabase/client";
+import { CreditsBadge } from "@/components/CreditsBadge";
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
@@ -297,14 +298,7 @@ function MobileApp() {
           <div className="text-base font-bold">TalKing<sup className="text-xs">®</sup></div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowInstallHelp(true)}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
-            aria-label="Installer sur mon écran d'accueil"
-            title="Installer"
-          >
-            <Smartphone className="h-4 w-4" />
-          </button>
+          <CreditsBadge variant="dark" />
           <button
             onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
             className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
