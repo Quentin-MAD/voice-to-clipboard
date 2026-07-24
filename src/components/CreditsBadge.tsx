@@ -51,11 +51,14 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
   }
 
   const total = status.free_remaining + status.purchased_balance;
+  const planLabel = status.purchased_balance > 0 ? "Gratuit+" : "Gratuit";
   return (
     <div
       className={`flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs ${base}`}
-      title={`${status.free_remaining} gratuits + ${status.purchased_balance} achetés · ${status.voice_balance} crédits vocaux`}
+      title={`${planLabel} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés · ${status.voice_balance} crédits vocaux`}
     >
+      <span className="font-semibold">{planLabel}</span>
+      <span className={muted}>·</span>
       <span className="flex items-center gap-1">
         <Coins className="h-3.5 w-3.5" />
         <span className="font-medium">{total}</span>
