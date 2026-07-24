@@ -297,17 +297,19 @@ function MobileApp() {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-black font-black text-sm">Tk</div>
           <div className="text-base font-bold">TalKing<sup className="text-xs">®</sup></div>
         </div>
-        <div className="flex items-center gap-2">
-          <CreditsBadge variant="dark" />
-          <button
-            onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
-            aria-label="Déconnexion"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
+          className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
+          aria-label="Déconnexion"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
       </header>
+
+      {/* Status + credits */}
+      <div className="px-5 pt-1 pb-2 flex justify-center">
+        <CreditsBadge variant="dark" />
+      </div>
 
       {/* Usage */}
       <div className="px-5 pb-2 text-center text-xs text-white/50">
@@ -315,6 +317,7 @@ function MobileApp() {
           ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
           : "50 traductions vocales gratuites par jour"}
       </div>
+
 
       {/* Language pair */}
       <div className="px-5 mt-3">
