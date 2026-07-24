@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { HardDrive, Mic, Globe, Zap, MessageSquare, Ear } from "lucide-react";
+import { useEffect, useState } from "react";
+import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
@@ -192,20 +192,25 @@ function LandingPage() {
 
       {/* Download */}
       <section className="border-y border-border bg-muted/30">
-        <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h2 className="text-2xl font-bold">Téléchargez l'app Windows</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            L'application fonctionne en arrière-plan et reste active même quand vous jouez.
-          </p>
-          <a
-            href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <HardDrive className="h-5 w-5" />
-            Télécharger la dernière version (Windows)
-          </a>
+        <div className="mx-auto grid max-w-5xl gap-6 px-4 py-16 md:grid-cols-2">
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <HardDrive className="mx-auto h-10 w-10 text-primary" />
+            <h2 className="mt-4 text-xl font-bold">App Windows</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              F8/F9 en arrière-plan, même pendant vos parties. Presse-papiers ou auto-écriture.
+            </p>
+            <a
+              href="https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <HardDrive className="h-5 w-5" />
+              Télécharger pour Windows
+            </a>
+          </div>
+          <MobileDownloadCard />
         </div>
       </section>
+
 
       {/* Pricing teaser */}
       <section className="mx-auto max-w-4xl px-4 py-16 text-center">
