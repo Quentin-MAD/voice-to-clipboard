@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useMobileRecorder } from "@/hooks/useMobileRecorder";
 import { supabase } from "@/integrations/supabase/client";
-import { CreditsBadge } from "@/components/CreditsBadge";
+import { CreditsBadge, StatusPill, CreditsCard } from "@/components/CreditsBadge";
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
   { code: "fr", label: "Français", flag: "🇫🇷" },
