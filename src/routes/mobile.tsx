@@ -1,14 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Mic, Loader2, Volume2, LogOut, Smartphone } from "lucide-react";
+import { Mic, Loader2, Volume2, LogOut, Smartphone, ArrowLeftRight, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useMobileRecorder } from "@/hooks/useMobileRecorder";
 import { supabase } from "@/integrations/supabase/client";
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
-  { code: "en", label: "Anglais", flag: "🇬🇧" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "en", label: "Anglais", flag: "🇬🇧" },
   { code: "es", label: "Espagnol", flag: "🇪🇸" },
   { code: "de", label: "Allemand", flag: "🇩🇪" },
   { code: "it", label: "Italien", flag: "🇮🇹" },
@@ -37,13 +37,19 @@ function isMobileDevice() {
   return uaMobile || (isTouch && isNarrow);
 }
 
+function isIOS() {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod/i.test(ua) || (ua.includes("Mac") && "ontouchend" in document);
+}
+
 export const Route = createFileRoute("/mobile")({
   head: () => ({
     meta: [
       { title: "TalKing Mobile - Dialogue vocal traduit" },
-      { name: "description", content: "Parlez, l'IA traduit et lit à voix haute dans 19 langues. Application mobile TalKing pour dialoguer avec le monde entier." },
+      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 19 langues." },
       { property: "og:title", content: "TalKing Mobile - Dialogue vocal traduit" },
-      { property: "og:description", content: "Parlez, l'IA traduit et lit à voix haute dans 19 langues." },
+      { property: "og:description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0a0a0a" },
@@ -96,26 +102,38 @@ function DesktopBlocker() {
   );
 }
 
+type Turn = "me" | "them";
+
 function MobileApp() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [targetLang, setTargetLang] = useState<string>(() => {
-    if (typeof window === "undefined") return "en";
-    return localStorage.getItem("tk_mobile_target") ?? "en";
+
+  const [myLang, setMyLang] = useState<string>(() => {
+    if (typeof window === "undefined") return "fr";
+    return localStorage.getItem("tk_mobile_mylang") ?? "fr";
   });
-  const [langOpen, setLangOpen] = useState(false);
+  const [theirLang, setTheirLang] = useState<string>(() => {
+    if (typeof window === "undefined") return "en";
+    return localStorage.getItem("tk_mobile_theirlang") ?? "en";
+  });
+  const [turn, setTurn] = useState<Turn>("me");
+  const [langModal, setLangModal] = useState<null | "me" | "them">(null);
+
   const [transcript, setTranscript] = useState("");
   const [translation, setTranslation] = useState("");
+  const [lastDirection, setLastDirection] = useState<Turn>("me");
   const [usage, setUsage] = useState<{ daily_used: number; daily_limit: number } | null>(null);
+
   const [installVisible, setInstallVisible] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastAudioUrlRef = useRef<string | null>(null);
   const deferredPromptRef = useRef<Event | null>(null);
   const recorder = useMobileRecorder();
 
-  useEffect(() => {
-    localStorage.setItem("tk_mobile_target", targetLang);
-  }, [targetLang]);
+  useEffect(() => { localStorage.setItem("tk_mobile_mylang", myLang); }, [myLang]);
+  useEffect(() => { localStorage.setItem("tk_mobile_theirlang", theirLang); }, [theirLang]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -133,7 +151,13 @@ function MobileApp() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  const selectedLang = useMemo(() => LANGUAGES.find((l) => l.code === targetLang) ?? LANGUAGES[0], [targetLang]);
+  const myLangObj = useMemo(() => LANGUAGES.find((l) => l.code === myLang) ?? LANGUAGES[0], [myLang]);
+  const theirLangObj = useMemo(() => LANGUAGES.find((l) => l.code === theirLang) ?? LANGUAGES[1], [theirLang]);
+
+  const sourceLang = turn === "me" ? myLang : theirLang;
+  const targetLang = turn === "me" ? theirLang : myLang;
+  const sourceLangObj = turn === "me" ? myLangObj : theirLangObj;
+  const targetLangObj = turn === "me" ? theirLangObj : myLangObj;
 
   const playAudioBase64 = async (b64: string) => {
     if (lastAudioUrlRef.current) URL.revokeObjectURL(lastAudioUrlRef.current);
@@ -144,7 +168,12 @@ function MobileApp() {
     const audio = audioRef.current ?? new Audio();
     audioRef.current = audio;
     audio.src = url;
-    audio.onended = () => recorder.setState("idle");
+    const finish = () => {
+      recorder.setState("idle");
+      // Auto-hand-off: flip the turn after playback ends
+      setTurn((t) => (t === "me" ? "them" : "me"));
+    };
+    audio.onended = finish;
     audio.onerror = () => recorder.setState("idle");
     try {
       recorder.setState("playing");
@@ -159,11 +188,18 @@ function MobileApp() {
     if (!audio || !lastAudioUrlRef.current) return;
     try {
       audio.currentTime = 0;
-      recorder.setState("playing");
       await audio.play();
-    } catch {
-      recorder.setState("idle");
-    }
+    } catch { /* ignore */ }
+  };
+
+  const swapTurn = () => {
+    if (recorder.state === "recording" || recorder.state === "processing") return;
+    setTurn((t) => (t === "me" ? "them" : "me"));
+  };
+
+  const swapLangs = () => {
+    setMyLang(theirLang);
+    setTheirLang(myLang);
   };
 
   const handleMainButton = async () => {
@@ -185,7 +221,9 @@ function MobileApp() {
         }
         const form = new FormData();
         form.append("audio", blob, "recording.wav");
+        form.append("sourceLang", sourceLang);
         form.append("targetLang", targetLang);
+        const currentDirection = turn;
         const res = await fetch("/api/mobile-dialog", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -200,6 +238,7 @@ function MobileApp() {
         }
         setTranscript(json.transcript ?? "");
         setTranslation(json.translation ?? "");
+        setLastDirection(currentDirection);
         setUsage(json.usage ?? null);
         await playAudioBase64(json.audio);
       } catch (err) {
@@ -219,12 +258,12 @@ function MobileApp() {
 
   const doInstall = async () => {
     const p = deferredPromptRef.current as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> } | null;
-    if (!p?.prompt) {
-      toast.info("Sur iPhone : bouton Partager → « Sur l'écran d'accueil »");
+    if (p?.prompt) {
+      await p.prompt();
+      setInstallVisible(false);
       return;
     }
-    await p.prompt();
-    setInstallVisible(false);
+    setShowInstallHelp(true);
   };
 
   const btnLabel = () => {
@@ -232,8 +271,7 @@ function MobileApp() {
       case "recording": return "Toucher pour arrêter";
       case "processing": return "Traduction...";
       case "playing": return "Lecture en cours";
-      case "error": return "Erreur - réessayer";
-      default: return "Appuyer pour parler";
+      default: return turn === "me" ? "À vous - appuyez pour parler" : "À lui/elle - passez le téléphone";
     }
   };
 
@@ -245,49 +283,99 @@ function MobileApp() {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-black font-black text-sm">Tk</div>
           <div className="text-base font-bold">TalKing<sup className="text-xs">®</sup></div>
         </div>
-        <button
-          onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
-          className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
-          aria-label="Déconnexion"
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowInstallHelp(true)}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
+            aria-label="Installer sur mon écran d'accueil"
+            title="Installer"
+          >
+            <Smartphone className="h-4 w-4" />
+          </button>
+          <button
+            onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
+            aria-label="Déconnexion"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </header>
 
-      {/* Usage bar */}
+      {/* Usage */}
       <div className="px-5 pb-2 text-center text-xs text-white/50">
         {usage
           ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
           : "50 traductions vocales gratuites par jour"}
       </div>
 
-      {/* Language selector */}
-      <div className="px-5 mt-4">
-        <div className="text-xs uppercase tracking-wider text-white/40 mb-2">Traduire vers</div>
-        <button
-          onClick={() => setLangOpen(true)}
-          className="w-full flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-left"
-        >
-          <span className="flex items-center gap-3">
-            <span className="text-2xl leading-none">{selectedLang.flag}</span>
-            <span className="text-base font-medium">{selectedLang.label}</span>
-          </span>
-          <span className="text-white/40 text-sm">Changer</span>
-        </button>
+      {/* Language pair */}
+      <div className="px-5 mt-3">
+        <div className="text-[10px] uppercase tracking-wider text-white/40 mb-2 text-center">
+          Dialogue - chacun parle sa langue, chacun son tour
+        </div>
+        <div className="flex items-stretch gap-2">
+          <button
+            onClick={() => setLangModal("me")}
+            className={`flex-1 rounded-2xl border px-3 py-3 text-left transition ${turn === "me" ? "border-white/40 bg-white/10" : "border-white/10 bg-white/5"}`}
+          >
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Vous</div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-2xl leading-none">{myLangObj.flag}</span>
+              <span className="text-sm font-semibold truncate">{myLangObj.label}</span>
+            </div>
+          </button>
+          <button
+            onClick={swapLangs}
+            className="grid place-items-center rounded-2xl border border-white/10 bg-white/5 px-3 text-white/70 hover:text-white"
+            aria-label="Inverser les langues"
+            title="Inverser les langues"
+          >
+            <ArrowLeftRight className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setLangModal("them")}
+            className={`flex-1 rounded-2xl border px-3 py-3 text-left transition ${turn === "them" ? "border-white/40 bg-white/10" : "border-white/10 bg-white/5"}`}
+          >
+            <div className="text-[10px] uppercase tracking-wider text-white/50">Lui/elle</div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-2xl leading-none">{theirLangObj.flag}</span>
+              <span className="text-sm font-semibold truncate">{theirLangObj.label}</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Direction indicator */}
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+          <span className="text-lg">{sourceLangObj.flag}</span>
+          <span className="text-xs text-white/60">{sourceLangObj.label}</span>
+          <span className="text-white/40">→</span>
+          <span className="text-lg">{targetLangObj.flag}</span>
+          <span className="text-xs text-white/60">{targetLangObj.label}</span>
+          <button
+            onClick={swapTurn}
+            className="ml-3 text-[10px] uppercase tracking-wider text-white/50 hover:text-white"
+            title="Changer de tour manuellement"
+          >
+            Changer de tour
+          </button>
+        </div>
       </div>
 
       {/* Main record button */}
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-8 gap-6">
+      <div className="flex-1 flex flex-col items-center justify-center px-5 py-6 gap-5">
         <button
           onClick={handleMainButton}
           disabled={recorder.state === "processing"}
-          className="relative grid h-56 w-56 place-items-center rounded-full transition-transform active:scale-95 disabled:opacity-60"
+          className="relative grid h-52 w-52 place-items-center rounded-full transition-transform active:scale-95 disabled:opacity-60"
           style={{
             background: recorder.state === "recording"
               ? "radial-gradient(circle, #ef4444 0%, #7f1d1d 100%)"
               : recorder.state === "playing"
               ? "radial-gradient(circle, #22c55e 0%, #14532d 100%)"
-              : "radial-gradient(circle, #ffffff 0%, #d4d4d4 100%)",
+              : turn === "me"
+              ? "radial-gradient(circle, #ffffff 0%, #d4d4d4 100%)"
+              : "radial-gradient(circle, #a3a3a3 0%, #525252 100%)",
             boxShadow: recorder.state === "recording"
               ? "0 0 60px rgba(239,68,68,0.5)"
               : "0 20px 60px rgba(0,0,0,0.5)",
@@ -310,6 +398,11 @@ function MobileApp() {
           {recorder.state === "recording" && (
             <div className="mt-1 text-sm text-white/50 tabular-nums">{recorder.elapsed}s</div>
           )}
+          {recorder.state === "idle" && (
+            <div className="mt-1 text-xs text-white/40">
+              Après la lecture, le tour passe automatiquement à l'autre personne.
+            </div>
+          )}
         </div>
       </div>
 
@@ -318,16 +411,20 @@ function MobileApp() {
         <div className="px-5 pb-5 space-y-2">
           {transcript && (
             <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">Vous avez dit</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">
+                {lastDirection === "me" ? "Vous avez dit" : "Il/elle a dit"} ({(lastDirection === "me" ? myLangObj : theirLangObj).label})
+              </div>
               <div className="text-sm text-white/80">{transcript}</div>
             </div>
           )}
           {translation && (
             <div className="rounded-xl border border-white/10 bg-white/10 px-4 py-3">
               <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] uppercase tracking-wider text-white/60">Traduction ({selectedLang.label})</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/60">
+                  Traduction en {(lastDirection === "me" ? theirLangObj : myLangObj).label}
+                </div>
                 <button onClick={replayLast} className="text-xs text-white/70 hover:text-white flex items-center gap-1">
-                  <Volume2 className="h-3 w-3" /> Rejouer
+                  <RotateCcw className="h-3 w-3" /> Rejouer
                 </button>
               </div>
               <div className="text-sm">{translation}</div>
@@ -336,7 +433,7 @@ function MobileApp() {
         </div>
       )}
 
-      {/* Install banner */}
+      {/* Install banner (Android/Chrome) */}
       {installVisible && (
         <div className="mx-5 mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 flex items-center justify-between">
           <div className="text-xs text-white/70">Installer TalKing sur votre écran d'accueil</div>
@@ -344,26 +441,75 @@ function MobileApp() {
         </div>
       )}
 
+      {/* Install help modal */}
+      {showInstallHelp && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-end" onClick={() => setShowInstallHelp(false)}>
+          <div className="w-full max-h-[80vh] rounded-t-3xl bg-[#111] border-t border-white/10 overflow-y-auto p-5" onClick={(e) => e.stopPropagation()} style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}>
+            <div className="text-lg font-semibold mb-3">Installer TalKing</div>
+            {isIOS() ? (
+              <div className="space-y-3 text-sm text-white/80">
+                <p className="text-white/70">Sur iPhone/iPad, il faut utiliser Safari :</p>
+                <ol className="list-decimal list-inside space-y-2 text-white/80">
+                  <li>Touchez le bouton <b>Partager</b> en bas de Safari (carré avec flèche vers le haut).</li>
+                  <li>Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.</li>
+                  <li>Confirmez avec <b>Ajouter</b>. L'icône Tk apparaît sur votre écran d'accueil.</li>
+                </ol>
+                <p className="text-xs text-white/50">Chrome/Firefox iOS ne permettent pas l'installation - Apple oblige à passer par Safari.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 text-sm text-white/80">
+                <p className="text-white/70">Sur Android, avec Chrome ou Edge :</p>
+                <ol className="list-decimal list-inside space-y-2 text-white/80">
+                  <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
+                  <li>Choisissez <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>.</li>
+                  <li>Confirmez. L'icône Tk apparaît sur votre écran d'accueil.</li>
+                </ol>
+                <p className="text-xs text-white/50">Si l'option n'apparaît pas, essayez avec Chrome (à jour). Sur Samsung Internet, l'option est dans le menu ≡.</p>
+              </div>
+            )}
+            <button
+              onClick={() => setShowInstallHelp(false)}
+              className="mt-5 w-full rounded-xl border border-white/20 py-3 text-sm hover:bg-white/5"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Language modal */}
-      {langOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-end" onClick={() => setLangOpen(false)}>
+      {langModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-end" onClick={() => setLangModal(null)}>
           <div className="w-full max-h-[80vh] rounded-t-3xl bg-[#111] border-t border-white/10 overflow-y-auto" onClick={(e) => e.stopPropagation()} style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
             <div className="sticky top-0 bg-[#111] px-5 py-4 border-b border-white/10 flex items-center justify-between">
-              <div className="text-lg font-semibold">Langue cible</div>
-              <button onClick={() => setLangOpen(false)} className="text-white/60 text-sm">Fermer</button>
+              <div className="text-lg font-semibold">
+                {langModal === "me" ? "Votre langue" : "Sa langue"}
+              </div>
+              <button onClick={() => setLangModal(null)} className="text-white/60 text-sm">Fermer</button>
             </div>
             <div className="p-3">
-              {LANGUAGES.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => { setTargetLang(l.code); setLangOpen(false); }}
-                  className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left ${l.code === targetLang ? "bg-white/10" : "hover:bg-white/5"}`}
-                >
-                  <span className="text-2xl">{l.flag}</span>
-                  <span className="flex-1 text-sm font-medium">{l.label}</span>
-                  {l.code === targetLang && <span className="text-xs text-white/60">Sélectionné</span>}
-                </button>
-              ))}
+              {LANGUAGES.map((l) => {
+                const active = langModal === "me" ? l.code === myLang : l.code === theirLang;
+                const otherSide = langModal === "me" ? theirLang : myLang;
+                const disabled = l.code === otherSide;
+                return (
+                  <button
+                    key={l.code}
+                    disabled={disabled}
+                    onClick={() => {
+                      if (langModal === "me") setMyLang(l.code);
+                      else setTheirLang(l.code);
+                      setLangModal(null);
+                    }}
+                    className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-left ${active ? "bg-white/10" : "hover:bg-white/5"} ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
+                  >
+                    <span className="text-2xl">{l.flag}</span>
+                    <span className="flex-1 text-sm font-medium">{l.label}</span>
+                    {active && <span className="text-xs text-white/60">Sélectionné</span>}
+                    {disabled && !active && <span className="text-xs text-white/40">Utilisée par l'autre</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
