@@ -152,8 +152,8 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
               <Gift className="h-3 w-3" /> Gratuits <span>(aujourd'hui)</span>
             </div>
             <div className="mt-0.5 text-lg font-bold">
-              {Math.max(0, (status.mobile_daily_limit ?? 50) - (status.mobile_daily_used ?? 0))}
-              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 50}</span>
+              {Math.max(0, (status.mobile_daily_limit ?? 35) - (status.mobile_daily_used ?? 0))}
+              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 35}</span>
             </div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
@@ -163,7 +163,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
             <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
           </div>
           <p className={`col-span-2 text-[11px] leading-relaxed ${muted}`}>
-            Les <strong>50 traductions gratuites/jour</strong> sont consommées <strong>avant</strong> les crédits mobiles achetés.
+            Les <strong>35 traductions gratuites/jour</strong> sont consommées <strong>avant</strong> les crédits mobiles achetés.
           </p>
         </div>
       ) : unlimited ? (
