@@ -35,8 +35,8 @@ export function useUserStatus() {
 }
 
 export function planLabelOf(s: UserStatus): "Abonné" | "Testeur" | "Gratuit+" | "Gratuit" {
-  if (s.subscribed) return "Abonné";
   if (s.is_tester) return "Testeur";
+  if (s.subscribed) return "Abonné";
   if (s.purchased_balance > 0) return "Gratuit+";
   return "Gratuit";
 }
