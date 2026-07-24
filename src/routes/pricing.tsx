@@ -117,6 +117,24 @@ function PricingPage() {
             </button>
           </div>
 
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h2 className="text-lg font-semibold">Pack crédits Mobile</h2>
+            <div className="my-3 text-3xl font-bold">2,99 €</div>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>✓ 75 traductions app mobile</li>
+              <li>✓ Utilisées après vos 50 gratuites/jour</li>
+              <li>✓ Cumulables, sans expiration</li>
+            </ul>
+            <button
+              onClick={() => buy("mobile_credits_pack_75_onetime")}
+              disabled={loading || authLoading}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {buttonLabel("Acheter 75 crédits Mobile")}
+            </button>
+          </div>
+
+
 
           <div className="rounded-xl border-2 border-primary bg-card p-5">
             <div className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">
