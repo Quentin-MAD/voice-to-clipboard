@@ -8,26 +8,41 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
-  { code: "fr", label: "Français", flag: "🇫🇷" },
-  { code: "en", label: "Anglais", flag: "🇬🇧" },
-  { code: "es", label: "Espagnol", flag: "🇪🇸" },
   { code: "de", label: "Allemand", flag: "🇩🇪" },
-  { code: "it", label: "Italien", flag: "🇮🇹" },
-  { code: "pt", label: "Portugais", flag: "🇧🇷" },
-  { code: "ru", label: "Russe", flag: "🇷🇺" },
-  { code: "ja", label: "Japonais", flag: "🇯🇵" },
+  { code: "en", label: "Anglais", flag: "🇬🇧" },
+  { code: "ar", label: "Arabe", flag: "🇸🇦" },
+  { code: "bg", label: "Bulgare", flag: "🇧🇬" },
   { code: "zh", label: "Chinois", flag: "🇨🇳" },
   { code: "ko", label: "Coréen", flag: "🇰🇷" },
-  { code: "tr", label: "Turc", flag: "🇹🇷" },
-  { code: "pl", label: "Polonais", flag: "🇵🇱" },
-  { code: "nl", label: "Néerlandais", flag: "🇳🇱" },
-  { code: "ar", label: "Arabe", flag: "🇸🇦" },
+  { code: "hr", label: "Croate", flag: "🇭🇷" },
+  { code: "da", label: "Danois", flag: "🇩🇰" },
+  { code: "es", label: "Espagnol", flag: "🇪🇸" },
+  { code: "fi", label: "Finnois", flag: "🇫🇮" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "el", label: "Grec", flag: "🇬🇷" },
+  { code: "he", label: "Hébreu", flag: "🇮🇱" },
+  { code: "hi", label: "Hindi", flag: "🇮🇳" },
+  { code: "hu", label: "Hongrois", flag: "🇭🇺" },
   { code: "id", label: "Indonésien", flag: "🇮🇩" },
-  { code: "vi", label: "Vietnamien", flag: "🇻🇳" },
-  { code: "th", label: "Thaï", flag: "🇹🇭" },
+  { code: "it", label: "Italien", flag: "🇮🇹" },
+  { code: "ja", label: "Japonais", flag: "🇯🇵" },
+  { code: "ms", label: "Malais", flag: "🇲🇾" },
+  { code: "nl", label: "Néerlandais", flag: "🇳🇱" },
+  { code: "no", label: "Norvégien", flag: "🇳🇴" },
+  { code: "fa", label: "Persan", flag: "🇮🇷" },
+  { code: "pl", label: "Polonais", flag: "🇵🇱" },
+  { code: "pt", label: "Portugais", flag: "🇧🇷" },
+  { code: "ro", label: "Roumain", flag: "🇷🇴" },
+  { code: "ru", label: "Russe", flag: "🇷🇺" },
+  { code: "sk", label: "Slovaque", flag: "🇸🇰" },
   { code: "sv", label: "Suédois", flag: "🇸🇪" },
+  { code: "cs", label: "Tchèque", flag: "🇨🇿" },
+  { code: "th", label: "Thaï", flag: "🇹🇭" },
+  { code: "tr", label: "Turc", flag: "🇹🇷" },
   { code: "uk", label: "Ukrainien", flag: "🇺🇦" },
+  { code: "vi", label: "Vietnamien", flag: "🇻🇳" },
 ];
+
 
 function isMobileDevice() {
   if (typeof window === "undefined") return true;
@@ -48,7 +63,7 @@ export const Route = createFileRoute("/mobile")({
   head: () => ({
     meta: [
       { title: "TalKing Mobile - Dialogue vocal traduit" },
-      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 19 langues." },
+      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 33 langues." },
       { property: "og:title", content: "TalKing Mobile - Dialogue vocal traduit" },
       { property: "og:description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute." },
       { property: "og:type", content: "website" },
