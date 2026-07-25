@@ -70,7 +70,7 @@ function MobileDownloadCard() {
       <Smartphone className="mx-auto h-10 w-10 text-primary" />
       <h2 className="mt-4 text-xl font-bold">App Mobile</h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        Dialoguez avec des étrangers : parlez, l'IA traduit et lit à voix haute dans 19 langues. 50 traductions gratuites par jour.
+        Dialoguez avec des étrangers : parlez, l'IA traduit et lit à voix haute dans 33 langues. 50 traductions gratuites par jour.
       </p>
       {isMobile ? (
         <div className="mt-6 space-y-3">
