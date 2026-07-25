@@ -63,7 +63,7 @@ export const Route = createFileRoute("/mobile")({
   head: () => ({
     meta: [
       { title: "TalKing Mobile - Dialogue vocal traduit" },
-      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 19 langues." },
+      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 33 langues." },
       { property: "og:title", content: "TalKing Mobile - Dialogue vocal traduit" },
       { property: "og:description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute." },
       { property: "og:type", content: "website" },
