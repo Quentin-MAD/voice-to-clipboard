@@ -171,20 +171,58 @@ export const Route = createFileRoute("/api/admin")({
         const emailById = new Map<string, string>(
           ((users ?? []) as any[]).map((u) => [u.user_id, u.email ?? ""]),
         );
-        // Coût moyen approximatif par opération (EUR) - pour info dans le feed
-        const avgCostByOp = new Map<string, number>();
-        for (const b of breakdown.all) {
-          if (b.avg_cost_eur > 0) avgCostByOp.set(b.operation, b.avg_cost_eur);
+        // Coût réel par événement : on somme les entrées ai_usage_log du même user_id
+        // dans une fenêtre de ±15s autour de translations_log.created_at.
+        const aiByUser = new Map<string, Array<{ t: number; cost: number }>>();
+        for (const r of (aiWithUser ?? []) as any[]) {
+          const arr = aiByUser.get(r.user_id) ?? [];
+          arr.push({ t: new Date(r.created_at).getTime(), cost: Number(r.cost_credits ?? 0) * USD_TO_EUR });
+          aiByUser.set(r.user_id, arr);
         }
-        const recent = (recentTl ?? []).map((r: any) => ({
-          created_at: r.created_at,
-          operation: r.operation_type ?? "translate",
-          source_type: r.source_type ?? "unknown",
-          user_id: r.user_id,
-          email: emailById.get(r.user_id) ?? "—",
-          is_tester: testerIds.has(r.user_id),
-          approx_cost_eur: avgCostByOp.get(r.operation_type ?? "translate") ?? 0,
-        }));
+        // Fallback: coût moyen par opération (toutes fenêtres) si pas de match temporel
+        const sumByOp = new Map<string, { c: number; n: number }>();
+        for (const r of (aiWithUser ?? []) as any[]) {
+          const op = r.operation ?? "unknown";
+          const s = sumByOp.get(op) ?? { c: 0, n: 0 };
+          s.c += Number(r.cost_credits ?? 0) * USD_TO_EUR;
+          s.n += 1;
+          sumByOp.set(op, s);
+        }
+        const opFallbackKeys: Record<string, string[]> = {
+          read_message: ["vision_read_message", "tts_read_message"],
+          mobile_dialog: ["mobile_transcription", "mobile_translation", "mobile_tts"],
+          translate: ["transcription", "translation"],
+        };
+        const avgCostByOp = new Map<string, number>();
+        for (const [tlOp, keys] of Object.entries(opFallbackKeys)) {
+          let c = 0;
+          let has = false;
+          for (const k of keys) {
+            const s = sumByOp.get(k);
+            if (s && s.n > 0) { c += s.c / s.n; has = true; }
+          }
+          if (has) avgCostByOp.set(tlOp, c);
+        }
+        const WINDOW_MS = 15000;
+        const recent = (recentTl ?? []).map((r: any) => {
+          const t = new Date(r.created_at).getTime();
+          const arr = aiByUser.get(r.user_id) ?? [];
+          let matched = 0;
+          for (const e of arr) {
+            if (Math.abs(e.t - t) <= WINDOW_MS) matched += e.cost;
+          }
+          const op = r.operation_type ?? "translate";
+          const cost = matched > 0 ? matched : (avgCostByOp.get(op) ?? 0);
+          return {
+            created_at: r.created_at,
+            operation: op,
+            source_type: r.source_type ?? "unknown",
+            user_id: r.user_id,
+            email: emailById.get(r.user_id) ?? "—",
+            is_tester: testerIds.has(r.user_id),
+            approx_cost_eur: cost,
+          };
+        });
 
 
         // Coût total (tous membres inclus, testeurs compris) - pour affichage brut
