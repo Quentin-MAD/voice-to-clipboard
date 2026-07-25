@@ -23,8 +23,19 @@ export function useUserStatus() {
     if (!user) { setStatus(null); return; }
     let cancelled = false;
     const load = async () => {
-      const { data, error } = await supabase.rpc("get_user_status", { _user_id: user.id });
-      if (!cancelled && !error && data && data[0]) setStatus(data[0] as UserStatus);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) return;
+      try {
+        const res = await fetch("/api/user-status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && data) setStatus(data as UserStatus);
+      } catch {
+        /* ignore */
+      }
     };
     load();
     const iv = setInterval(load, 30000);

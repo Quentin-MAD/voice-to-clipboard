@@ -16,6 +16,9 @@ type UserStatus = {
   voice_daily_used: number;
   voice_daily_limit: number;
   voice_daily_reset_at: string | null;
+  mobile_balance: number;
+  mobile_daily_used: number;
+  mobile_daily_limit: number;
 };
 
 function isNewSupabaseApiKey(value: string): boolean {
@@ -95,6 +98,9 @@ export const Route = createFileRoute("/api/user-status")({
           voice_daily_used: Number(row?.voice_daily_used ?? 0),
           voice_daily_limit: Number(row?.voice_daily_limit ?? 5),
           voice_daily_reset_at: row?.voice_daily_reset_at ? new Date(row.voice_daily_reset_at).toISOString() : null,
+          mobile_balance: Number(row?.mobile_balance ?? 0),
+          mobile_daily_used: Number(row?.mobile_daily_used ?? 0),
+          mobile_daily_limit: Number(row?.mobile_daily_limit ?? 35),
         };
 
         return Response.json(status);
