@@ -6,7 +6,11 @@ const LANG_NAMES: Record<string, string> = {
   ru: "Russian", ja: "Japanese", zh: "Chinese (Simplified)", pt: "Brazilian Portuguese",
   ko: "Korean", tr: "Turkish", pl: "Polish", nl: "Dutch", ar: "Arabic",
   id: "Indonesian", vi: "Vietnamese", th: "Thai", sv: "Swedish", uk: "Ukrainian",
+  el: "Greek", hi: "Hindi", ro: "Romanian", cs: "Czech", hu: "Hungarian",
+  da: "Danish", fi: "Finnish", no: "Norwegian", he: "Hebrew", bg: "Bulgarian",
+  hr: "Croatian", sk: "Slovak", ms: "Malay", fa: "Persian",
 };
+
 
 type VisionResult = {
   found: boolean;
