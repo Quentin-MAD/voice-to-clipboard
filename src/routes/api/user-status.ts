@@ -16,6 +16,9 @@ type UserStatus = {
   voice_daily_used: number;
   voice_daily_limit: number;
   voice_daily_reset_at: string | null;
+  mobile_balance: number;
+  mobile_daily_used: number;
+  mobile_daily_limit: number;
 };
 
 function isNewSupabaseApiKey(value: string): boolean {
