@@ -234,10 +234,11 @@ function LandingPage() {
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
               <Globe className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">19 langues</h3>
+              <h3 className="text-lg font-semibold">33 langues</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                FR, EN, ES, DE, IT, JA, ZH, PT-BR, KO, TR, PL, NL, AR, ID, VI, TH, SV, UK, RU.
+                FR, EN, ES, DE, IT, PT-BR, NL, PL, RU, JA, ZH, KO, TR, AR, ID, VI, TH, SV, UK, EL, HI, RO, CS, HU, DA, FI, NO, HE, BG, HR, SK, MS, FA.
               </p>
+
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
               <Zap className="mb-3 h-8 w-8 text-primary" />
