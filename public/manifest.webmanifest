@@ -1,7 +1,7 @@
 {
   "name": "TalKing Mobile",
   "short_name": "TalKing",
-  "description": "Dialogue vocal traduit en temps réel dans 33 langues.",
+  "description": "Dialogue vocal traduit en temps réel dans 47 langues.",
   "id": "/mobile",
   "start_url": "/mobile",
   "scope": "/",
