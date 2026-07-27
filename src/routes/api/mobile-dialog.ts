@@ -9,6 +9,10 @@ const LANG_NAMES: Record<string, string> = {
   el: "Greek", hi: "Hindi", ro: "Romanian", cs: "Czech", hu: "Hungarian",
   da: "Danish", fi: "Finnish", no: "Norwegian", he: "Hebrew", bg: "Bulgarian",
   hr: "Croatian", sk: "Slovak", ms: "Malay", fa: "Persian",
+  bn: "Bengali", ur: "Urdu", pa: "Punjabi", ta: "Tamil", te: "Telugu",
+  mr: "Marathi", gu: "Gujarati", jv: "Javanese", sw: "Swahili",
+  tl: "Filipino (Tagalog)", sr: "Serbian", sl: "Slovenian", ca: "Catalan",
+  af: "Afrikaans",
 };
 
 const STT_LANG: Record<string, string> = {
@@ -16,7 +20,8 @@ const STT_LANG: Record<string, string> = {
   pt: "pt", ko: "ko", tr: "tr", pl: "pl", nl: "nl", ar: "ar", id: "id", vi: "vi",
   th: "th", sv: "sv", uk: "uk", el: "el", hi: "hi", ro: "ro", cs: "cs", hu: "hu",
   da: "da", fi: "fi", no: "no", he: "he", bg: "bg", hr: "hr", sk: "sk", ms: "ms",
-  fa: "fa",
+  fa: "fa", bn: "bn", ur: "ur", pa: "pa", ta: "ta", te: "te", mr: "mr", gu: "gu",
+  jv: "jv", sw: "sw", tl: "tl", sr: "sr", sl: "sl", ca: "ca", af: "af",
 };
 
 

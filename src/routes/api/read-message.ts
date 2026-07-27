@@ -9,6 +9,10 @@ const LANG_NAMES: Record<string, string> = {
   el: "Greek", hi: "Hindi", ro: "Romanian", cs: "Czech", hu: "Hungarian",
   da: "Danish", fi: "Finnish", no: "Norwegian", he: "Hebrew", bg: "Bulgarian",
   hr: "Croatian", sk: "Slovak", ms: "Malay", fa: "Persian",
+  bn: "Bengali", ur: "Urdu", pa: "Punjabi", ta: "Tamil", te: "Telugu",
+  mr: "Marathi", gu: "Gujarati", jv: "Javanese", sw: "Swahili",
+  tl: "Filipino (Tagalog)", sr: "Serbian", sl: "Slovenian", ca: "Catalan",
+  af: "Afrikaans",
 };
 
 
