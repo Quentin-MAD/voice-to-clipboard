@@ -184,6 +184,7 @@ export const Route = createFileRoute("/api/read-message")({
 
           const audioBase64 = Buffer.from(await audio.arrayBuffer()).toString("base64");
           const screenshotBase64 = Buffer.from(await screenshot.arrayBuffer()).toString("base64");
+          const screenshotMime = screenshot.type === "image/jpeg" ? "image/jpeg" : "image/png";
 
           // ---- Vision + STT + translate in one shot ----
           const admin = createClient(supabaseUrl, serviceRole, {
@@ -192,7 +193,7 @@ export const Route = createFileRoute("/api/read-message")({
 
           let vision: VisionResult;
           try {
-            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshotBase64, targetLang);
+            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshotBase64, screenshotMime, targetLang);
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.error("Vision call failed:", msg);
