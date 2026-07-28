@@ -50,6 +50,8 @@ async function translate(text: string, sourceLang: string | null, targetLang: st
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
       model: "google/gemini-2.5-flash-lite",
+      reasoning_effort: "none",
+      max_tokens: 400,
       temperature: 0.2,
       messages: [
         {

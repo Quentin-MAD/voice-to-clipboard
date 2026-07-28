@@ -95,6 +95,8 @@ async function translate(text: string, targetLang: string, sourceLang: string | 
     body: JSON.stringify({
       model: "google/gemini-2.5-flash-lite",
       service_tier: "priority",
+      reasoning_effort: "none",
+      max_tokens: 400,
       temperature: 0.2,
       messages: [
         {
