@@ -58,6 +58,10 @@ Rules:
   const body = {
     model: "google/gemini-2.5-flash",
     temperature: 0.1,
+    // No chain-of-thought: this is a direct read/translate task. Disabling
+    // reasoning removes several seconds of latency AND thinking tokens.
+    reasoning_effort: "none",
+    max_tokens: 600,
     response_format: { type: "json_object" as const },
     messages: [
       { role: "system", content: systemPrompt },
@@ -66,11 +70,13 @@ Rules:
         content: [
           { type: "text", text: `Read the message and translate it to ${targetName}. Listen to what I'm saying and look at the screenshot.` },
           { type: "input_audio", input_audio: { data: audioBase64, format: audioFormat } },
-          { type: "image_url", image_url: { url: `data:image/png;base64,${screenshotBase64}` } },
+          { type: "image_url", image_url: { url: `data:${screenshotMime};base64,${screenshotBase64}` } },
         ],
       },
     ],
   };
+
+
 
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
