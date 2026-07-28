@@ -77,8 +77,8 @@ function BrowserBlocked() {
           <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/39d8fd2c-52cb-43ea-b5e5-c42166360267/TalKing-Setup-0.9.9.exe"
-          download="TalKing-Setup-0.9.9.exe"
+          href="/__l5e/assets-v1/761ea2de-30ee-4e0a-949d-2fdee35a2bd9/TalKing-Setup-0.10.5.exe"
+          download="TalKing-Setup-0.10.5.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
@@ -1406,11 +1406,11 @@ function Home() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/__l5e/assets-v1/39d8fd2c-52cb-43ea-b5e5-c42166360267/TalKing-Setup-0.9.9.exe"
-                  download="TalKing-Setup-0.9.9.exe"
+                  href="/__l5e/assets-v1/761ea2de-30ee-4e0a-949d-2fdee35a2bd9/TalKing-Setup-0.10.5.exe"
+                  download="TalKing-Setup-0.10.5.exe"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v0.9.9 (.exe, 99 Mo)
+                  ⬇ Télécharger l'installeur v0.10.5 (.exe, 99 Mo)
                 </a>
                 <a
                   href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
