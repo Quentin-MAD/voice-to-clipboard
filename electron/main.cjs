@@ -539,6 +539,9 @@ ipcMain.handle('screenshot:capture', async () => {
     const primary = screen.getPrimaryDisplay();
     const { width, height } = primary.size;
     const scale = primary.scaleFactor || 1;
+    // Capture at native resolution, then downscale + JPEG-encode before upload.
+    // Chat text stays readable at 1600px wide, but the payload goes from several
+    // MB (PNG) to ~200-400 KB, which removes most of the F9 upload latency.
     const sources = await desktopCapturer.getSources({
       types: ['screen'],
       thumbnailSize: {
@@ -548,8 +551,14 @@ ipcMain.handle('screenshot:capture', async () => {
     });
     if (!sources || sources.length === 0) return { ok: false, error: 'no-source' };
     const src = sources[0];
-    const png = src.thumbnail.toPNG();
-    return { ok: true, dataBase64: png.toString('base64'), mime: 'image/png' };
+    let image = src.thumbnail;
+    const size = image.getSize();
+    const MAX_W = 1600;
+    if (size.width > MAX_W) {
+      image = image.resize({ width: MAX_W, quality: 'good' });
+    }
+    const jpeg = image.toJPEG(80);
+    return { ok: true, dataBase64: jpeg.toString('base64'), mime: 'image/jpeg' };
   } catch (e) {
     console.error('screenshot:capture failed', e);
     return { ok: false, error: String(e && e.message || e) };

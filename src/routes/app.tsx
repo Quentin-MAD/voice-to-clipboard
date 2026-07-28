@@ -618,7 +618,8 @@ function Home() {
       if (!shot?.ok || !shot.dataBase64) {
         throw new Error(shot?.error ?? "Capture d'écran impossible");
       }
-      const screenshotBlob = await (await fetch(`data:${shot.mime ?? "image/png"};base64,${shot.dataBase64}`)).blob();
+      const shotMime = shot.mime ?? "image/png";
+      const screenshotBlob = await (await fetch(`data:${shotMime};base64,${shot.dataBase64}`)).blob();
 
       // 2. Encode audio to WAV
       const wav = encodeWav(chunks, sampleRate, 16000);
@@ -626,7 +627,7 @@ function Home() {
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
       form.append("audioFormat", "wav");
-      form.append("screenshot", screenshotBlob, "screen.png");
+      form.append("screenshot", screenshotBlob, shotMime === "image/jpeg" ? "screen.jpg" : "screen.png");
       form.append("targetLang", readLang);
 
 
