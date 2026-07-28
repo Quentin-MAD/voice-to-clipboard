@@ -1,5 +1,5 @@
 {
-  "version": "0.10.4",
+  "version": "0.10.5",
   "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe",
-  "notes": "v0.10.4 - Limites journalieres infinies pour les comptes Testeur, UI avec badge ∞, correction de l'affichage des statuts."
+  "notes": "v0.10.5 - Optimisation des temps de reponse F8/F9 (capture JPEG compressee, reponses IA accelerees) sans hausse des couts."
 }
