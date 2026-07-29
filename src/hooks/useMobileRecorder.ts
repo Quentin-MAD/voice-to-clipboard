@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { encodeWav } from "@/lib/wav-encoder";
-import { buildDenoiseChain, cleanupPcm, loadDenoiseSettings } from "@/lib/audio-cleanup";
+import { buildDenoiseChain, cleanupPcm, loadDenoiseSettings, DEFAULT_DENOISE } from "@/lib/audio-cleanup";
 
 
 type RecorderState = "idle" | "recording" | "processing" | "playing" | "error";
