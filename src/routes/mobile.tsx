@@ -444,7 +444,30 @@ function MobileApp() {
             Changer de tour
           </button>
         </div>
+
+        {/* Noise reduction */}
+        <div className="mt-2 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2">
+          <label className="flex items-center gap-2 text-xs text-white/60">
+            <input
+              type="checkbox"
+              checked={denoise.enabled}
+              onChange={(e) => updateDenoise({ ...denoise, enabled: e.target.checked })}
+            />
+            Réduction de bruit
+          </label>
+          <select
+            value={denoise.level}
+            disabled={!denoise.enabled}
+            onChange={(e) => updateDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+            className="rounded-lg border border-white/10 bg-[#151515] px-2 py-1 text-xs text-white disabled:opacity-40"
+          >
+            {DENOISE_LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
+
 
       {/* Main record button */}
       <div className="flex-1 flex flex-col items-center justify-center px-5 py-6 gap-5">
