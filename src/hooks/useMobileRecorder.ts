@@ -55,13 +55,15 @@ export function useMobileRecorder() {
       ctxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);
       sourceRef.current = source;
+      denoiseRef.current = loadDenoiseSettings();
+      const tail = buildDenoiseChain(ctx, source, denoiseRef.current);
       const node = ctx.createScriptProcessor(4096, 1, 1);
       nodeRef.current = node;
       chunksRef.current = [];
       node.onaudioprocess = (e) => {
         chunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
-      source.connect(node);
+      tail.connect(node);
       node.connect(ctx.destination);
       startedAtRef.current = Date.now();
       setElapsed(0);
@@ -82,10 +84,12 @@ export function useMobileRecorder() {
     const sampleRate = ctx?.sampleRate ?? 44100;
     cleanup();
     if (!chunks.length) return null;
-    const blob = encodeWav(chunks, sampleRate);
+    const cleaned = cleanupPcm(chunks, sampleRate, denoiseRef.current);
+    const blob = encodeWav(cleaned, sampleRate);
     if (blob.size < 2048) return null;
     return blob;
   }, [cleanup]);
+
 
   return { state, setState, elapsed, start, stop };
 }
