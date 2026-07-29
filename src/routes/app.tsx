@@ -1672,6 +1672,29 @@ function Home() {
                   <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
                 </div>
 
+                <div className="mb-4">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+                    <input
+                      type="checkbox"
+                      checked={denoise.enabled}
+                      onChange={(e) => setDenoise({ ...denoise, enabled: e.target.checked })}
+                    />
+                    Réduction de bruit
+                  </label>
+                  <select
+                    value={denoise.level}
+                    disabled={!denoise.enabled}
+                    onChange={(e) => setDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
+                  >
+                    {DENOISE_LEVELS.map((l) => (
+                      <option key={l.value} value={l.value}>{l.label} - {l.hint}</option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Nettoie la voix (rue, vent, ventilateur) sur votre appareil avant l'envoi à l'IA. Aucun coût supplémentaire.
+                  </p>
+                </div>
 
 
                 <button
