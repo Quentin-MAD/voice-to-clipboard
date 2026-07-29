@@ -162,6 +162,14 @@ function MobileApp() {
   const deferredPromptRef = useRef<Event | null>(null);
   const recorder = useMobileRecorder();
 
+  const [denoise, setDenoise] = useState<DenoiseSettings>(DEFAULT_DENOISE);
+  useEffect(() => { setDenoise(loadDenoiseSettings()); }, []);
+  const updateDenoise = (next: DenoiseSettings) => {
+    setDenoise(next);
+    saveDenoiseSettings(next);
+  };
+
+
   useEffect(() => { localStorage.setItem("tk_mobile_mylang", myLang); }, [myLang]);
   useEffect(() => { localStorage.setItem("tk_mobile_theirlang", theirLang); }, [theirLang]);
 
