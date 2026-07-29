@@ -399,7 +399,7 @@ function Home() {
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
     try {
-      const wav = encodeWav(chunks, sampleRate, 16000);
+      const wav = encodeWav(cleanupPcm(chunks, sampleRate, denoiseRef.current), sampleRate, 16000);
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
       form.append("targetLang", target);
