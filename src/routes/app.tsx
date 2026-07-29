@@ -4,6 +4,16 @@ import { HardDrive, Settings, LogOut, Wallet, Mic } from "lucide-react";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
+import {
+  buildDenoiseChain,
+  cleanupPcm,
+  loadDenoiseSettings,
+  saveDenoiseSettings,
+  DEFAULT_DENOISE,
+  DENOISE_LEVELS,
+  type DenoiseLevel,
+  type DenoiseSettings,
+} from "@/lib/audio-cleanup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -315,6 +325,20 @@ function Home() {
   const recordStartRef = useRef(0);
   const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
+  const [denoise, setDenoise] = useState<DenoiseSettings>(DEFAULT_DENOISE);
+  const denoiseRef = useRef<DenoiseSettings>(DEFAULT_DENOISE);
+  useEffect(() => {
+    setDenoise(loadDenoiseSettings());
+  }, []);
+  useEffect(() => {
+    denoiseRef.current = denoise;
+  }, [denoise]);
+  const updateDenoise = useCallback((next: DenoiseSettings) => {
+    setDenoise(next);
+    saveDenoiseSettings(next);
+  }, []);
+
+
   // Load settings after hydration
   useEffect(() => {
     setHydrated(true);
@@ -399,7 +423,7 @@ function Home() {
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
     try {
-      const wav = encodeWav(chunks, sampleRate, 16000);
+      const wav = encodeWav(cleanupPcm(chunks, sampleRate, denoiseRef.current), sampleRate, 16000);
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
       form.append("targetLang", target);
@@ -536,14 +560,16 @@ function Home() {
       });
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
+      const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
       chunksRef.current = [];
       processor.onaudioprocess = (e) => {
         if (!recordingRef.current) return;
         chunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
-      src.connect(processor);
+      tail.connect(processor);
       processor.connect(ctx.destination);
+
 
       audioCtxRef.current = ctx;
       streamRef.current = stream;
@@ -622,7 +648,7 @@ function Home() {
       const screenshotBlob = await (await fetch(`data:${shotMime};base64,${shot.dataBase64}`)).blob();
 
       // 2. Encode audio to WAV
-      const wav = encodeWav(chunks, sampleRate, 16000);
+      const wav = encodeWav(cleanupPcm(chunks, sampleRate, denoiseRef.current), sampleRate, 16000);
 
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
@@ -762,14 +788,16 @@ function Home() {
       });
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
+      const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
       readChunksRef.current = [];
       processor.onaudioprocess = (e) => {
         if (!readRecordingRef.current) return;
         readChunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
-      src.connect(processor);
+      tail.connect(processor);
       processor.connect(ctx.destination);
+
       readAudioCtxRef.current = ctx;
       readStreamRef.current = stream;
       readSourceNodeRef.current = src;
@@ -1547,6 +1575,30 @@ function Home() {
                     <p className="native-field-help">Sélectionnez le micro à utiliser pour l'enregistrement. Autorisez l'accès au micro pour voir les noms des appareils.</p>
                   </div>
 
+                  <div className="native-field">
+                    <span className="native-label">Réduction de bruit</span>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <input
+                        type="checkbox"
+                        className="native-switch"
+                        checked={denoise.enabled}
+                        onChange={(e) => updateDenoise({ ...denoise, enabled: e.target.checked })}
+                      />
+                      <span className="native-row-desc">Activer le nettoyage audio</span>
+                    </label>
+                    <select
+                      value={denoise.level}
+                      disabled={!denoise.enabled}
+                      onChange={(e) => updateDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                      style={{ width: "100%", height: 36, marginTop: 8, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px", opacity: denoise.enabled ? 1 : 0.5 }}
+                    >
+                      {DENOISE_LEVELS.map((l) => (
+                        <option key={l.value} value={l.value}>{l.label} - {l.hint}</option>
+                      ))}
+                    </select>
+                    <p className="native-field-help">Filtre le bruit de fond (rue, vent, ventilateur) directement sur votre PC avant l'envoi à l'IA. Aucun coût supplémentaire, et l'envoi est plus rapide.</p>
+                  </div>
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
@@ -1672,6 +1724,29 @@ function Home() {
                   <p className="mt-2 text-xs text-muted-foreground">Langue dans laquelle l'IA vous lira le message traduit.</p>
                 </div>
 
+                <div className="mb-4">
+                  <label className="mb-2 flex items-center gap-2 text-sm font-medium">
+                    <input
+                      type="checkbox"
+                      checked={denoise.enabled}
+                      onChange={(e) => updateDenoise({ ...denoise, enabled: e.target.checked })}
+                    />
+                    Réduction de bruit
+                  </label>
+                  <select
+                    value={denoise.level}
+                    disabled={!denoise.enabled}
+                    onChange={(e) => updateDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
+                  >
+                    {DENOISE_LEVELS.map((l) => (
+                      <option key={l.value} value={l.value}>{l.label} - {l.hint}</option>
+                    ))}
+                  </select>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Nettoie la voix (rue, vent, ventilateur) sur votre appareil avant l'envoi à l'IA. Aucun coût supplémentaire.
+                  </p>
+                </div>
 
 
                 <button
