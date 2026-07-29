@@ -4,6 +4,16 @@ import { HardDrive, Settings, LogOut, Wallet, Mic } from "lucide-react";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
 import { encodeWav } from "@/lib/wav-encoder";
+import {
+  buildDenoiseChain,
+  cleanupPcm,
+  loadDenoiseSettings,
+  saveDenoiseSettings,
+  DEFAULT_DENOISE,
+  DENOISE_LEVELS,
+  type DenoiseLevel,
+  type DenoiseSettings,
+} from "@/lib/audio-cleanup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
