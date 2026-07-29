@@ -16,6 +16,8 @@ export function useMobileRecorder() {
   const chunksRef = useRef<Float32Array[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startedAtRef = useRef<number>(0);
+  const denoiseRef = useRef(DEFAULT_DENOISE);
+
 
   const cleanup = useCallback(() => {
     if (timerRef.current) {
