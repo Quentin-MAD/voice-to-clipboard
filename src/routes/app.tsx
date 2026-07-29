@@ -1582,14 +1582,14 @@ function Home() {
                         type="checkbox"
                         className="native-switch"
                         checked={denoise.enabled}
-                        onChange={(e) => setDenoise({ ...denoise, enabled: e.target.checked })}
+                        onChange={(e) => updateDenoise({ ...denoise, enabled: e.target.checked })}
                       />
                       <span className="native-row-desc">Activer le nettoyage audio</span>
                     </label>
                     <select
                       value={denoise.level}
                       disabled={!denoise.enabled}
-                      onChange={(e) => setDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                      onChange={(e) => updateDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
                       style={{ width: "100%", height: 36, marginTop: 8, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px", opacity: denoise.enabled ? 1 : 0.5 }}
                     >
                       {DENOISE_LEVELS.map((l) => (
@@ -1729,14 +1729,14 @@ function Home() {
                     <input
                       type="checkbox"
                       checked={denoise.enabled}
-                      onChange={(e) => setDenoise({ ...denoise, enabled: e.target.checked })}
+                      onChange={(e) => updateDenoise({ ...denoise, enabled: e.target.checked })}
                     />
                     Réduction de bruit
                   </label>
                   <select
                     value={denoise.level}
                     disabled={!denoise.enabled}
-                    onChange={(e) => setDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                    onChange={(e) => updateDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
                   >
                     {DENOISE_LEVELS.map((l) => (
