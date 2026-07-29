@@ -1547,6 +1547,30 @@ function Home() {
                     <p className="native-field-help">Sélectionnez le micro à utiliser pour l'enregistrement. Autorisez l'accès au micro pour voir les noms des appareils.</p>
                   </div>
 
+                  <div className="native-field">
+                    <span className="native-label">Réduction de bruit</span>
+                    <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <input
+                        type="checkbox"
+                        className="native-switch"
+                        checked={denoise.enabled}
+                        onChange={(e) => setDenoise({ ...denoise, enabled: e.target.checked })}
+                      />
+                      <span className="native-row-desc">Activer le nettoyage audio</span>
+                    </label>
+                    <select
+                      value={denoise.level}
+                      disabled={!denoise.enabled}
+                      onChange={(e) => setDenoise({ ...denoise, level: e.target.value as DenoiseLevel })}
+                      style={{ width: "100%", height: 36, marginTop: 8, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px", opacity: denoise.enabled ? 1 : 0.5 }}
+                    >
+                      {DENOISE_LEVELS.map((l) => (
+                        <option key={l.value} value={l.value}>{l.label} - {l.hint}</option>
+                      ))}
+                    </select>
+                    <p className="native-field-help">Filtre le bruit de fond (rue, vent, ventilateur) directement sur votre PC avant l'envoi à l'IA. Aucun coût supplémentaire, et l'envoi est plus rapide.</p>
+                  </div>
+
 
                   <div className="native-row">
                     <div style={{ minWidth: 0 }}>
