@@ -315,6 +315,20 @@ function Home() {
   const recordStartRef = useRef(0);
   const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
+  const [denoise, setDenoise] = useState<DenoiseSettings>(DEFAULT_DENOISE);
+  const denoiseRef = useRef<DenoiseSettings>(DEFAULT_DENOISE);
+  useEffect(() => {
+    setDenoise(loadDenoiseSettings());
+  }, []);
+  useEffect(() => {
+    denoiseRef.current = denoise;
+  }, [denoise]);
+  const updateDenoise = useCallback((next: DenoiseSettings) => {
+    setDenoise(next);
+    saveDenoiseSettings(next);
+  }, []);
+
+
   // Load settings after hydration
   useEffect(() => {
     setHydrated(true);
