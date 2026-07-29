@@ -4,6 +4,14 @@ import { Mic, Loader2, Volume2, LogOut, Smartphone, ArrowLeftRight, RotateCcw } 
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useMobileRecorder } from "@/hooks/useMobileRecorder";
+import {
+  loadDenoiseSettings,
+  saveDenoiseSettings,
+  DEFAULT_DENOISE,
+  DENOISE_LEVELS,
+  type DenoiseLevel,
+  type DenoiseSettings,
+} from "@/lib/audio-cleanup";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 
