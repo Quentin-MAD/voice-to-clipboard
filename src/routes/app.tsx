@@ -536,14 +536,16 @@ function Home() {
       });
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
+      const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
       chunksRef.current = [];
       processor.onaudioprocess = (e) => {
         if (!recordingRef.current) return;
         chunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
       };
-      src.connect(processor);
+      tail.connect(processor);
       processor.connect(ctx.destination);
+
 
       audioCtxRef.current = ctx;
       streamRef.current = stream;
