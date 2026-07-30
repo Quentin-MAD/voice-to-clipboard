@@ -575,7 +575,7 @@ function MobileApp() {
                 <ol className="list-decimal list-inside space-y-2 text-white/80">
                   <li>Touchez le bouton <b>Partager</b> en bas de Safari (carré avec flèche vers le haut).</li>
                   <li>Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.</li>
-                  <li>Confirmez avec <b>Ajouter</b>. L'icône Tk apparaît sur votre écran d'accueil.</li>
+                  <li>Confirmez avec <b>Ajouter</b>. L'icône TalKing apparaît sur votre écran d'accueil.</li>
                 </ol>
                 <p className="text-xs text-white/50">Chrome/Firefox iOS ne permettent pas l'installation - Apple oblige à passer par Safari.</p>
               </div>
