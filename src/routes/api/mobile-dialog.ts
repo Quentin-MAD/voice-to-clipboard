@@ -98,9 +98,13 @@ async function synthesize(text: string, targetLang: string): Promise<string> {
 async function logAiUsage(userId: string, entries: Array<{ model: string; operation: string; input_tokens?: number; output_tokens?: number; cost_credits: number }>) {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("ai_usage_log").insert(entries.map((e) => ({ ...e, user_id: userId })));
+    const { error } = await supabaseAdmin
+      .from("ai_usage_log")
+      .insert(entries.map((e) => ({ ...e, user_id: userId })));
+    if (error) throw error;
   } catch (e) {
     console.warn("ai_usage_log insert failed", e);
+    throw new Error("Le suivi du coût IA mobile a échoué.");
   }
 }
 

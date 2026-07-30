@@ -262,18 +262,27 @@ export const Route = createFileRoute("/api/admin")({
           s.n += 1;
           sumByOp.set(op, s);
         }
-        const opFallbackKeys: Record<string, string[]> = {
-          read_message: ["vision_read_message", "tts_read_message"],
-          mobile_dialog: ["mobile_transcription", "mobile_translation", "mobile_tts"],
-          translate: ["transcription", "translation"],
+        const opFallbackGroups: Record<string, string[][]> = {
+          read_message: [["vision_read_message", "vision_read"], ["tts_read_message", "tts"]],
+          mobile_dialog: [
+            ["mobile_transcription", "transcription"],
+            ["mobile_translation", "translation"],
+            ["mobile_tts", "tts_read_message", "tts"],
+          ],
+          translate: [["transcription"], ["translation"]],
         };
         const avgCostByOp = new Map<string, number>();
-        for (const [tlOp, keys] of Object.entries(opFallbackKeys)) {
+        for (const [tlOp, groups] of Object.entries(opFallbackGroups)) {
           let c = 0;
           let has = false;
-          for (const k of keys) {
-            const s = sumByOp.get(k);
-            if (s && s.n > 0) { c += s.c / s.n; has = true; }
+          for (const alternatives of groups) {
+            for (const operation of alternatives) {
+              const summary = sumByOp.get(operation);
+              if (!summary || summary.n === 0) continue;
+              c += summary.c / summary.n;
+              has = true;
+              break;
+            }
           }
           if (has) avgCostByOp.set(tlOp, c);
         }
