@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { encodeWav } from "@/lib/wav-encoder";
-import { buildDenoiseChain, cleanupPcm, loadDenoiseSettings, DEFAULT_DENOISE } from "@/lib/audio-cleanup";
+import { buildDenoiseChain, encodeCleanedWav, loadDenoiseSettings, DEFAULT_DENOISE } from "@/lib/audio-cleanup";
 
 
 type RecorderState = "idle" | "recording" | "processing" | "playing" | "error";
@@ -86,8 +85,7 @@ export function useMobileRecorder() {
     const sampleRate = ctx?.sampleRate ?? 44100;
     cleanup();
     if (!chunks.length) return null;
-    const cleaned = cleanupPcm(chunks, sampleRate, denoiseRef.current);
-    const blob = encodeWav(cleaned, sampleRate);
+    const blob = encodeCleanedWav(chunks, sampleRate, denoiseRef.current);
     if (blob.size < 2048) return null;
     return blob;
   }, [cleanup]);
