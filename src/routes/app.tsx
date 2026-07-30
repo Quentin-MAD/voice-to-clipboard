@@ -1341,7 +1341,7 @@ function Home() {
                 <>Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.</>
               ) : (
                 <>
-                  Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter — ou appuyez sur{" "}
+                  Cliquez une fois pour démarrer, cliquez à nouveau pour arrêter - ou appuyez sur{" "}
                   <kbd>{toggleKey}</kbd>
                   {isElectron ? " (raccourci global, fonctionne depuis un jeu)" : ""}. La traduction est copiée dans votre presse-papiers.
                 </>
