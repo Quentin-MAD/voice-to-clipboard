@@ -1,5 +1,5 @@
 {
-  "version": "0.12.2",
-  "url": "https://talking-translator.com/__l5e/assets-v1/6a7b7bc9-e4c0-405d-9aee-f9c7debdd7dc/TalKing-Setup-0.12.2.exe",
-  "notes": "v0.12.2 - Barre Windows sans icône native, avec un seul numéro de version."
+  "version": "0.12.3",
+  "url": "https://talking-translator.com/__l5e/assets-v1/b2d75705-93b5-4ce6-9a7b-743b0e3a91b7/TalKing-Setup-0.12.3.exe",
+  "notes": "v0.12.3 - Suppression définitive de l'ancienne barre Windows et de son icône."
 }
