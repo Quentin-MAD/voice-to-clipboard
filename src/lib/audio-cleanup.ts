@@ -66,7 +66,15 @@ export function buildDenoiseChain(
   settings: DenoiseSettings,
 ): AudioNode {
   if (!settings.enabled) return source;
-  const p = PROFILES[settings.level];
+  try {
+    return buildChain(ctx, source, PROFILES[settings.level] ?? PROFILES.normal);
+  } catch (err) {
+    console.error("denoise chain failed, using raw microphone", err);
+    return source;
+  }
+}
+
+function buildChain(ctx: BaseAudioContext, source: AudioNode, p: Profile): AudioNode {
 
   const hp = ctx.createBiquadFilter();
   hp.type = "highpass";
