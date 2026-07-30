@@ -309,10 +309,10 @@ export const Route = createFileRoute("/api/admin")({
         };
         // Coût des testeurs uniquement (à afficher séparément)
         const costTesters = {
-          day: Math.max(cost.day - costEurWindowFiltered(1, false), estimatedTesterEur(1)),
-          week: Math.max(cost.week - costEurWindowFiltered(7, false), estimatedTesterEur(7)),
-          month: Math.max(cost.month - costEurWindowFiltered(30, false), estimatedTesterEur(30)),
-          year: Math.max(cost.year - costEurWindowFiltered(365, false), estimatedTesterEur(365)),
+          day: Math.max(costEurWindowFiltered(1, true) - costEurWindowFiltered(1, false), estimatedTesterEur(1)),
+          week: Math.max(costEurWindowFiltered(7, true) - costEurWindowFiltered(7, false), estimatedTesterEur(7)),
+          month: Math.max(costEurWindowFiltered(30, true) - costEurWindowFiltered(30, false), estimatedTesterEur(30)),
+          year: Math.max(costEurWindowFiltered(365, true) - costEurWindowFiltered(365, false), estimatedTesterEur(365)),
           all: Math.max(costAllEur - costAllEurExclTesters, estimatedTesterEur()),
         };
         // Coût retenu pour la rentabilité : TOTAL, testeurs inclus
