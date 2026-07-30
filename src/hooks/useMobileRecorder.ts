@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildDenoiseChain, encodeCleanedWav, loadDenoiseSettings, DEFAULT_DENOISE } from "@/lib/audio-cleanup";
+import { acquireMicStream } from "@/lib/mic";
 
 
 type RecorderState = "idle" | "recording" | "processing" | "playing" | "error";
