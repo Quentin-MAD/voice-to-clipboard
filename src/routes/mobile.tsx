@@ -374,17 +374,17 @@ function MobileApp() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden select-none" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       {/* Header */}
-      <header className="flex items-center justify-between px-5 pt-4 pb-2">
-        <div className="flex items-center gap-2 notranslate">
-          <img src="/logo-white.svg" alt="TalKing" className="h-11 w-auto" />
-          <span className="text-xl font-bold text-white">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-4 pb-2">
+        <div className="flex min-w-0 items-center gap-2 notranslate">
+          <img src="/logo-white.svg" alt="TalKing" className="h-9 w-auto shrink-0 sm:h-10" />
+          <span className="truncate text-lg font-bold text-white sm:text-xl">
             TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
           </span>
         </div>
 
         <button
           onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
-          className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
           aria-label="Déconnexion"
         >
           <LogOut className="h-4 w-4" />
