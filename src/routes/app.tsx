@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
+import { acquireMicStream, describeMicError } from "@/lib/mic";
+
 
 export const Route = createFileRoute("/app")({
   head: () => ({
