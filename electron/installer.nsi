@@ -14,7 +14,7 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.10.7"
+!define APP_VERSION    "0.10.8"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
 !define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
@@ -30,7 +30,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.10.7.0"
+VIProductVersion "0.10.8.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
