@@ -1,3 +1,5 @@
+import { encodeWav } from "@/lib/wav-encoder";
+
 // Client-side noise reduction: runs entirely on-device before the WAV is encoded.
 // Two stages: a real-time Web Audio filter chain, and an offline gate/normalizer.
 
@@ -232,4 +234,26 @@ function cleanupPcmInner(
     result[i] = v > 1 ? 1 : v < -1 ? -1 : v;
   }
   return [result];
+}
+
+/**
+ * Encodes the recording with cleanup applied, falling back to the raw audio
+ * whenever the cleaned result would be too small to transcribe.
+ */
+export function encodeCleanedWav(
+  chunks: Float32Array[],
+  sampleRate: number,
+  settings: DenoiseSettings,
+  targetRate = 16000,
+): Blob {
+  const raw = () => encodeWav(chunks, sampleRate, targetRate);
+  try {
+    const cleaned = cleanupPcm(chunks, sampleRate, settings);
+    const blob = encodeWav(cleaned, sampleRate, targetRate);
+    if (blob.size < 4096) return raw();
+    return blob;
+  } catch (err) {
+    console.error("cleaned encode failed, sending raw audio", err);
+    return raw();
+  }
 }
