@@ -425,7 +425,7 @@ function AdminPage() {
                         {u.is_tester ? (
                           <span
                             className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
-                            title="Testeur - accès gratuit accordé par l'admin, exclu de la rentabilité"
+                            title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
                           >
                             Testeur
                           </span>
@@ -538,7 +538,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Coût {r.label}</div>
             <div className="mt-1 text-xl font-bold text-red-500">{EUR(finance.cost[r.key])}</div>
             {Number(finance.costTesters[r.key]) > 0 && (
-              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (exclus de la rentabilité)">
+              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (inclus dans la rentabilité)">
                 dont testeurs : {EUR(finance.costTesters[r.key])}
               </div>
             )}
@@ -552,10 +552,10 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             <tr className="border-b text-left">
               <th className="p-2">Période</th>
               <th className="p-2" title="Coût IA total, tous membres inclus (testeurs compris)">Coût IA total</th>
-              <th className="p-2" title="Coût IA généré par les testeurs (exclu de la rentabilité)">dont testeurs</th>
-              <th className="p-2" title="Coût IA utilisé pour la rentabilité (testeurs exclus)">Coût facturable</th>
+              <th className="p-2" title="Coût IA généré par les testeurs (inclus dans la rentabilité)">dont testeurs</th>
+
               <th className="p-2">Revenus</th>
-              <th className="p-2" title="Revenus - coût facturable">Bénéfice</th>
+              <th className="p-2" title="Revenus - coût IA total">Bénéfice</th>
               <th className="p-2">Ratio R/C</th>
               <th className="p-2">Marge</th>
             </tr>
@@ -564,7 +564,6 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             {rows.map((r) => {
               const cost = finance.cost[r.key];
               const costT = finance.costTesters[r.key];
-              const costP = finance.costPaying[r.key];
               const rev = finance.revenue[r.key];
               const prof = finance.profit[r.key];
               return (
@@ -572,7 +571,6 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
                   <td className="p-2 font-medium">{r.label}</td>
                   <td className="p-2 text-red-500">{EUR(cost)}</td>
                   <td className="p-2 text-blue-600 dark:text-blue-400">{EUR(costT)}</td>
-                  <td className="p-2 text-red-500">{EUR(costP)}</td>
                   <td className="p-2 text-green-500">{EUR(rev)}</td>
                   <td className={`p-2 font-semibold ${prof >= 0 ? "text-green-500" : "text-red-500"}`}>
                     {EUR(prof)}
@@ -588,9 +586,10 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
       <p className="mt-3 text-xs text-muted-foreground">
         Coût = usage IA converti USD → EUR (× {finance.assumptions.usd_to_eur}). Revenus = transactions Paddle
         live uniquement (les crédits/abonnements offerts par l'admin ne comptent pas).
-        Les membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> ont un accès gratuit accordé manuellement :
-        leur coût est affiché mais exclu de la rentabilité (bénéfice / ratio / marge).
+        Le coût des membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> est désormais
+        inclus dans la rentabilité (bénéfice / ratio / marge), et affiché à part pour information.
       </p>
+
     </div>
   );
 }
@@ -637,7 +636,7 @@ function UserActions({
           </button>
           <hr className="my-1" />
           <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Statut Testeur (gratuit, hors rentabilité)
+            Statut Testeur (accès gratuit, coût compté)
           </div>
           {isTester ? (
             <button

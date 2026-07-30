@@ -241,14 +241,8 @@ export const Route = createFileRoute("/api/admin")({
           year: cost.year - costEurWindowFiltered(365, false),
           all: costAllEur - costAllEurExclTesters,
         };
-        // Coût "payant" utilisé pour le calcul de rentabilité (exclut testeurs)
-        const costPaying = {
-          day: cost.day - costTesters.day,
-          week: cost.week - costTesters.week,
-          month: cost.month - costTesters.month,
-          year: cost.year - costTesters.year,
-          all: cost.all - costTesters.all,
-        };
+        // Coût retenu pour la rentabilité : TOTAL, testeurs inclus
+        const costPaying = { ...cost };
 
         // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
         const realTx = (tx.data ?? []).filter((t: any) => t.environment === "live");
