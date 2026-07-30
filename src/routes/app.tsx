@@ -1055,7 +1055,10 @@ function Home() {
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
-                <span className="native-title notranslate">v0.12.2</span>
+                <span className="native-title native-brand notranslate">
+                  <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="native-logo-img" />
+                  <span className="native-brand-text">TalKing<sup>®</sup></span>
+                </span>
               </div>
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={resetTooltip}>
