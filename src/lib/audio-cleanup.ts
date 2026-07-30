@@ -178,7 +178,9 @@ function cleanupPcmInner(
       voicedCount++;
     }
   }
-  if (voicedCount === 0) return chunks;
+  // Too little detected speech: the gate would eat the sentence, keep the raw audio.
+  if (voicedCount < 3 || voicedCount < frameCount * 0.02) return chunks;
+
 
   // Hold: keep 5 frames (~100 ms) around voiced frames so word tails survive.
   const hold = 5;
