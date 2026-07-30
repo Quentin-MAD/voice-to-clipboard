@@ -812,7 +812,9 @@ function Home() {
         void window.voxElectron.setRecordingState(true);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
+      console.error("startReadRecording failed", err);
+      toast.error(describeMicError(err), { duration: 6000 });
+
     }
   }, [dailyLimitReached, userStatus, micDeviceId]);
 
