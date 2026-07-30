@@ -552,8 +552,8 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             <tr className="border-b text-left">
               <th className="p-2">Période</th>
               <th className="p-2" title="Coût IA total, tous membres inclus (testeurs compris)">Coût IA total</th>
-              <th className="p-2" title="Coût IA généré par les testeurs (exclu de la rentabilité)">dont testeurs</th>
-              <th className="p-2" title="Coût IA utilisé pour la rentabilité (testeurs exclus)">Coût facturable</th>
+              <th className="p-2" title="Coût IA généré par les testeurs (inclus dans la rentabilité)">dont testeurs</th>
+
               <th className="p-2">Revenus</th>
               <th className="p-2" title="Revenus - coût facturable">Bénéfice</th>
               <th className="p-2">Ratio R/C</th>
