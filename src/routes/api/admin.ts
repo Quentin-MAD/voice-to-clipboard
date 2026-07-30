@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/admin")({
         const [pv, ai, tl, subs, tx, aiAll, txAll, aiFirst] = await Promise.all([
           supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(100000),
           supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(100000),
-          supabaseAdmin.from("translations_log").select("created_at,source_type").gte("created_at", since).limit(200000),
+          supabaseAdmin.from("translations_log").select("created_at,source_type,user_id,operation_type").limit(500000),
           supabaseAdmin.from("subscriptions").select("status,current_period_end,updated_at,environment"),
           supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment").gte("created_at", since).limit(100000),
           // All-time (minimal fields)
@@ -120,7 +120,7 @@ export const Route = createFileRoute("/api/admin")({
         // All-time - séparer coût testeurs
         const { data: aiAllWithUser } = await supabaseAdmin
           .from("ai_usage_log")
-          .select("cost_credits,user_id,model,operation,input_tokens,output_tokens")
+          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
           .limit(500000);
         const aiAllTotalCredits = (aiAllWithUser ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
         const costAllEur = aiAllTotalCredits * USD_TO_EUR;
@@ -132,6 +132,80 @@ export const Route = createFileRoute("/api/admin")({
           .filter((t: any) => t.environment === "live")
           .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
         const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
+
+        // Une ancienne version lançait l'écriture des coûts sans l'attendre. Les traductions
+        // ont bien été conservées, mais la majorité des lignes ai_usage_log a été perdue.
+        // On reconstruit ces coûts manquants avec les moyennes réelles observées par opération.
+        const aiRowsAll = (aiAllWithUser ?? []) as any[];
+        const translationRowsAll = (tl.data ?? []) as any[];
+        const operationAverages = new Map<string, number>();
+        const operationSums = new Map<string, { cost: number; count: number }>();
+        for (const row of aiRowsAll) {
+          const key = row.operation ?? "unknown";
+          const current = operationSums.get(key) ?? { cost: 0, count: 0 };
+          current.cost += Number(row.cost_credits ?? 0);
+          current.count += 1;
+          operationSums.set(key, current);
+        }
+        for (const [key, value] of operationSums) {
+          operationAverages.set(key, value.count > 0 ? value.cost / value.count : 0);
+        }
+        const firstAverage = (...keys: string[]) => {
+          for (const key of keys) {
+            const value = operationAverages.get(key) ?? 0;
+            if (value > 0) return value;
+          }
+          return 0;
+        };
+        const fallbackCostUsd = (operation: string) => {
+          const transcription = firstAverage("mobile_transcription", "transcription");
+          const translation = firstAverage("mobile_translation", "translation");
+          const vision = firstAverage("vision_read_message", "vision_read");
+          const tts = firstAverage("mobile_tts", "tts_read_message", "tts");
+          if (operation === "read_message") return vision + tts;
+          if (operation === "mobile_dialog") return transcription + translation + tts;
+          return transcription + translation;
+        };
+        const aiRowsByUser = new Map<string, any[]>();
+        for (const row of aiRowsAll) {
+          if (!row.user_id) continue;
+          const current = aiRowsByUser.get(row.user_id) ?? [];
+          current.push(row);
+          aiRowsByUser.set(row.user_id, current);
+        }
+        const estimatedUserCostUsd = (userId: string, days?: number) => {
+          const cutoff = days ? now - days * 86400000 : Number.NEGATIVE_INFINITY;
+          const userAiRows = aiRowsByUser.get(userId) ?? [];
+          return translationRowsAll
+            .filter((row) => row.user_id === userId && new Date(row.created_at).getTime() >= cutoff)
+            .reduce((sum, row) => {
+              const eventTime = new Date(row.created_at).getTime();
+              const matchedCost = userAiRows
+                .filter((aiRow) => Math.abs(new Date(aiRow.created_at).getTime() - eventTime) <= 15000)
+                .reduce((cost, aiRow) => cost + Number(aiRow.cost_credits ?? 0), 0);
+              return sum + (matchedCost > 0 ? matchedCost : fallbackCostUsd(row.operation_type ?? "translate"));
+            }, 0);
+        };
+        const estimatedUsers = ((users ?? []) as any[]).map((user) => {
+          const cost7 = estimatedUserCostUsd(user.user_id, 7);
+          const cost30 = estimatedUserCostUsd(user.user_id, 30);
+          const costTotal = estimatedUserCostUsd(user.user_id);
+          const revenue = Number(user.revenue_eur_total ?? 0);
+          return {
+            ...user,
+            cost_usd_7d: Math.max(Number(user.cost_usd_7d ?? 0), cost7),
+            cost_usd_30d: Math.max(Number(user.cost_usd_30d ?? 0), cost30),
+            cost_usd_total: Math.max(Number(user.cost_usd_total ?? 0), costTotal),
+            profit_eur_total: revenue - Math.max(Number(user.cost_usd_total ?? 0), costTotal) * USD_TO_EUR,
+            cost_is_estimated: costTotal > Number(user.cost_usd_total ?? 0),
+          };
+        });
+        const estimatedTotalEur = (days?: number) =>
+          estimatedUsers.reduce((sum, user) => sum + estimatedUserCostUsd(user.user_id, days), 0) * USD_TO_EUR;
+        const estimatedTesterEur = (days?: number) =>
+          estimatedUsers
+            .filter((user) => user.is_tester)
+            .reduce((sum, user) => sum + estimatedUserCostUsd(user.user_id, days), 0) * USD_TO_EUR;
 
         // === Breakdown par opération + modèle, par fenêtre ===
         type Bucket = { operation: string; model: string; calls: number; cost_eur: number; in_tokens: number; out_tokens: number; avg_cost_eur: number };
@@ -227,19 +301,19 @@ export const Route = createFileRoute("/api/admin")({
 
         // Coût total (tous membres inclus, testeurs compris) - pour affichage brut
         const cost = {
-          day: costEurWindowFiltered(1, true),
-          week: costEurWindowFiltered(7, true),
-          month: costEurWindowFiltered(30, true),
-          year: costEurWindowFiltered(365, true),
-          all: costAllEur,
+          day: Math.max(costEurWindowFiltered(1, true), estimatedTotalEur(1)),
+          week: Math.max(costEurWindowFiltered(7, true), estimatedTotalEur(7)),
+          month: Math.max(costEurWindowFiltered(30, true), estimatedTotalEur(30)),
+          year: Math.max(costEurWindowFiltered(365, true), estimatedTotalEur(365)),
+          all: Math.max(costAllEur, estimatedTotalEur()),
         };
         // Coût des testeurs uniquement (à afficher séparément)
         const costTesters = {
-          day: cost.day - costEurWindowFiltered(1, false),
-          week: cost.week - costEurWindowFiltered(7, false),
-          month: cost.month - costEurWindowFiltered(30, false),
-          year: cost.year - costEurWindowFiltered(365, false),
-          all: costAllEur - costAllEurExclTesters,
+          day: Math.max(costEurWindowFiltered(1, true) - costEurWindowFiltered(1, false), estimatedTesterEur(1)),
+          week: Math.max(costEurWindowFiltered(7, true) - costEurWindowFiltered(7, false), estimatedTesterEur(7)),
+          month: Math.max(costEurWindowFiltered(30, true) - costEurWindowFiltered(30, false), estimatedTesterEur(30)),
+          year: Math.max(costEurWindowFiltered(365, true) - costEurWindowFiltered(365, false), estimatedTesterEur(365)),
+          all: Math.max(costAllEur - costAllEurExclTesters, estimatedTesterEur()),
         };
         // Coût retenu pour la rentabilité : TOTAL, testeurs inclus
         const costPaying = { ...cost };
@@ -304,7 +378,7 @@ export const Route = createFileRoute("/api/admin")({
 
 
         return Response.json({
-          users,
+          users: estimatedUsers,
           daily,
           totals: {
             users: users?.length ?? 0,

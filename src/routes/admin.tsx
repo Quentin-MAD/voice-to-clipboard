@@ -32,6 +32,7 @@ type AdminUser = {
   cost_usd_total: number;
   revenue_eur_total: number;
   profit_eur_total: number;
+  cost_is_estimated?: boolean;
 };
 
 type Windowed = { day: number; week: number; month: number; year: number; all: number };
@@ -447,17 +448,17 @@ function AdminPage() {
                       </td>
                       <td className="p-2">{u.translations_30d}</td>
                       <td className="p-2">{u.translations_total}</td>
-                      <td className="p-2 tabular-nums">{EUR(cost7)}</td>
+                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(cost7)}{u.cost_is_estimated ? "*" : ""}</td>
                       <td className={"p-2 tabular-nums " + (heavy30 ? "font-semibold text-amber-600 dark:text-amber-400" : "")}>
-                        {EUR(cost30)}
+                        {EURPrecise(cost30)}{u.cost_is_estimated ? "*" : ""}
                       </td>
-                      <td className="p-2 tabular-nums">{EUR(costTotal)}</td>
+                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(costTotal)}{u.cost_is_estimated ? "*" : ""}</td>
                       <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
                         {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
                       </td>
                       <td className="p-2 tabular-nums font-semibold">
                         <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                          {EUR(profit)}
+                          {EURPrecise(profit)}{u.cost_is_estimated ? "*" : ""}
                         </span>
                       </td>
                       <td className="p-2 font-medium">
@@ -482,6 +483,9 @@ function AdminPage() {
               </tbody>
             </table>
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            * Estimation historique : certaines anciennes écritures de coût ont été perdues. Le calcul utilise le nombre d'opérations conservé et le coût moyen réel par type. Les nouvelles opérations sont journalisées précisément.
+          </p>
         </div>
       </div>
     </div>
@@ -500,6 +504,9 @@ function Stat({ label, value, sub }: { label: string; value: string | number; su
 
 const EUR = (n: number | null | undefined) =>
   (Number(n) || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 2 });
+
+const EURPrecise = (n: number | null | undefined) =>
+  (Number(n) || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 4 });
 
 function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
   const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" | "all" }> = [
