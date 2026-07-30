@@ -585,7 +585,7 @@ function MobileApp() {
                 <ol className="list-decimal list-inside space-y-2 text-white/80">
                   <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
                   <li>Choisissez <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>.</li>
-                  <li>Confirmez. L'icône Tk apparaît sur votre écran d'accueil.</li>
+                  <li>Confirmez. L'icône TalKing apparaît sur votre écran d'accueil.</li>
                 </ol>
                 <p className="text-xs text-white/50">Si l'option n'apparaît pas, essayez avec Chrome (à jour). Sur Samsung Internet, l'option est dans le menu ≡.</p>
               </div>
