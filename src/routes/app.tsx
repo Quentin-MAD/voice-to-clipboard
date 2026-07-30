@@ -1053,6 +1053,11 @@ function Home() {
         <div className={isElectron ? "native-main" : ""}>
           {/* Titlebar (Electron only) */}
           {isElectron && (
+            <div className="native-titlestrip">
+              <span className="native-version notranslate">v{APP_VERSION}</span>
+            </div>
+          )}
+          {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
                 <span className="native-title native-brand notranslate">
