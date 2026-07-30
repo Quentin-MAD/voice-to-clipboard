@@ -307,7 +307,7 @@ function rebuildTrayMenu() {
     { label: 'Quit TalKing', click: () => { app.isQuiting = true; app.quit(); } },
   ]);
   tray.setContextMenu(menu);
-  tray.setToolTip(`TalKing — ${isRecording ? 'recording…' : hotkeyOk ? `press ${toggleAccel}` : `${toggleAccel} conflict - change in Settings`}`);
+  tray.setToolTip(`TalKing - ${isRecording ? 'recording...' : hotkeyOk ? `press ${toggleAccel}` : `${toggleAccel} conflict - change in Settings`}`);
 }
 
 function buildTray() {
