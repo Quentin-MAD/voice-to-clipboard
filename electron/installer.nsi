@@ -14,9 +14,10 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.10.10"
-!define APP_EXE        "TalKing.exe"
-!define APP_ICON       "TalKing-0.10.10.ico"
+!define APP_VERSION    "0.10.11"
+!define APP_EXE        "TalKing-Official.exe"
+!define LEGACY_APP_EXE "TalKing.exe"
+!define APP_ICON       "TalKing-0.10.11.ico"
 !define APP_ID         "TalKing"
 !define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
@@ -31,7 +32,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.10.10.0"
+VIProductVersion "0.10.11.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
@@ -69,6 +70,7 @@ FunctionEnd
 Section "Install"
   ; Kill any running instance so we can overwrite existing files on reinstall / upgrade
   ExecWait 'taskkill /F /IM ${APP_EXE}' $0
+  ExecWait 'taskkill /F /IM ${LEGACY_APP_EXE}' $0
   Sleep 500
 
   SetOutPath "$INSTDIR"
@@ -79,6 +81,7 @@ Section "Install"
   Delete  "$INSTDIR\*.dll"
   Delete  "$INSTDIR\*.pak"
   Delete  "$INSTDIR\*.bin"
+  Delete  "$INSTDIR\${LEGACY_APP_EXE}"
 
   ; Copy the entire packaged app tree
   File /r "${SOURCE_DIR}\*.*"
@@ -116,6 +119,7 @@ SectionEnd
 Section "Uninstall"
   ; Stop any running instance so files aren't locked
   ExecWait 'taskkill /F /IM ${APP_EXE}' $0
+  ExecWait 'taskkill /F /IM ${LEGACY_APP_EXE}' $0
 
   ; Remove auto-start entry if present
   DeleteRegValue HKCU "${REG_RUN}" "${APP_ID}"
