@@ -396,10 +396,11 @@ function AdminPage() {
                   const cost30 = num(u.cost_usd_30d) * USD_TO_EUR;
                   const costTotal = num(u.cost_usd_total) * USD_TO_EUR;
                   const revenue = num(u.revenue_eur_total);
-                  const profit = num(u.profit_eur_total);
+                  // Rentabilité par membre = revenus réels - coût IA, y compris pour les testeurs.
+                  const profit = revenue - costTotal;
                   const abuseToday = num(u.ops_today) > 100;
                   const heavy30 = cost30 > 1;
-                  const losing = !u.is_tester && profit < -0.5;
+                  const losing = profit < -0.5;
                   const unlimited = u.subscribed || u.is_tester;
                   return (
                     <tr
@@ -455,13 +456,9 @@ function AdminPage() {
                         {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
                       </td>
                       <td className="p-2 tabular-nums font-semibold">
-                        {u.is_tester ? (
-                          <span className="text-muted-foreground" title="Exclu du calcul de rentabilité">exclu</span>
-                        ) : (
-                          <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                            {EUR(profit)}
-                          </span>
-                        )}
+                        <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+                          {EUR(profit)}
+                        </span>
                       </td>
                       <td className="p-2 font-medium">
                         {unlimited ? <span className="text-green-700 dark:text-green-400" title="Accès illimité (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
