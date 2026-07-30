@@ -25,7 +25,7 @@ import { acquireMicStream, describeMicError } from "@/lib/mic";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "v0.12.2" },
+      { title: "v0.12.3" },
       {
         name: "description",
         content:
@@ -185,7 +185,7 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
-const APP_VERSION = "0.12.2";
+const APP_VERSION = "0.12.3";
 
 type PersistedSettings = {
   source: string;
