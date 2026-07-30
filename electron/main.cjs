@@ -105,7 +105,7 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop.official.v2'); } catch {} }
 
 function createWindow() {
-  const WINDOW_TITLE = `TalKing\u00AE, v${CURRENT_VERSION}`;
+  const WINDOW_TITLE = `v${CURRENT_VERSION}`;
   mainWindow = new BrowserWindow({
     width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: WINDOW_ICON_PATH,
     backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
