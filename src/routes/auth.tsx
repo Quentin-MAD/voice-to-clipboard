@@ -117,7 +117,7 @@ function AuthPage() {
           <div className="native-auth-shell">
             <div className="native-auth-card">
               <div className="native-auth-logo">
-                <img src="/logo.svg" alt="TalKing" className="native-auth-logo-mark" />
+                <img src="/logo.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="native-auth-logo-mark" />
                 <div className="native-auth-logo-glow" aria-hidden />
               </div>
 

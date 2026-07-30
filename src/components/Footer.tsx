@@ -8,8 +8,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-4">
-            <img src="/logo.svg" alt="TalKing" className="h-20 w-auto shrink-0 dark:hidden" />
-            <img src="/logo-white.svg" alt="TalKing" className="hidden h-20 w-auto shrink-0 dark:block" />
+            <img src="/logo.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-20 w-auto shrink-0 select-none dark:hidden" />
+            <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="hidden h-20 w-auto shrink-0 select-none dark:block" />
             <div>
               <div className="text-lg font-semibold text-foreground notranslate">TalKing</div>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
