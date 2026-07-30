@@ -784,12 +784,11 @@ function Home() {
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true, noiseSuppression: true, autoGainControl: true,
-          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
-        },
-      });
+      const { stream, usedFallback } = await acquireMicStream(micDeviceId);
+      if (usedFallback) {
+        toast.info("Micro enregistré indisponible : utilisation du micro par défaut.");
+      }
+
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
