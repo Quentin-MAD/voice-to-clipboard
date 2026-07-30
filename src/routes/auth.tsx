@@ -117,7 +117,7 @@ function AuthPage() {
           <div className="native-auth-shell">
             <div className="native-auth-card">
               <div className="native-auth-logo">
-                <div className="native-auth-logo-mark">Tk</div>
+                <img src="/logo.svg" alt="TalKing" className="native-auth-logo-mark" />
                 <div className="native-auth-logo-glow" aria-hidden />
               </div>
 

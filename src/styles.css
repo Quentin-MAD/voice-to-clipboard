@@ -304,6 +304,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   font-weight: 500;
 }
 .native-app .native-menubar .native-title b { color: var(--nx-text); font-weight: 700; }
+.native-app .native-logo-img { height: 22px; width: auto; display: block; }
 .native-app .native-trademark {
   font-size: 14px;
   font-weight: 600;
@@ -925,14 +926,9 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--nx-accent), var(--nx-accent-2));
-  color: var(--nx-accent-ink);
-  font-weight: 800;
-  font-size: 22px;
-  letter-spacing: -0.02em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #fff;
+  object-fit: contain;
+  padding: 8px;
   box-shadow: 0 8px 24px -6px var(--nx-accent-glow);
 }
 .native-app .native-auth-logo-glow {

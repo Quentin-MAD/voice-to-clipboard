@@ -83,7 +83,7 @@ function MobileDownloadCard() {
           </button>
           {!installed && (
             <p className="text-xs text-muted-foreground">
-              Une fois installée, l'icône <b>Tk</b> apparaît sur votre écran d'accueil et se lance en plein écran comme une vraie app - sans passer par le navigateur.
+              Une fois installée, l'icône <b>TalKing</b> apparaît sur votre écran d'accueil et se lance en plein écran comme une vraie app - sans passer par le navigateur.
             </p>
           )}
           <Link
@@ -118,7 +118,7 @@ function MobileDownloadCard() {
                 <ol className="list-decimal space-y-2 pl-5">
                   <li>Touchez l'icône <b>Partager</b> en bas de l'écran (carré avec flèche vers le haut).</li>
                   <li>Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.</li>
-                  <li>Touchez <b>Ajouter</b> en haut à droite. L'icône <b>Tk</b> apparaît sur votre écran d'accueil.</li>
+                  <li>Touchez <b>Ajouter</b> en haut à droite. L'icône <b>TalKing</b> apparaît sur votre écran d'accueil.</li>
                 </ol>
                 <p className="text-xs text-muted-foreground">Ensuite, ouvrez TalKing depuis cette icône : ça se lance en plein écran, sans barre Safari, comme une vraie app.</p>
               </div>
@@ -128,7 +128,7 @@ function MobileDownloadCard() {
                 <ol className="list-decimal space-y-2 pl-5">
                   <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
                   <li>Choisissez <b>« Installer l'application »</b> (ou <b>« Ajouter à l'écran d'accueil »</b>).</li>
-                  <li>Confirmez avec <b>Installer</b>. L'icône <b>Tk</b> apparaît dans votre liste d'applications.</li>
+                  <li>Confirmez avec <b>Installer</b>. L'icône <b>TalKing</b> apparaît dans votre liste d'applications.</li>
                 </ol>
                 <p className="text-xs text-muted-foreground">Sur Samsung Internet, l'option est dans le menu <b>≡</b> en bas. Sur Firefox Android, menu <b>⋮</b> → « Installer ».</p>
               </div>
@@ -163,7 +163,7 @@ function LandingPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="text-xl font-bold notranslate">TalKing<sup className="relative -top-1 ml-0.5 text-base">®</sup></div>
+          <div className="text-xl font-bold notranslate"><img src="/logo.svg" alt="TalKing" className="h-7 w-auto" /></div>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
             <Link to="/pricing" className="rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground">
