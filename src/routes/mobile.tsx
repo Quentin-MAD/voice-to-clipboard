@@ -377,7 +377,7 @@ function MobileApp() {
       <header className="flex items-center justify-between px-5 pt-4 pb-2">
         <div className="flex items-center gap-2">
           <img src="/logo.svg" alt="TalKing" className="h-9 w-9 rounded-xl bg-white p-1.5 object-contain" />
-          <div className="text-base font-bold">TalKing<sup className="text-xs">®</sup></div>
+          <div className="text-base font-bold"><img src="/logo-white.svg" alt="TalKing" className="h-5 w-auto" /></div>
         </div>
         <button
           onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
