@@ -294,7 +294,7 @@ function rebuildTrayMenu() {
     ? `⬇ Download update v${latestUpdate.version}`
     : 'Check for updates…';
   const menu = Menu.buildFromTemplate([
-    { label: `TalKing v${CURRENT_VERSION} — ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
+    { label: `TalKing v${CURRENT_VERSION} - ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
     { type: 'separator' },
     { label: 'Show window', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
     { label: 'Hide window', click: () => { if (mainWindow) mainWindow.hide(); } },
