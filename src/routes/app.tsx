@@ -25,7 +25,7 @@ import { acquireMicStream, describeMicError } from "@/lib/mic";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "v0.10.11" },
+      { title: "v0.12.2" },
       {
         name: "description",
         content:
@@ -1055,11 +1055,7 @@ function Home() {
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
-                <span className="native-title native-brand notranslate">
-                  <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="native-logo-img" />
-                  <span className="native-brand-text">TalKing<sup>®</sup></span>
-                </span>
-
+                <span className="native-title notranslate">v0.12.2</span>
               </div>
               <div className="native-menubar-center">
                 <div className="native-credits-pill" title={resetTooltip}>
