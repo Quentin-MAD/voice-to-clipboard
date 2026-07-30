@@ -7,12 +7,17 @@ export function Footer() {
     <footer className="mt-16 border-t border-border bg-background/50">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div>
-            <div className="text-lg font-semibold text-foreground notranslate">TalKing</div>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Traducteur vocal en temps réel. Enregistrez avec un raccourci, récupérez la traduction dans votre presse-papiers.
-            </p>
+          <div className="flex items-start gap-4">
+            <img src="/logo.svg" alt="TalKing" className="h-20 w-auto shrink-0 dark:hidden" />
+            <img src="/logo-white.svg" alt="TalKing" className="hidden h-20 w-auto shrink-0 dark:block" />
+            <div>
+              <div className="text-lg font-semibold text-foreground notranslate">TalKing</div>
+              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+                Traducteur vocal en temps réel. Enregistrez avec un raccourci, récupérez la traduction dans votre presse-papiers.
+              </p>
+            </div>
           </div>
+
           <nav className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm md:grid-cols-2">
             <Link to="/legal/terms" className="text-muted-foreground hover:text-foreground">
               Conditions
