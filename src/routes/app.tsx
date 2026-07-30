@@ -1056,7 +1056,7 @@ function Home() {
             <div className="native-menubar">
               <div className="native-brand-inline">
                 <span className="native-title native-brand notranslate">
-                  <img src="/logo-white.svg" alt="TalKing" className="native-logo-img" />
+                  <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="native-logo-img" />
                   <span className="native-brand-text">TalKing<sup>®</sup></span>
                 </span>
 

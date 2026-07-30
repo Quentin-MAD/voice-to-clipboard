@@ -376,7 +376,7 @@ function MobileApp() {
       {/* Header */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-4 pb-2">
         <div className="flex min-w-0 items-center gap-2 notranslate">
-          <img src="/logo-white.svg" alt="TalKing" className="h-9 w-auto shrink-0 sm:h-10" />
+          <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-9 w-auto shrink-0 select-none sm:h-10" />
           <span className="truncate text-lg font-bold text-white sm:text-xl">
             TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
           </span>
