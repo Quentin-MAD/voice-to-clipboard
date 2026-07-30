@@ -100,10 +100,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "TalKing" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
       },
+
       { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", sizes: "512x512", href: "/icon-512.png" },
