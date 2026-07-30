@@ -48,8 +48,11 @@ export function useMobileRecorder() {
     try {
       const { stream } = await acquireMicStream();
       streamRef.current = stream;
-
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
+
       if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       ctxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);
