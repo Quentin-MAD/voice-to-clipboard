@@ -582,10 +582,14 @@ function Home() {
         void window.voxElectron.setRecordingState(true);
       }
     } catch (err) {
+      console.error("startRecording failed", err);
+      const msg = describeMicError(err);
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
+      setErrorMsg(msg);
+      toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 2500);
     }
+
   }, [dailyLimitReached, noCreditsLeft, resetCountdown, micDeviceId]);
 
   const toggleRecording = useCallback(() => {
