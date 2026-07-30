@@ -39,8 +39,8 @@ VIAddVersionKey "ProductVersion"  "${APP_VERSION}"
 VIAddVersionKey "LegalCopyright"  "(c) ${APP_PUBLISHER}"
 
 !define MUI_ABORTWARNING
-!define MUI_ICON   "electron/tray-icon.ico"
-!define MUI_UNICON "electron/tray-icon.ico"
+!define MUI_ICON   "tray-icon.ico"
+!define MUI_UNICON "tray-icon.ico"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
