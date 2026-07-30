@@ -165,7 +165,9 @@ function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
           <Link to="/" className="flex items-center gap-3 notranslate">
             <img src="/logo.svg" alt="TalKing" className="h-14 w-auto sm:h-16" />
-            <span className="text-2xl font-bold tracking-tight sm:text-3xl">TalKing®</span>
+            <span className="text-2xl font-bold tracking-tight sm:text-3xl">
+              TalKing<sup className="ml-0.5 text-[0.6em] font-sans">®</sup>
+            </span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
