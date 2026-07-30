@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean } = {}) {
+export function GoogleTranslate({ alwaysShow = false, className = "" }: { alwaysShow?: boolean; className?: string } = {}) {
   const languages = useMemo(
     () => [
       { code: "fr", label: "Français" },
@@ -89,11 +89,11 @@ export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean }
   if (!alwaysShow && typeof window !== "undefined" && (window as any).voxElectron) return null;
 
   return (
-    <div className="flex items-center gap-1.5 text-muted-foreground" title="Traduire la page">
-      <Globe className="h-4 w-4" />
+    <div className={`flex items-center gap-1.5 text-muted-foreground ${className}`} title="Traduire la page">
+      <Globe className="h-4 w-4 shrink-0" />
       <select
         aria-label="Changer la langue du site"
-        className="gtranslate-select"
+        className="gtranslate-select max-w-[92px] sm:max-w-[160px]"
         value={selectedLanguage}
         onChange={(event) => applyLanguage(event.target.value)}
       >
