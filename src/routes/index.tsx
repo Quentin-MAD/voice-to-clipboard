@@ -166,7 +166,7 @@ function LandingPage() {
           <Link to="/" className="flex items-center gap-3 notranslate">
             <img src="/logo.svg" alt="TalKing" className="h-14 w-auto sm:h-16" />
             <span className="text-2xl font-bold tracking-tight sm:text-3xl">
-              TalKing<span className="ml-0.5 text-[0.5em] font-sans" style={{ verticalAlign: "0.15em" }}>®</span>
+              TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
             </span>
           </Link>
           <nav className="flex items-center gap-4 text-sm">
