@@ -109,6 +109,9 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: WINDOW_ICON_PATH,
     backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
+    // Custom title bar: removes the native caption icon (kept only for taskbar/shortcut)
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#1e1f22', symbolColor: '#dcdde1', height: 32 },
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true, nodeIntegration: false, backgroundThrottling: false,

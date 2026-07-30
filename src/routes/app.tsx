@@ -185,6 +185,7 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
+const APP_VERSION = "0.12.2";
 
 type PersistedSettings = {
   source: string;
@@ -1052,6 +1053,11 @@ function Home() {
       <div className={isElectron ? "native-window" : ""}>
         <div className={isElectron ? "native-main" : ""}>
           {/* Titlebar (Electron only) */}
+          {isElectron && (
+            <div className="native-titlestrip">
+              <span className="native-version notranslate">v{APP_VERSION}</span>
+            </div>
+          )}
           {isElectron && (
             <div className="native-menubar">
               <div className="native-brand-inline">
