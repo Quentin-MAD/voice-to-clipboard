@@ -17,12 +17,12 @@ SetCompressor /SOLID lzma
 !define APP_VERSION    "0.10.6"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
-!define SOURCE_DIR     "electron-release/TalKing-win32-x64"
+!define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
 !define REG_RUN        "Software\Microsoft\Windows\CurrentVersion\Run"
 
 Name "${APP_NAME}"
-OutFile "electron-release/TalKing-Setup-${APP_VERSION}.exe"
+OutFile "../electron-release/TalKing-Setup-${APP_VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\${APP_NAME}"
 InstallDirRegKey HKCU "Software\${APP_NAME}" "InstallDir"
 RequestExecutionLevel user
