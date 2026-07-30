@@ -235,11 +235,12 @@ export const Route = createFileRoute("/api/translate-audio")({
 
           // Log AI usage (fire-and-forget)
           // Rough estimates: transcription ~0.00018 cr / call, translation cost from tokens
-          const audioSec = Math.max(1, Math.round((audio.size / 32000)));
-          const transcribeCost = 0.00018 * (audioSec / 5); // scale by duration
+          const audioSec = Math.max(1, audio.size / 32000);
+          // gpt-4o-mini-transcribe: $0.003 / minute = $0.00005 / second
+          const transcribeCost = 0.00005 * audioSec;
           const translateCost =
             (translationRes.inputTokens * 0.0000001) + (translationRes.outputTokens * 0.0000004);
-          void logAiUsage(userId, [
+          await logAiUsage(userId, [
             { model: "openai/gpt-4o-mini-transcribe", operation: "transcription", cost_credits: transcribeCost },
             {
               model: "google/gemini-2.5-flash-lite",

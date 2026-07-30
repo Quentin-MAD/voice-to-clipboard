@@ -269,9 +269,10 @@ export const Route = createFileRoute("/api/read-message")({
           // Gemini 2.5 flash pricing (with image+audio): ~$0.30/M input, $2.50/M output
           const visionCost = (visionInputTokens * 0.0000003) + (visionOutputTokens * 0.0000025);
           // TTS: gpt-4o-mini-tts ~$0.60/M chars input → chars = translation length
-          const ttsCost = vision.translation.length * 0.0000006;
+          // gpt-4o-mini-tts: ~$0.015 / minute d'audio (~840 caractères) => ~$0.0000179 / caractère
+          const ttsCost = vision.translation.length * 0.0000179;
 
-          void logAiUsage(userId, [
+          await logAiUsage(userId, [
             {
               model: "google/gemini-2.5-flash",
               operation: "vision_read_message",

@@ -181,11 +181,11 @@ export const Route = createFileRoute("/api/mobile-dialog")({
           const translation = await translate(transcript, sourceLang, targetLang);
           const audioB64 = await synthesize(translation.text, targetLang);
 
-          const audioSec = Math.max(1, Math.round(audio.size / 32000));
-          const transcribeCost = 0.00018 * (audioSec / 5);
+          const audioSec = Math.max(1, audio.size / 32000);
+          const transcribeCost = 0.00005 * audioSec;
           const translateCost = translation.inputTokens * 0.0000001 + translation.outputTokens * 0.0000004;
-          const ttsCost = translation.text.length * 0.0000006;
-          void logAiUsage(userId, [
+          const ttsCost = translation.text.length * 0.0000179;
+          await logAiUsage(userId, [
             { model: "openai/gpt-4o-mini-transcribe", operation: "mobile_transcription", cost_credits: transcribeCost },
             { model: "google/gemini-2.5-flash-lite", operation: "mobile_translation", input_tokens: translation.inputTokens, output_tokens: translation.outputTokens, cost_credits: translateCost },
             { model: "openai/gpt-4o-mini-tts", operation: "mobile_tts", output_tokens: translation.text.length, cost_credits: ttsCost },
