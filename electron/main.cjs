@@ -97,8 +97,9 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
-// Windows: identity for native toast notifications (branding + click routing)
-if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop'); } catch {} }
+// Windows: use a fresh branded identity so the taskbar cannot reuse the icon
+// cached for the legacy purple-microphone builds.
+if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop.official'); } catch {} }
 
 function createWindow() {
   const WINDOW_TITLE = `TalKing\u00AE, v${CURRENT_VERSION}`;
