@@ -14,9 +14,9 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.10.9"
+!define APP_VERSION    "0.10.10"
 !define APP_EXE        "TalKing.exe"
-!define APP_ICON       "TalKing-0.10.9.ico"
+!define APP_ICON       "TalKing-0.10.10.ico"
 !define APP_ID         "TalKing"
 !define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
@@ -31,7 +31,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.10.9.0"
+VIProductVersion "0.10.10.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
@@ -40,8 +40,10 @@ VIAddVersionKey "ProductVersion"  "${APP_VERSION}"
 VIAddVersionKey "LegalCopyright"  "(c) ${APP_PUBLISHER}"
 
 !define MUI_ABORTWARNING
-!define MUI_ICON   "tray-icon.ico"
-!define MUI_UNICON "tray-icon.ico"
+; The installer deliberately uses the separate black logo supplied by the
+; owner. The installed app, taskbar and shortcuts keep tray-icon.ico.
+!define MUI_ICON   "installer-icon.ico"
+!define MUI_UNICON "installer-icon.ico"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
