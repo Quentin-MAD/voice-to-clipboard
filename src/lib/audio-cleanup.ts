@@ -212,7 +212,11 @@ function cleanupPcmInner(
   const pad = Math.round(sampleRate * 0.15);
   const start = Math.max(0, firstFrame * frame - pad);
   const end = Math.min(out.length, (lastFrame + 1) * frame + pad);
-  const trimmed = end - start > sampleRate * 0.15 ? out.subarray(start, end) : out;
+  // Only trim when enough audio survives; never ship a sub-second stub.
+  const keepLen = end - start;
+  const trimmed =
+    keepLen > sampleRate * 0.6 && keepLen > input.length * 0.15 ? out.subarray(start, end) : out;
+
 
   // Peak normalization to ~-1 dBFS.
   let peak = 0;
