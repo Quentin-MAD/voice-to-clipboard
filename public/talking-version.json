@@ -1,5 +1,5 @@
 {
-  "version": "0.10.5",
+  "version": "0.10.6",
   "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/latest/download/TalKing-Setup.exe",
-  "notes": "v0.10.5 - Optimisation des temps de reponse F8/F9 (capture JPEG compressee, reponses IA accelerees) sans hausse des couts."
+  "notes": "v0.10.6 - Icônes Windows et mobile mises à jour avec le vrai logo TalKing, zoomé pour réduire l'espace vide."
 }

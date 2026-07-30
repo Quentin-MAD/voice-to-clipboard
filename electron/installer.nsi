@@ -14,15 +14,15 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.10.5"
+!define APP_VERSION    "0.10.6"
 !define APP_EXE        "TalKing.exe"
 !define APP_ID         "TalKing"
-!define SOURCE_DIR     "electron-release\TalKing-win32-x64"
+!define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
 !define REG_RUN        "Software\Microsoft\Windows\CurrentVersion\Run"
 
 Name "${APP_NAME}"
-OutFile "electron-release\TalKing-Setup-${APP_VERSION}.exe"
+OutFile "../electron-release/TalKing-Setup-${APP_VERSION}.exe"
 InstallDir "$LOCALAPPDATA\Programs\${APP_NAME}"
 InstallDirRegKey HKCU "Software\${APP_NAME}" "InstallDir"
 RequestExecutionLevel user
@@ -30,7 +30,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.10.5.0"
+VIProductVersion "0.10.6.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
@@ -39,8 +39,8 @@ VIAddVersionKey "ProductVersion"  "${APP_VERSION}"
 VIAddVersionKey "LegalCopyright"  "(c) ${APP_PUBLISHER}"
 
 !define MUI_ABORTWARNING
-!define MUI_ICON   "electron\tray-icon.ico"
-!define MUI_UNICON "electron\tray-icon.ico"
+!define MUI_ICON   "tray-icon.ico"
+!define MUI_UNICON "tray-icon.ico"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
