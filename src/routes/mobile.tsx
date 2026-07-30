@@ -375,10 +375,13 @@ function MobileApp() {
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden select-none" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       {/* Header */}
       <header className="flex items-center justify-between px-5 pt-4 pb-2">
-        <div className="flex items-center gap-2">
-          <img src="/logo.svg" alt="TalKing" className="h-9 w-9 rounded-xl bg-white p-1.5 object-contain" />
-          <div className="text-base font-bold"><img src="/logo-white.svg" alt="TalKing" className="h-5 w-auto" /></div>
+        <div className="flex items-center gap-2 notranslate">
+          <img src="/logo-white.svg" alt="TalKing" className="h-11 w-auto" />
+          <span className="text-xl font-bold text-white">
+            TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
+          </span>
         </div>
+
         <button
           onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
           className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
