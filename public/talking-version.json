@@ -1,5 +1,5 @@
 {
-  "version": "0.10.10",
-  "url": "https://talking-translator.com/__l5e/assets-v1/d61c2abc-3525-4834-85ee-57bd71b9b436/TalKing-Setup-0.10.10.exe",
-  "notes": "v0.10.10 - Logo officiel transparent forcé dans la barre des tâches et logo noir dédié à l'installeur."
+  "version": "0.10.11",
+  "url": "https://talking-translator.com/__l5e/assets-v1/00f2ed3b-1e2b-4bd9-bf54-5381ca21c369/TalKing-Setup-0.10.11.exe",
+  "notes": "v0.10.11 - Nouvelle identité d'exécutable Windows pour supprimer définitivement l'ancien micro violet de la barre des tâches."
 }

@@ -1,6 +1,6 @@
 {
   "name": "tanstack_start_ts",
-  "version": "0.10.10",
+  "version": "0.10.11",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -12,13 +12,13 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "electron:package:win": "npx @electron/packager . TalKing --platform=win32 --arch=x64 --out=electron-release --overwrite --ignore='node_modules' --ignore='^/src' --ignore='^/public' --ignore='^/electron-release' --ignore='^/supabase' --ignore='^/.lovable' --ignore='^/.git' --icon=electron/tray-icon.ico",
+    "electron:package:win": "npx @electron/packager . TalKing --platform=win32 --arch=x64 --out=electron-release --overwrite --ignore='node_modules' --ignore='^/src' --ignore='^/public' --ignore='^/electron-release' --ignore='^/supabase' --ignore='^/.lovable' --ignore='^/.git' --icon=electron/tray-icon.ico --executable-name=TalKing-Official",
     "electron:installer": "node electron/build-installer.cjs",
     "electron:dist:win": "electron-builder --win nsis --x64 --publish never",
     "electron:build:win": "npm run build && npm run electron:package:win && npm run electron:installer"
   },
   "build": {
-    "appId": "com.talking.desktop",
+    "appId": "com.talking.desktop.official.v2",
     "productName": "TalKing",
     "copyright": "Copyright © Quentin Rosset",
     "directories": {

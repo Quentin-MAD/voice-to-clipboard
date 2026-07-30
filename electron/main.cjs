@@ -102,7 +102,7 @@ app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 // Windows: use a fresh branded identity so the taskbar cannot reuse the icon
 // cached for the legacy purple-microphone builds.
-if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop.official'); } catch {} }
+if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.desktop.official.v2'); } catch {} }
 
 function createWindow() {
   const WINDOW_TITLE = `TalKing\u00AE, v${CURRENT_VERSION}`;
