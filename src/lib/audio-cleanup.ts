@@ -1,3 +1,5 @@
+import { encodeWav } from "@/lib/wav-encoder";
+
 // Client-side noise reduction: runs entirely on-device before the WAV is encoded.
 // Two stages: a real-time Web Audio filter chain, and an offline gate/normalizer.
 
@@ -66,7 +68,15 @@ export function buildDenoiseChain(
   settings: DenoiseSettings,
 ): AudioNode {
   if (!settings.enabled) return source;
-  const p = PROFILES[settings.level];
+  try {
+    return buildChain(ctx, source, PROFILES[settings.level] ?? PROFILES.normal);
+  } catch (err) {
+    console.error("denoise chain failed, using raw microphone", err);
+    return source;
+  }
+}
+
+function buildChain(ctx: BaseAudioContext, source: AudioNode, p: Profile): AudioNode {
 
   const hp = ctx.createBiquadFilter();
   hp.type = "highpass";
@@ -125,10 +135,24 @@ export function cleanupPcm(
   sampleRate: number,
   settings: DenoiseSettings,
 ): Float32Array[] {
+  try {
+    return cleanupPcmInner(chunks, sampleRate, settings);
+  } catch (err) {
+    console.error("audio cleanup failed, sending raw audio", err);
+    return chunks;
+  }
+}
+
+function cleanupPcmInner(
+  chunks: Float32Array[],
+  sampleRate: number,
+  settings: DenoiseSettings,
+): Float32Array[] {
   if (!settings.enabled || chunks.length === 0) return chunks;
-  const p = PROFILES[settings.level];
+  const p = PROFILES[settings.level] ?? PROFILES.normal;
   const input = flatten(chunks);
   if (input.length < sampleRate * 0.2) return chunks;
+
 
   const frame = Math.max(64, Math.round(sampleRate * 0.02)); // ~20 ms
   const frameCount = Math.floor(input.length / frame);
@@ -156,7 +180,9 @@ export function cleanupPcm(
       voicedCount++;
     }
   }
-  if (voicedCount === 0) return chunks;
+  // Too little detected speech: the gate would eat the sentence, keep the raw audio.
+  if (voicedCount < 3 || voicedCount < frameCount * 0.02) return chunks;
+
 
   // Hold: keep 5 frames (~100 ms) around voiced frames so word tails survive.
   const hold = 5;
@@ -188,7 +214,11 @@ export function cleanupPcm(
   const pad = Math.round(sampleRate * 0.15);
   const start = Math.max(0, firstFrame * frame - pad);
   const end = Math.min(out.length, (lastFrame + 1) * frame + pad);
-  const trimmed = end - start > sampleRate * 0.15 ? out.subarray(start, end) : out;
+  // Only trim when enough audio survives; never ship a sub-second stub.
+  const keepLen = end - start;
+  const trimmed =
+    keepLen > sampleRate * 0.6 && keepLen > input.length * 0.15 ? out.subarray(start, end) : out;
+
 
   // Peak normalization to ~-1 dBFS.
   let peak = 0;
@@ -204,4 +234,26 @@ export function cleanupPcm(
     result[i] = v > 1 ? 1 : v < -1 ? -1 : v;
   }
   return [result];
+}
+
+/**
+ * Encodes the recording with cleanup applied, falling back to the raw audio
+ * whenever the cleaned result would be too small to transcribe.
+ */
+export function encodeCleanedWav(
+  chunks: Float32Array[],
+  sampleRate: number,
+  settings: DenoiseSettings,
+  targetRate = 16000,
+): Blob {
+  const raw = () => encodeWav(chunks, sampleRate, targetRate);
+  try {
+    const cleaned = cleanupPcm(chunks, sampleRate, settings);
+    const blob = encodeWav(cleaned, sampleRate, targetRate);
+    if (blob.size < 4096) return raw();
+    return blob;
+  } catch (err) {
+    console.error("cleaned encode failed, sending raw audio", err);
+    return raw();
+  }
 }

@@ -3,10 +3,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HardDrive, Settings, LogOut, Wallet, Mic } from "lucide-react";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
-import { encodeWav } from "@/lib/wav-encoder";
 import {
   buildDenoiseChain,
-  cleanupPcm,
+  encodeCleanedWav,
   loadDenoiseSettings,
   saveDenoiseSettings,
   DEFAULT_DENOISE,
@@ -423,7 +422,7 @@ function Home() {
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
     try {
-      const wav = encodeWav(cleanupPcm(chunks, sampleRate, denoiseRef.current), sampleRate, 16000);
+      const wav = encodeCleanedWav(chunks, sampleRate, denoiseRef.current, 16000);
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
       form.append("targetLang", target);
@@ -648,7 +647,7 @@ function Home() {
       const screenshotBlob = await (await fetch(`data:${shotMime};base64,${shot.dataBase64}`)).blob();
 
       // 2. Encode audio to WAV
-      const wav = encodeWav(cleanupPcm(chunks, sampleRate, denoiseRef.current), sampleRate, 16000);
+      const wav = encodeCleanedWav(chunks, sampleRate, denoiseRef.current, 16000);
 
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
