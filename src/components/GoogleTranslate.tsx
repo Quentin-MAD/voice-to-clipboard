@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export function GoogleTranslate({ alwaysShow = false }: { alwaysShow?: boolean } = {}) {
+export function GoogleTranslate({ alwaysShow = false, className = "" }: { alwaysShow?: boolean; className?: string } = {}) {
   const languages = useMemo(
     () => [
       { code: "fr", label: "Français" },
