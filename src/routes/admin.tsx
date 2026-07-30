@@ -555,7 +555,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
               <th className="p-2" title="Coût IA généré par les testeurs (inclus dans la rentabilité)">dont testeurs</th>
 
               <th className="p-2">Revenus</th>
-              <th className="p-2" title="Revenus - coût facturable">Bénéfice</th>
+              <th className="p-2" title="Revenus - coût IA total">Bénéfice</th>
               <th className="p-2">Ratio R/C</th>
               <th className="p-2">Marge</th>
             </tr>
@@ -564,7 +564,6 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             {rows.map((r) => {
               const cost = finance.cost[r.key];
               const costT = finance.costTesters[r.key];
-              const costP = finance.costPaying[r.key];
               const rev = finance.revenue[r.key];
               const prof = finance.profit[r.key];
               return (
@@ -572,7 +571,6 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
                   <td className="p-2 font-medium">{r.label}</td>
                   <td className="p-2 text-red-500">{EUR(cost)}</td>
                   <td className="p-2 text-blue-600 dark:text-blue-400">{EUR(costT)}</td>
-                  <td className="p-2 text-red-500">{EUR(costP)}</td>
                   <td className="p-2 text-green-500">{EUR(rev)}</td>
                   <td className={`p-2 font-semibold ${prof >= 0 ? "text-green-500" : "text-red-500"}`}>
                     {EUR(prof)}
@@ -588,9 +586,10 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
       <p className="mt-3 text-xs text-muted-foreground">
         Coût = usage IA converti USD → EUR (× {finance.assumptions.usd_to_eur}). Revenus = transactions Paddle
         live uniquement (les crédits/abonnements offerts par l'admin ne comptent pas).
-        Les membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> ont un accès gratuit accordé manuellement :
-        leur coût est affiché mais exclu de la rentabilité (bénéfice / ratio / marge).
+        Le coût des membres <span className="text-blue-600 dark:text-blue-400">Testeurs</span> est désormais
+        inclus dans la rentabilité (bénéfice / ratio / marge), et affiché à part pour information.
       </p>
+
     </div>
   );
 }
