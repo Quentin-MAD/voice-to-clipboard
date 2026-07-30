@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildDenoiseChain, encodeCleanedWav, loadDenoiseSettings, DEFAULT_DENOISE } from "@/lib/audio-cleanup";
+import { acquireMicStream } from "@/lib/mic";
 
 
 type RecorderState = "idle" | "recording" | "processing" | "playing" | "error";
@@ -46,12 +47,13 @@ export function useMobileRecorder() {
 
   const start = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 },
-      });
+      const { stream } = await acquireMicStream();
       streamRef.current = stream;
-      const AudioCtx = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
+
       if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       ctxRef.current = ctx;
       const source = ctx.createMediaStreamSource(stream);

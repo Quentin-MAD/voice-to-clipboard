@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
+import { acquireMicStream, describeMicError } from "@/lib/mic";
+
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -551,12 +553,11 @@ function Home() {
     }
     setErrorMsg("");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true, noiseSuppression: true, autoGainControl: true,
-          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
-        },
-      });
+      const { stream, usedFallback } = await acquireMicStream(micDeviceId);
+      if (usedFallback) {
+        toast.info("Micro enregistré indisponible : utilisation du micro par défaut.");
+      }
+
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
@@ -581,10 +582,14 @@ function Home() {
         void window.voxElectron.setRecordingState(true);
       }
     } catch (err) {
+      console.error("startRecording failed", err);
+      const msg = describeMicError(err);
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Accès au microphone refusé");
+      setErrorMsg(msg);
+      toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 2500);
     }
+
   }, [dailyLimitReached, noCreditsLeft, resetCountdown, micDeviceId]);
 
   const toggleRecording = useCallback(() => {
@@ -779,12 +784,11 @@ function Home() {
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true, noiseSuppression: true, autoGainControl: true,
-          ...(micDeviceId ? { deviceId: { exact: micDeviceId } } : {}),
-        },
-      });
+      const { stream, usedFallback } = await acquireMicStream(micDeviceId);
+      if (usedFallback) {
+        toast.info("Micro enregistré indisponible : utilisation du micro par défaut.");
+      }
+
       const ctx = new AudioContext();
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
@@ -808,7 +812,9 @@ function Home() {
         void window.voxElectron.setRecordingState(true);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Accès au microphone refusé");
+      console.error("startReadRecording failed", err);
+      toast.error(describeMicError(err), { duration: 6000 });
+
     }
   }, [dailyLimitReached, userStatus, micDeviceId]);
 
