@@ -109,9 +109,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: WINDOW_ICON_PATH,
     backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
-    // Custom title bar: removes the native caption icon (kept only for taskbar/shortcut)
-    titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#1e1f22', symbolColor: '#dcdde1', height: 32 },
+    // Fully frameless on Windows: guarantees that no native caption icon or
+    // duplicate native title can be rendered. The renderer supplies the drag
+    // strip and window controls; the packaged icon remains used by Windows.
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true, nodeIntegration: false, backgroundThrottling: false,
@@ -458,6 +459,14 @@ ipcMain.handle('clipboard:write', (_e, payload) => {
   return { ok: true, windowHidden };
 });
 ipcMain.handle('window:show', () => { showWindow(); return true; });
+ipcMain.handle('window:minimize', () => { if (mainWindow) mainWindow.minimize(); return true; });
+ipcMain.handle('window:toggle-maximize', () => {
+  if (!mainWindow) return false;
+  if (mainWindow.isMaximized()) mainWindow.unmaximize();
+  else mainWindow.maximize();
+  return mainWindow.isMaximized();
+});
+ipcMain.handle('window:close', () => { if (mainWindow) mainWindow.close(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {
   const toggle = payload && (payload.toggle || payload.start);
