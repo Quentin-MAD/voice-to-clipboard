@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { HardDrive, Settings, LogOut, Wallet, Mic } from "lucide-react";
+import { HardDrive, Settings, LogOut, Wallet, Mic, Minus, Square, X } from "lucide-react";
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -1056,6 +1056,35 @@ function Home() {
           {isElectron && (
             <div className="native-titlestrip">
               <span className="native-version notranslate">v{APP_VERSION}</span>
+              <div className="native-window-controls">
+                <button
+                  type="button"
+                  className="native-window-control"
+                  aria-label="Réduire"
+                  title="Réduire"
+                  onClick={() => void window.voxElectron?.minimizeWindow()}
+                >
+                  <Minus size={14} strokeWidth={1.5} />
+                </button>
+                <button
+                  type="button"
+                  className="native-window-control"
+                  aria-label="Agrandir ou restaurer"
+                  title="Agrandir ou restaurer"
+                  onClick={() => void window.voxElectron?.toggleMaximizeWindow()}
+                >
+                  <Square size={11} strokeWidth={1.5} />
+                </button>
+                <button
+                  type="button"
+                  className="native-window-control native-window-close"
+                  aria-label="Fermer"
+                  title="Fermer"
+                  onClick={() => void window.voxElectron?.closeWindow()}
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
           )}
           {isElectron && (

@@ -33,6 +33,9 @@ declare global {
     setOverlayStatus: (status: "idle" | "recording" | "processing" | "copied" | "error") => Promise<boolean>;
     hideWindow: () => Promise<boolean>;
     showWindow: () => Promise<boolean>;
+    minimizeWindow: () => Promise<boolean>;
+    toggleMaximizeWindow: () => Promise<boolean>;
+    closeWindow: () => Promise<boolean>;
     info: () => Promise<{ isElectron: true; toggleAccel: string; hotkeyOk: boolean; readAccel?: string; readHotkeyOk?: boolean; version: string }>;
     getAutoStart: () => Promise<{ enabled: boolean }>;
     setAutoStart: (enabled: boolean) => Promise<{ enabled: boolean }>;
