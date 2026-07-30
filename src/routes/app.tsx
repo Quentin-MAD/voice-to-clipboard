@@ -25,7 +25,7 @@ import { acquireMicStream, describeMicError } from "@/lib/mic";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "TalKing®, v0.10.11" },
+      { title: "v0.10.11" },
       {
         name: "description",
         content:
