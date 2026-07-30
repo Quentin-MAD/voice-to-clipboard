@@ -162,8 +162,11 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="text-xl font-bold notranslate"><img src="/logo.svg" alt="TalKing" className="h-7 w-auto" /></div>
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-6">
+          <Link to="/" className="flex items-center gap-3 notranslate">
+            <img src="/logo.svg" alt="TalKing" className="h-14 w-auto sm:h-16" />
+            <span className="text-2xl font-bold tracking-tight sm:text-3xl">TalKing®</span>
+          </Link>
           <nav className="flex items-center gap-4 text-sm">
             <GoogleTranslate />
             <Link to="/pricing" className="rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground">
