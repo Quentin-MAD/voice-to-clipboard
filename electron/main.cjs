@@ -29,7 +29,10 @@ const autotype = require('./autotype.cjs');
 
 const APP_URL = process.env.TALKING_URL || 'https://voice-to-clipboard.lovable.app/app';
 const UPDATE_MANIFEST_URL = process.env.TALKING_UPDATE_URL || 'https://talking-translator.com/talking-version.json';
-const ICON_PATH = path.join(__dirname, 'tray-icon.png');
+const TRAY_ICON_PATH = path.join(__dirname, 'tray-icon.png');
+const WINDOW_ICON_PATH = process.platform === 'win32'
+  ? path.join(__dirname, 'tray-icon.ico')
+  : TRAY_ICON_PATH;
 const START_HIDDEN = process.argv.includes('--hidden');
 const CURRENT_VERSION = app.getVersion();
 
@@ -104,7 +107,7 @@ if (process.platform === 'win32') { try { app.setAppUserModelId('com.talking.des
 function createWindow() {
   const WINDOW_TITLE = `TalKing\u00AE, v${CURRENT_VERSION}`;
   mainWindow = new BrowserWindow({
-    width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: ICON_PATH,
+    width: 980, height: 720, minWidth: 820, minHeight: 560, title: WINDOW_TITLE, icon: WINDOW_ICON_PATH,
     backgroundColor: '#1e1f22', show: false, autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
@@ -312,7 +315,7 @@ function rebuildTrayMenu() {
 }
 
 function buildTray() {
-  let icon = nativeImage.createFromPath(ICON_PATH);
+  let icon = nativeImage.createFromPath(TRAY_ICON_PATH);
   if (icon.isEmpty()) icon = nativeImage.createEmpty();
   else icon = icon.resize({ width: 16, height: 16 });
   tray = new Tray(icon);
@@ -425,7 +428,7 @@ function showWindow() {
 function notify({ title, body, silent = false, urgent = false }) {
   try {
     const n = new Notification({
-      title, body, icon: ICON_PATH, silent,
+      title, body, icon: TRAY_ICON_PATH, silent,
       urgency: urgent ? 'critical' : 'normal',
     });
     n.on('click', () => showWindow());
