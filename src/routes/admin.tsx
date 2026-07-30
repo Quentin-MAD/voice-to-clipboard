@@ -425,7 +425,7 @@ function AdminPage() {
                         {u.is_tester ? (
                           <span
                             className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
-                            title="Testeur - accès gratuit accordé par l'admin, exclu de la rentabilité"
+                            title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
                           >
                             Testeur
                           </span>
@@ -538,7 +538,7 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             <div className="text-xs uppercase tracking-wide text-muted-foreground">Coût {r.label}</div>
             <div className="mt-1 text-xl font-bold text-red-500">{EUR(finance.cost[r.key])}</div>
             {Number(finance.costTesters[r.key]) > 0 && (
-              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (exclus de la rentabilité)">
+              <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (inclus dans la rentabilité)">
                 dont testeurs : {EUR(finance.costTesters[r.key])}
               </div>
             )}
@@ -636,7 +636,7 @@ function UserActions({
           </button>
           <hr className="my-1" />
           <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Statut Testeur (gratuit, hors rentabilité)
+            Statut Testeur (accès gratuit, coût compté)
           </div>
           {isTester ? (
             <button
