@@ -14,8 +14,9 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "0.10.8"
+!define APP_VERSION    "0.10.9"
 !define APP_EXE        "TalKing.exe"
+!define APP_ICON       "TalKing-0.10.9.ico"
 !define APP_ID         "TalKing"
 !define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
@@ -30,7 +31,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "0.10.8.0"
+VIProductVersion "0.10.9.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
@@ -79,12 +80,17 @@ Section "Install"
 
   ; Copy the entire packaged app tree
   File /r "${SOURCE_DIR}\*.*"
+  ; Keep a versioned icon beside the executable. Windows caches shortcut icons
+  ; by path, so changing this filename forces Explorer to load the new artwork.
+  File /oname=${APP_ICON} "tray-icon.ico"
 
   ; Shortcuts
   CreateDirectory "$SMPROGRAMS\${APP_NAME}"
-  CreateShortCut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk"      "$INSTDIR\${APP_EXE}"
+  Delete "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk"
+  Delete "$DESKTOP\${APP_NAME}.lnk"
+  CreateShortCut "$SMPROGRAMS\${APP_NAME}\${APP_NAME}.lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\${APP_ICON}" 0 SW_SHOWNORMAL "" "TalKing"
   CreateShortCut "$SMPROGRAMS\${APP_NAME}\Uninstall ${APP_NAME}.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_EXE}"
+  CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_EXE}" "" "$INSTDIR\${APP_ICON}" 0 SW_SHOWNORMAL "" "TalKing"
 
   ; Uninstaller + Add/Remove Programs entry
   WriteUninstaller "$INSTDIR\Uninstall.exe"
