@@ -133,10 +133,24 @@ export function cleanupPcm(
   sampleRate: number,
   settings: DenoiseSettings,
 ): Float32Array[] {
+  try {
+    return cleanupPcmInner(chunks, sampleRate, settings);
+  } catch (err) {
+    console.error("audio cleanup failed, sending raw audio", err);
+    return chunks;
+  }
+}
+
+function cleanupPcmInner(
+  chunks: Float32Array[],
+  sampleRate: number,
+  settings: DenoiseSettings,
+): Float32Array[] {
   if (!settings.enabled || chunks.length === 0) return chunks;
-  const p = PROFILES[settings.level];
+  const p = PROFILES[settings.level] ?? PROFILES.normal;
   const input = flatten(chunks);
   if (input.length < sampleRate * 0.2) return chunks;
+
 
   const frame = Math.max(64, Math.round(sampleRate * 0.02)); // ~20 ms
   const frameCount = Math.floor(input.length / frame);
