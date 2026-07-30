@@ -99,7 +99,7 @@ export const Route = createFileRoute("/api/admin")({
         const views7 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 7)).length;
         const views30 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 30)).length;
 
-        // === IDs des membres testeurs (exclus des revenus / rentabilité) ===
+        // === IDs des membres testeurs (leurs coûts restent inclus dans la rentabilité) ===
         const testerIds = new Set<string>(
           ((users ?? []) as any[]).filter((u) => u.is_tester).map((u) => u.user_id as string),
         );
@@ -259,7 +259,7 @@ export const Route = createFileRoute("/api/admin")({
           all: revenueAllEur,
         };
 
-        // Rentabilité = revenus - coût des membres payants (testeurs exclus)
+        // Rentabilité = revenus - coût IA total, testeurs inclus
         const profit = {
           day: revenue.day - costPaying.day,
           week: revenue.week - costPaying.week,
