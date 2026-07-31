@@ -271,6 +271,17 @@ function Home() {
   const { config: skin } = useAppearance("windows");
 
 
+  // In the admin appearance preview (?skin=draft) there is no Electron bridge,
+  // so force the native (desktop app) rendering to mirror the real app exactly.
+  const [skinPreview, setSkinPreview] = useState(false);
+  useEffect(() => {
+    const isPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    if (isPreview) {
+      setSkinPreview(true);
+      setIsElectron(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (!window.voxElectron?.info) return;
     let cancelled = false;
