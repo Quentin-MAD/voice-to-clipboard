@@ -123,7 +123,7 @@ function AdminPage() {
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [tab, setTab] = useState<"dashboard" | "emails">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "appearance" | "emails">("dashboard");
 
 
 
