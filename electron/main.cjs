@@ -215,12 +215,16 @@ function registerHotkeys() {
   readHotkeyOk = false;
   autoTypeHotkeyOk = false;
 
-  const bind = (accel, kind, customCb) => {
+  const bind = (accel, kind, customCb, allowGlobalShortcut = true) => {
     const cb = customCb || (() => { if (mainWindow) mainWindow.webContents.send('hotkey', kind); });
     if (useLowLevel) {
       const ok = lowLevelHotkeys.register(accel, cb);
       if (ok) return true;
     }
+    // Never register ordinary typing keys such as Backspace through Electron's
+    // globalShortcut API. RegisterHotKey consumes them at Windows level, which
+    // prevents their normal use in browsers, Discord and every other app.
+    if (!allowGlobalShortcut) return false;
     // Fallback to Electron globalShortcut if the low-level hook is unavailable
     // (module load failure) or the accelerator can't be parsed by uiohook.
     try { return !!globalShortcut.register(accel, cb); } catch { return false; }
@@ -245,7 +249,10 @@ function registerHotkeys() {
   // default) would stay captured system-wide and break normal typing elsewhere.
   try {
     if (autoTypeEnabled && !!pendingAutoTypeText && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
-      autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType);
+      // The low-level observer detects this key without swallowing it. There is
+      // intentionally no globalShortcut fallback because that would disable
+      // Backspace system-wide for as long as a translation remains pending.
+      autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType, false);
     }
   } catch (e) { console.error('Failed to register auto-type hotkey', e); }
 
