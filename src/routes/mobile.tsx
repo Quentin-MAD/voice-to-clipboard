@@ -122,10 +122,25 @@ function MobilePage() {
   }, []);
 
 
-  if (!mounted) return null;
+  if (!mounted) return <AppSplash />;
   if (!isMobile) return <DesktopBlocker />;
   return <MobileApp />;
 }
+
+/** Écran de démarrage type application (jamais de contenu "site web"). */
+function AppSplash() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white grid place-items-center">
+      <div className="flex flex-col items-center gap-4 notranslate">
+        <img src="/logo-app-mobile.svg" alt="TalKing" className="h-20 w-20" draggable={false} />
+        <span className="text-xl font-bold">
+          TalKing<span className="ml-0.5 text-[0.6em] align-super">®</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 function DesktopBlocker() {
   return (
