@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { HardDrive, Mic, Globe, Zap, Ear } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
@@ -24,6 +24,8 @@ export const Route = createFileRoute("/")({
         content:
           "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LandingPage,
