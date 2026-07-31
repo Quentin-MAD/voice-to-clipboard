@@ -225,7 +225,8 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
               <Gift className="h-3 w-3" /> Texte gratuit aujourd'hui
             </div>
-            <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 30</span></div>
+            <div className="mt-0.5 text-lg font-bold">{status.free_remaining}</div>
+            <div className={`text-[11px] ${muted}`}>Limite journalière : 30</div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
@@ -239,8 +240,8 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             </div>
             <div className="mt-0.5 text-lg font-bold">
               {Math.max(0, (status.voice_daily_limit ?? 15) - (status.voice_daily_used ?? 0))}
-              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.voice_daily_limit ?? 15}</span>
             </div>
+            <div className={`text-[11px] ${muted}`}>Limite journalière : 15</div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
@@ -249,6 +250,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             <div className="mt-0.5 text-lg font-bold">{status.voice_balance}</div>
           </div>
         </div>
+
       )}
 
       {!unlimited && !showMobile && (
