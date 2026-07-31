@@ -148,12 +148,14 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
           {unlimited && <Crown className="h-4 w-4 text-amber-400" />}
           <span className="text-sm font-semibold">{label}</span>
         </div>
-        <Link
-          to={manageHref}
-          className={`text-[11px] underline-offset-2 hover:underline ${muted}`}
-        >
-          {manageLabel}
-        </Link>
+        {!unlimited && (
+          <Link
+            to={manageHref}
+            className={`text-[11px] underline-offset-2 hover:underline ${muted}`}
+          >
+            {manageLabel}
+          </Link>
+        )}
       </div>
 
       {showMobile ? (

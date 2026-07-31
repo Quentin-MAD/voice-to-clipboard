@@ -74,7 +74,7 @@ export const Route = createFileRoute("/api/subscription")({
           current_period_start: data?.current_period_start ?? null,
           current_period_end: data?.current_period_end ?? null,
           cancel_at_period_end: !!data?.cancel_at_period_end,
-          has_subscription: !!data?.paddle_subscription_id,
+          has_subscription: !!data && data.status !== "inactive",
         });
       },
 
@@ -98,28 +98,33 @@ export const Route = createFileRoute("/api/subscription")({
           .limit(1)
           .maybeSingle();
 
-        if (error || !sub?.paddle_subscription_id) {
+        if (error || !sub || sub.status === "inactive") {
           return Response.json({ error: "Aucun abonnement actif à annuler." }, { status: 400 });
         }
 
-        try {
-          const { getPaddleClient } = await import("@/lib/paddle.server");
-          const paddle = getPaddleClient((sub.environment as "sandbox" | "live") ?? "live");
-          await paddle.subscriptions.cancel(sub.paddle_subscription_id, {
-            effectiveFrom: "next_billing_period" as never,
-          });
-        } catch (e) {
-          console.error("Paddle cancel failed:", e);
-          return Response.json(
-            { error: "Annulation impossible pour le moment. Réessayez plus tard." },
-            { status: 502 },
-          );
+        // Paddle-billed subscription: stop the renewal on Paddle's side.
+        // Manually granted subscriptions have no Paddle id: only flag them locally.
+        if (sub.paddle_subscription_id) {
+          try {
+            const { getPaddleClient } = await import("@/lib/paddle.server");
+            const paddle = getPaddleClient((sub.environment as "sandbox" | "live") ?? "live");
+            await paddle.subscriptions.cancel(sub.paddle_subscription_id, {
+              effectiveFrom: "next_billing_period" as never,
+            });
+          } catch (e) {
+            console.error("Paddle cancel failed:", e);
+            return Response.json(
+              { error: "Annulation impossible pour le moment. Réessayez plus tard." },
+              { status: 502 },
+            );
+          }
         }
 
         await supabaseAdmin
           .from("subscriptions")
           .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
-          .eq("user_id", user.id);
+          .eq("user_id", user.id)
+          .eq("environment", environment);
 
         return Response.json({ ok: true, current_period_end: sub.current_period_end ?? null });
       },
