@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Crown, Coins, Volume2, Gift, ShoppingBag, Smartphone } from "lucide-react";
+import { Crown, Volume2, Gift, ShoppingBag, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -62,20 +62,19 @@ export function StatusPill({ variant = "light" }: { variant?: "light" | "dark" }
   const base = isDark
     ? "border-white/10 bg-white/5 text-white"
     : "border-border bg-card text-foreground";
-  const muted = isDark ? "text-white/60" : "text-muted-foreground";
   const label = planLabelOf(status);
-  const unlimited = status.subscribed || status.is_tester;
+
+
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${base}`}
-      title={unlimited ? `${label} · crédits illimités` : `${label} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés`}
+      title={label}
     >
-      {unlimited && <Crown className="h-3 w-3 text-amber-400" />}
+      {(status.subscribed || status.is_tester) && <Crown className="h-3 w-3 text-amber-400" />}
       <span>{label}</span>
-      <span className={muted}>·</span>
-      <span>{unlimited ? "∞" : status.free_remaining + status.purchased_balance}</span>
     </span>
   );
+
 }
 
 /** Compact header badge (existing usage). */
@@ -88,46 +87,35 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
   const base = isDark
     ? "border-white/10 bg-white/5 text-white"
     : "border-border bg-card text-foreground";
-  const muted = isDark ? "text-white/60" : "text-muted-foreground";
 
   if (status.subscribed || status.is_tester) {
+
     const label = status.is_tester ? "Testeur" : "Abonné";
     return (
       <Link
         to="/pricing"
         className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium hover:opacity-90 ${base}`}
-        title={`${label} · crédits illimités`}
+        title={label}
       >
         <Crown className="h-3.5 w-3.5 text-amber-400" />
         <span>{label}</span>
-        <span className={muted}>·</span>
-        <span>∞</span>
       </Link>
     );
   }
 
-  const total = status.free_remaining + status.purchased_balance;
+
   const planLabel = status.purchased_balance > 0 ? "Gratuit+" : "Gratuit";
   return (
     <Link
       to="/pricing"
       className={`flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs hover:opacity-90 ${base}`}
-      title={`${planLabel} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés · ${status.voice_balance} crédits vocaux`}
+      title={planLabel}
     >
       <span className="font-semibold">{planLabel}</span>
-      <span className={muted}>·</span>
-      <span className="flex items-center gap-1">
-        <Coins className="h-3.5 w-3.5" />
-        <span className="font-medium">{total}</span>
-      </span>
-      <span className={muted}>·</span>
-      <span className="flex items-center gap-1">
-        <Volume2 className="h-3.5 w-3.5" />
-        <span className="font-medium">{status.voice_balance}</span>
-      </span>
     </Link>
   );
 }
+
 
 /** Framed detail card — used on mobile and inside the profile modal. */
 export function CreditsCard({ variant = "light", manageHref = "/pricing", manageLabel = "Gérer / recharger", showMobile = false }: { variant?: "light" | "dark"; manageHref?: string; manageLabel?: string; showMobile?: boolean }) {
