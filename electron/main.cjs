@@ -240,12 +240,15 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register read hotkey', e); }
 
-  // Auto-type hotkey: only registered when the "my game blocks paste" option is on.
+  // Auto-type hotkey: only registered when the "my game blocks paste" option is
+  // ON *and* a translation is actually waiting. Otherwise the key (Backspace by
+  // default) would stay captured system-wide and break normal typing elsewhere.
   try {
-    if (autoTypeEnabled && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
+    if (autoTypeEnabled && !!pendingAutoTypeText && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
       autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType);
     }
   } catch (e) { console.error('Failed to register auto-type hotkey', e); }
+
 
   console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
 
