@@ -10,6 +10,8 @@ export type UserStatus = {
   free_remaining: number;
   purchased_balance: number;
   voice_balance: number;
+  voice_daily_used?: number;
+  voice_daily_limit?: number;
   mobile_balance: number;
   mobile_daily_used: number;
   mobile_daily_limit: number;
