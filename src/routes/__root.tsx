@@ -136,29 +136,7 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
-    // Older Android installations may still have the previous site-wide PWA
-    // scope cached. If Android sends a normal website link to that installed
-    // app, immediately hand it back to the browser on the other public host.
-    // The actual mobile app routes stay inside the installed experience.
-    const standalone = window.matchMedia("(display-mode: standalone)").matches
-      || (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    const redirectTarget = new URLSearchParams(window.location.search).get("redirect") ?? "";
-    const isMobileAuthRoute = window.location.pathname === "/auth"
-      && (redirectTarget === "/mobile" || redirectTarget.startsWith("/mobile/"));
-    const isMobileAppRoute = window.location.pathname === "/mobile"
-      || window.location.pathname.startsWith("/mobile/")
-      || isMobileAuthRoute;
-    const isPublicHost = window.location.hostname === "talking-translator.com"
-      || window.location.hostname === "www.talking-translator.com";
-    if (standalone && !isMobileAppRoute && isPublicHost) {
-      const browserHost = window.location.hostname.startsWith("www.")
-        ? "talking-translator.com"
-        : "www.talking-translator.com";
-      window.location.replace(
-        `https://${browserHost}${window.location.pathname}${window.location.search}${window.location.hash}`,
-      );
-      return;
-    }
+
 
     let sessionId = "";
     try {
