@@ -36,12 +36,12 @@ export const header = {
   padding: '24px 24px 18px',
   textAlign: 'center' as const,
 }
-export const logoImg = { display: 'block', margin: '0 auto' }
+export const logoImg = { display: 'block' }
 export const brand = {
   color: '#ffffff',
   fontSize: '24px',
   fontWeight: 'bold' as const,
-  margin: '6px 0 0',
+  margin: 0,
   letterSpacing: '0.5px',
 }
 export const card = {
@@ -110,8 +110,18 @@ export const BrandEmail = ({ preview, title, children }: BrandEmailProps) => (
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Img src={LOGO_URL} width="96" height="96" alt="TalKing" style={logoImg} />
-          <Text style={brand}>TalKing®</Text>
+          <table role="presentation" cellPadding={0} cellSpacing={0} border={0} align="center" style={{ margin: '0 auto' }}>
+            <tbody>
+              <tr>
+                <td style={{ verticalAlign: 'middle', paddingRight: '14px' }}>
+                  <Img src={LOGO_URL} width="72" height="72" alt="TalKing" style={logoImg} />
+                </td>
+                <td style={{ verticalAlign: 'middle' }}>
+                  <Text style={brand}>TalKing®</Text>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Section>
         <Section style={card}>
           <Heading style={h1}>{title}</Heading>
