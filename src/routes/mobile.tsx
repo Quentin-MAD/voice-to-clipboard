@@ -193,7 +193,10 @@ function MobileApp() {
 
   // Auto-update: detect a new build by hashing the served HTML shell
   useEffect(() => {
+    // Disabled inside the admin appearance preview iframe (would reload in loop)
+    if (window.top !== window.self) return;
     let lastHash: string | null = localStorage.getItem("tk_mobile_html_hash");
+
     const hashString = async (s: string) => {
       const buf = new TextEncoder().encode(s);
       const digest = await crypto.subtle.digest("SHA-256", buf);

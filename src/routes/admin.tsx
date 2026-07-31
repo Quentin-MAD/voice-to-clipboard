@@ -159,18 +159,22 @@ function AdminPage() {
     setLoading(false);
   }
 
-  useEffect(() => {
-    if (!authLoading && user) load();
-    else if (!authLoading && !user) {
-      navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
-    }
-  }, [authLoading, user, navigate]);
+  const userId = user?.id ?? null;
 
   useEffect(() => {
-    if (!autoRefresh || !user) return;
+    if (!authLoading && userId) load();
+    else if (!authLoading && !userId) {
+      navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, userId]);
+
+  useEffect(() => {
+    if (!autoRefresh || !userId) return;
     const id = setInterval(() => load(true), 15000);
     return () => clearInterval(id);
-  }, [autoRefresh, user]);
+  }, [autoRefresh, userId]);
+
 
 
 
@@ -189,9 +193,12 @@ function AdminPage() {
     load();
   }
 
-  if (authLoading || loading) {
+  // Keep the dashboard mounted once loaded: a refresh must not unmount the
+  // appearance editor (and its preview iframes).
+  if ((authLoading || loading) && !data) {
     return <div className="p-8 text-center text-muted-foreground">Chargement…</div>;
   }
+
 
 
   if (err) {
