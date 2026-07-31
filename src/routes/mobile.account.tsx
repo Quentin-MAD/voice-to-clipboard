@@ -5,7 +5,7 @@ import { ArrowLeft, Crown, ShoppingBag, Settings2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { CreditsCard } from "@/components/CreditsBadge";
+import { CreditsCard, useUserStatus } from "@/components/CreditsBadge";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/mobile/account")({
