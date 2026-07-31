@@ -61,7 +61,7 @@ export function UserMenu() {
                 setOpen(false);
                 setProfileOpen(true);
               }}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-accent"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-black hover:bg-accent"
             >
               <UserIcon className="h-4 w-4" />
               Mon profil
@@ -71,7 +71,7 @@ export function UserMenu() {
                 setOpen(false);
                 setSupportOpen(true);
               }}
-              className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-accent"
+              className="flex w-full items-center gap-2 px-4 py-2 text-sm text-black hover:bg-accent"
             >
               <Mail className="h-4 w-4" />
               Contacter le support
