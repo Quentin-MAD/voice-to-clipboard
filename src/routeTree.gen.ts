@@ -26,6 +26,7 @@ import { Route as ApiSupportRouteImport } from './routes/api/support'
 import { Route as ApiSubscriptionRouteImport } from './routes/api/subscription'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
+import { Route as ApiAdminEmailsRouteImport } from './routes/api/admin-emails'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
 import { Route as ApiPublicCleanupUnconfirmedRouteImport } from './routes/api/public/cleanup-unconfirmed'
@@ -119,6 +120,11 @@ const ApiMobileDialogRoute = ApiMobileDialogRouteImport.update({
   path: '/api/mobile-dialog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminEmailsRoute = ApiAdminEmailsRouteImport.update({
+  id: '/api/admin-emails',
+  path: '/api/admin-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminRoute = ApiAdminRouteImport.update({
   id: '/api/admin',
   path: '/api/admin',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -299,6 +310,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -326,6 +338,7 @@ export interface RootRouteChildren {
   MobileRoute: typeof MobileRouteWithChildren
   PricingRoute: typeof PricingRoute
   ApiAdminRoute: typeof ApiAdminRoute
+  ApiAdminEmailsRoute: typeof ApiAdminEmailsRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiSubscriptionRoute: typeof ApiSubscriptionRoute
@@ -465,6 +478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMobileDialogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin-emails': {
+      id: '/api/admin-emails'
+      path: '/api/admin-emails'
+      fullPath: '/api/admin-emails'
+      preLoaderRoute: typeof ApiAdminEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin': {
       id: '/api/admin'
       path: '/api/admin'
@@ -536,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   MobileRoute: MobileRouteWithChildren,
   PricingRoute: PricingRoute,
   ApiAdminRoute: ApiAdminRoute,
+  ApiAdminEmailsRoute: ApiAdminEmailsRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
   ApiSubscriptionRoute: ApiSubscriptionRoute,
