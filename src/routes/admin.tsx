@@ -193,9 +193,12 @@ function AdminPage() {
     load();
   }
 
-  if (authLoading || loading) {
+  // Keep the dashboard mounted once loaded: a refresh must not unmount the
+  // appearance editor (and its preview iframes).
+  if ((authLoading || loading) && !data) {
     return <div className="p-8 text-center text-muted-foreground">Chargement…</div>;
   }
+
 
 
   if (err) {
