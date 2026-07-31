@@ -211,22 +211,22 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center"
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center text-black"
       >
-        <h2 className="text-lg font-bold">Contacter le support</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h2 className="text-lg font-bold text-black">Contacter le support</h2>
+        <p className="mt-2 text-sm text-black">
           Cliquez sur l'adresse ci-dessous pour la copier :
         </p>
         <button
           type="button"
           onClick={copyEmail}
-          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono hover:bg-accent"
+          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono text-black hover:bg-accent"
         >
           {email}
         </button>
         <button
           onClick={onClose}
-          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
+          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
         >
           Fermer
         </button>
