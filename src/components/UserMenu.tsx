@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { LogOut, Mail, User as UserIcon, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
+import { StatusPill, CreditsCard, useUserStatus } from "@/components/CreditsBadge";
 import { SubscriptionPanel } from "@/components/SubscriptionPanel";
 
 import { SupportDialog } from "@/components/SupportDialog";
