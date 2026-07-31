@@ -28,6 +28,7 @@ import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const PricingRoute = PricingRouteImport.update({
@@ -125,6 +126,12 @@ const ApiPublicTrackViewRoute = ApiPublicTrackViewRouteImport.update({
   path: '/api/public/track-view',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -153,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/mobile/account': typeof MobileAccountRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
@@ -266,6 +278,7 @@ export interface FileRouteTypes {
     | '/mobile/account'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -288,6 +301,7 @@ export interface RootRouteChildren {
   LegalTermsRoute: typeof LegalTermsRoute
   ApiPublicTrackViewRoute: typeof ApiPublicTrackViewRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -425,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackViewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -466,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalTermsRoute: LegalTermsRoute,
   ApiPublicTrackViewRoute: ApiPublicTrackViewRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
