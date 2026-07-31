@@ -171,6 +171,7 @@ function RootComponent() {
       <main>
         <Outlet />
       </main>
+      <StandaloneSiteNotice />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
