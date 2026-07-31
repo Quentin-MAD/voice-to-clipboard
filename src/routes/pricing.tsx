@@ -203,6 +203,7 @@ function PricingPage() {
           et notre{" "}
           <Link to="/legal/refunds" className="underline hover:text-foreground">Politique de remboursement</Link>.
           Les paiements sont traités de manière sécurisée par <span className="notranslate">Paddle</span> (Merchant of Record), qui gère la TVA applicable dans votre pays.
+          {" "}En cas de remboursement, l'avantage correspondant est retiré immédiatement : l'abonnement est coupé et les crédits achetés (texte, vocaux, mobile) sont remis à zéro, le compte repassant en offre gratuite.
         </p>
       </div>
       <Footer />
