@@ -16,13 +16,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Traducteur vocal push-to-talk pour gamers. F8 : dites votre phrase, la traduction arrive dans votre presse-papiers. F9 : lisez à voix haute le message d'un joueur en jeu.",
+          "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
       },
       { property: "og:title", content: "TalKing - Traducteur vocal en temps réel pour gamers" },
       {
         property: "og:description",
         content:
-          "Traducteur vocal push-to-talk pour gamers. F8 : dites votre phrase, la traduction arrive dans votre presse-papiers. F9 : lisez à voix haute le message d'un joueur en jeu.",
+          "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
       },
     ],
   }),
