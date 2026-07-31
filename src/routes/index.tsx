@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { HardDrive, Mic, Globe, Zap, Ear } from "lucide-react";
+import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
 import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
@@ -200,7 +200,7 @@ function LandingPage() {
 
       {/* Download */}
       <section className="border-y border-border bg-muted/30">
-        <div className="mx-auto max-w-xl px-4 py-16">
+        <div className="mx-auto grid max-w-4xl gap-6 px-4 py-16 md:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-8 text-center">
             <HardDrive className="mx-auto h-10 w-10 text-primary" />
             <h2 className="mt-4 text-xl font-bold">App Windows</h2>
@@ -215,8 +215,24 @@ function LandingPage() {
               Télécharger pour Windows
             </a>
           </div>
+
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <Smartphone className="mx-auto h-10 w-10 text-primary" />
+            <h2 className="mt-4 text-xl font-bold">App Mobile</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Dialogue traduit à voix haute : chacun parle sa langue, l'IA traduit dans 47 langues.
+            </p>
+            <a
+              href="/mobile"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-base font-medium hover:bg-accent"
+            >
+              <Smartphone className="h-5 w-5" />
+              Installer sur téléphone
+            </a>
+          </div>
         </div>
       </section>
+
 
 
       {/* Pricing teaser */}

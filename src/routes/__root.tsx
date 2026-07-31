@@ -136,6 +136,22 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    // Application installée (PWA) : on n'affiche JAMAIS le site web.
+    // Les anciennes installations ont un start_url figé sur "/" ; on bascule
+    // immédiatement vers l'application. Aucun effet dans un navigateur normal.
+    try {
+      const standalone =
+        window.matchMedia?.("(display-mode: standalone)").matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      const inIframe = window.top !== window.self;
+      const path = window.location.pathname;
+      if (standalone && !inIframe && !path.startsWith("/mobile")) {
+        window.location.replace("/mobile?launch=app");
+        return;
+      }
+    } catch {}
+
+
 
 
 

@@ -2,9 +2,10 @@
   "name": "TalKing Mobile",
   "short_name": "TalKing",
   "description": "Dialogue vocal traduit en temps réel dans 47 langues.",
-  "id": "/mobile-app-v2",
+  "id": "/talking-mobile-v3",
   "start_url": "/mobile?launch=app",
   "scope": "/mobile",
+
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0a0a",

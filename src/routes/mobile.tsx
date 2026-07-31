@@ -104,7 +104,7 @@ export const Route = createFileRoute("/mobile")({
       // Version the manifest URL so existing Android installations promptly
       // pick up the restricted /mobile scope instead of keeping the old
       // site-wide launch behavior in browser metadata caches.
-      { rel: "manifest", href: "/mobile.webmanifest?v=mobile-app-v2" },
+      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v3" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
   }),
@@ -122,10 +122,25 @@ function MobilePage() {
   }, []);
 
 
-  if (!mounted) return null;
+  if (!mounted) return <AppSplash />;
   if (!isMobile) return <DesktopBlocker />;
   return <MobileApp />;
 }
+
+/** Écran de démarrage type application (jamais de contenu "site web"). */
+function AppSplash() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white grid place-items-center">
+      <div className="flex flex-col items-center gap-4 notranslate">
+        <img src="/logo-app-mobile.svg" alt="TalKing" className="h-20 w-20" draggable={false} />
+        <span className="text-xl font-bold">
+          TalKing<span className="ml-0.5 text-[0.6em] align-super">®</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 function DesktopBlocker() {
   return (
@@ -177,6 +192,15 @@ function MobileApp() {
 
   const [installVisible, setInstallVisible] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const [inBrowser, setInBrowser] = useState(false);
+  useEffect(() => {
+    const skinPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    if (skinPreview || window.top !== window.self) return;
+    const standalone = matchMedia("(display-mode: standalone)").matches
+      || (navigator as unknown as { standalone?: boolean }).standalone === true;
+    setInBrowser(!standalone);
+  }, []);
+
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastAudioUrlRef = useRef<string | null>(null);
@@ -602,7 +626,26 @@ function MobileApp() {
         </div>
       )}
 
+      {inBrowser && (
+        <div className="mx-5 mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+          <div className="text-xs font-semibold text-amber-200">Une ancienne icône TalKing ouvre le site web ?</div>
+          <p className="mt-1 text-[11px] leading-relaxed text-white/70">
+            Désinstallez l'ancienne icône de votre écran d'accueil, puis réinstallez l'app depuis cette page.
+            {isIOS()
+              ? " iPhone : appui long sur l'icône > Supprimer, puis Safari > Partager > Sur l'écran d'accueil."
+              : " Android : appui long sur l'icône > Désinstaller, puis menu ⋮ > Installer l'application."}
+          </p>
+          <button
+            onClick={() => setShowInstallHelp(true)}
+            className="mt-2 rounded-lg border border-white/20 px-3 py-1.5 text-[11px] font-medium hover:bg-white/5"
+          >
+            Voir les étapes
+          </button>
+        </div>
+      )}
+
       {/* Install banner (Android/Chrome) */}
+
       {installVisible && (
         <div className="mx-5 mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
           <div className="flex items-center justify-between">
