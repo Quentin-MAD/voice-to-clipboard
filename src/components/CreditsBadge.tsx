@@ -105,28 +105,18 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
     );
   }
 
-  const total = status.free_remaining + status.purchased_balance;
   const planLabel = status.purchased_balance > 0 ? "Gratuit+" : "Gratuit";
   return (
     <Link
       to="/pricing"
       className={`flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs hover:opacity-90 ${base}`}
-      title={`${planLabel} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés · ${status.voice_balance} crédits vocaux`}
+      title={planLabel}
     >
       <span className="font-semibold">{planLabel}</span>
-      <span className={muted}>·</span>
-      <span className="flex items-center gap-1">
-        <Coins className="h-3.5 w-3.5" />
-        <span className="font-medium">{total}</span>
-      </span>
-      <span className={muted}>·</span>
-      <span className="flex items-center gap-1">
-        <Volume2 className="h-3.5 w-3.5" />
-        <span className="font-medium">{status.voice_balance}</span>
-      </span>
     </Link>
   );
 }
+
 
 /** Framed detail card — used on mobile and inside the profile modal. */
 export function CreditsCard({ variant = "light", manageHref = "/pricing", manageLabel = "Gérer / recharger", showMobile = false }: { variant?: "light" | "dark"; manageHref?: string; manageLabel?: string; showMobile?: boolean }) {
