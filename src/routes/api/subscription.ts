@@ -53,15 +53,14 @@ export const Route = createFileRoute("/api/subscription")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        // One row per user (user_id is the primary key), so no environment filter here:
+        // manually granted subscriptions use the 'admin' environment.
         const { data, error } = await supabaseAdmin
           .from("subscriptions")
           .select(
             "status, current_period_start, current_period_end, cancel_at_period_end, paddle_subscription_id, environment",
           )
           .eq("user_id", user.id)
-          .eq("environment", environment)
-          .order("updated_at", { ascending: false })
-          .limit(1)
           .maybeSingle();
 
         if (error) {
@@ -69,11 +68,19 @@ export const Route = createFileRoute("/api/subscription")({
           return Response.json({ error: "Unable to load subscription" }, { status: 500 });
         }
 
+        const end = data?.current_period_end ? new Date(data.current_period_end).getTime() : null;
+        const stillInPeriod = end === null || end > Date.now();
+        const isActive =
+          !!data &&
+          ((["active", "trialing"].includes(data.status) && stillInPeriod) ||
+            (data.status === "canceled" && end !== null && end > Date.now()));
+
         return Response.json({
           status: data?.status ?? "inactive",
           current_period_start: data?.current_period_start ?? null,
           current_period_end: data?.current_period_end ?? null,
           cancel_at_period_end: !!data?.cancel_at_period_end,
+          is_active: isActive,
           has_subscription: !!data && data.status !== "inactive",
         });
       },
