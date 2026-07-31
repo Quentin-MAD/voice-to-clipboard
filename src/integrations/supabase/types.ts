@@ -382,17 +382,22 @@ export type Database = {
       admin_list_users: {
         Args: never
         Returns: {
+          access_origin: string
           cost_usd_30d: number
           cost_usd_7d: number
           cost_usd_total: number
           created_at: string
           current_period_end: string
           email: string
+          is_paid_subscriber: boolean
           is_tester: boolean
+          mobile_balance: number
           ops_today: number
           profit_eur_total: number
           purchased_balance: number
+          revenue_eur_test: number
           revenue_eur_total: number
+          sub_environment: string
           sub_status: string
           subscribed: boolean
           translations_30d: number

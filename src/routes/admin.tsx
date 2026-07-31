@@ -23,9 +23,13 @@ type AdminUser = {
   subscribed: boolean;
   is_tester: boolean;
   sub_status: string | null;
+  sub_environment: string | null;
+  access_origin: "paid" | "granted" | "none";
+  is_paid_subscriber: boolean;
   current_period_end: string | null;
   purchased_balance: number;
   voice_balance: number;
+  mobile_balance?: number;
   translations_total: number;
   translations_30d: number;
   ops_today: number;
@@ -33,8 +37,8 @@ type AdminUser = {
   cost_usd_30d: number;
   cost_usd_total: number;
   revenue_eur_total: number;
+  revenue_eur_test?: number;
   profit_eur_total: number;
-  cost_is_estimated?: boolean;
 };
 
 type Windowed = { day: number; week: number; month: number; year: number; all: number };
@@ -55,13 +59,32 @@ type RecentEvent = {
   email: string;
   is_tester: boolean;
   approx_cost_eur: number;
+  cost_known?: boolean;
+};
+type DataHealth = {
+  mode: "live" | "test" | "all";
+  total_users: number;
+  tester_users: number;
+  real_users: number;
+  paid_subscribers: number;
+  granted_access: number;
+  live_transactions: number;
+  test_transactions: number;
+  ai_rows_total: number;
+  ai_rows_unattributed: number;
+  cost_coverage_ratio: number;
+  unattributed_cost_eur: number;
+  active_sub_rows_by_env: Record<string, number>;
 };
 type AdminData = {
+  mode: "live" | "test" | "all";
   users: AdminUser[];
   daily: Array<{ date: string; views: number; translations: number; ai_credits: number }>;
   totals: {
     users: number;
     subscribed: number;
+    granted: number;
+    testers: number;
     ai_credits_total: number;
     ai_credits_today: number;
     ai_credits_7d: number;
@@ -71,9 +94,11 @@ type AdminData = {
     views_7d: number;
     views_30d: number;
   };
+  dataHealth: DataHealth;
   finance: {
     cost: Windowed;
     costTesters: Windowed;
+    costUnattributed: Windowed;
     costPaying: Windowed;
     revenue: Windowed;
     profit: Windowed;
@@ -88,6 +113,7 @@ type AdminData = {
       first_ai_date: string | null;
     };
   };
+
   breakdown: {
     day: Bucket[];
     week: Bucket[];
@@ -120,7 +146,8 @@ function AdminPage() {
   const [data, setData] = useState<AdminData | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "free" | "subscribed" | "tester">("all");
+  const [filter, setFilter] = useState<"all" | "free" | "paid" | "granted" | "tester">("all");
+  const [envMode, setEnvMode] = useState<"live" | "test" | "all">("live");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
   const [autoRefresh, setAutoRefresh] = useState(true);
@@ -138,7 +165,7 @@ function AdminPage() {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
       return;
     }
-    const res = await authedFetch("/api/admin");
+    const res = await authedFetch(`/api/admin?env=${envMode}`);
     if (res.status === 401) {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
       setLoading(false);
@@ -167,7 +194,7 @@ function AdminPage() {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, userId]);
+  }, [authLoading, userId, envMode]);
 
   useEffect(() => {
     if (!autoRefresh || !userId) return;
@@ -224,7 +251,8 @@ function AdminPage() {
   const users = data.users
     .filter((u) => {
       if (filter === "free" && (u.subscribed || u.is_tester)) return false;
-      if (filter === "subscribed" && !u.subscribed) return false;
+      if (filter === "paid" && !u.is_paid_subscriber) return false;
+      if (filter === "granted" && u.access_origin !== "granted") return false;
       if (filter === "tester" && !u.is_tester) return false;
       if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -296,11 +324,38 @@ function AdminPage() {
         {tab === "emails" ? <EmailPreviewPanel /> : tab === "appearance" ? <AppearanceEditor /> : (<>
 
 
+        {/* Filtre environnement */}
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
+          <span className="text-sm font-semibold">Données affichées :</span>
+          {([
+            { k: "live", label: "Réel (live)" },
+            { k: "test", label: "Test (sandbox)" },
+            { k: "all", label: "Tout" },
+          ] as const).map((m) => (
+            <button
+              key={m.k}
+              onClick={() => setEnvMode(m.k)}
+              className={
+                "rounded-md border px-3 py-1 text-sm " +
+                (envMode === m.k ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-accent")
+              }
+            >
+              {m.label}
+            </button>
+          ))}
+          <span className="ml-auto text-xs text-muted-foreground">
+            Le filtre s'applique aux revenus et paiements. Les coûts IA sont toujours réels.
+          </span>
+        </div>
+
+        <DataHealthBanner health={data.dataHealth} />
+
         {/* Stats cards */}
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Stat label="Utilisateurs" value={data.totals.users} />
-          <Stat label="Abonnés" value={data.totals.subscribed} />
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          <Stat label="Utilisateurs" value={data.totals.users} sub={`${data.dataHealth.real_users} hors testeurs`} />
+          <Stat label="Abonnés payants" value={data.totals.subscribed} sub="Paiement Paddle live vérifié" />
+          <Stat label="Accès offerts" value={data.totals.granted} sub="Lifetime / 1 an accordés par l'admin" />
           <Stat label="Visites (24h)" value={data.totals.views_today} sub={`${data.totals.views_7d} / 7j - ${data.totals.views_30d} / 30j`} />
           <Stat
             label="Crédits IA (24h)"
@@ -393,7 +448,8 @@ function AdminPage() {
               >
                 <option value="all">Tous</option>
                 <option value="free">Gratuits</option>
-                <option value="subscribed">Abonnés</option>
+                <option value="paid">Abonnés payants</option>
+                <option value="granted">Accès offerts</option>
                 <option value="tester">Testeurs</option>
 
               </select>
@@ -461,41 +517,57 @@ function AdminPage() {
                         </div>
                       </td>
                       <td className="p-2">
-                        {u.is_tester ? (
-                          <span
-                            className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
-                            title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
-                          >
-                            Testeur
-                          </span>
-                        ) : (
-                          <span
-                            className={
-                              u.subscribed
-                                ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                                : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
-                            }
-                          >
-                            {u.subscribed ? "Abonné" : "Gratuit"}
-                          </span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {u.is_tester && (
+                            <span
+                              className="w-fit rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
+                              title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
+                            >
+                              Testeur
+                            </span>
+                          )}
+                          {u.access_origin === "paid" ? (
+                            <span
+                              className="w-fit rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
+                              title="Abonnement payé via Paddle (environnement live)"
+                            >
+                              Abonné payant
+                            </span>
+                          ) : u.access_origin === "granted" ? (
+                            <span
+                              className="w-fit rounded bg-amber-500/20 px-2 py-0.5 text-amber-700 dark:text-amber-400"
+                              title="Accès actif accordé par l'admin (ou paiement en environnement test) - aucun revenu réel"
+                            >
+                              Accès offert
+                            </span>
+                          ) : (
+                            !u.is_tester && (
+                              <span className="w-fit rounded bg-muted px-2 py-0.5 text-muted-foreground">Gratuit</span>
+                            )
+                          )}
+                          {u.sub_environment && u.sub_environment !== "live" && u.subscribed && (
+                            <span className="text-[10px] uppercase text-muted-foreground">
+                              env : {u.sub_environment}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
                         {u.ops_today ?? 0}
                       </td>
                       <td className="p-2">{u.translations_30d}</td>
                       <td className="p-2">{u.translations_total}</td>
-                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(cost7)}{u.cost_is_estimated ? "*" : ""}</td>
+                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(cost7)}</td>
                       <td className={"p-2 tabular-nums " + (heavy30 ? "font-semibold text-amber-600 dark:text-amber-400" : "")}>
-                        {EURPrecise(cost30)}{u.cost_is_estimated ? "*" : ""}
+                        {EURPrecise(cost30)}
                       </td>
-                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(costTotal)}{u.cost_is_estimated ? "*" : ""}</td>
+                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(costTotal)}</td>
                       <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
-                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
+                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">-</span> : EUR(revenue)}
                       </td>
                       <td className="p-2 tabular-nums font-semibold">
                         <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                          {EURPrecise(profit)}{u.cost_is_estimated ? "*" : ""}
+                          {EURPrecise(profit)}
                         </span>
                       </td>
                       <td className="p-2 font-medium">
@@ -521,12 +593,61 @@ function AdminPage() {
             </table>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            * Estimation historique : certaines anciennes écritures de coût ont été perdues. Le calcul utilise le nombre d'opérations conservé et le coût moyen réel par type. Les nouvelles opérations sont journalisées précisément.
+            Tous les coûts affichés proviennent uniquement des écritures réellement journalisées (aucune estimation).
+            Les coûts anciens sans membre rattaché sont regroupés dans la ligne "coûts non attribués" du bandeau d'état.
           </p>
         </div>
         </>)}
       </div>
 
+    </div>
+  );
+}
+
+function DataHealthBanner({ health }: { health: DataHealth }) {
+  const coverage = Math.round((Number(health.cost_coverage_ratio) || 0) * 100);
+  const modeLabel = health.mode === "live" ? "Réel (live)" : health.mode === "test" ? "Test (sandbox)" : "Tout";
+  const warn = coverage < 100 || (health.mode === "live" && health.test_transactions > 0);
+  return (
+    <div className={"rounded-lg border p-4 text-sm " + (warn ? "border-amber-500/50 bg-amber-500/5" : "bg-card")}>
+      <div className="mb-2 font-semibold">État des données - mode {modeLabel}</div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div>
+          <div className="text-xs text-muted-foreground">Membres</div>
+          <div className="font-medium">
+            {health.total_users} au total · {health.real_users} réels · {health.tester_users} testeurs
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Accès actifs</div>
+          <div className="font-medium">
+            {health.paid_subscribers} payants · {health.granted_access} offerts
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Transactions</div>
+          <div className="font-medium">
+            {health.live_transactions} live · {health.test_transactions} test
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Couverture des coûts</div>
+          <div className={"font-medium " + (coverage < 100 ? "text-amber-600 dark:text-amber-400" : "")}>
+            {coverage}% ({health.ai_rows_unattributed} lignes sans membre)
+          </div>
+        </div>
+      </div>
+      {health.unattributed_cost_eur > 0 && (
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+          Coûts non attribués (anciennes écritures sans membre) :{" "}
+          {EURPrecise(health.unattributed_cost_eur)}. Ils sont comptés dans le coût global mais dans aucune fiche membre.
+        </p>
+      )}
+      {health.mode === "live" && health.test_transactions > 0 && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {health.test_transactions} paiement(s) en environnement de test sont exclus des revenus affichés.
+        </p>
+      )}
     </div>
   );
 }
@@ -583,6 +704,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
             {Number(finance.costTesters[r.key]) > 0 && (
               <div className="mt-1 text-[10px] text-blue-600 dark:text-blue-400" title="Coût généré par les membres testeurs (inclus dans la rentabilité)">
                 dont testeurs : {EUR(finance.costTesters[r.key])}
+              </div>
+            )}
+            {Number(finance.costUnattributed?.[r.key]) > 0 && (
+              <div className="mt-1 text-[10px] text-amber-600 dark:text-amber-400" title="Anciennes écritures de coût sans membre rattaché">
+                dont non attribué : {EUR(finance.costUnattributed[r.key])}
               </div>
             )}
           </div>

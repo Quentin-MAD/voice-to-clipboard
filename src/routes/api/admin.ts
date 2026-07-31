@@ -39,33 +39,48 @@ export const Route = createFileRoute("/api/admin")({
         }
         const { supabaseAdmin } = check;
 
+        // Mode d'affichage : réel (live), test (sandbox) ou tout
+        const url = new URL(request.url);
+        const envParam = url.searchParams.get("env");
+        const mode: "live" | "test" | "all" =
+          envParam === "test" ? "test" : envParam === "all" ? "all" : "live";
+        const matchesEnv = (environment: string | null | undefined) => {
+          if (mode === "all") return true;
+          if (mode === "live") return environment === "live";
+          return environment !== "live";
+        };
+
         // Users list (email-based admin check already performed via getUserAndCheckAdmin)
         const { data: users, error: uErr } = await supabaseAdmin.rpc("admin_list_users");
         if (uErr) {
           return Response.json({ error: uErr.message }, { status: 500 });
         }
 
-
         // Time series - last 365 days for chart
         const since = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString();
-        const [pv, ai, tl, subs, tx, aiAll, txAll, aiFirst] = await Promise.all([
+        const [pv, ai, tl, subs, tx, txAll, aiFirst] = await Promise.all([
           supabaseAdmin.from("page_views").select("created_at,path").gte("created_at", since).limit(100000),
-          supabaseAdmin.from("ai_usage_log").select("created_at,cost_credits,model,operation").gte("created_at", since).limit(100000),
+          supabaseAdmin
+            .from("ai_usage_log")
+            .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
+            .gte("created_at", since)
+            .limit(200000),
           supabaseAdmin.from("translations_log").select("created_at,source_type,user_id,operation_type").limit(500000),
-          supabaseAdmin.from("subscriptions").select("status,current_period_end,updated_at,environment"),
-          supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment").gte("created_at", since).limit(100000),
-          // All-time (minimal fields)
-          supabaseAdmin.from("ai_usage_log").select("cost_credits").limit(500000),
-          supabaseAdmin.from("payment_transactions").select("amount_eur,environment").limit(500000),
+          supabaseAdmin.from("subscriptions").select("user_id,status,current_period_end,updated_at,environment"),
+          supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment,kind").gte("created_at", since).limit(100000),
+          supabaseAdmin.from("payment_transactions").select("created_at,amount_eur,environment,kind").limit(500000),
           supabaseAdmin.from("ai_usage_log").select("created_at").order("created_at", { ascending: true }).limit(1),
         ]);
 
-        // === Business constants (EUR) ===
-        // cost_credits estimates are in USD, convert to EUR
+        // cost_credits est exprimé en USD, converti en EUR pour l'affichage
         const USD_TO_EUR = 0.92;
-        const SUB_PRICE_EUR = 29.99; // per year
-        const EUR_PER_PURCHASED_CREDIT = 2.99 / 50; // 50 crédits texte = 2,99€
-        const EUR_PER_VOICE_CREDIT = 2.99 / 10; // 10 crédits vocaux = 2,99€
+        const SUB_PRICE_EUR = 24.99; // par an
+        const EUR_PER_PURCHASED_CREDIT = 2.99 / 75;
+
+        const aiRows = (ai.data ?? []) as any[];
+        const aiAllRows = aiRows; // ai_usage_log complet tient dans la fenêtre 365j
+        const now = Date.now();
+        const inWindow = (iso: string, days: number) => now - new Date(iso).getTime() < days * 86400000;
 
         const dayKey = (iso: string) => startOfDayUTC(new Date(iso)).toISOString().slice(0, 10);
         const agg: Record<string, { views: number; translations: number; ai_credits: number }> = {};
@@ -81,7 +96,7 @@ export const Route = createFileRoute("/api/admin")({
           const k = dayKey(row.created_at);
           if (agg[k]) agg[k].translations++;
         }
-        for (const row of ai.data ?? []) {
+        for (const row of aiRows) {
           const k = dayKey(row.created_at);
           if (agg[k]) agg[k].ai_credits += Number(row.cost_credits ?? 0);
         }
@@ -89,125 +104,66 @@ export const Route = createFileRoute("/api/admin")({
           .map(([date, v]) => ({ date, ...v }))
           .sort((a, b) => (a.date < b.date ? -1 : 1));
 
-        const totalAi = (ai.data ?? []).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
-        const now = Date.now();
-        const inWindow = (iso: string, days: number) => now - new Date(iso).getTime() < days * 86400000;
-        const aiToday = (ai.data ?? []).filter((r) => inWindow(r.created_at, 1)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
-        const ai7 = (ai.data ?? []).filter((r) => inWindow(r.created_at, 7)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
-        const ai30 = (ai.data ?? []).filter((r) => inWindow(r.created_at, 30)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
+        const totalAi = aiRows.reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
+        const aiToday = aiRows.filter((r) => inWindow(r.created_at, 1)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
+        const ai7 = aiRows.filter((r) => inWindow(r.created_at, 7)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
+        const ai30 = aiRows.filter((r) => inWindow(r.created_at, 30)).reduce((s, r) => s + Number(r.cost_credits ?? 0), 0);
         const viewsToday = (pv.data ?? []).filter((r) => inWindow(r.created_at, 1)).length;
         const views7 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 7)).length;
         const views30 = (pv.data ?? []).filter((r) => inWindow(r.created_at, 30)).length;
 
-        // === IDs des membres testeurs (leurs coûts restent inclus dans la rentabilité) ===
-        const testerIds = new Set<string>(
-          ((users ?? []) as any[]).filter((u) => u.is_tester).map((u) => u.user_id as string),
-        );
+        // === Catégories de membres ===
+        const allUsers = (users ?? []) as any[];
+        const testerIds = new Set<string>(allUsers.filter((u) => u.is_tester).map((u) => u.user_id as string));
+        const paidSubs = allUsers.filter((u) => u.is_paid_subscriber).length;
+        const grantedSubs = allUsers.filter((u) => u.access_origin === "granted").length;
+        const testersCount = testerIds.size;
 
-        // === Fetch ai_usage_log user_ids + détails sur la fenêtre 365j ===
-        const { data: aiWithUser } = await supabaseAdmin
-          .from("ai_usage_log")
-          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
-          .gte("created_at", since)
-          .limit(200000);
+        // === Coûts réels uniquement (aucune estimation) ===
+        const costEurWindow = (days: number | null, opts?: { testersOnly?: boolean; excludeTesters?: boolean }) =>
+          aiRows
+            .filter((r) => (days === null ? true : inWindow(r.created_at, days)))
+            .filter((r) => {
+              if (opts?.testersOnly) return r.user_id && testerIds.has(r.user_id);
+              if (opts?.excludeTesters) return !r.user_id || !testerIds.has(r.user_id);
+              return true;
+            })
+            .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
 
-        const costEurWindowFiltered = (days: number, includeTesters: boolean) =>
-          (aiWithUser ?? [])
-            .filter((r: any) => inWindow(r.created_at, days))
-            .filter((r: any) => (includeTesters ? true : !testerIds.has(r.user_id)))
-            .reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
+        const unattributedEur = (days: number | null) =>
+          aiRows
+            .filter((r) => (days === null ? true : inWindow(r.created_at, days)))
+            .filter((r) => !r.user_id)
+            .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
 
-        // All-time - séparer coût testeurs
-        const { data: aiAllWithUser } = await supabaseAdmin
-          .from("ai_usage_log")
-          .select("created_at,cost_credits,user_id,model,operation,input_tokens,output_tokens")
-          .limit(500000);
-        const aiAllTotalCredits = (aiAllWithUser ?? []).reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0);
-        const costAllEur = aiAllTotalCredits * USD_TO_EUR;
-        const costAllEurExclTesters =
-          (aiAllWithUser ?? [])
-            .filter((r: any) => !testerIds.has(r.user_id))
-            .reduce((s: number, r: any) => s + Number(r.cost_credits ?? 0), 0) * USD_TO_EUR;
-        const revenueAllEur = (txAll.data ?? [])
-          .filter((t: any) => t.environment === "live")
-          .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
-        const firstAiDate = aiFirst.data?.[0]?.created_at ?? null;
-
-        // Une ancienne version lançait l'écriture des coûts sans l'attendre. Les traductions
-        // ont bien été conservées, mais la majorité des lignes ai_usage_log a été perdue.
-        // On reconstruit ces coûts manquants avec les moyennes réelles observées par opération.
-        const aiRowsAll = (aiAllWithUser ?? []) as any[];
-        const translationRowsAll = (tl.data ?? []) as any[];
-        const operationAverages = new Map<string, number>();
-        const operationSums = new Map<string, { cost: number; count: number }>();
-        for (const row of aiRowsAll) {
-          const key = row.operation ?? "unknown";
-          const current = operationSums.get(key) ?? { cost: 0, count: 0 };
-          current.cost += Number(row.cost_credits ?? 0);
-          current.count += 1;
-          operationSums.set(key, current);
-        }
-        for (const [key, value] of operationSums) {
-          operationAverages.set(key, value.count > 0 ? value.cost / value.count : 0);
-        }
-        const firstAverage = (...keys: string[]) => {
-          for (const key of keys) {
-            const value = operationAverages.get(key) ?? 0;
-            if (value > 0) return value;
-          }
-          return 0;
+        const cost = {
+          day: costEurWindow(1),
+          week: costEurWindow(7),
+          month: costEurWindow(30),
+          year: costEurWindow(365),
+          all: costEurWindow(null),
         };
-        const fallbackCostUsd = (operation: string) => {
-          const transcription = firstAverage("mobile_transcription", "transcription");
-          const translation = firstAverage("mobile_translation", "translation");
-          const vision = firstAverage("vision_read_message", "vision_read");
-          const tts = firstAverage("mobile_tts", "tts_read_message", "tts");
-          if (operation === "read_message") return vision + tts;
-          if (operation === "mobile_dialog") return transcription + translation + tts;
-          return transcription + translation;
+        const costTesters = {
+          day: costEurWindow(1, { testersOnly: true }),
+          week: costEurWindow(7, { testersOnly: true }),
+          month: costEurWindow(30, { testersOnly: true }),
+          year: costEurWindow(365, { testersOnly: true }),
+          all: costEurWindow(null, { testersOnly: true }),
         };
-        const aiRowsByUser = new Map<string, any[]>();
-        for (const row of aiRowsAll) {
-          if (!row.user_id) continue;
-          const current = aiRowsByUser.get(row.user_id) ?? [];
-          current.push(row);
-          aiRowsByUser.set(row.user_id, current);
-        }
-        const estimatedUserCostUsd = (userId: string, days?: number) => {
-          const cutoff = days ? now - days * 86400000 : Number.NEGATIVE_INFINITY;
-          const userAiRows = aiRowsByUser.get(userId) ?? [];
-          return translationRowsAll
-            .filter((row) => row.user_id === userId && new Date(row.created_at).getTime() >= cutoff)
-            .reduce((sum, row) => {
-              const eventTime = new Date(row.created_at).getTime();
-              const matchedCost = userAiRows
-                .filter((aiRow) => Math.abs(new Date(aiRow.created_at).getTime() - eventTime) <= 15000)
-                .reduce((cost, aiRow) => cost + Number(aiRow.cost_credits ?? 0), 0);
-              return sum + (matchedCost > 0 ? matchedCost : fallbackCostUsd(row.operation_type ?? "translate"));
-            }, 0);
+        const costUnattributed = {
+          day: unattributedEur(1),
+          week: unattributedEur(7),
+          month: unattributedEur(30),
+          year: unattributedEur(365),
+          all: unattributedEur(null),
         };
-        const estimatedUsers = ((users ?? []) as any[]).map((user) => {
-          const cost7 = estimatedUserCostUsd(user.user_id, 7);
-          const cost30 = estimatedUserCostUsd(user.user_id, 30);
-          const costTotal = estimatedUserCostUsd(user.user_id);
-          const revenue = Number(user.revenue_eur_total ?? 0);
-          return {
-            ...user,
-            cost_usd_7d: Math.max(Number(user.cost_usd_7d ?? 0), cost7),
-            cost_usd_30d: Math.max(Number(user.cost_usd_30d ?? 0), cost30),
-            cost_usd_total: Math.max(Number(user.cost_usd_total ?? 0), costTotal),
-            profit_eur_total: revenue - Math.max(Number(user.cost_usd_total ?? 0), costTotal) * USD_TO_EUR,
-            cost_is_estimated: costTotal > Number(user.cost_usd_total ?? 0),
-          };
-        });
-        const estimatedTotalEur = (days?: number) =>
-          estimatedUsers.reduce((sum, user) => sum + estimatedUserCostUsd(user.user_id, days), 0) * USD_TO_EUR;
-        const estimatedTesterEur = (days?: number) =>
-          estimatedUsers
-            .filter((user) => user.is_tester)
-            .reduce((sum, user) => sum + estimatedUserCostUsd(user.user_id, days), 0) * USD_TO_EUR;
+        const costPaying = { ...cost };
 
-        // === Breakdown par opération + modèle, par fenêtre ===
+        // Taux de couverture : part des lignes de coût rattachées à un membre
+        const attributedRows = aiAllRows.filter((r) => !!r.user_id).length;
+        const coverage = aiAllRows.length > 0 ? attributedRows / aiAllRows.length : 1;
+
+        // === Breakdown par opération + modèle ===
         type Bucket = { operation: string; model: string; calls: number; cost_eur: number; in_tokens: number; out_tokens: number; avg_cost_eur: number };
         const breakdownFor = (rows: any[]): Bucket[] => {
           const map = new Map<string, Bucket>();
@@ -226,65 +182,27 @@ export const Route = createFileRoute("/api/admin")({
             .map((b) => ({ ...b, avg_cost_eur: b.calls > 0 ? b.cost_eur / b.calls : 0 }))
             .sort((a, b) => b.cost_eur - a.cost_eur);
         };
-        const rows365 = aiWithUser ?? [];
         const breakdown = {
-          day: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 1))),
-          week: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 7))),
-          month: breakdownFor(rows365.filter((r: any) => inWindow(r.created_at, 30))),
-          year: breakdownFor(rows365),
-          all: breakdownFor(aiAllWithUser ?? []),
+          day: breakdownFor(aiRows.filter((r) => inWindow(r.created_at, 1))),
+          week: breakdownFor(aiRows.filter((r) => inWindow(r.created_at, 7))),
+          month: breakdownFor(aiRows.filter((r) => inWindow(r.created_at, 30))),
+          year: breakdownFor(aiRows),
+          all: breakdownFor(aiAllRows),
         };
 
-        // === Activité utilisateurs récente (100 derniers événements) - live feed ===
-        // Basé sur translations_log qui a toujours user_id + operation_type fiables
+        // === Activité utilisateurs récente (100 derniers événements) ===
         const { data: recentTl } = await supabaseAdmin
           .from("translations_log")
           .select("created_at,user_id,source_type,operation_type")
           .order("created_at", { ascending: false })
           .limit(100);
-        const emailById = new Map<string, string>(
-          ((users ?? []) as any[]).map((u) => [u.user_id, u.email ?? ""]),
-        );
-        // Coût réel par événement : on somme les entrées ai_usage_log du même user_id
-        // dans une fenêtre de ±15s autour de translations_log.created_at.
+        const emailById = new Map<string, string>(allUsers.map((u) => [u.user_id, u.email ?? ""]));
         const aiByUser = new Map<string, Array<{ t: number; cost: number }>>();
-        for (const r of (aiWithUser ?? []) as any[]) {
+        for (const r of aiRows) {
+          if (!r.user_id) continue;
           const arr = aiByUser.get(r.user_id) ?? [];
           arr.push({ t: new Date(r.created_at).getTime(), cost: Number(r.cost_credits ?? 0) * USD_TO_EUR });
           aiByUser.set(r.user_id, arr);
-        }
-        // Fallback: coût moyen par opération (toutes fenêtres) si pas de match temporel
-        const sumByOp = new Map<string, { c: number; n: number }>();
-        for (const r of (aiWithUser ?? []) as any[]) {
-          const op = r.operation ?? "unknown";
-          const s = sumByOp.get(op) ?? { c: 0, n: 0 };
-          s.c += Number(r.cost_credits ?? 0) * USD_TO_EUR;
-          s.n += 1;
-          sumByOp.set(op, s);
-        }
-        const opFallbackGroups: Record<string, string[][]> = {
-          read_message: [["vision_read_message", "vision_read"], ["tts_read_message", "tts"]],
-          mobile_dialog: [
-            ["mobile_transcription", "transcription"],
-            ["mobile_translation", "translation"],
-            ["mobile_tts", "tts_read_message", "tts"],
-          ],
-          translate: [["transcription"], ["translation"]],
-        };
-        const avgCostByOp = new Map<string, number>();
-        for (const [tlOp, groups] of Object.entries(opFallbackGroups)) {
-          let c = 0;
-          let has = false;
-          for (const alternatives of groups) {
-            for (const operation of alternatives) {
-              const summary = sumByOp.get(operation);
-              if (!summary || summary.n === 0) continue;
-              c += summary.c / summary.n;
-              has = true;
-              break;
-            }
-          }
-          if (has) avgCostByOp.set(tlOp, c);
         }
         const WINDOW_MS = 15000;
         const recent = (recentTl ?? []).map((r: any) => {
@@ -294,43 +212,23 @@ export const Route = createFileRoute("/api/admin")({
           for (const e of arr) {
             if (Math.abs(e.t - t) <= WINDOW_MS) matched += e.cost;
           }
-          const op = r.operation_type ?? "translate";
-          const cost = matched > 0 ? matched : (avgCostByOp.get(op) ?? 0);
           return {
             created_at: r.created_at,
-            operation: op,
+            operation: r.operation_type ?? "translate",
             source_type: r.source_type ?? "unknown",
             user_id: r.user_id,
-            email: emailById.get(r.user_id) ?? "—",
+            email: emailById.get(r.user_id) ?? "-",
             is_tester: testerIds.has(r.user_id),
-            approx_cost_eur: cost,
+            approx_cost_eur: matched,
+            cost_known: matched > 0,
           };
         });
 
-
-        // Coût total (tous membres inclus, testeurs compris) - pour affichage brut
-        const cost = {
-          day: Math.max(costEurWindowFiltered(1, true), estimatedTotalEur(1)),
-          week: Math.max(costEurWindowFiltered(7, true), estimatedTotalEur(7)),
-          month: Math.max(costEurWindowFiltered(30, true), estimatedTotalEur(30)),
-          year: Math.max(costEurWindowFiltered(365, true), estimatedTotalEur(365)),
-          all: Math.max(costAllEur, estimatedTotalEur()),
-        };
-        // Coût des testeurs uniquement (à afficher séparément)
-        const costTesters = {
-          day: Math.max(costEurWindowFiltered(1, true) - costEurWindowFiltered(1, false), estimatedTesterEur(1)),
-          week: Math.max(costEurWindowFiltered(7, true) - costEurWindowFiltered(7, false), estimatedTesterEur(7)),
-          month: Math.max(costEurWindowFiltered(30, true) - costEurWindowFiltered(30, false), estimatedTesterEur(30)),
-          year: Math.max(costEurWindowFiltered(365, true) - costEurWindowFiltered(365, false), estimatedTesterEur(365)),
-          all: Math.max(costAllEur - costAllEurExclTesters, estimatedTesterEur()),
-        };
-        // Coût retenu pour la rentabilité : TOTAL, testeurs inclus
-        const costPaying = { ...cost };
-
-        // === Revenus EUR - basés uniquement sur les vraies transactions Paddle ===
-        const realTx = (tx.data ?? []).filter((t: any) => t.environment === "live");
+        // === Revenus - filtrés selon le mode choisi ===
+        const txRows = (tx.data ?? []).filter((t: any) => matchesEnv(t.environment));
+        const txAllRows = (txAll.data ?? []).filter((t: any) => matchesEnv(t.environment));
         const revenueInWindow = (days: number) =>
-          realTx
+          txRows
             .filter((t: any) => inWindow(t.created_at, days))
             .reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0);
 
@@ -339,10 +237,9 @@ export const Route = createFileRoute("/api/admin")({
           week: revenueInWindow(7),
           month: revenueInWindow(30),
           year: revenueInWindow(365),
-          all: revenueAllEur,
+          all: txAllRows.reduce((s: number, t: any) => s + Number(t.amount_eur ?? 0), 0),
         };
 
-        // Rentabilité = revenus - coût IA total, testeurs inclus
         const profit = {
           day: revenue.day - costPaying.day,
           week: revenue.week - costPaying.week,
@@ -355,6 +252,7 @@ export const Route = createFileRoute("/api/admin")({
         const finance = {
           cost,
           costTesters,
+          costUnattributed,
           costPaying,
           revenue,
           profit,
@@ -376,31 +274,58 @@ export const Route = createFileRoute("/api/admin")({
             usd_to_eur: USD_TO_EUR,
             sub_price_eur_year: SUB_PRICE_EUR,
             eur_per_purchased_credit: EUR_PER_PURCHASED_CREDIT,
-            active_paying_subs: (subs.data ?? []).filter(
-              (s: any) => s.status === "active" && s.environment === "live" &&
-                (!s.current_period_end || new Date(s.current_period_end).getTime() > now),
-            ).length,
-            testers_count: testerIds.size,
-            first_ai_date: firstAiDate,
+            active_paying_subs: paidSubs,
+            testers_count: testersCount,
+            first_ai_date: aiFirst.data?.[0]?.created_at ?? null,
           },
         };
 
+        // === Bandeau d'état des données ===
+        const liveTxCount = (txAll.data ?? []).filter((t: any) => t.environment === "live").length;
+        const testTxCount = (txAll.data ?? []).filter((t: any) => t.environment !== "live").length;
+        const dataHealth = {
+          mode,
+          total_users: allUsers.length,
+          tester_users: testersCount,
+          real_users: allUsers.filter((u) => !u.is_tester).length,
+          paid_subscribers: paidSubs,
+          granted_access: grantedSubs,
+          live_transactions: liveTxCount,
+          test_transactions: testTxCount,
+          ai_rows_total: aiAllRows.length,
+          ai_rows_unattributed: aiAllRows.length - attributedRows,
+          cost_coverage_ratio: coverage,
+          unattributed_cost_eur: costUnattributed.all,
+          active_sub_rows_by_env: (subs.data ?? []).reduce((acc: Record<string, number>, s: any) => {
+            const active =
+              (s.status === "active" || s.status === "trialing") &&
+              (!s.current_period_end || new Date(s.current_period_end).getTime() > now);
+            if (!active) return acc;
+            const key = s.environment ?? "unknown";
+            acc[key] = (acc[key] ?? 0) + 1;
+            return acc;
+          }, {}),
+        };
 
         return Response.json({
-          users: estimatedUsers,
+          mode,
+          users: allUsers,
           daily,
           totals: {
-            users: users?.length ?? 0,
-            subscribed: (users ?? []).filter((u: any) => u.subscribed).length,
+            users: allUsers.length,
+            subscribed: paidSubs,
+            granted: grantedSubs,
+            testers: testersCount,
             ai_credits_total: totalAi,
             ai_credits_today: aiToday,
             ai_credits_7d: ai7,
             ai_credits_30d: ai30,
-            ai_credits_all: aiAllTotalCredits,
+            ai_credits_all: aiAllRows.reduce((s, r) => s + Number(r.cost_credits ?? 0), 0),
             views_today: viewsToday,
             views_7d: views7,
             views_30d: views30,
           },
+          dataHealth,
           finance,
           breakdown,
           recent,
