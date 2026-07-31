@@ -9,14 +9,18 @@ export function Footer() {
   const year = new Date().getFullYear();
   return (
     <footer className="relative mt-16 border-t border-border bg-primary text-primary-foreground">
-      <img
-        src={logoBlanc.url}
-        alt="TalKing"
-        draggable={false}
-        onDragStart={(e) => e.preventDefault()}
-        className="mx-auto h-28 w-auto select-none md:absolute md:left-4 md:top-1/2 md:mx-0 md:h-40 md:-translate-y-1/2 lg:left-8"
-      />
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_minmax(0,72rem)_1fr]">
+        <div className="flex items-center justify-center px-4 pt-8 md:px-0 md:pb-8">
+          <img
+            src={logoBlanc.url}
+            alt="TalKing"
+            draggable={false}
+            onDragStart={(e) => e.preventDefault()}
+            className="h-28 w-auto select-none md:h-40"
+          />
+        </div>
+        <div className="px-4 py-8">
+
         <div className="flex flex-col gap-8">
           {/* Top row: brand text + nav links */}
           <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-start">
