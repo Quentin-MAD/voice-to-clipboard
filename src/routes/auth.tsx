@@ -234,6 +234,17 @@ function AuthPage() {
             Accédez à votre compte <span className="notranslate">TalKing</span>.
           </p>
 
+          {pendingEmail && (
+            <div className="mb-4 rounded-lg border border-primary/40 bg-primary/10 p-4 text-sm">
+              <p className="font-semibold">Vérifiez votre boîte mail</p>
+              <p className="mt-1 text-muted-foreground">
+                Un email de vérification vient d'être envoyé à <strong>{pendingEmail}</strong>.
+                Votre compte ne sera actif qu'après validation. Sans confirmation, il est
+                automatiquement supprimé au bout de 2 heures.
+              </p>
+            </div>
+          )}
+
           <button
             onClick={signInGoogle}
             disabled={loading}
