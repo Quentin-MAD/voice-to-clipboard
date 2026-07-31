@@ -100,12 +100,9 @@ export const Route = createFileRoute("/api/subscription")({
           .from("subscriptions")
           .select("paddle_subscription_id, environment, status, current_period_end")
           .eq("user_id", user.id)
-          .eq("environment", environment)
-          .order("updated_at", { ascending: false })
-          .limit(1)
           .maybeSingle();
 
-        if (error || !sub || sub.status === "inactive") {
+        if (error || !sub || sub.status === "inactive" || sub.status === "canceled") {
           return Response.json({ error: "Aucun abonnement actif à annuler." }, { status: 400 });
         }
 
@@ -130,8 +127,7 @@ export const Route = createFileRoute("/api/subscription")({
         await supabaseAdmin
           .from("subscriptions")
           .update({ cancel_at_period_end: true, updated_at: new Date().toISOString() })
-          .eq("user_id", user.id)
-          .eq("environment", environment);
+          .eq("user_id", user.id);
 
         return Response.json({ ok: true, current_period_end: sub.current_period_end ?? null });
       },
