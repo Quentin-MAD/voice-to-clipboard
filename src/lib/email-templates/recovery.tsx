@@ -1,69 +1,51 @@
 import * as React from 'react'
 
+import { Button, Hr, Link, Section, Text } from '@react-email/components'
+
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Text,
-} from '@react-email/components'
+  BrandEmail,
+  button,
+  buttonWrap,
+  footer,
+  hr,
+  link,
+  small,
+  text,
+} from './brand-layout'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
 }
 
-export const RecoveryEmail = ({
-  siteName,
-  confirmationUrl,
-}: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Reset your password for {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
-        <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Reset Password
-        </Button>
-        <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
+export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
+  <BrandEmail
+    preview="Réinitialisez votre mot de passe TalKing®"
+    title="Réinitialisation du mot de passe"
+  >
+    <Text style={text}>
+      Nous avons reçu une demande de réinitialisation du mot de passe de votre compte{' '}
+      <strong>TalKing®</strong>. Cliquez sur le bouton ci-dessous pour choisir un
+      nouveau mot de passe.
+    </Text>
+    <Section style={buttonWrap}>
+      <Button style={button} href={confirmationUrl}>
+        Choisir un nouveau mot de passe
+      </Button>
+    </Section>
+    <Hr style={hr} />
+    <Text style={small}>
+      Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+      <br />
+      <Link href={confirmationUrl} style={link}>
+        {confirmationUrl}
+      </Link>
+    </Text>
+    <Text style={footer}>
+      Si vous n'êtes pas à l'origine de cette demande, ignorez cet email : votre mot de
+      passe restera inchangé.
+    </Text>
+  </BrandEmail>
 )
 
 export default RecoveryEmail
-
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
-}
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
-  textDecoration: 'none',
-}
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
