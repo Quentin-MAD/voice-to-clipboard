@@ -64,18 +64,17 @@ export function StatusPill({ variant = "light" }: { variant?: "light" | "dark" }
     : "border-border bg-card text-foreground";
   const muted = isDark ? "text-white/60" : "text-muted-foreground";
   const label = planLabelOf(status);
-  const unlimited = status.subscribed || status.is_tester;
+  const label = planLabelOf(status);
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${base}`}
-      title={unlimited ? `${label} · crédits illimités` : `${label} · ${status.free_remaining} gratuits + ${status.purchased_balance} achetés`}
+      title={label}
     >
-      {unlimited && <Crown className="h-3 w-3 text-amber-400" />}
+      {(status.subscribed || status.is_tester) && <Crown className="h-3 w-3 text-amber-400" />}
       <span>{label}</span>
-      <span className={muted}>·</span>
-      <span>{unlimited ? "∞" : status.free_remaining + status.purchased_balance}</span>
     </span>
   );
+
 }
 
 /** Compact header badge (existing usage). */
