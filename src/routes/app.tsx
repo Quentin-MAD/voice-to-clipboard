@@ -1036,12 +1036,12 @@ function Home() {
       <div className="limits-meta" title={resetTooltip}>
         {userStatus.subscribed ? (
           <strong>
-            <Wallet size={12} className="limits-icon" /> ∞ · <Mic size={12} className="limits-icon" /> {voiceCountDisplay} voix
+            <Wallet size={12} className="limits-icon" /> ∞ · <Mic size={12} className="limits-icon" /> {voiceCountDisplay}
           </strong>
         ) : (
 
           <strong>
-            <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount} voix
+            <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount}
           </strong>
         )}
         <span className="limits-reset">Reset {resetLabel}</span>
