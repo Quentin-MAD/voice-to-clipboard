@@ -23,9 +23,13 @@ type AdminUser = {
   subscribed: boolean;
   is_tester: boolean;
   sub_status: string | null;
+  sub_environment: string | null;
+  access_origin: "paid" | "granted" | "none";
+  is_paid_subscriber: boolean;
   current_period_end: string | null;
   purchased_balance: number;
   voice_balance: number;
+  mobile_balance?: number;
   translations_total: number;
   translations_30d: number;
   ops_today: number;
@@ -33,8 +37,8 @@ type AdminUser = {
   cost_usd_30d: number;
   cost_usd_total: number;
   revenue_eur_total: number;
+  revenue_eur_test?: number;
   profit_eur_total: number;
-  cost_is_estimated?: boolean;
 };
 
 type Windowed = { day: number; week: number; month: number; year: number; all: number };
@@ -55,13 +59,32 @@ type RecentEvent = {
   email: string;
   is_tester: boolean;
   approx_cost_eur: number;
+  cost_known?: boolean;
+};
+type DataHealth = {
+  mode: "live" | "test" | "all";
+  total_users: number;
+  tester_users: number;
+  real_users: number;
+  paid_subscribers: number;
+  granted_access: number;
+  live_transactions: number;
+  test_transactions: number;
+  ai_rows_total: number;
+  ai_rows_unattributed: number;
+  cost_coverage_ratio: number;
+  unattributed_cost_eur: number;
+  active_sub_rows_by_env: Record<string, number>;
 };
 type AdminData = {
+  mode: "live" | "test" | "all";
   users: AdminUser[];
   daily: Array<{ date: string; views: number; translations: number; ai_credits: number }>;
   totals: {
     users: number;
     subscribed: number;
+    granted: number;
+    testers: number;
     ai_credits_total: number;
     ai_credits_today: number;
     ai_credits_7d: number;
@@ -71,9 +94,11 @@ type AdminData = {
     views_7d: number;
     views_30d: number;
   };
+  dataHealth: DataHealth;
   finance: {
     cost: Windowed;
     costTesters: Windowed;
+    costUnattributed: Windowed;
     costPaying: Windowed;
     revenue: Windowed;
     profit: Windowed;
@@ -88,6 +113,7 @@ type AdminData = {
       first_ai_date: string | null;
     };
   };
+
   breakdown: {
     day: Bucket[];
     week: Bucket[];
