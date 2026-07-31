@@ -171,6 +171,10 @@ export function AppearanceEditor() {
   };
 
   const previewSrc = `${app === "windows" ? "/app" : "/mobile"}?skin=draft`;
+  // Real device sizes: Electron window vs phone screen.
+  const previewW = app === "windows" ? 1180 : 390;
+  const previewH = app === "windows" ? 760 : 780;
+  const scale = Math.min(1, boxWidth ? (boxWidth - 24) / previewW : 1);
 
   if (loading) return <div className="py-10 text-center text-sm text-muted-foreground">Chargement de l'éditeur…</div>;
 
