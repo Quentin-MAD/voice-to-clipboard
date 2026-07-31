@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
+import { HardDrive, Mic, Globe, Zap, Ear } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
 import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
@@ -28,50 +28,6 @@ export const Route = createFileRoute("/")({
   }),
   component: LandingPage,
 });
-
-function MobileDownloadCard() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const ua = navigator.userAgent || "";
-    const touch = matchMedia("(pointer: coarse)").matches;
-    setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (touch && window.innerWidth < 900));
-  }, []);
-
-  return (
-    <div className="rounded-2xl border border-border bg-card p-8 text-center">
-      <Smartphone className="mx-auto h-10 w-10 text-primary" />
-      <h2 className="mt-4 text-xl font-bold">App Mobile</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Dialoguez avec des étrangers : parlez, l'IA traduit et lit à voix haute dans 47 langues. 50 traductions gratuites par jour.
-      </p>
-      {isMobile ? (
-        <div className="mt-6 space-y-3">
-          <Link
-            to="/mobile"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Smartphone className="h-5 w-5" />
-            Ouvrir l'app mobile
-          </Link>
-          <p className="text-xs text-muted-foreground">
-            L'installation se fait uniquement depuis l'écran de dialogue mobile afin que l'icône ouvre toujours l'application, jamais le site web.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 space-y-3">
-          <div className="rounded-xl border border-dashed border-border bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
-            Réservé aux téléphones. Ouvrez ce lien depuis votre mobile :
-          </div>
-          <div className="rounded-lg bg-muted px-3 py-2 font-mono text-sm">
-            talking-translator.com
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
 
 function LandingPage() {
   const { user, loading } = useAuth();
@@ -242,7 +198,7 @@ function LandingPage() {
 
       {/* Download */}
       <section className="border-y border-border bg-muted/30">
-        <div className="mx-auto grid max-w-5xl gap-6 px-4 py-16 md:grid-cols-2">
+        <div className="mx-auto max-w-xl px-4 py-16">
           <div className="rounded-2xl border border-border bg-card p-8 text-center">
             <HardDrive className="mx-auto h-10 w-10 text-primary" />
             <h2 className="mt-4 text-xl font-bold">App Windows</h2>
@@ -257,7 +213,6 @@ function LandingPage() {
               Télécharger pour Windows
             </a>
           </div>
-          <MobileDownloadCard />
         </div>
       </section>
 
