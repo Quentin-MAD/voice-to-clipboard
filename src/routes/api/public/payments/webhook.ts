@@ -169,7 +169,7 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   // Recurring charges are reflected by the subscription.* events.
   if (data.subscriptionId) return;
 
-  await grantOneTimePurchase(data);
+  await grantOneTimePurchase(data, env);
 }
 
 /** Refund / chargeback: revoke paid access and wipe purchased credits. */
