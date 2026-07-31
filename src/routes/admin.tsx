@@ -251,7 +251,8 @@ function AdminPage() {
   const users = data.users
     .filter((u) => {
       if (filter === "free" && (u.subscribed || u.is_tester)) return false;
-      if (filter === "subscribed" && !u.subscribed) return false;
+      if (filter === "paid" && !u.is_paid_subscriber) return false;
+      if (filter === "granted" && u.access_origin !== "granted") return false;
       if (filter === "tester" && !u.is_tester) return false;
       if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
