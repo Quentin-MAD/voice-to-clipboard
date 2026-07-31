@@ -141,7 +141,7 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl"
       >
         <h2 className="text-lg font-bold">Mon profil</h2>
         <p className="mt-1 text-xs text-muted-foreground">
