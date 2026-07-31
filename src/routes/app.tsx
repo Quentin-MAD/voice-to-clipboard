@@ -1018,38 +1018,39 @@ function Home() {
   const resetTooltip = `Les limites journalières se réinitialisent automatiquement à 00h00 (heure de Paris). Prochaine réinitialisation : ${resetDateLabel}.`;
 
   const isTester = !!userStatus?.is_tester;
+  const unlimitedAccount = !!userStatus && (userStatus.subscribed || isTester);
   const limitsPanel = userStatus ? (
+    unlimitedAccount ? (
+      <div className="limits-meta" title="Votre compte bénéficie d'un accès illimité.">
+        <strong>∞ Illimité</strong>
+      </div>
+    ) : (
     <>
       <div className="limits-stack" title={resetTooltip}>
         <div className="limits-row">
           <span className="limits-row-label">Texte</span>
-          <span className="limits-bar"><span className={`limits-bar-fill ${isTester ? "" : barClass(textUsed, textCap)}`} style={{ width: isTester ? "0%" : `${pct(textUsed, textCap)}%` }} /></span>
-          <span className="limits-row-count">{isTester ? <>∞&nbsp;{textUsed}</> : <>{textUsed}/{textCap}</>}</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(textUsed, textCap)}`} style={{ width: `${pct(textUsed, textCap)}%` }} /></span>
+          <span className="limits-row-count">{textUsed}/{textCap}</span>
         </div>
         <div className="limits-row">
           <span className="limits-row-label">Voix</span>
-          <span className="limits-bar"><span className={`limits-bar-fill ${isTester ? "" : barClass(voiceUsed, voiceCap)}`} style={{ width: isTester ? "0%" : `${pct(voiceUsed, voiceCap)}%` }} /></span>
-          <span className="limits-row-count">{isTester ? <>∞&nbsp;{voiceUsed}</> : <>{voiceUsed}/{voiceCap}</>}</span>
+          <span className="limits-bar"><span className={`limits-bar-fill ${barClass(voiceUsed, voiceCap)}`} style={{ width: `${pct(voiceUsed, voiceCap)}%` }} /></span>
+          <span className="limits-row-count">{voiceUsed}/{voiceCap}</span>
         </div>
       </div>
       <span className="limits-sep" />
       <div className="limits-meta" title={resetTooltip}>
-        {userStatus.subscribed ? (
-          <strong>
-            <Wallet size={12} className="limits-icon" /> ∞ · <Mic size={12} className="limits-icon" /> {voiceCountDisplay}
-          </strong>
-        ) : (
-
-          <strong>
-            <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount}
-          </strong>
-        )}
+        <strong>
+          <Wallet size={12} className="limits-icon" /> {userStatus.purchased_balance + userStatus.free_remaining} · <Mic size={12} className="limits-icon" /> {voiceCount}
+        </strong>
         <span className="limits-reset">Reset {resetLabel}</span>
       </div>
     </>
+    )
   ) : (
     <span className="native-credits-text">…</span>
   );
+
 
 
 
