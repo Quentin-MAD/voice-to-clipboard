@@ -706,6 +706,11 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
                 dont testeurs : {EUR(finance.costTesters[r.key])}
               </div>
             )}
+            {Number(finance.costUnattributed?.[r.key]) > 0 && (
+              <div className="mt-1 text-[10px] text-amber-600 dark:text-amber-400" title="Anciennes écritures de coût sans membre rattaché">
+                dont non attribué : {EUR(finance.costUnattributed[r.key])}
+              </div>
+            )}
           </div>
         ))}
       </div>
