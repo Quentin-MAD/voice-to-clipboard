@@ -986,9 +986,8 @@ function Home() {
     );
   }
 
-  const unlimitedVoice = !!(userStatus?.subscribed || userStatus?.is_tester);
   const voiceCount = userStatus?.voice_balance ?? 0;
-  const voiceCountDisplay = unlimitedVoice ? "∞" : String(voiceCount);
+
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
 
