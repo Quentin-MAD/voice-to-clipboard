@@ -604,6 +604,54 @@ function AdminPage() {
   );
 }
 
+function DataHealthBanner({ health }: { health: DataHealth }) {
+  const coverage = Math.round((Number(health.cost_coverage_ratio) || 0) * 100);
+  const modeLabel = health.mode === "live" ? "Réel (live)" : health.mode === "test" ? "Test (sandbox)" : "Tout";
+  const warn = coverage < 100 || (health.mode === "live" && health.test_transactions > 0);
+  return (
+    <div className={"rounded-lg border p-4 text-sm " + (warn ? "border-amber-500/50 bg-amber-500/5" : "bg-card")}>
+      <div className="mb-2 font-semibold">État des données - mode {modeLabel}</div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div>
+          <div className="text-xs text-muted-foreground">Membres</div>
+          <div className="font-medium">
+            {health.total_users} au total · {health.real_users} réels · {health.tester_users} testeurs
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Accès actifs</div>
+          <div className="font-medium">
+            {health.paid_subscribers} payants · {health.granted_access} offerts
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Transactions</div>
+          <div className="font-medium">
+            {health.live_transactions} live · {health.test_transactions} test
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground">Couverture des coûts</div>
+          <div className={"font-medium " + (coverage < 100 ? "text-amber-600 dark:text-amber-400" : "")}>
+            {coverage}% ({health.ai_rows_unattributed} lignes sans membre)
+          </div>
+        </div>
+      </div>
+      {health.unattributed_cost_eur > 0 && (
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">
+          Coûts non attribués (anciennes écritures sans membre) :{" "}
+          {EURPrecise(health.unattributed_cost_eur)}. Ils sont comptés dans le coût global mais dans aucune fiche membre.
+        </p>
+      )}
+      {health.mode === "live" && health.test_transactions > 0 && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          {health.test_transactions} paiement(s) en environnement de test sont exclus des revenus affichés.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Stat({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className="rounded-lg border bg-card p-4">
