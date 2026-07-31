@@ -46,6 +46,14 @@ function MobileAccountPage() {
       toast.error("Adresse email introuvable.");
       return;
     }
+    if (isTester) {
+      toast.info("Votre compte Testeur inclut déjà tous les avantages.");
+      return;
+    }
+    if (unlimited && priceId !== "sub_extend_year_onetime" && priceId !== "vox_subscription_yearly") {
+      toast.info("Votre abonnement inclut déjà ces crédits.");
+      return;
+    }
     try {
       await openCheckout({
         priceId,
