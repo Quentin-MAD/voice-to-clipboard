@@ -512,17 +512,17 @@ function AdminPage() {
                       </td>
                       <td className="p-2">{u.translations_30d}</td>
                       <td className="p-2">{u.translations_total}</td>
-                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(cost7)}{u.cost_is_estimated ? "*" : ""}</td>
+                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(cost7)}</td>
                       <td className={"p-2 tabular-nums " + (heavy30 ? "font-semibold text-amber-600 dark:text-amber-400" : "")}>
-                        {EURPrecise(cost30)}{u.cost_is_estimated ? "*" : ""}
+                        {EURPrecise(cost30)}
                       </td>
-                      <td className="p-2 tabular-nums" title={u.cost_is_estimated ? "Estimation fondée sur les opérations conservées et les coûts moyens réels" : "Coût réel journalisé"}>{EURPrecise(costTotal)}{u.cost_is_estimated ? "*" : ""}</td>
+                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(costTotal)}</td>
                       <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
-                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">—</span> : EUR(revenue)}
+                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">-</span> : EUR(revenue)}
                       </td>
                       <td className="p-2 tabular-nums font-semibold">
                         <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                          {EURPrecise(profit)}{u.cost_is_estimated ? "*" : ""}
+                          {EURPrecise(profit)}
                         </span>
                       </td>
                       <td className="p-2 font-medium">
