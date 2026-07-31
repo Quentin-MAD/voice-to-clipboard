@@ -8,17 +8,25 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Keep the same `user` object identity when the underlying user id does not
+    // change: Supabase emits auth events on token refresh and on cross-tab /
+    // cross-iframe sync, and a fresh object each time re-triggers every effect
+    // that depends on `user` (which caused an endless reload loop on /admin).
+    const applyUser = (next: User | null) =>
+      setUser((prev) => (prev?.id && prev.id === next?.id ? prev : next));
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      setUser(data.session?.user ?? null);
+      applyUser(data.session?.user ?? null);
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
-      setUser(s?.user ?? null);
+      applyUser(s?.user ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
+
 
   return { session, user, loading };
 }
