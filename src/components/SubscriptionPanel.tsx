@@ -9,6 +9,7 @@ type SubInfo = {
   current_period_start: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  is_active?: boolean;
   has_subscription: boolean;
 };
 
