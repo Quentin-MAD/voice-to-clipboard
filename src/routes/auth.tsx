@@ -24,6 +24,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const search = Route.useSearch();
 
@@ -71,8 +72,8 @@ function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (error) throw error;
-        toast.success("Compte créé ! Vous êtes connecté.");
-        navigate({ to: getPostAuthPath(), replace: true });
+        setPendingEmail(email);
+        toast.success("Vérifiez votre boîte mail pour activer votre compte.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
