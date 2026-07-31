@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 import { useAppearance } from "@/hooks/use-appearance";
 import { appearanceStyle } from "@/lib/appearance";
+import { MobileAuthPanel } from "@/components/MobileAuthPanel";
 
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
@@ -193,9 +194,7 @@ function MobileApp() {
   useEffect(() => { localStorage.setItem("tk_mobile_mylang", myLang); }, [myLang]);
   useEffect(() => { localStorage.setItem("tk_mobile_theirlang", theirLang); }, [theirLang]);
 
-  useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/mobile" }, replace: true });
-  }, [loading, user, navigate]);
+  // NB: pas de navigation vers /auth (hors scope PWA => ouvrirait le site web).
 
   // Auto-update: detect a new build by hashing the served HTML shell
   useEffect(() => {
@@ -332,7 +331,6 @@ function MobileApp() {
         const token = sessionData.session?.access_token;
         if (!token) {
           toast.error("Session expirée");
-          navigate({ to: "/auth" });
           return;
         }
         const form = new FormData();
@@ -391,6 +389,13 @@ function MobileApp() {
     }
   };
 
+  if (loading) {
+    return <div className="min-h-screen bg-[#0a0a0a] text-white grid place-items-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  }
+  if (!user) {
+    return <MobileAuthPanel logoUrl={skin.logoUrl} brand={skin.texts.brand} />;
+  }
+
   return (
     <div
       className="min-h-screen skin-root text-white flex flex-col overflow-hidden select-none"
@@ -407,7 +412,7 @@ function MobileApp() {
         </div>
 
         <button
-          onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}
+          onClick={async () => { await supabase.auth.signOut(); }}
           className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 text-white/60 hover:text-white"
           aria-label="Déconnexion"
         >
