@@ -240,12 +240,15 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register read hotkey', e); }
 
-  // Auto-type hotkey: only registered when the "my game blocks paste" option is on.
+  // Auto-type hotkey: only registered when the "my game blocks paste" option is
+  // ON *and* a translation is actually waiting. Otherwise the key (Backspace by
+  // default) would stay captured system-wide and break normal typing elsewhere.
   try {
-    if (autoTypeEnabled && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
+    if (autoTypeEnabled && !!pendingAutoTypeText && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
       autoTypeHotkeyOk = bind(autoTypeAccel, 'auto-type', fireAutoType);
     }
   } catch (e) { console.error('Failed to register auto-type hotkey', e); }
+
 
   console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
 
@@ -269,13 +272,16 @@ async function fireAutoType() {
     });
     return;
   }
-  // Clear the buffer immediately so a second press doesn't re-type.
+  // Clear the buffer immediately so a second press doesn't re-type,
+  // and release the hotkey so the key behaves normally again.
   pendingAutoTypeText = '';
   const meta = pendingAutoTypeMeta;
   pendingAutoTypeMeta = null;
+  registerHotkeys();
   if (mainWindow && !mainWindow.isDestroyed()) {
     try { mainWindow.webContents.send('autotype:cleared'); } catch {}
   }
+
   try {
     const res = await autotype.typeText(text);
     if (!res.ok) {
@@ -505,6 +511,8 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
   const text = payload && typeof payload === 'object' ? payload.text : payload;
   pendingAutoTypeText = String(text ?? '');
   pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  // Arm (or release) the auto-type key only while a translation is pending.
+  registerHotkeys();
   if (pendingAutoTypeText) {
     const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
     const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -520,8 +528,10 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
 ipcMain.handle('autotype:clear', () => {
   pendingAutoTypeText = '';
   pendingAutoTypeMeta = null;
+  registerHotkeys();
   return { ok: true };
 });
+
 
 
 
