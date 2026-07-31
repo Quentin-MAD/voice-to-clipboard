@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MobileRouteImport } from './routes/mobile'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -35,6 +36,11 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -198,6 +205,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -226,6 +234,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/admin': typeof ApiAdminRoute
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/mobile'
     | '/pricing'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/api/admin-emails'
     | '/api/mobile-dialog'
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/mobile'
     | '/pricing'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/api/admin-emails'
     | '/api/mobile-dialog'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/mobile'
     | '/pricing'
+    | '/sitemap.xml'
     | '/api/admin'
     | '/api/admin-emails'
     | '/api/mobile-dialog'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   MobileRoute: typeof MobileRouteWithChildren
   PricingRoute: typeof PricingRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAdminRoute: typeof ApiAdminRoute
   ApiAdminEmailsRoute: typeof ApiAdminEmailsRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
@@ -359,6 +372,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -555,6 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   MobileRoute: MobileRouteWithChildren,
   PricingRoute: PricingRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAdminRoute: ApiAdminRoute,
   ApiAdminEmailsRoute: ApiAdminEmailsRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,
@@ -577,3 +598,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
