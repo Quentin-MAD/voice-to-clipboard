@@ -148,7 +148,7 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
           Modifiez votre email ou votre mot de passe.
         </p>
         <div className="mt-4 space-y-3">
-          <CreditsCard />
+          <CreditsCard manageLabel="Recharger des crédits" />
           <SubscriptionPanel />
         </div>
         <form onSubmit={save} className="mt-4 space-y-3">
