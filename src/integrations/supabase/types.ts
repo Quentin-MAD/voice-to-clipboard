@@ -71,6 +71,27 @@ export type Database = {
         }
         Relationships: []
       }
+      internal_config: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           created_at: string
@@ -420,6 +441,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      trigger_cleanup_unconfirmed: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "tester"
