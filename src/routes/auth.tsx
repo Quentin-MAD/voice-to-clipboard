@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Connexion - TalKing" },
-      { name: "description", content: "Connectez-vous à TalKing." },
+      { name: "description", content: "Connectez-vous à votre compte TalKing ou créez-en un pour accéder au traducteur vocal, à vos crédits et à l'application Windows." },
     ],
   }),
   component: AuthPage,
