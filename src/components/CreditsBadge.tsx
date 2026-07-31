@@ -181,7 +181,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             {(status.mobile_balance ?? 0) > 0 && (
               <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
                 <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-                  <Smartphone className="h-3 w-3" /> Crédits mobiles achetés (sans expiration)
+                  <Smartphone className="h-3 w-3" /> Crédits mobiles achetés
                 </div>
                 <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
               </div>
@@ -205,14 +205,15 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             </div>
             <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
               <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-                <Smartphone className="h-3 w-3" /> Crédits mobiles achetés (sans expiration)
+                <Smartphone className="h-3 w-3" /> Crédits mobiles achetés
               </div>
               <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
             </div>
             <p className={`text-[11px] leading-relaxed ${muted}`}>
-              Les <strong>35 gratuits/jour</strong> sont consommés en priorité et se réinitialisent chaque jour (non cumulables). Les <strong>crédits achetés</strong> ne sont utilisés qu'ensuite et restent disponibles sans expiration.
+              Les <strong>35 gratuits/jour</strong> sont consommés en priorité et se réinitialisent chaque jour (non cumulables). Les <strong>crédits achetés</strong> ne sont utilisés qu'ensuite et sont permanents, sans expiration.
             </p>
           </div>
+
         )
       ) : unlimited ? (
         <div className={`mt-3 rounded-xl px-3 py-3 ${rowBg} text-center`}>
@@ -230,10 +231,11 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <ShoppingBag className="h-3 w-3" /> Crédits texte (sans expiration)
+              <ShoppingBag className="h-3 w-3" /> Crédit Texte
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.purchased_balance}</div>
           </div>
+
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
               <Gift className="h-3 w-3" /> Vocal gratuit aujourd'hui
@@ -255,9 +257,10 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
 
       {!unlimited && !showMobile && (
         <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
-          Les <strong>crédits gratuits journaliers</strong> se réinitialisent chaque jour (non cumulables) et sont toujours consommés <strong>avant</strong> les crédits achetés, qui eux restent sans expiration.
+          Les <strong>crédits gratuits journaliers</strong> se réinitialisent chaque jour (non cumulables) et sont toujours consommés <strong>avant</strong> les crédits achetés. Tous les crédits achetés (texte, vocaux, mobiles) sont permanents et n'expirent jamais.
         </p>
       )}
+
     </div>
   );
 }
