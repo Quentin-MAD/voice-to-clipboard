@@ -223,17 +223,26 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <Gift className="h-3 w-3" /> Gratuits aujourd'hui <span>(reset chaque jour)</span>
+              <Gift className="h-3 w-3" /> Texte gratuit aujourd'hui
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.free_remaining}<span className={`ml-1 text-xs font-normal ${muted}`}>/ 30</span></div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <ShoppingBag className="h-3 w-3" /> Achetés (sans expiration)
+              <ShoppingBag className="h-3 w-3" /> Crédits texte (sans expiration)
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.purchased_balance}</div>
           </div>
-          <div className={`col-span-2 rounded-xl px-3 py-2.5 ${rowBg}`}>
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
+            <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
+              <Gift className="h-3 w-3" /> Vocal gratuit aujourd'hui
+            </div>
+            <div className="mt-0.5 text-lg font-bold">
+              {Math.max(0, (status.voice_daily_limit ?? 15) - (status.voice_daily_used ?? 0))}
+              <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.voice_daily_limit ?? 15}</span>
+            </div>
+          </div>
+          <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
               <Volume2 className="h-3 w-3" /> Crédits vocaux (lecture IA)
             </div>
