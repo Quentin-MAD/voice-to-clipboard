@@ -194,7 +194,7 @@ function AdminPage() {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authLoading, userId]);
+  }, [authLoading, userId, envMode]);
 
   useEffect(() => {
     if (!autoRefresh || !userId) return;
