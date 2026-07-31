@@ -66,6 +66,7 @@ export function Footer() {
           </div>
         </div>
       </div>
+      </div>
       {supportOpen && <SupportDialog onClose={() => setSupportOpen(false)} />}
     </footer>
   );
