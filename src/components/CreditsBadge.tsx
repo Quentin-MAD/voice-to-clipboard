@@ -64,7 +64,7 @@ export function StatusPill({ variant = "light" }: { variant?: "light" | "dark" }
     : "border-border bg-card text-foreground";
   const muted = isDark ? "text-white/60" : "text-muted-foreground";
   const label = planLabelOf(status);
-  const label = planLabelOf(status);
+
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${base}`}
