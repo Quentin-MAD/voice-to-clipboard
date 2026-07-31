@@ -41,19 +41,39 @@ export function useAppearance(app: AppKey): { config: AppearanceConfig; preview:
     void fetchConfig();
 
     if (!isDraft) {
-      // Refetch when the app regains focus so a published change is picked up
-      // without the user having to reinstall or hard-reload the app.
+      // Apply published changes instantly in every running app. The focus and
+      // polling listeners remain as a fallback for suspended phones or a
+      // temporarily interrupted realtime connection.
+      const channel = supabase
+        .channel(`appearance:${app}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "app_appearance",
+            filter: "state=eq.published",
+          },
+          (payload) => {
+            const row = payload.new as { app?: string; state?: string; config?: unknown } | undefined;
+            if (cancelled || row?.app !== app || row.state !== "published") return;
+            setConfig(mergeAppearance(app, row.config));
+          },
+        )
+        .subscribe();
+
       const onVisible = () => {
         if (document.visibilityState === "visible") void fetchConfig();
       };
       document.addEventListener("visibilitychange", onVisible);
       window.addEventListener("focus", onVisible);
-      const timer = window.setInterval(() => void fetchConfig(), 60_000);
+      const timer = window.setInterval(() => void fetchConfig(), 15_000);
       return () => {
         cancelled = true;
         document.removeEventListener("visibilitychange", onVisible);
         window.removeEventListener("focus", onVisible);
         window.clearInterval(timer);
+        void supabase.removeChannel(channel);
       };
     }
 
