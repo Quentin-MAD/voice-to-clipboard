@@ -32,7 +32,7 @@ export function Footer() {
               Mentions légales
             </Link>
             <Link to="/pricing" className="text-primary-foreground/80 hover:text-primary-foreground">
-              Tarifs
+              Plans
             </Link>
             <a
               href="mailto:rossetquentin26@gmail.com"
