@@ -192,6 +192,15 @@ function MobileApp() {
 
   const [installVisible, setInstallVisible] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const [inBrowser, setInBrowser] = useState(false);
+  useEffect(() => {
+    const skinPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    if (skinPreview || window.top !== window.self) return;
+    const standalone = matchMedia("(display-mode: standalone)").matches
+      || (navigator as unknown as { standalone?: boolean }).standalone === true;
+    setInBrowser(!standalone);
+  }, []);
+
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastAudioUrlRef = useRef<string | null>(null);
