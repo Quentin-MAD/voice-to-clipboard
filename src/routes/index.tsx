@@ -161,17 +161,17 @@ function LandingPage() {
 
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-border bg-brand-gray">
+      <header className="border-b border-border bg-primary text-primary-foreground">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,auto)_auto] items-center gap-3 px-4 py-4 sm:flex sm:justify-between sm:py-6">
           <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 notranslate">
-            <img src="/logo.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-10 w-auto shrink-0 select-none sm:h-14 md:h-16" />
-            <span className="truncate text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+            <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-10 w-auto shrink-0 select-none sm:h-14 md:h-16" />
+            <span className="truncate text-xl font-bold tracking-tight text-primary-foreground sm:text-2xl md:text-3xl">
               TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
             </span>
           </Link>
           <nav className="flex items-center justify-end gap-2 sm:gap-4 text-sm">
             <GoogleTranslate />
-            <Link to="/pricing" className="hidden rounded-lg border border-foreground px-3 py-1.5 text-muted-foreground hover:text-foreground sm:inline-block">
+            <Link to="/pricing" className="hidden rounded-lg border border-primary-foreground px-3 py-1.5 text-primary-foreground/80 hover:text-primary-foreground sm:inline-block">
               Tarifs
             </Link>
             {loading ? null : user ? (
@@ -179,7 +179,7 @@ function LandingPage() {
             ) : (
               <Link
                 to="/auth"
-                className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 sm:px-4"
+                className="rounded-lg bg-primary-foreground px-3 py-2 text-sm font-medium text-primary hover:bg-primary-foreground/90 sm:px-4"
               >
                 <span className="hidden sm:inline">Connexion</span>
                 <span className="sm:hidden">Se connecter</span>
