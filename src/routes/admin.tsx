@@ -448,7 +448,8 @@ function AdminPage() {
               >
                 <option value="all">Tous</option>
                 <option value="free">Gratuits</option>
-                <option value="subscribed">Abonnés</option>
+                <option value="paid">Abonnés payants</option>
+                <option value="granted">Accès offerts</option>
                 <option value="tester">Testeurs</option>
 
               </select>
