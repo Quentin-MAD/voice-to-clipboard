@@ -161,7 +161,7 @@ function LandingPage() {
 
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-border">
+      <header className="border-b border-border bg-brand-gray">
         <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,auto)_auto] items-center gap-3 px-4 py-4 sm:flex sm:justify-between sm:py-6">
           <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 notranslate">
             <img src="/logo.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-10 w-auto shrink-0 select-none sm:h-14 md:h-16" />
