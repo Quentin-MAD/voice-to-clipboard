@@ -272,13 +272,16 @@ async function fireAutoType() {
     });
     return;
   }
-  // Clear the buffer immediately so a second press doesn't re-type.
+  // Clear the buffer immediately so a second press doesn't re-type,
+  // and release the hotkey so the key behaves normally again.
   pendingAutoTypeText = '';
   const meta = pendingAutoTypeMeta;
   pendingAutoTypeMeta = null;
+  registerHotkeys();
   if (mainWindow && !mainWindow.isDestroyed()) {
     try { mainWindow.webContents.send('autotype:cleared'); } catch {}
   }
+
   try {
     const res = await autotype.typeText(text);
     if (!res.ok) {
