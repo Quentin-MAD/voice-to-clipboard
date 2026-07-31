@@ -19,9 +19,31 @@ export function useAppearance(app: AppKey): { config: AppearanceConfig; preview:
 
   useEffect(() => {
     let cancelled = false;
+    const cacheKey = `talking:appearance:${app}:published`;
     const isDraft =
       typeof window !== "undefined" && new URLSearchParams(window.location.search).get("skin") === "draft";
     setPreview(isDraft);
+
+    // Keep the last published skin locally so an app never appears to roll
+    // back to its built-in design while reconnecting or resuming from sleep.
+    if (!isDraft) {
+      try {
+        const cached = window.localStorage.getItem(cacheKey);
+        if (cached) setConfig(mergeAppearance(app, JSON.parse(cached)));
+      } catch {
+        // A corrupt or unavailable cache must not prevent the live fetch.
+      }
+    }
+
+    const applyPublished = (raw: unknown) => {
+      const next = mergeAppearance(app, raw);
+      setConfig(next);
+      try {
+        window.localStorage.setItem(cacheKey, JSON.stringify(next));
+      } catch {
+        // Private browsing/storage limits: the in-memory update still applies.
+      }
+    };
 
     const fetchConfig = async () => {
       const { data, error } = await supabase
@@ -35,7 +57,10 @@ export function useAppearance(app: AppKey): { config: AppearanceConfig; preview:
         console.warn("[appearance] load failed", error.message);
         return;
       }
-      if (data?.config) setConfig(mergeAppearance(app, data.config));
+      if (data?.config) {
+        if (isDraft) setConfig(mergeAppearance(app, data.config));
+        else applyPublished(data.config);
+      }
     };
 
     void fetchConfig();
@@ -57,7 +82,7 @@ export function useAppearance(app: AppKey): { config: AppearanceConfig; preview:
           (payload) => {
             const row = payload.new as { app?: string; state?: string; config?: unknown } | undefined;
             if (cancelled || row?.app !== app || row.state !== "published") return;
-            setConfig(mergeAppearance(app, row.config));
+            applyPublished(row.config);
           },
         )
         .subscribe();
