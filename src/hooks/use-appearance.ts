@@ -23,18 +23,40 @@ export function useAppearance(app: AppKey): { config: AppearanceConfig; preview:
       typeof window !== "undefined" && new URLSearchParams(window.location.search).get("skin") === "draft";
     setPreview(isDraft);
 
-    (async () => {
-      const { data } = await supabase
+    const fetchConfig = async () => {
+      const { data, error } = await supabase
         .from("app_appearance")
         .select("config")
         .eq("app", app)
         .eq("state", isDraft ? "draft" : "published")
         .maybeSingle();
       if (cancelled) return;
+      if (error) {
+        console.warn("[appearance] load failed", error.message);
+        return;
+      }
       if (data?.config) setConfig(mergeAppearance(app, data.config));
-    })();
+    };
 
-    if (!isDraft) return () => { cancelled = true; };
+    void fetchConfig();
+
+    if (!isDraft) {
+      // Refetch when the app regains focus so a published change is picked up
+      // without the user having to reinstall or hard-reload the app.
+      const onVisible = () => {
+        if (document.visibilityState === "visible") void fetchConfig();
+      };
+      document.addEventListener("visibilitychange", onVisible);
+      window.addEventListener("focus", onVisible);
+      const timer = window.setInterval(() => void fetchConfig(), 60_000);
+      return () => {
+        cancelled = true;
+        document.removeEventListener("visibilitychange", onVisible);
+        window.removeEventListener("focus", onVisible);
+        window.clearInterval(timer);
+      };
+    }
+
 
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
