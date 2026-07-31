@@ -22,6 +22,7 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
+import { Route as ApiSupportRouteImport } from './routes/api/support'
 import { Route as ApiSubscriptionRouteImport } from './routes/api/subscription'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
@@ -94,6 +95,11 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   path: '/api/translate-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSupportRoute = ApiSupportRouteImport.update({
+  id: '/api/support',
+  path: '/api/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSubscriptionRoute = ApiSubscriptionRouteImport.update({
   id: '/api/subscription',
   path: '/api/subscription',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
+  '/api/support': typeof ApiSupportRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
+    | '/api/support'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
+    | '/api/support'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
+    | '/api/support'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiSubscriptionRoute: typeof ApiSubscriptionRoute
+  ApiSupportRoute: typeof ApiSupportRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranslateAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/support': {
+      id: '/api/support'
+      path: '/api/support'
+      fullPath: '/api/support'
+      preLoaderRoute: typeof ApiSupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/subscription': {
       id: '/api/subscription'
       path: '/api/subscription'
@@ -437,6 +457,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMobileDialogRoute: ApiMobileDialogRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
   ApiSubscriptionRoute: ApiSubscriptionRoute,
+  ApiSupportRoute: ApiSupportRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,
@@ -449,13 +470,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

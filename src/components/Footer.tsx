@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { SupportDialog } from "@/components/SupportDialog";
 import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
 
 export function Footer() {
+  const [supportOpen, setSupportOpen] = useState(false);
   if (typeof window !== "undefined" && (window as any).voxElectron) return null;
   const year = new Date().getFullYear();
   return (
@@ -40,12 +43,13 @@ export function Footer() {
               <Link to="/pricing" className="text-primary-foreground/80 hover:text-primary-foreground">
                 Plans
               </Link>
-              <a
-                href="mailto:rossetquentin26@gmail.com"
-                className="text-primary-foreground/80 hover:text-primary-foreground"
+              <button
+                type="button"
+                onClick={() => setSupportOpen(true)}
+                className="text-left text-primary-foreground/80 hover:text-primary-foreground"
               >
                 Contact
-              </a>
+              </button>
             </nav>
           </div>
 
@@ -58,6 +62,7 @@ export function Footer() {
           </div>
         </div>
       </div>
+      {supportOpen && <SupportDialog onClose={() => setSupportOpen(false)} />}
     </footer>
   );
 }

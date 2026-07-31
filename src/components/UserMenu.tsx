@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 import { SubscriptionPanel } from "@/components/SubscriptionPanel";
 
-const SUPPORT_EMAIL = "rossetquentin26@gmail.com";
+import { SupportDialog } from "@/components/SupportDialog";
 
 export function UserMenu() {
   const { user } = useAuth();
@@ -92,9 +92,7 @@ export function UserMenu() {
       {profileOpen && (
         <ProfileModal email={user.email ?? ""} onClose={() => setProfileOpen(false)} />
       )}
-      {supportOpen && (
-        <SupportModal email={SUPPORT_EMAIL} onClose={() => setSupportOpen(false)} />
-      )}
+      {supportOpen && <SupportDialog onClose={() => setSupportOpen(false)} />}
     </>
   );
 }
@@ -191,47 +189,6 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  );
-}
-
-function SupportModal({ email, onClose }: { email: string; onClose: () => void }) {
-  const copyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(email);
-      toast.success("Adresse email copiée");
-    } catch {
-      toast.error("Impossible de copier");
-    }
-  };
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center text-black"
-      >
-        <h2 className="text-lg font-bold text-black">Contacter le support</h2>
-        <p className="mt-2 text-sm text-black">
-          Cliquez sur l'adresse ci-dessous pour la copier :
-        </p>
-        <button
-          type="button"
-          onClick={copyEmail}
-          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono text-black hover:bg-accent"
-        >
-          {email}
-        </button>
-        <button
-          onClick={onClose}
-          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
-        >
-          Fermer
-        </button>
       </div>
     </div>
   );
