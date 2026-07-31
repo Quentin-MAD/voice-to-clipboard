@@ -15,6 +15,7 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
 const logger = require('./logger.cjs');
 const lowLevelHotkeys = require('./hotkeys.cjs');
 const autotype = require('./autotype.cjs');
@@ -308,7 +309,7 @@ async function fireAutoType() {
 function rebuildTrayMenu() {
   if (!tray) return;
   const updateLabel = latestUpdate
-    ? `⬇ Download update v${latestUpdate.version}`
+    ? `Installer la mise à jour v${latestUpdate.version}`
     : 'Check for updates…';
   const menu = Menu.buildFromTemplate([
     { label: `TalKing v${CURRENT_VERSION} - ${isRecording ? '🔴 recording' : hotkeyOk ? 'idle' : '⚠ hotkey blocked'}`, enabled: false },
@@ -318,7 +319,7 @@ function rebuildTrayMenu() {
     { label: `Toggle recording (${toggleAccel})`, click: () => mainWindow && mainWindow.webContents.send('hotkey', 'toggle') },
     { type: 'separator' },
     { label: updateLabel, click: () => {
-        if (latestUpdate && latestUpdate.url) shell.openExternal(latestUpdate.url);
+        if (latestUpdate && latestUpdate.url) installUpdate(latestUpdate);
         else checkForUpdates({ silent: false });
       } },
     { type: 'separator' },
@@ -373,6 +374,53 @@ async function fetchUpdateManifest() {
   });
 }
 
+async function downloadUpdate(manifest) {
+  const updateDir = path.join(app.getPath('userData'), 'updates');
+  fs.mkdirSync(updateDir, { recursive: true });
+  const destination = path.join(updateDir, `TalKing-Update-${manifest.version}.exe`);
+  try { fs.rmSync(destination, { force: true }); } catch {}
+  return new Promise((resolve, reject) => {
+    const request = net.request({ method: 'GET', url: manifest.url, redirect: 'follow' });
+    request.on('response', (response) => {
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        reject(new Error(`HTTP ${response.statusCode}`));
+        return;
+      }
+      const output = fs.createWriteStream(destination);
+      response.on('data', (chunk) => output.write(chunk));
+      response.on('end', () => output.end(() => resolve(destination)));
+      response.on('error', (error) => { output.destroy(); reject(error); });
+      output.on('error', reject);
+    });
+    request.on('error', reject);
+    request.end();
+  });
+}
+
+async function installUpdate(manifest) {
+  if (!manifest || !manifest.url || process.platform !== 'win32') return;
+  const progress = new BrowserWindow({
+    width: 430, height: 150, resizable: false, minimizable: false,
+    maximizable: false, title: 'Mise à jour TalKing', parent: mainWindow || undefined,
+    modal: !!mainWindow, autoHideMenuBar: true, backgroundColor: '#0A0A29',
+  });
+  progress.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(`<!doctype html><html><body style="margin:0;background:#0A0A29;color:#fff;font:15px Segoe UI,Arial,sans-serif;display:grid;place-items:center;height:100vh;text-align:center"><div><b>Mise à jour v${manifest.version}</b><p style="color:#DBDBDF">Téléchargement en cours... TalKing redémarrera automatiquement.</p></div></body></html>`));
+  try {
+    const installerPath = await downloadUpdate(manifest);
+    app.isQuiting = true;
+    const child = spawn(installerPath, ['/S'], { detached: true, stdio: 'ignore', windowsHide: true });
+    child.unref();
+    app.quit();
+  } catch (error) {
+    if (!progress.isDestroyed()) progress.close();
+    await dialog.showMessageBox({
+      type: 'error', title: 'Mise à jour TalKing',
+      message: 'La mise à jour n’a pas pu être installée.',
+      detail: String(error && error.message || error),
+    });
+  }
+}
+
 async function checkForUpdates({ silent = true } = {}) {
   const manifest = await fetchUpdateManifest();
   if (!manifest || !manifest.version) {
@@ -387,14 +435,11 @@ async function checkForUpdates({ silent = true } = {}) {
       title: 'TalKing update available',
       message: `Une nouvelle version est disponible : v${manifest.version}`,
       detail: (manifest.notes || '') + `\n\nVous \u00EAtes en v${CURRENT_VERSION}. Le t\u00E9l\u00Echargement va s'ouvrir dans votre navigateur.`,
-      buttons: ['Télécharger', 'Plus tard'],
+      buttons: ['Mettre à jour', 'Plus tard'],
       defaultId: 0, cancelId: 1,
     });
     if (res.response !== 0 || !manifest.url) return;
-    // Never download and execute an unsigned installer silently from a temp
-    // directory. That behaviour is commonly flagged by Windows security. Keep
-    // the historical flow: open the official download in the user's browser.
-    await shell.openExternal(manifest.url);
+    await installUpdate(manifest);
   } else if (!silent) {
     dialog.showMessageBox({ type: 'info', title: 'TalKing', message: `Vous \u00EAtes \u00E0 jour (v${CURRENT_VERSION}).` });
   }
