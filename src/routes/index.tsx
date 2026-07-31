@@ -69,44 +69,6 @@ function MobileDownloadCard() {
         </div>
       )}
 
-      {showHelp && (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/70 sm:items-center sm:justify-center" onClick={() => setShowHelp(false)}>
-          <div
-            className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-card p-6 text-left sm:max-w-md sm:rounded-3xl"
-            onClick={(e) => e.stopPropagation()}
-            style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
-          >
-            <div className="text-lg font-bold">Installer TalKing sur votre téléphone</div>
-            {isIOS ? (
-              <div className="mt-4 space-y-3 text-sm">
-                <p className="text-muted-foreground">Sur iPhone/iPad, l'installation se fait en 3 gestes depuis <b>Safari</b> (obligatoire, Apple bloque les autres navigateurs) :</p>
-                <ol className="list-decimal space-y-2 pl-5">
-                  <li>Touchez l'icône <b>Partager</b> en bas de l'écran (carré avec flèche vers le haut).</li>
-                  <li>Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.</li>
-                  <li>Touchez <b>Ajouter</b> en haut à droite. L'icône <b>TalKing</b> apparaît sur votre écran d'accueil.</li>
-                </ol>
-                <p className="text-xs text-muted-foreground">Ensuite, ouvrez TalKing depuis cette icône : ça se lance en plein écran, sans barre Safari, comme une vraie app.</p>
-              </div>
-            ) : (
-              <div className="mt-4 space-y-3 text-sm">
-                <p className="text-muted-foreground">Sur Android, avec <b>Chrome</b> ou <b>Edge</b> :</p>
-                <ol className="list-decimal space-y-2 pl-5">
-                  <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
-                  <li>Choisissez <b>« Installer l'application »</b> (ou <b>« Ajouter à l'écran d'accueil »</b>).</li>
-                  <li>Confirmez avec <b>Installer</b>. L'icône <b>TalKing</b> apparaît dans votre liste d'applications.</li>
-                </ol>
-                <p className="text-xs text-muted-foreground">Sur Samsung Internet, l'option est dans le menu <b>≡</b> en bas. Sur Firefox Android, menu <b>⋮</b> → « Installer ».</p>
-              </div>
-            )}
-            <button
-              onClick={() => setShowHelp(false)}
-              className="mt-6 w-full rounded-xl border border-border py-3 text-sm hover:bg-muted"
-            >
-              J'ai compris
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
