@@ -171,8 +171,8 @@ function LandingPage() {
             </span>
           </Link>
           <nav className="flex items-center justify-end gap-2 sm:gap-4 text-sm">
-            <GoogleTranslate />
-            <Link to="/pricing" className="hidden rounded-lg border border-primary-foreground px-3 py-1.5 text-primary-foreground/80 hover:text-primary-foreground sm:inline-block">
+            <GoogleTranslate className="text-white" />
+            <Link to="/pricing" className="hidden rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-black hover:bg-white/90 sm:inline-block">
               Tarifs
             </Link>
             {loading ? null : user ? (
