@@ -20,6 +20,9 @@ import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 import { acquireMicStream, describeMicError } from "@/lib/mic";
+import { useAppearance } from "@/hooks/use-appearance";
+import { appearanceStyle } from "@/lib/appearance";
+
 
 
 export const Route = createFileRoute("/app")({
@@ -260,6 +263,8 @@ function Home() {
   const [micSetupVersion, setMicSetupVersion] = useState<string>("");
   const [micSetupChoice, setMicSetupChoice] = useState<string>("");
   const isMobile = useIsMobile();
+  const { config: skin } = useAppearance("windows");
+
 
   useEffect(() => {
     if (!window.voxElectron?.info) return;
@@ -1063,7 +1068,10 @@ function Home() {
   
 
   return (
-    <div className={`min-h-screen bg-background text-foreground ${isElectron ? "native-app" : ""}`}>
+    <div
+      className={`min-h-screen bg-background text-foreground skin-root ${isElectron ? "native-app" : ""}`}
+      style={appearanceStyle(skin)}
+    >
       <div className={isElectron ? "native-window" : ""}>
         <div className={isElectron ? "native-main" : ""}>
           {/* Titlebar (Electron only) */}
@@ -1105,22 +1113,26 @@ function Home() {
             <div className="native-menubar">
               <div className="native-brand-inline">
                 <span className="native-title native-brand notranslate">
-                  <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="native-logo-img" />
-                  <span className="native-brand-text">TalKing<sup>®</sup></span>
+                  <img src={skin.logoUrl} alt={skin.texts.brand} draggable={false} onDragStart={(e) => e.preventDefault()} className="native-logo-img" />
+                  <span className="native-brand-text">{skin.texts.brand}<sup>®</sup></span>
                 </span>
               </div>
               <div className="native-menubar-center">
-                <div className="native-credits-pill" title={resetTooltip}>
-                  <span className="native-credits-dot" />
-                  {limitsPanel}
-                </div>
+                {skin.show.credits && (
+                  <div className="native-credits-pill" title={resetTooltip}>
+                    <span className="native-credits-dot" />
+                    {limitsPanel}
+                  </div>
+                )}
 
               </div>
               <div className="flex items-center gap-2">
-                <div className="native-translate-slot">
-                  <GoogleTranslate alwaysShow />
-                </div>
-                {(() => {
+                {skin.show.translate && (
+                  <div className="native-translate-slot">
+                    <GoogleTranslate alwaysShow />
+                  </div>
+                )}
+                {skin.show.email && (() => {
                   const tier = userStatus?.is_tester
                     ? { label: "Testeur", cls: "tier-tester" }
                     : userStatus?.subscribed
@@ -1135,14 +1147,16 @@ function Home() {
                     </div>
                   );
                 })()}
-                <button
-                  className="native-icon-btn"
-                  title="Paramètres"
-                  onClick={() => setSettingsOpen(true)}
-                  aria-label="Paramètres"
-                >
-                  <Settings size={15} />
-                </button>
+                {skin.show.settings && (
+                  <button
+                    className="native-icon-btn"
+                    title="Paramètres"
+                    onClick={() => setSettingsOpen(true)}
+                    aria-label="Paramètres"
+                  >
+                    <Settings size={15} />
+                  </button>
+                )}
                 <button
                   className="native-icon-btn native-icon-btn-danger"
                   title="Se déconnecter"
@@ -1158,6 +1172,9 @@ function Home() {
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
           {isElectron && <h1 className="sr-only">TalKing - Traducteur vocal</h1>}
+          {skin.texts.banner?.trim() && (
+            <div className="skin-banner mb-4">{skin.texts.banner}</div>
+          )}
           {/* Floating language-pair banner during F9 voice playback */}
           {isElectron && readLangPair && (
             <div className="native-lang-banner">
@@ -1177,11 +1194,12 @@ function Home() {
           {!isElectron && (
             <header className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight notranslate">TalKing</h1>
+                <h1 className="text-3xl font-bold tracking-tight notranslate">{skin.texts.brand}</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Traducteur vocal push-to-talk. Enregistrez → transcription → traduction → presse-papiers.
+                  {skin.texts.tagline}
                 </p>
               </div>
+
               <div className="flex shrink-0 items-center gap-2">
                 <button
                   onClick={() => setSettingsOpen(true)}
@@ -1386,7 +1404,9 @@ function Home() {
               </button>
             )}
             <p className={isElectron ? "native-hero-hint" : "text-center text-xs text-muted-foreground"}>
-              {isMobile ? (
+              {skin.texts.hint?.trim() ? (
+                skin.texts.hint
+              ) : isMobile ? (
                 <>Touchez une fois pour démarrer, touchez à nouveau pour arrêter. La traduction est copiée dans votre presse-papiers.</>
               ) : (
                 <>
@@ -1396,6 +1416,7 @@ function Home() {
                 </>
               )}
             </p>
+
 
             {/* Read player message (F9) */}
             <div style={{ width: "100%", borderTop: isElectron ? "1px solid var(--nx-border, rgba(255,255,255,0.08))" : "1px solid hsl(var(--border))", marginTop: 12, paddingTop: 12 }}>
