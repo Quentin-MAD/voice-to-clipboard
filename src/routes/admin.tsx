@@ -260,7 +260,31 @@ function AdminPage() {
 
         </div>
 
+        {/* Onglets */}
+        <div className="flex gap-2 border-b">
+          {([
+            { k: "dashboard", label: "Tableau de bord" },
+            { k: "emails", label: "Aperçu mail" },
+          ] as const).map((t) => (
+            <button
+              key={t.k}
+              onClick={() => setTab(t.k)}
+              className={
+                "px-4 py-2 text-sm font-semibold -mb-px border-b-2 " +
+                (tab === t.k
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground")
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "emails" ? <EmailPreviewPanel /> : (<>
+
         {/* Stats cards */}
+
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Stat label="Utilisateurs" value={data.totals.users} />
           <Stat label="Abonnés" value={data.totals.subscribed} />
