@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { LogOut, Mail, User as UserIcon, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
+import { StatusPill, CreditsCard, useUserStatus } from "@/components/CreditsBadge";
 import { SubscriptionPanel } from "@/components/SubscriptionPanel";
 
 import { SupportDialog } from "@/components/SupportDialog";
@@ -99,32 +99,26 @@ export function UserMenu() {
 
 
 function ProfileModal({ email, onClose }: { email: string; onClose: () => void }) {
-  const [newEmail, setNewEmail] = useState(email);
+  const status = useUserStatus();
+  const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const save = async (e: React.FormEvent) => {
+  const unlimited = !!status && (status.subscribed || status.is_tester);
+
+  const savePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const updates: { email?: string; password?: string } = {};
-      if (newEmail && newEmail !== email) updates.email = newEmail;
-      if (newPassword) {
-        if (newPassword.length < 6) throw new Error("Mot de passe: 6 caractères minimum");
-        updates.password = newPassword;
-      }
-      if (!updates.email && !updates.password) {
-        toast.info("Aucun changement");
-        return;
-      }
-      const { error } = await supabase.auth.updateUser(updates);
+      if (newPassword.length < 6) throw new Error("Mot de passe: 6 caractères minimum");
+      if (newPassword !== confirmPassword) throw new Error("Les deux mots de passe ne correspondent pas");
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      toast.success(
-        updates.email
-          ? "Vérifiez votre nouvelle adresse email pour confirmer"
-          : "Profil mis à jour",
-      );
-      onClose();
+      toast.success("Mot de passe mis à jour");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPassword(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -143,52 +137,97 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
       >
         <h2 className="text-lg font-bold">Mon profil</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Modifiez votre email ou votre mot de passe.
+          Statut, crédits et gestion de votre plan.
         </p>
+
         <div className="mt-4 space-y-3">
           <CreditsCard manageLabel="Recharger des crédits" />
           <SubscriptionPanel />
+
+          {!status?.is_tester && (
+            <Link
+              to="/pricing"
+              onClick={onClose}
+              className="block w-full rounded-md bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              {unlimited ? "Acheter une année supplémentaire" : "Gérer mon plan / recharger"}
+            </Link>
+          )}
         </div>
-        <form onSubmit={save} className="mt-4 space-y-3">
+
+        <div className="mt-5 space-y-3 border-t border-border pt-4">
           <div>
-            <label className="text-xs text-muted-foreground">Email</label>
+            <label className="text-xs text-muted-foreground">Email (non modifiable)</label>
             <input
               type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={email}
+              readOnly
+              disabled
+              className="mt-1 w-full cursor-not-allowed rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground"
             />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              L'adresse email liée à votre compte est définitive et ne peut pas être changée.
+            </p>
           </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Nouveau mot de passe</label>
-            <div className="relative mt-1">
-              <KeyRound className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <input
-                type="password"
-                placeholder="Laisser vide pour ne pas changer"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 pl-8 text-sm"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
+
+          {!showPassword ? (
             <button
               type="button"
-              onClick={onClose}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
+              onClick={() => setShowPassword(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
             >
-              Annuler
+              <KeyRound className="h-4 w-4" />
+              Modifier mon mot de passe
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-            >
-              {loading ? "…" : "Enregistrer"}
-            </button>
-          </div>
-        </form>
+          ) : (
+            <form onSubmit={savePassword} className="space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground">Nouveau mot de passe</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Confirmer le mot de passe</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(false)}
+                  className="rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {loading ? "…" : "Enregistrer"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
+          >
+            Fermer
+          </button>
+        </div>
       </div>
     </div>
   );
