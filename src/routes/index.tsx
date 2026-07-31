@@ -227,21 +227,21 @@ function LandingPage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl border border-border bg-card p-6">
               <Mic className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">Traduction Vocale</h3>
+              <h2 className="text-lg font-semibold">Traduction Vocale</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Parlez, relâchez la touche, et la traduction écrite est immédiatement dans votre presse-papiers.
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
               <Ear className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">Lecture de Message Joueur</h3>
+              <h2 className="text-lg font-semibold">Lecture de Message Joueur</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Appuyez sur F9, dites le pseudo du joueur : l'IA lit à voix haute sa traduction dans votre langue.
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
               <Globe className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">47 langues</h3>
+              <h2 className="text-lg font-semibold">47 langues</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 FR, EN, ES, DE, IT, PT-BR, NL, PL, RU, JA, ZH, KO, TR, AR, ID, VI, TH, SV, UK, EL, HI, RO, CS, HU, DA, FI, NO, HE, BG, HR, SK, MS, FA.
               </p>
@@ -249,7 +249,7 @@ function LandingPage() {
             </div>
             <div className="rounded-xl border border-border bg-card p-6">
               <Zap className="mb-3 h-8 w-8 text-primary" />
-              <h3 className="text-lg font-semibold">Rapide</h3>
+              <h2 className="text-lg font-semibold">Rapide</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Transcription + traduction + presse-papiers en quelques secondes.
               </p>
