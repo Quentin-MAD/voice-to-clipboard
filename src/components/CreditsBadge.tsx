@@ -62,8 +62,8 @@ export function StatusPill({ variant = "light" }: { variant?: "light" | "dark" }
   const base = isDark
     ? "border-white/10 bg-white/5 text-white"
     : "border-border bg-card text-foreground";
-  const muted = isDark ? "text-white/60" : "text-muted-foreground";
   const label = planLabelOf(status);
+
 
   return (
     <span
