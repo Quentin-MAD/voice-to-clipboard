@@ -216,9 +216,6 @@ function LandingPage() {
             Télécharger pour Windows
           </a>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          20 traductions gratuites par mois. Aucune carte requise.
-        </p>
       </section>
 
       {/* Features */}
