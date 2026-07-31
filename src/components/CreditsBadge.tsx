@@ -95,15 +95,14 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
       <Link
         to="/pricing"
         className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium hover:opacity-90 ${base}`}
-        title={`${label} · crédits illimités`}
+        title={label}
       >
         <Crown className="h-3.5 w-3.5 text-amber-400" />
         <span>{label}</span>
-        <span className={muted}>·</span>
-        <span>∞</span>
       </Link>
     );
   }
+
 
   const planLabel = status.purchased_balance > 0 ? "Gratuit+" : "Gratuit";
   return (
