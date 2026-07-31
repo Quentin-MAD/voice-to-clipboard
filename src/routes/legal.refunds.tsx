@@ -29,6 +29,11 @@ function RefundsPage() {
               We offer a <strong>14-day money-back guarantee</strong> on all purchases (credit packs and annual
               subscriptions). If you are not satisfied, you can request a full refund within 14 days of your order date.
             </p>
+            <p>
+              <strong>Important:</strong> a refund cancels the corresponding entitlement immediately. When a refund is
+              approved, your subscription access ends straight away and any purchased credits (text, voice and mobile)
+              are removed from your account, which returns to the free plan. This is stated again at checkout.
+            </p>
           </section>
 
           <section>
