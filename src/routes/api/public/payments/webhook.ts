@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
-import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
+import { verifyWebhook, EventName, gatewayFetch, type PaddleEnv } from "@/lib/paddle.server";
 
 let _supabase: any = null;
 function getSupabase(): any {
@@ -89,7 +89,24 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
   await updateSubscriptionByPaddleId(data, env, "canceled");
 }
 
-async function grantOneTimePurchase(data: any) {
+/** Paddle webhooks sometimes omit importMeta: resolve the external id via the API. */
+async function resolveExternalId(item: any, env: PaddleEnv): Promise<string | null> {
+  const inline = item.price?.importMeta?.externalId ?? item.price?.import_meta?.external_id;
+  if (inline) return inline;
+  const priceId = item.price?.id ?? item.priceId ?? item.price_id;
+  if (!priceId) return null;
+  try {
+    const res = await gatewayFetch(env, `/prices/${priceId}`);
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    return json?.data?.import_meta?.external_id ?? null;
+  } catch (e) {
+    console.error("Failed to resolve price external id", priceId, e);
+    return null;
+  }
+}
+
+async function grantOneTimePurchase(data: any, env: PaddleEnv) {
   const userId = data.customData?.userId;
   if (!userId) return;
 
@@ -99,7 +116,7 @@ async function grantOneTimePurchase(data: any) {
   let extraYears = 0;
 
   for (const item of data.items ?? []) {
-    const externalId = item.price?.importMeta?.externalId;
+    const externalId = await resolveExternalId(item, env);
     const qty = item.quantity ?? 1;
     if (!externalId) continue;
     if (externalId === SUBSCRIPTION_EXTENSION_PRICE) {
