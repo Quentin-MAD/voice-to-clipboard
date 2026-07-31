@@ -88,9 +88,9 @@ function isIOS() {
 export const Route = createFileRoute("/mobile")({
   head: () => ({
     meta: [
-      { title: "TalKing Mobile - Dialogue vocal traduit" },
+      { title: "TalKing" },
       { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 47 langues." },
-      { property: "og:title", content: "TalKing Mobile - Dialogue vocal traduit" },
+      { property: "og:title", content: "TalKing" },
       { property: "og:description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -104,7 +104,7 @@ export const Route = createFileRoute("/mobile")({
       // Version the manifest URL so existing Android installations promptly
       // pick up the restricted /mobile scope instead of keeping the old
       // site-wide launch behavior in browser metadata caches.
-      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v3" },
+      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v4" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
   }),
@@ -151,7 +151,7 @@ function DesktopBlocker() {
         </div>
         <h1 className="text-2xl font-bold">Réservé aux téléphones</h1>
         <p className="mt-3 text-sm text-white/70">
-          TalKing Mobile est conçu uniquement pour smartphones. Ouvrez ce lien depuis votre téléphone pour l'utiliser :
+          TalKing est conçu uniquement pour smartphones. Ouvrez ce lien depuis votre téléphone pour l'utiliser :
         </p>
         <div className="mt-4 rounded-xl bg-white/5 border border-white/10 px-4 py-3 font-mono text-sm break-all">
           talking-translator.com/mobile

@@ -121,6 +121,16 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `.tk-pwa-root-boot body{visibility:hidden;background:var(--background,#0A0A29)}`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;var p=window.location.pathname;if(s&&p!=='/mobile'&&!p.startsWith('/mobile/')){document.documentElement.classList.add('tk-pwa-root-boot');window.location.replace('/mobile?launch=app')}}catch(e){}})();`,
+          }}
+        />
         <HeadContent />
       </head>
       <body>
