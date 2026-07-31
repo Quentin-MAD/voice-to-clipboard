@@ -992,8 +992,15 @@ function Home() {
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
   const voiceCap = userStatus?.voice_daily_limit ?? 5;
 
-  const textUsed = userStatus?.daily_used ?? 0;
-  const textCap = userStatus?.daily_limit ?? 150;
+  // Compte gratuit : la vraie limite affichée est le quota gratuit journalier (30),
+  // pas le plafond anti-spam de 150 qui s'applique aux comptes payants/testeurs.
+  const isFreePlan = !!userStatus && !userStatus.subscribed && !userStatus.is_tester;
+  const freeQuota = 30;
+  const textUsed = isFreePlan
+    ? Math.min(freeQuota, Math.max(0, freeQuota - (userStatus?.free_remaining ?? freeQuota)))
+    : (userStatus?.daily_used ?? 0);
+  const textCap = isFreePlan ? freeQuota : (userStatus?.daily_limit ?? 150);
+
   const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
   const resetLabel = resetAt
     ? new Date(resetAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
