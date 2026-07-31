@@ -324,11 +324,38 @@ function AdminPage() {
         {tab === "emails" ? <EmailPreviewPanel /> : tab === "appearance" ? <AppearanceEditor /> : (<>
 
 
+        {/* Filtre environnement */}
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
+          <span className="text-sm font-semibold">Données affichées :</span>
+          {([
+            { k: "live", label: "Réel (live)" },
+            { k: "test", label: "Test (sandbox)" },
+            { k: "all", label: "Tout" },
+          ] as const).map((m) => (
+            <button
+              key={m.k}
+              onClick={() => setEnvMode(m.k)}
+              className={
+                "rounded-md border px-3 py-1 text-sm " +
+                (envMode === m.k ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-accent")
+              }
+            >
+              {m.label}
+            </button>
+          ))}
+          <span className="ml-auto text-xs text-muted-foreground">
+            Le filtre s'applique aux revenus et paiements. Les coûts IA sont toujours réels.
+          </span>
+        </div>
+
+        <DataHealthBanner health={data.dataHealth} />
+
         {/* Stats cards */}
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Stat label="Utilisateurs" value={data.totals.users} />
-          <Stat label="Abonnés" value={data.totals.subscribed} />
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          <Stat label="Utilisateurs" value={data.totals.users} sub={`${data.dataHealth.real_users} hors testeurs`} />
+          <Stat label="Abonnés payants" value={data.totals.subscribed} sub="Paiement Paddle live vérifié" />
+          <Stat label="Accès offerts" value={data.totals.granted} sub="Lifetime / 1 an accordés par l'admin" />
           <Stat label="Visites (24h)" value={data.totals.views_today} sub={`${data.totals.views_7d} / 7j - ${data.totals.views_30d} / 30j`} />
           <Stat
             label="Crédits IA (24h)"
