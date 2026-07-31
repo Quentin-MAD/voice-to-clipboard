@@ -1150,6 +1150,7 @@ function Home() {
 
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+          {isElectron && <h1 className="sr-only">TalKing - Traducteur vocal</h1>}
           {/* Floating language-pair banner during F9 voice playback */}
           {isElectron && readLangPair && (
             <div className="native-lang-banner">
