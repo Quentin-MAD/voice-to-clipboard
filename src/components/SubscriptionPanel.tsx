@@ -101,9 +101,16 @@ export function SubscriptionPanel() {
         <CalendarClock className="h-4 w-4 text-primary" />
         <span className="text-sm font-semibold">Abonnement</span>
         <span className="ml-auto rounded-full border border-border px-2 py-0.5 text-[11px]">
-          {info.cancel_at_period_end ? "Annulé" : active ? "Actif" : info.status}
+          {info.cancel_at_period_end ? "Annulé" : pastDue ? "Paiement en échec" : active ? "Actif" : info.status}
         </span>
       </div>
+
+      {pastDue && (
+        <p className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 px-3 py-2 text-[11px] leading-relaxed text-black">
+          Le dernier paiement a échoué : les avantages de l'abonnement sont suspendus jusqu'à
+          la régularisation du paiement.
+        </p>
+      )}
 
       {end && (
         <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2.5">
