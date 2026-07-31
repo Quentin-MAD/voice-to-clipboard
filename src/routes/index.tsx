@@ -31,40 +31,12 @@ export const Route = createFileRoute("/")({
 
 function MobileDownloadCard() {
   const [isMobile, setIsMobile] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [canInstall, setCanInstall] = useState(false);
-  const [installed, setInstalled] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
-  const promptRef = { current: null as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> } | null };
 
   useEffect(() => {
     const ua = navigator.userAgent || "";
     const touch = matchMedia("(pointer: coarse)").matches;
     setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (touch && window.innerWidth < 900));
-    setIsIOS(/iPhone|iPad|iPod/i.test(ua) || (ua.includes("Mac") && "ontouchend" in document));
-    const standalone = matchMedia("(display-mode: standalone)").matches
-      || (navigator as unknown as { standalone?: boolean }).standalone === true;
-    setInstalled(standalone);
-    const handler = (e: Event) => {
-      e.preventDefault();
-      promptRef.current = e as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> };
-      setCanInstall(true);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
-
-  const onInstallClick = async () => {
-    if (installed) {
-      window.location.href = "/mobile";
-      return;
-    }
-    if (canInstall && promptRef.current?.prompt) {
-      await promptRef.current.prompt();
-      return;
-    }
-    setShowHelp(true);
-  };
 
   return (
     <div className="rounded-2xl border border-border bg-card p-8 text-center">
@@ -75,24 +47,16 @@ function MobileDownloadCard() {
       </p>
       {isMobile ? (
         <div className="mt-6 space-y-3">
-          <button
-            onClick={onInstallClick}
+          <Link
+            to="/mobile"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Smartphone className="h-5 w-5" />
-            {installed ? "Ouvrir TalKing" : "Installer TalKing sur mon téléphone"}
-          </button>
-          {!installed && (
-            <p className="text-xs text-muted-foreground">
-              Une fois installée, l'icône <b>TalKing</b> apparaît sur votre écran d'accueil et se lance en plein écran comme une vraie app - sans passer par le navigateur.
-            </p>
-          )}
-          <Link
-            to="/mobile"
-            className="inline-flex items-center justify-center text-xs text-muted-foreground underline underline-offset-4"
-          >
-            ou ouvrir dans le navigateur
+            Ouvrir l'app mobile
           </Link>
+          <p className="text-xs text-muted-foreground">
+            L'installation se fait uniquement depuis l'écran de dialogue mobile afin que l'icône ouvre toujours l'application, jamais le site web.
+          </p>
         </div>
       ) : (
         <div className="mt-6 space-y-3">

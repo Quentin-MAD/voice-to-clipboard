@@ -7,6 +7,8 @@ import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { CreditsCard, useUserStatus } from "@/components/CreditsBadge";
 import { supabase } from "@/integrations/supabase/client";
+import { MobileAuthPanel } from "@/components/MobileAuthPanel";
+import { useAppearance } from "@/hooks/use-appearance";
 
 export const Route = createFileRoute("/mobile/account")({
   head: () => ({
@@ -23,6 +25,7 @@ function MobileAccountPage() {
   const userStatus = useUserStatus();
   const { openCheckout, loading } = usePaddleCheckout();
   const navigate = useNavigate();
+  const { config: skin } = useAppearance("mobile");
   const statusLoading = !!user && !userStatus;
   const isTester = !!userStatus?.is_tester;
   const isSubscribed = !!userStatus?.subscribed;
@@ -34,12 +37,6 @@ function MobileAccountPage() {
       toast.success("Merci ! Votre paiement a été enregistré. Vos crédits arrivent dans quelques secondes.");
     }
   }, []);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate({ to: "/auth", search: { redirect: "/mobile/account" } as any });
-    }
-  }, [authLoading, user, navigate]);
 
   const buy = async (priceId: string) => {
     if (!user?.email) {
@@ -72,6 +69,10 @@ function MobileAccountPage() {
   };
 
   const btn = (label: string) => (loading ? "Chargement..." : label);
+
+  if (!authLoading && !user) {
+    return <MobileAuthPanel logoUrl={skin.logoUrl} brand={skin.texts.brand} />;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
