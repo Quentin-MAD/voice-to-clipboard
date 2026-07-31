@@ -142,8 +142,12 @@ function RootComponent() {
     // The actual mobile app routes stay inside the installed experience.
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    const redirectTarget = new URLSearchParams(window.location.search).get("redirect") ?? "";
+    const isMobileAuthRoute = window.location.pathname === "/auth"
+      && (redirectTarget === "/mobile" || redirectTarget.startsWith("/mobile/"));
     const isMobileAppRoute = window.location.pathname === "/mobile"
-      || window.location.pathname.startsWith("/mobile/");
+      || window.location.pathname.startsWith("/mobile/")
+      || isMobileAuthRoute;
     const isPublicHost = window.location.hostname === "talking-translator.com"
       || window.location.hostname === "www.talking-translator.com";
     if (standalone && !isMobileAppRoute && isPublicHost) {
