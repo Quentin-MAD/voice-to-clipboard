@@ -92,9 +92,7 @@ export function UserMenu() {
       {profileOpen && (
         <ProfileModal email={user.email ?? ""} onClose={() => setProfileOpen(false)} />
       )}
-      {supportOpen && (
-        <SupportModal email={SUPPORT_EMAIL} onClose={() => setSupportOpen(false)} />
-      )}
+      {supportOpen && <SupportDialog onClose={() => setSupportOpen(false)} />}
     </>
   );
 }
