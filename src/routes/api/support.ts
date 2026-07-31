@@ -117,6 +117,7 @@ export const Route = createFileRoute("/api/support")({
             message,
             fromEmail: user.email ?? "inconnu",
             userId: user.id,
+            messageId: inserted?.id,
           });
         } catch (err) {
           console.error("support email send failed:", err);
