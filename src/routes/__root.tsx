@@ -13,24 +13,6 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
-function InstalledMobileAppEntry() {
-  useEffect(() => {
-    const isStandalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    const isMobileRoute =
-      window.location.pathname === "/mobile" || window.location.pathname.startsWith("/mobile/");
-
-    // Compatibility for icons installed from the former site-wide manifest:
-    // opening the installed icon always enters the mobile dialogue app.
-    if (isStandalone && !isMobileRoute) {
-      window.location.replace("/mobile?launch=app");
-    }
-  }, []);
-
-  return null;
-}
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -185,7 +167,6 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <InstalledMobileAppEntry />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <main>
         <Outlet />
