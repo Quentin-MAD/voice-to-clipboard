@@ -185,8 +185,6 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
-const APP_VERSION = "1.0.1";
-
 type PersistedSettings = {
   source: string;
   target: string;
@@ -251,6 +249,7 @@ function Home() {
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [installedVersion, setInstalledVersion] = useState<string>("");
   const [hotkeyBlocked, setHotkeyBlocked] = useState(false);
   const [autoStart, setAutoStartState] = useState<boolean>(false);
   const [readResult, setReadResult] = useState<{ pseudo?: string; original?: string; sourceLang?: string; translation?: string } | null>(null);
@@ -262,6 +261,15 @@ function Home() {
   const [micSetupVersion, setMicSetupVersion] = useState<string>("");
   const [micSetupChoice, setMicSetupChoice] = useState<string>("");
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (!window.voxElectron?.info) return;
+    let cancelled = false;
+    void window.voxElectron.info().then((info) => {
+      if (!cancelled && info?.version) setInstalledVersion(info.version);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
 
   const statusQuery = useQuery({
@@ -1062,7 +1070,7 @@ function Home() {
           {/* Titlebar (Electron only) */}
           {isElectron && (
             <div className="native-titlestrip">
-              <span className="native-version notranslate">v{APP_VERSION}</span>
+              {installedVersion && <span className="native-version notranslate">v{installedVersion}</span>}
               <div className="native-window-controls">
                 <button
                   type="button"

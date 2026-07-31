@@ -373,32 +373,6 @@ async function fetchUpdateManifest() {
   });
 }
 
-async function downloadInstaller(url, onProgress) {
-  return new Promise((resolve, reject) => {
-    try {
-      const tmpDir = app.getPath('temp');
-      const safeName = `TalKing-Setup-${Date.now()}.exe`;
-      const dest = path.join(tmpDir, safeName);
-      const req = net.request({ method: 'GET', url, redirect: 'follow' });
-      req.on('response', (res) => {
-        if (res.statusCode >= 400) { reject(new Error(`HTTP ${res.statusCode}`)); return; }
-        const total = parseInt(res.headers['content-length'] || '0', 10);
-        let received = 0;
-        const out = fs.createWriteStream(dest);
-        res.on('data', (chunk) => {
-          received += chunk.length;
-          out.write(chunk);
-          if (onProgress && total) onProgress(received / total);
-        });
-        res.on('end', () => { out.end(() => resolve(dest)); });
-        res.on('error', reject);
-      });
-      req.on('error', reject);
-      req.end();
-    } catch (e) { reject(e); }
-  });
-}
-
 async function checkForUpdates({ silent = true } = {}) {
   const manifest = await fetchUpdateManifest();
   if (!manifest || !manifest.version) {
@@ -412,23 +386,15 @@ async function checkForUpdates({ silent = true } = {}) {
       type: 'info',
       title: 'TalKing update available',
       message: `Une nouvelle version est disponible : v${manifest.version}`,
-      detail: (manifest.notes || '') + `\n\nVous \u00EAtes en v${CURRENT_VERSION}. TalKing peut t\u00E9l\u00E9charger et installer la mise \u00E0 jour automatiquement.`,
-      buttons: ['Installer maintenant', 'Plus tard'],
+      detail: (manifest.notes || '') + `\n\nVous \u00EAtes en v${CURRENT_VERSION}. Le t\u00E9l\u00Echargement va s'ouvrir dans votre navigateur.`,
+      buttons: ['Télécharger', 'Plus tard'],
       defaultId: 0, cancelId: 1,
     });
     if (res.response !== 0 || !manifest.url) return;
-    try {
-      const installerPath = await downloadInstaller(manifest.url);
-      // Launch installer silently-ish and quit so NSIS can overwrite files
-      const { spawn } = require('child_process');
-      spawn(installerPath, ['/SILENT'], { detached: true, stdio: 'ignore' }).unref();
-      app.isQuiting = true;
-      setTimeout(() => app.quit(), 400);
-    } catch (err) {
-      logger.log('update-download-failed', String(err));
-      // Fallback: open browser download
-      shell.openExternal(manifest.url);
-    }
+    // Never download and execute an unsigned installer silently from a temp
+    // directory. That behaviour is commonly flagged by Windows security. Keep
+    // the historical flow: open the official download in the user's browser.
+    await shell.openExternal(manifest.url);
   } else if (!silent) {
     dialog.showMessageBox({ type: 'info', title: 'TalKing', message: `Vous \u00EAtes \u00E0 jour (v${CURRENT_VERSION}).` });
   }
