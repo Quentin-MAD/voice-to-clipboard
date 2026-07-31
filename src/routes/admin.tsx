@@ -593,7 +593,8 @@ function AdminPage() {
             </table>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            * Estimation historique : certaines anciennes écritures de coût ont été perdues. Le calcul utilise le nombre d'opérations conservé et le coût moyen réel par type. Les nouvelles opérations sont journalisées précisément.
+            Tous les coûts affichés proviennent uniquement des écritures réellement journalisées (aucune estimation).
+            Les coûts anciens sans membre rattaché sont regroupés dans la ligne "coûts non attribués" du bandeau d'état.
           </p>
         </div>
         </>)}
