@@ -104,7 +104,7 @@ export const Route = createFileRoute("/mobile")({
       // Version the manifest URL so existing Android installations promptly
       // pick up the restricted /mobile scope instead of keeping the old
       // site-wide launch behavior in browser metadata caches.
-      { rel: "manifest", href: "/mobile.webmanifest?v=mobile-app-v2" },
+      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v3" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
   }),
