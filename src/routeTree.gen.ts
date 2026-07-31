@@ -26,9 +26,13 @@ import { Route as ApiSupportRouteImport } from './routes/api/support'
 import { Route as ApiSubscriptionRouteImport } from './routes/api/subscription'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
+import { Route as ApiAdminEmailsRouteImport } from './routes/api/admin-emails'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
+import { Route as ApiPublicCleanupUnconfirmedRouteImport } from './routes/api/public/cleanup-unconfirmed'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const PricingRoute = PricingRouteImport.update({
@@ -116,6 +120,11 @@ const ApiMobileDialogRoute = ApiMobileDialogRouteImport.update({
   path: '/api/mobile-dialog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAdminEmailsRoute = ApiAdminEmailsRouteImport.update({
+  id: '/api/admin-emails',
+  path: '/api/admin-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminRoute = ApiAdminRouteImport.update({
   id: '/api/admin',
   path: '/api/admin',
@@ -126,12 +135,28 @@ const ApiPublicTrackViewRoute = ApiPublicTrackViewRouteImport.update({
   path: '/api/public/track-view',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCleanupUnconfirmedRoute =
+  ApiPublicCleanupUnconfirmedRouteImport.update({
+    id: '/api/public/cleanup-unconfirmed',
+    path: '/api/public/cleanup-unconfirmed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
     path: '/lovable/email/transactional/preview',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -147,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -158,8 +184,11 @@ export interface FileRoutesByFullPath {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -170,6 +199,7 @@ export interface FileRoutesByTo {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -181,8 +211,11 @@ export interface FileRoutesByTo {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -194,6 +227,7 @@ export interface FileRoutesById {
   '/mobile': typeof MobileRouteWithChildren
   '/pricing': typeof PricingRoute
   '/api/admin': typeof ApiAdminRoute
+  '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
@@ -205,8 +239,11 @@ export interface FileRoutesById {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -219,6 +256,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -230,8 +268,11 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -242,6 +283,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -253,8 +295,11 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -265,6 +310,7 @@ export interface FileRouteTypes {
     | '/mobile'
     | '/pricing'
     | '/api/admin'
+    | '/api/admin-emails'
     | '/api/mobile-dialog'
     | '/api/read-message'
     | '/api/subscription'
@@ -276,8 +322,11 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -289,6 +338,7 @@ export interface RootRouteChildren {
   MobileRoute: typeof MobileRouteWithChildren
   PricingRoute: typeof PricingRoute
   ApiAdminRoute: typeof ApiAdminRoute
+  ApiAdminEmailsRoute: typeof ApiAdminEmailsRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiSubscriptionRoute: typeof ApiSubscriptionRoute
@@ -299,8 +349,11 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  ApiPublicCleanupUnconfirmedRoute: typeof ApiPublicCleanupUnconfirmedRoute
   ApiPublicTrackViewRoute: typeof ApiPublicTrackViewRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -425,6 +478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMobileDialogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/admin-emails': {
+      id: '/api/admin-emails'
+      path: '/api/admin-emails'
+      fullPath: '/api/admin-emails'
+      preLoaderRoute: typeof ApiAdminEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/admin': {
       id: '/api/admin'
       path: '/api/admin'
@@ -439,11 +499,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackViewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cleanup-unconfirmed': {
+      id: '/api/public/cleanup-unconfirmed'
+      path: '/api/public/cleanup-unconfirmed'
+      fullPath: '/api/public/cleanup-unconfirmed'
+      preLoaderRoute: typeof ApiPublicCleanupUnconfirmedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
       fullPath: '/lovable/email/transactional/preview'
       preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/payments/webhook': {
@@ -475,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   MobileRoute: MobileRouteWithChildren,
   PricingRoute: PricingRoute,
   ApiAdminRoute: ApiAdminRoute,
+  ApiAdminEmailsRoute: ApiAdminEmailsRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
   ApiSubscriptionRoute: ApiSubscriptionRoute,
@@ -485,8 +567,11 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
   LegalTermsRoute: LegalTermsRoute,
+  ApiPublicCleanupUnconfirmedRoute: ApiPublicCleanupUnconfirmedRoute,
   ApiPublicTrackViewRoute: ApiPublicTrackViewRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

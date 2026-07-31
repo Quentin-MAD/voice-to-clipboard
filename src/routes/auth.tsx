@@ -24,6 +24,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const search = Route.useSearch();
 
@@ -71,8 +72,8 @@ function AuthPage() {
           options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (error) throw error;
-        toast.success("Compte créé ! Vous êtes connecté.");
-        navigate({ to: getPostAuthPath(), replace: true });
+        setPendingEmail(email);
+        toast.success("Vérifiez votre boîte mail pour activer votre compte.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -133,6 +134,13 @@ function AuthPage() {
                   ? "Identifiez-vous pour lancer le traducteur vocal."
                   : "Créez votre compte pour commencer à traduire."}
               </p>
+
+              {pendingEmail && (
+                <p className="native-auth-sub">
+                  Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
+                  compte (supprimé automatiquement après 2 h sans validation).
+                </p>
+              )}
 
               <form onSubmit={onSubmit} className="native-auth-form">
                 <label className="native-auth-label">
@@ -232,6 +240,17 @@ function AuthPage() {
           <p className="mb-6 text-sm text-muted-foreground">
             Accédez à votre compte <span className="notranslate">TalKing</span>.
           </p>
+
+          {pendingEmail && (
+            <div className="mb-4 rounded-lg border border-primary/40 bg-primary/10 p-4 text-sm">
+              <p className="font-semibold">Vérifiez votre boîte mail</p>
+              <p className="mt-1 text-muted-foreground">
+                Un email de vérification vient d'être envoyé à <strong>{pendingEmail}</strong>.
+                Votre compte ne sera actif qu'après validation. Sans confirmation, il est
+                automatiquement supprimé au bout de 2 heures.
+              </p>
+            </div>
+          )}
 
           <button
             onClick={signInGoogle}

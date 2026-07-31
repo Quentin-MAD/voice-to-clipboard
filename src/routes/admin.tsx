@@ -123,6 +123,8 @@ function AdminPage() {
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [tab, setTab] = useState<"dashboard" | "emails">("dashboard");
+
 
 
 
@@ -260,7 +262,31 @@ function AdminPage() {
 
         </div>
 
+        {/* Onglets */}
+        <div className="flex gap-2 border-b">
+          {([
+            { k: "dashboard", label: "Tableau de bord" },
+            { k: "emails", label: "Aperçu mail" },
+          ] as const).map((t) => (
+            <button
+              key={t.k}
+              onClick={() => setTab(t.k)}
+              className={
+                "px-4 py-2 text-sm font-semibold -mb-px border-b-2 " +
+                (tab === t.k
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground")
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "emails" ? <EmailPreviewPanel /> : (<>
+
         {/* Stats cards */}
+
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Stat label="Utilisateurs" value={data.totals.users} />
           <Stat label="Abonnés" value={data.totals.subscribed} />
@@ -487,7 +513,9 @@ function AdminPage() {
             * Estimation historique : certaines anciennes écritures de coût ont été perdues. Le calcul utilise le nombre d'opérations conservé et le coût moyen réel par type. Les nouvelles opérations sont journalisées précisément.
           </p>
         </div>
+        </>)}
       </div>
+
     </div>
   );
 }
@@ -917,3 +945,122 @@ function RecentAiFeed({ recent }: { recent: AdminData["recent"] }) {
   );
 }
 
+
+type EmailPreviewData = {
+  types: Array<{ key: string; label: string }>;
+  type: string;
+  subject: string;
+  from: string;
+  html: string;
+  pending: Array<{ email: string; created_at: string; expires_in_min: number }>;
+};
+
+function EmailPreviewPanel() {
+  const [type, setType] = useState("signup");
+  const [data, setData] = useState<EmailPreviewData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [cleaning, setCleaning] = useState(false);
+
+  async function load(t = type) {
+    setLoading(true);
+    const res = await authedFetch(`/api/admin-emails?type=${encodeURIComponent(t)}`);
+    if (res.ok) setData((await res.json()) as EmailPreviewData);
+    else toast.error("Impossible de charger l'aperçu");
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load(type);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type]);
+
+  async function purge() {
+    setCleaning(true);
+    const res = await authedFetch("/api/admin-emails", { method: "POST" });
+    setCleaning(false);
+    if (!res.ok) return toast.error("Purge échouée");
+    const json = (await res.json()) as { deleted: number };
+    toast.success(`${json.deleted} compte(s) non vérifié(s) supprimé(s)`);
+    load(type);
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border bg-card p-4">
+        <h2 className="text-lg font-semibold">Aperçu des emails automatiques</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Rendu réel des emails envoyés depuis noreply@notify.talking-translator.com. La
+          vérification d'adresse est obligatoire : les comptes non validés sont supprimés
+          au bout de 2 heures.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {(data?.types ?? [{ key: "signup", label: "Vérification d'adresse email (inscription)" }]).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setType(t.key)}
+              className={
+                "rounded-md border px-3 py-1.5 text-xs " +
+                (type === t.key ? "border-primary bg-primary/10 text-primary" : "border-input hover:bg-accent")
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-lg border bg-card p-4">
+        <div className="mb-3 space-y-1 text-sm">
+          <div><span className="text-muted-foreground">Expéditeur :</span> {data?.from ?? "-"}</div>
+          <div><span className="text-muted-foreground">Objet :</span> <strong>{data?.subject ?? "-"}</strong></div>
+        </div>
+        {loading ? (
+          <div className="p-8 text-center text-muted-foreground">Chargement de l'aperçu…</div>
+        ) : (
+          <iframe
+            title="Aperçu email"
+            srcDoc={data?.html ?? ""}
+            className="h-[620px] w-full rounded-md border bg-white"
+          />
+        )}
+      </div>
+
+      <div className="rounded-lg border bg-card p-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold">Comptes en attente de vérification</h3>
+          <button
+            onClick={purge}
+            disabled={cleaning}
+            className="rounded-md border border-input px-3 py-1.5 text-sm hover:bg-accent disabled:opacity-50"
+          >
+            {cleaning ? "Purge…" : "Purger maintenant (> 2h)"}
+          </button>
+        </div>
+        {(data?.pending?.length ?? 0) === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Aucun compte en attente.</p>
+        ) : (
+          <table className="mt-3 w-full text-sm">
+            <thead>
+              <tr className="border-b text-left text-xs uppercase text-muted-foreground">
+                <th className="p-2">Email</th>
+                <th className="p-2">Inscrit le</th>
+                <th className="p-2">Suppression dans</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data!.pending.map((p) => (
+                <tr key={p.email} className="border-b">
+                  <td className="p-2">{p.email}</td>
+                  <td className="p-2">{new Date(p.created_at).toLocaleString("fr-FR")}</td>
+                  <td className="p-2 tabular-nums">
+                    {p.expires_in_min > 0 ? `${p.expires_in_min} min` : "en attente de purge"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
