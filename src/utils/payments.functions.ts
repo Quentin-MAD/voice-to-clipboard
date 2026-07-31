@@ -6,9 +6,10 @@ export const resolvePaddlePrice = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const response = await gatewayFetch(
       data.environment,
-      `/prices?external_id=${encodeURIComponent(data.priceId)}`
+      `/prices?status=active&external_id=${encodeURIComponent(data.priceId)}`
     );
-    const result = (await response.json()) as { data?: Array<{ id: string }> };
-    if (!result.data?.length) throw new Error("Price not found");
-    return result.data[0].id;
+    const result = (await response.json()) as { data?: Array<{ id: string; status?: string }> };
+    const active = result.data?.find((p) => p.status !== "archived") ?? result.data?.[0];
+    if (!active) throw new Error("Price not found");
+    return active.id;
   });
