@@ -5,7 +5,14 @@ export function Footer() {
   if (typeof window !== "undefined" && (window as any).voxElectron) return null;
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-16 border-t border-border bg-primary text-primary-foreground">
+    <footer className="relative mt-16 border-t border-border bg-primary text-primary-foreground">
+      <img
+        src={logoBlanc.url}
+        alt="TalKing"
+        draggable={false}
+        onDragStart={(e) => e.preventDefault()}
+        className="mx-auto h-48 w-auto select-none md:absolute md:left-4 md:top-1/2 md:mx-0 md:h-64 md:-translate-y-1/2 lg:left-8"
+      />
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-8">
           {/* Top row: brand text + nav links */}
@@ -42,16 +49,6 @@ export function Footer() {
             </nav>
           </div>
 
-          {/* Middle-left empty space: large logo */}
-          <div className="flex items-start justify-start md:-mt-4">
-            <img
-              src={logoBlanc.url}
-              alt="TalKing"
-              draggable={false}
-              onDragStart={(e) => e.preventDefault()}
-              className="h-56 w-auto select-none"
-            />
-          </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-border pt-4 text-xs text-primary-foreground/80 md:flex-row md:items-center md:justify-between">
