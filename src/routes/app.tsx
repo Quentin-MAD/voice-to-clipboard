@@ -271,6 +271,17 @@ function Home() {
   const { config: skin } = useAppearance("windows");
 
 
+  // In the admin appearance preview (?skin=draft) there is no Electron bridge,
+  // so force the native (desktop app) rendering to mirror the real app exactly.
+  const [skinPreview, setSkinPreview] = useState(false);
+  useEffect(() => {
+    const isPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    if (isPreview) {
+      setSkinPreview(true);
+      setIsElectron(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (!window.voxElectron?.info) return;
     let cancelled = false;
@@ -1082,7 +1093,9 @@ function Home() {
           {/* Titlebar (Electron only) */}
           {isElectron && (
             <div className="native-titlestrip">
-              {installedVersion && <span className="native-version notranslate">v{installedVersion}</span>}
+              {(installedVersion || (skinPreview ? "1.0.2" : "")) && (
+                <span className="native-version notranslate">v{installedVersion || "1.0.2"}</span>
+              )}
               <div className="native-window-controls">
                 <button
                   type="button"
@@ -1897,7 +1910,7 @@ function Home() {
           </div>
         </div>
       )}
-      <Footer />
+      {!isElectron && <Footer />}
     </div>
   );
 }

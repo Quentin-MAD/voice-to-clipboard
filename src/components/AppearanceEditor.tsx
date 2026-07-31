@@ -42,6 +42,17 @@ export function AppearanceEditor() {
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const previewBoxRef = useRef<HTMLDivElement | null>(null);
+  const [boxWidth, setBoxWidth] = useState(0);
+
+  useEffect(() => {
+    const el = previewBoxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBoxWidth(el.clientWidth));
+    ro.observe(el);
+    setBoxWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, [loading]);
 
   const config = drafts[app];
   const textFields = app === "windows" ? WINDOWS_TEXT_FIELDS : MOBILE_TEXT_FIELDS;
@@ -171,6 +182,10 @@ export function AppearanceEditor() {
   };
 
   const previewSrc = `${app === "windows" ? "/app" : "/mobile"}?skin=draft`;
+  // Real device sizes: Electron window vs phone screen.
+  const previewW = app === "windows" ? 1180 : 390;
+  const previewH = app === "windows" ? 760 : 780;
+  const scale = Math.min(1, boxWidth ? (boxWidth - 24) / previewW : 1);
 
   if (loading) return <div className="py-10 text-center text-sm text-muted-foreground">Chargement de l'éditeur…</div>;
 
@@ -348,20 +363,30 @@ export function AppearanceEditor() {
               Recharger
             </button>
           </div>
-          <div className="flex justify-center overflow-hidden rounded-lg bg-black/20 p-3">
-            <iframe
-              ref={iframeRef}
-              key={app}
-              src={previewSrc}
-              title="Aperçu de l'application"
-              className="rounded-lg border border-border bg-background"
-              style={app === "mobile"
-                ? { width: 390, height: 760 }
-                : { width: "100%", height: 760 }}
-            />
+          <div
+            ref={previewBoxRef}
+            className="flex justify-center overflow-hidden rounded-lg bg-black/20 p-3"
+            style={{ height: previewH * scale + 24 }}
+          >
+            <div style={{ width: previewW * scale, height: previewH * scale }}>
+              <iframe
+                ref={iframeRef}
+                key={app}
+                src={previewSrc}
+                title="Aperçu de l'application"
+                className="rounded-lg border border-border bg-background"
+                style={{
+                  width: previewW,
+                  height: previewH,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }}
+              />
+            </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            L'aperçu utilise le brouillon. Les utilisateurs ne voient les changements qu'après un clic sur Publier.
+            L'aperçu reproduit la fenêtre réelle ({previewW}×{previewH}) à l'échelle {Math.round(scale * 100)} %.
+            Les utilisateurs ne voient les changements qu'après un clic sur Publier.
           </p>
         </div>
       </div>
