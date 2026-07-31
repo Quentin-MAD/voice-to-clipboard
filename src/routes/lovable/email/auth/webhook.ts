@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "voice-to-clipboard"
+const SITE_NAME = "TalKing®"
 const SENDER_DOMAIN = "notify.talking-translator.com"
 const ROOT_DOMAIN = "talking-translator.com"
 const FROM_DOMAIN = "notify.talking-translator.com"
@@ -24,7 +24,7 @@ const handler = createAuthEmailHandler({
   sendUrl: process.env.LOVABLE_SEND_URL,
   emails: {
     signup: {
-      subject: 'Confirm your email',
+      subject: 'Confirmez votre adresse email - TalKing®',
       render: (data) =>
         React.createElement(SignupEmail, {
           siteName: SITE_NAME,
@@ -34,7 +34,7 @@ const handler = createAuthEmailHandler({
         }),
     },
     invite: {
-      subject: "You've been invited",
+      subject: "Vous êtes invité sur TalKing®",
       render: (data) =>
         React.createElement(InviteEmail, {
           siteName: SITE_NAME,
@@ -43,7 +43,7 @@ const handler = createAuthEmailHandler({
         }),
     },
     magiclink: {
-      subject: 'Your login link',
+      subject: 'Votre lien de connexion - TalKing®',
       render: (data) =>
         React.createElement(MagicLinkEmail, {
           siteName: SITE_NAME,
@@ -51,7 +51,7 @@ const handler = createAuthEmailHandler({
         }),
     },
     recovery: {
-      subject: 'Reset your password',
+      subject: 'Réinitialisation de votre mot de passe - TalKing®',
       render: (data) =>
         React.createElement(RecoveryEmail, {
           siteName: SITE_NAME,
@@ -59,7 +59,7 @@ const handler = createAuthEmailHandler({
         }),
     },
     email_change: {
-      subject: 'Confirm your new email',
+      subject: 'Confirmez votre nouvelle adresse email - TalKing®',
       render: (data) =>
         React.createElement(EmailChangeEmail, {
           siteName: SITE_NAME,
@@ -70,7 +70,7 @@ const handler = createAuthEmailHandler({
         }),
     },
     reauthentication: {
-      subject: 'Your verification code',
+      subject: 'Votre code de vérification - TalKing®',
       render: (data) =>
         React.createElement(ReauthenticationEmail, { token: data.token ?? '' }),
     },
