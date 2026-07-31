@@ -511,6 +511,8 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
   const text = payload && typeof payload === 'object' ? payload.text : payload;
   pendingAutoTypeText = String(text ?? '');
   pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  // Arm (or release) the auto-type key only while a translation is pending.
+  registerHotkeys();
   if (pendingAutoTypeText) {
     const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
     const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -526,8 +528,10 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
 ipcMain.handle('autotype:clear', () => {
   pendingAutoTypeText = '';
   pendingAutoTypeMeta = null;
+  registerHotkeys();
   return { ok: true };
 });
+
 
 
 
