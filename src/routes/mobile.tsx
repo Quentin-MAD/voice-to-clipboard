@@ -599,11 +599,17 @@ function MobileApp() {
 
       {/* Install banner (Android/Chrome) */}
       {installVisible && (
-        <div className="mx-5 mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 flex items-center justify-between">
-          <div className="text-xs text-white/70">Installer TalKing sur votre écran d'accueil</div>
-          <button onClick={doInstall} className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black">Installer</button>
+        <div className="mx-5 mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-white/70">Installer TalKing sur votre écran d'accueil</div>
+            <button onClick={doInstall} className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-black">Installer</button>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-white/40">
+            Si une ancienne version est déjà installée et qu'elle s'ouvre à la place du site web, désinstallez-la puis réinstallez-la une fois : le téléphone mémorise le périmètre de l'app au moment de l'installation.
+          </p>
         </div>
       )}
+
 
       {/* Install help modal */}
       {showInstallHelp && (
