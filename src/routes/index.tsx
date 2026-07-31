@@ -12,13 +12,13 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TalKing - Traducteur vocal en temps réel pour gamers" },
+      { title: "TalKing" },
       {
         name: "description",
         content:
           "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
       },
-      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel pour gamers" },
+      { property: "og:title", content: "TalKing" },
       {
         property: "og:description",
         content:
