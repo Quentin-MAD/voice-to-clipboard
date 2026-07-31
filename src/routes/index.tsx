@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
+import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
 
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useAuth } from "@/hooks/use-auth";

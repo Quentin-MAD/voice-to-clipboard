@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
 
 export function Footer() {
   if (typeof window !== "undefined" && (window as any).voxElectron) return null;
@@ -8,7 +9,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
           <div className="flex items-start gap-4">
-            <img src="/logo-white.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-20 w-auto shrink-0 select-none" />
+            <img src={logoBlanc.url} alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-20 w-auto shrink-0 select-none" />
             <div>
               <div className="text-lg font-semibold text-primary-foreground notranslate">TalKing</div>
               <p className="mt-1 max-w-sm text-sm text-primary-foreground/80">
