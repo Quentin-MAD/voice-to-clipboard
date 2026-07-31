@@ -28,6 +28,7 @@ import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
 import { Route as ApiPublicTrackViewRouteImport } from './routes/api/public/track-view'
+import { Route as ApiPublicCleanupUnconfirmedRouteImport } from './routes/api/public/cleanup-unconfirmed'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
@@ -128,6 +129,12 @@ const ApiPublicTrackViewRoute = ApiPublicTrackViewRouteImport.update({
   path: '/api/public/track-view',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCleanupUnconfirmedRoute =
+  ApiPublicCleanupUnconfirmedRouteImport.update({
+    id: '/api/public/cleanup-unconfirmed',
+    path: '/api/public/cleanup-unconfirmed',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -170,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -195,6 +203,7 @@ export interface FileRoutesByTo {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -221,6 +230,7 @@ export interface FileRoutesById {
   '/legal/refunds': typeof LegalRefundsRoute
   '/legal/terms': typeof LegalTermsRoute
   '/mobile/account': typeof MobileAccountRoute
+  '/api/public/cleanup-unconfirmed': typeof ApiPublicCleanupUnconfirmedRoute
   '/api/public/track-view': typeof ApiPublicTrackViewRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -298,6 +310,7 @@ export interface FileRouteTypes {
     | '/legal/refunds'
     | '/legal/terms'
     | '/mobile/account'
+    | '/api/public/cleanup-unconfirmed'
     | '/api/public/track-view'
     | '/api/public/payments/webhook'
     | '/lovable/email/auth/preview'
@@ -323,6 +336,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalRefundsRoute: typeof LegalRefundsRoute
   LegalTermsRoute: typeof LegalTermsRoute
+  ApiPublicCleanupUnconfirmedRoute: typeof ApiPublicCleanupUnconfirmedRoute
   ApiPublicTrackViewRoute: typeof ApiPublicTrackViewRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -465,6 +479,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrackViewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cleanup-unconfirmed': {
+      id: '/api/public/cleanup-unconfirmed'
+      path: '/api/public/cleanup-unconfirmed'
+      fullPath: '/api/public/cleanup-unconfirmed'
+      preLoaderRoute: typeof ApiPublicCleanupUnconfirmedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -525,6 +546,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalRefundsRoute: LegalRefundsRoute,
   LegalTermsRoute: LegalTermsRoute,
+  ApiPublicCleanupUnconfirmedRoute: ApiPublicCleanupUnconfirmedRoute,
   ApiPublicTrackViewRoute: ApiPublicTrackViewRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
@@ -534,13 +556,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
