@@ -348,20 +348,30 @@ export function AppearanceEditor() {
               Recharger
             </button>
           </div>
-          <div className="flex justify-center overflow-hidden rounded-lg bg-black/20 p-3">
-            <iframe
-              ref={iframeRef}
-              key={app}
-              src={previewSrc}
-              title="Aperçu de l'application"
-              className="rounded-lg border border-border bg-background"
-              style={app === "mobile"
-                ? { width: 390, height: 760 }
-                : { width: "100%", height: 760 }}
-            />
+          <div
+            ref={previewBoxRef}
+            className="flex justify-center overflow-hidden rounded-lg bg-black/20 p-3"
+            style={{ height: previewH * scale + 24 }}
+          >
+            <div style={{ width: previewW * scale, height: previewH * scale }}>
+              <iframe
+                ref={iframeRef}
+                key={app}
+                src={previewSrc}
+                title="Aperçu de l'application"
+                className="rounded-lg border border-border bg-background"
+                style={{
+                  width: previewW,
+                  height: previewH,
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }}
+              />
+            </div>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            L'aperçu utilise le brouillon. Les utilisateurs ne voient les changements qu'après un clic sur Publier.
+            L'aperçu reproduit la fenêtre réelle ({previewW}×{previewH}) à l'échelle {Math.round(scale * 100)} %.
+            Les utilisateurs ne voient les changements qu'après un clic sur Publier.
           </p>
         </div>
       </div>
