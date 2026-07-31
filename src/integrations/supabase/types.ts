@@ -412,6 +412,10 @@ export type Database = {
           voice_daily_used: number
         }[]
       }
+      extend_subscription_year: {
+        Args: { _user_id: string; _years?: number }
+        Returns: string
+      }
       get_user_status: {
         Args: { _user_id: string }
         Returns: {
@@ -440,6 +444,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_subscription_active: { Args: { _user_id: string }; Returns: boolean }
+      revoke_for_refund: {
+        Args: {
+          _revoke_credits?: boolean
+          _revoke_subscription?: boolean
+          _user_id: string
+        }
+        Returns: undefined
       }
       trigger_cleanup_unconfirmed: { Args: never; Returns: undefined }
     }

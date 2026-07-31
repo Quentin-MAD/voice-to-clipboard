@@ -11,7 +11,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Tarifs - TalKing" },
-      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 29,99€/an." },
+      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 24,99€/an." },
     ],
   }),
   component: PricingPage,
@@ -155,7 +155,7 @@ function PricingPage() {
             </div>
             <h2 className="text-lg font-semibold">Abonnement</h2>
             <div className="my-3 text-3xl font-bold">
-              29,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
+              24,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ Traductions Texte (F8) illimitées*</li>
@@ -164,16 +164,22 @@ function PricingPage() {
               <li>✓ Support prioritaire</li>
             </ul>
             <button
-              onClick={() => buy("vox_subscription_yearly", "subscription")}
+              onClick={() =>
+                buy(
+                  userStatus?.subscribed ? "sub_extend_year_onetime" : "vox_subscription_yearly",
+                  "subscription",
+                )
+              }
               disabled={loading || authLoading || statusLoading || cannotBuySubscription}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
               {cannotBuySubscription
                 ? "Inclus dans votre compte Testeur"
-                : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 29,99 €/an")}
+                : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 24,99 €/an")}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
               *dans la limite de 150 traductions/jour (anti-spam).
+              {userStatus?.subscribed && " L'année achetée s'ajoute à la fin de votre période en cours."}
             </p>
           </div>
         </div>
@@ -197,6 +203,7 @@ function PricingPage() {
           et notre{" "}
           <Link to="/legal/refunds" className="underline hover:text-foreground">Politique de remboursement</Link>.
           Les paiements sont traités de manière sécurisée par <span className="notranslate">Paddle</span> (Merchant of Record), qui gère la TVA applicable dans votre pays.
+          {" "}En cas de remboursement, l'avantage correspondant est retiré immédiatement : l'abonnement est coupé et les crédits achetés (texte, vocaux, mobile) sont remis à zéro, le compte repassant en offre gratuite.
         </p>
       </div>
       <Footer />
