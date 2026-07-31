@@ -6,7 +6,7 @@ export const Route = createFileRoute("/legal/refunds")({
   head: () => ({
     meta: [
       { title: "Refund Policy - TalKing" },
-      { name: "description", content: "30-day money-back guarantee." },
+      { name: "description", content: "14-day money-back guarantee." },
       { property: "og:title", content: "Refund Policy - TalKing" },
       { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/refunds" },
     ],
