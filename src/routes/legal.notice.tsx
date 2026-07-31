@@ -6,7 +6,7 @@ export const Route = createFileRoute("/legal/notice")({
   head: () => ({
     meta: [
       { title: "Mentions légales - TalKing" },
-      { name: "description", content: "Mentions légales du site TalKing." },
+      { name: "description", content: "Mentions légales de TalKing : éditeur du site, coordonnées de contact, hébergement et informations juridiques obligatoires du service." },
       { property: "og:title", content: "Mentions légales - TalKing" },
       { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/notice" },
     ],

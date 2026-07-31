@@ -25,17 +25,17 @@ import { acquireMicStream, describeMicError } from "@/lib/mic";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "v1.0.0" },
+      { title: "Application TalKing - Traducteur vocal" },
       {
         name: "description",
         content:
-          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
+          "Lancez vos traductions vocales : enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers en quelques secondes.",
       },
-      { property: "og:title", content: "TalKing - Traducteur vocal en temps réel" },
+      { property: "og:title", content: "Application TalKing - Traducteur vocal" },
       {
         property: "og:description",
         content:
-          "Traducteur vocal push-to-talk. Enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers instantanément.",
+          "Lancez vos traductions vocales : enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers en quelques secondes.",
       },
     ],
   }),
@@ -1150,6 +1150,7 @@ function Home() {
 
 
           <div className={isElectron ? "native-scroll" : "mx-auto max-w-3xl px-6 py-10"}>
+          {isElectron && <h1 className="sr-only">TalKing - Traducteur vocal</h1>}
           {/* Floating language-pair banner during F9 voice playback */}
           {isElectron && readLangPair && (
             <div className="native-lang-banner">

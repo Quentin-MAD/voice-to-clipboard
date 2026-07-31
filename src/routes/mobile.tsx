@@ -374,6 +374,7 @@ function MobileApp() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden select-none" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
       {/* Header */}
+      <h1 className="sr-only">TalKing Mobile - Dialogue vocal traduit</h1>
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-4 pb-2">
         <div className="flex min-w-0 items-center gap-2 notranslate">
           <img src="/logo-app-mobile.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-9 w-9 shrink-0 select-none rounded-xl sm:h-10 sm:w-10" />
