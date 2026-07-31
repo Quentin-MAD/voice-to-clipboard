@@ -22,6 +22,7 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal.notice'
 import { Route as ApiUserStatusRouteImport } from './routes/api/user-status'
 import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-audio'
+import { Route as ApiSubscriptionRouteImport } from './routes/api/subscription'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
 import { Route as ApiAdminRouteImport } from './routes/api/admin'
@@ -93,6 +94,11 @@ const ApiTranslateAudioRoute = ApiTranslateAudioRouteImport.update({
   path: '/api/translate-audio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSubscriptionRoute = ApiSubscriptionRouteImport.update({
+  id: '/api/subscription',
+  path: '/api/subscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReadMessageRoute = ApiReadMessageRouteImport.update({
   id: '/api/read-message',
   path: '/api/read-message',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
+  '/api/subscription': typeof ApiSubscriptionRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
+  '/api/subscription': typeof ApiSubscriptionRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/api/admin': typeof ApiAdminRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
   '/api/read-message': typeof ApiReadMessageRoute
+  '/api/subscription': typeof ApiSubscriptionRoute
   '/api/translate-audio': typeof ApiTranslateAudioRoute
   '/api/user-status': typeof ApiUserStatusRoute
   '/legal/notice': typeof LegalNoticeRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/mobile-dialog'
     | '/api/read-message'
+    | '/api/subscription'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/mobile-dialog'
     | '/api/read-message'
+    | '/api/subscription'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/api/admin'
     | '/api/mobile-dialog'
     | '/api/read-message'
+    | '/api/subscription'
     | '/api/translate-audio'
     | '/api/user-status'
     | '/legal/notice'
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   ApiAdminRoute: typeof ApiAdminRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
+  ApiSubscriptionRoute: typeof ApiSubscriptionRoute
   ApiTranslateAudioRoute: typeof ApiTranslateAudioRoute
   ApiUserStatusRoute: typeof ApiUserStatusRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranslateAudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/subscription': {
+      id: '/api/subscription'
+      path: '/api/subscription'
+      fullPath: '/api/subscription'
+      preLoaderRoute: typeof ApiSubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/read-message': {
       id: '/api/read-message'
       path: '/api/read-message'
@@ -416,6 +436,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminRoute: ApiAdminRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
+  ApiSubscriptionRoute: ApiSubscriptionRoute,
   ApiTranslateAudioRoute: ApiTranslateAudioRoute,
   ApiUserStatusRoute: ApiUserStatusRoute,
   LegalNoticeRoute: LegalNoticeRoute,

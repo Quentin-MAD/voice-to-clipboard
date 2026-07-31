@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
+import { SubscriptionPanel } from "@/components/SubscriptionPanel";
 
 const SUPPORT_EMAIL = "rossetquentin26@gmail.com";
 
@@ -140,14 +141,15 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl"
       >
         <h2 className="text-lg font-bold">Mon profil</h2>
         <p className="mt-1 text-xs text-muted-foreground">
           Modifiez votre email ou votre mot de passe.
         </p>
-        <div className="mt-4">
+        <div className="mt-4 space-y-3">
           <CreditsCard />
+          <SubscriptionPanel />
         </div>
         <form onSubmit={save} className="mt-4 space-y-3">
           <div>
@@ -211,22 +213,22 @@ function SupportModal({ email, onClose }: { email: string; onClose: () => void }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center"
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-2xl text-center text-black"
       >
-        <h2 className="text-lg font-bold">Contacter le support</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h2 className="text-lg font-bold text-black">Contacter le support</h2>
+        <p className="mt-2 text-sm text-black">
           Cliquez sur l'adresse ci-dessous pour la copier :
         </p>
         <button
           type="button"
           onClick={copyEmail}
-          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono hover:bg-accent"
+          className="mt-4 w-full rounded-lg border border-border bg-background p-3 text-sm font-mono text-black hover:bg-accent"
         >
           {email}
         </button>
         <button
           onClick={onClose}
-          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
+          className="mt-5 rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
         >
           Fermer
         </button>
