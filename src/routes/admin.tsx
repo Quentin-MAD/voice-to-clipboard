@@ -165,7 +165,7 @@ function AdminPage() {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
       return;
     }
-    const res = await authedFetch("/api/admin");
+    const res = await authedFetch(`/api/admin?env=${envMode}`);
     if (res.status === 401) {
       navigate({ to: "/auth", search: { redirect: "/admin" }, replace: true });
       setLoading(false);
