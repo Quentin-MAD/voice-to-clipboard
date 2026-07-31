@@ -256,9 +256,10 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
 
       {!unlimited && !showMobile && (
         <p className={`mt-3 text-[11px] leading-relaxed ${muted}`}>
-          Les <strong>crédits gratuits journaliers</strong> se réinitialisent chaque jour (non cumulables) et sont toujours consommés <strong>avant</strong> les crédits achetés, qui eux restent sans expiration.
+          Les <strong>crédits gratuits journaliers</strong> se réinitialisent chaque jour (non cumulables) et sont toujours consommés <strong>avant</strong> les crédits achetés. Tous les crédits achetés (texte, vocaux, mobiles) sont permanents et n'expirent jamais.
         </p>
       )}
+
     </div>
   );
 }
