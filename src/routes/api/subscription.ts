@@ -47,6 +47,11 @@ export const Route = createFileRoute("/api/subscription")({
         const user = await authenticate(request);
         if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
+        const environment = new URL(request.url).searchParams.get("environment");
+        if (environment !== "sandbox" && environment !== "live") {
+          return Response.json({ error: "Environnement invalide" }, { status: 400 });
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin
           .from("subscriptions")
@@ -54,6 +59,9 @@ export const Route = createFileRoute("/api/subscription")({
             "status, current_period_start, current_period_end, cancel_at_period_end, paddle_subscription_id, environment",
           )
           .eq("user_id", user.id)
+          .eq("environment", environment)
+          .order("updated_at", { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (error) {
@@ -75,11 +83,19 @@ export const Route = createFileRoute("/api/subscription")({
         const user = await authenticate(request);
         if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
+        const environment = new URL(request.url).searchParams.get("environment");
+        if (environment !== "sandbox" && environment !== "live") {
+          return Response.json({ error: "Environnement invalide" }, { status: 400 });
+        }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data: sub, error } = await supabaseAdmin
           .from("subscriptions")
           .select("paddle_subscription_id, environment, status, current_period_end")
           .eq("user_id", user.id)
+          .eq("environment", environment)
+          .order("updated_at", { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (error || !sub?.paddle_subscription_id) {

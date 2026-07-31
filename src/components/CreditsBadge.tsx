@@ -128,7 +128,7 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
 }
 
 /** Framed detail card — used on mobile and inside the profile modal. */
-export function CreditsCard({ variant = "light", manageHref = "/pricing", showMobile = false }: { variant?: "light" | "dark"; manageHref?: string; showMobile?: boolean }) {
+export function CreditsCard({ variant = "light", manageHref = "/pricing", manageLabel = "Gérer / recharger", showMobile = false }: { variant?: "light" | "dark"; manageHref?: string; manageLabel?: string; showMobile?: boolean }) {
   const status = useUserStatus();
   if (!status) return null;
 
@@ -152,7 +152,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", showMo
           to={manageHref}
           className={`text-[11px] underline-offset-2 hover:underline ${muted}`}
         >
-          Gérer / recharger
+          {manageLabel}
         </Link>
       </div>
 

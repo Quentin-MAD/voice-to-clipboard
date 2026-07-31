@@ -148,7 +148,7 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
           Modifiez votre email ou votre mot de passe.
         </p>
         <div className="mt-4 space-y-3">
-          <CreditsCard />
+          <CreditsCard manageLabel="Recharger des crédits" />
           <SubscriptionPanel />
         </div>
         <form onSubmit={save} className="mt-4 space-y-3">
@@ -178,7 +178,7 @@ function ProfileModal({ email, onClose }: { email: string; onClose: () => void }
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-accent"
+              className="rounded-md border border-border bg-background px-3 py-2 text-sm text-black hover:bg-accent"
             >
               Annuler
             </button>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CalendarClock, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getPaddleEnvironment } from "@/lib/paddle";
 import { toast } from "sonner";
 
 type SubInfo = {
@@ -26,6 +27,7 @@ function formatRemaining(endIso: string): string {
 /** Subscription status + remaining time + cancel at period end. */
 export function SubscriptionPanel() {
   const [info, setInfo] = useState<SubInfo | null>(null);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [, tick] = useState(0);
@@ -33,15 +35,21 @@ export function SubscriptionPanel() {
   const load = useCallback(async () => {
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch("/api/subscription", {
+      const environment = getPaddleEnvironment();
+      const res = await fetch(`/api/subscription?environment=${environment}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) return;
+      if (!res.ok) throw new Error("Chargement impossible");
       setInfo((await res.json()) as SubInfo);
     } catch {
-      /* ignore */
+      setInfo(null);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -54,6 +62,10 @@ export function SubscriptionPanel() {
     return () => clearInterval(iv);
   }, []);
 
+  if (loading) {
+    return <div className="w-full rounded-lg border border-border bg-card p-4 text-sm text-black">Chargement de l'abonnement...</div>;
+  }
+
   if (!info || !info.has_subscription) return null;
 
   const active = ["active", "trialing", "past_due"].includes(info.status);
@@ -64,7 +76,8 @@ export function SubscriptionPanel() {
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
-      const res = await fetch("/api/subscription", {
+      if (!token) throw new Error("Session expirée. Reconnectez-vous.");
+      const res = await fetch(`/api/subscription?environment=${getPaddleEnvironment()}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,7 +94,7 @@ export function SubscriptionPanel() {
   };
 
   return (
-    <div className="w-full rounded-2xl border border-border bg-card p-4 text-black">
+    <div className="w-full rounded-lg border border-border bg-card p-4 text-black">
       <div className="flex items-center gap-2">
         <CalendarClock className="h-4 w-4 text-primary" />
         <span className="text-sm font-semibold">Abonnement</span>
@@ -91,7 +104,7 @@ export function SubscriptionPanel() {
       </div>
 
       {end && (
-        <div className="mt-3 rounded-xl bg-muted/40 px-3 py-2.5">
+        <div className="mt-3 rounded-lg bg-muted/40 px-3 py-2.5">
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
             {info.cancel_at_period_end ? "Accès conservé encore" : "Temps restant avant renouvellement"}
           </div>
@@ -113,7 +126,7 @@ export function SubscriptionPanel() {
           de la période déjà payée, puis votre compte repassera automatiquement en offre gratuite.
         </p>
       ) : confirm ? (
-        <div className="mt-3 rounded-xl border border-destructive/40 bg-destructive/5 p-3">
+        <div className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3">
           <p className="flex items-start gap-2 text-[11px] leading-relaxed text-black">
             <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
             <span>
@@ -134,7 +147,7 @@ export function SubscriptionPanel() {
               type="button"
               disabled={busy}
               onClick={cancel}
-              className="rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60"
+              className="rounded-md border border-destructive bg-background px-3 py-1.5 text-xs font-medium text-black hover:bg-accent disabled:opacity-60"
             >
               {busy ? "…" : "Confirmer l'annulation"}
             </button>
@@ -145,7 +158,7 @@ export function SubscriptionPanel() {
           <button
             type="button"
             onClick={() => setConfirm(true)}
-            className="mt-3 w-full rounded-md border border-destructive/50 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/10"
+            className="mt-3 w-full rounded-md border border-destructive/50 bg-background px-3 py-2 text-xs font-medium text-black hover:bg-accent"
           >
             Annuler mon abonnement
           </button>
