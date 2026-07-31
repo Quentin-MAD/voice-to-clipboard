@@ -80,45 +80,60 @@ function MobileAccountPage() {
 
         <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-white/60">Recharger</h2>
 
-        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="h-4 w-4 text-emerald-400" />
-            <span className="font-semibold">Pack crédits Mobile</span>
+        {!unlimited && (
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4 text-emerald-400" />
+              <span className="font-semibold">Pack crédits Mobile</span>
+            </div>
+            <div className="mt-2 text-2xl font-bold">2,99 €</div>
+            <ul className="mt-1 space-y-0.5 text-sm text-white/70">
+              <li>✓ 75 traductions app mobile</li>
+              <li>✓ Utilisées après vos 35 gratuites/jour</li>
+              <li>✓ Cumulables, sans expiration</li>
+            </ul>
+            <button
+              onClick={() => buy("mobile_credits_pack_75_onetime")}
+              disabled={loading || authLoading || statusLoading}
+              className="mt-3 w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
+            >
+              {btn("Acheter 75 crédits Mobile")}
+            </button>
           </div>
-          <div className="mt-2 text-2xl font-bold">2,99 €</div>
-          <ul className="mt-1 space-y-0.5 text-sm text-white/70">
-            <li>✓ 75 traductions app mobile</li>
-            <li>✓ Utilisées après vos 50 gratuites/jour</li>
-            <li>✓ Cumulables, sans expiration</li>
-          </ul>
-          <button
-            onClick={() => buy("mobile_credits_pack_75_onetime")}
-            disabled={loading || authLoading}
-            className="mt-3 w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
-          >
-            {btn("Acheter 75 crédits Mobile")}
-          </button>
-        </div>
+        )}
 
-        <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-amber-400" />
-            <span className="font-semibold">Abonnement illimité</span>
+        {!isTester && (
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="flex items-center gap-2">
+              <Crown className="h-4 w-4 text-amber-400" />
+              <span className="font-semibold">Abonnement illimité</span>
+            </div>
+            <div className="mt-2 text-2xl font-bold">24,99 € <span className="text-sm font-normal text-white/60">/ an</span></div>
+            <ul className="mt-1 space-y-0.5 text-sm text-white/70">
+              <li>✓ 500 traductions mobile/mois, texte illimité (F8)</li>
+              <li>✓ Lecture IA F9 : 50/jour (350/mois)</li>
+              <li>✓ Prioritaire sur les nouveautés</li>
+            </ul>
+            <button
+              onClick={() => buy(isSubscribed ? "sub_extend_year_onetime" : "vox_subscription_yearly")}
+              disabled={loading || authLoading || statusLoading}
+              className="mt-3 w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
+            >
+              {btn(isSubscribed ? "Acheter une année supplémentaire" : "S'abonner")}
+            </button>
+            {isSubscribed && (
+              <p className="mt-2 text-[11px] text-white/50">
+                L'année achetée s'ajoute à la fin de votre période en cours.
+              </p>
+            )}
           </div>
-          <div className="mt-2 text-2xl font-bold">29,99 € <span className="text-sm font-normal text-white/60">/ an</span></div>
-          <ul className="mt-1 space-y-0.5 text-sm text-white/70">
-            <li>✓ Traductions illimitées (mobile, web et app Windows)</li>
-            <li>✓ Lecture IA F9 : 10/jour</li>
-            <li>✓ Prioritaire sur les nouveautés</li>
-          </ul>
-          <button
-            onClick={() => buy("vox_subscription_yearly")}
-            disabled={loading || authLoading}
-            className="mt-3 w-full rounded-xl bg-amber-500 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60"
-          >
-            {btn("S'abonner")}
-          </button>
-        </div>
+        )}
+
+        {isTester && (
+          <p className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+            Votre compte Testeur inclut déjà tous les avantages : aucun achat n'est nécessaire.
+          </p>
+        )}
 
         <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-white/60">Compte</h2>
         <div className="mt-3 space-y-2">
@@ -132,7 +147,7 @@ function MobileAccountPage() {
         </div>
 
         <p className="mt-6 text-center text-[11px] leading-relaxed text-white/40">
-          Paiements sécurisés Paddle. TVA incluse. Consultez les <a href="/legal/terms" className="underline">CGV</a>, la <a href="/legal/privacy" className="underline">politique de confidentialité</a> et notre <a href="/legal/refund" className="underline">politique de remboursement</a>.
+          Paiements sécurisés Paddle. TVA incluse. Consultez les <a href="/legal/terms" className="underline">CGV</a>, la <a href="/legal/privacy" className="underline">politique de confidentialité</a> et notre <a href="/legal/refunds" className="underline">politique de remboursement</a>.
         </p>
       </div>
     </div>
