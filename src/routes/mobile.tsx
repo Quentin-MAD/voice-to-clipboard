@@ -232,6 +232,11 @@ function MobileApp() {
 
 
   useEffect(() => {
+    // Dans l'aperçu admin (?skin=draft), on simule l'app installée pour que
+    // le rendu soit identique à l'application réelle.
+    const skinPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    if (skinPreview) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPromptRef.current = e;
