@@ -230,10 +230,11 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-              <ShoppingBag className="h-3 w-3" /> Crédits texte (sans expiration)
+              <ShoppingBag className="h-3 w-3" /> Crédit Texte
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.purchased_balance}</div>
           </div>
+
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
               <Gift className="h-3 w-3" /> Vocal gratuit aujourd'hui
