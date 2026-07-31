@@ -87,9 +87,9 @@ export function CreditsBadge({ variant = "light" }: { variant?: "light" | "dark"
   const base = isDark
     ? "border-white/10 bg-white/5 text-white"
     : "border-border bg-card text-foreground";
-  const muted = isDark ? "text-white/60" : "text-muted-foreground";
 
   if (status.subscribed || status.is_tester) {
+
     const label = status.is_tester ? "Testeur" : "Abonné";
     return (
       <Link
