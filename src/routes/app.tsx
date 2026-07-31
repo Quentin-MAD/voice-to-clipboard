@@ -88,8 +88,8 @@ function BrowserBlocked() {
           <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/a2e8cee2-66e8-4eae-95ce-8fca06864334/TalKing-Setup-1.0.1.exe"
-          download="TalKing-Setup-1.0.1.exe"
+          href="/__l5e/assets-v1/24c0925b-de76-4405-ac9f-d21412bf0030/TalKing-Windows-1.0.1.zip"
+          download="TalKing-Windows-1.0.1.zip"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
@@ -1487,29 +1487,21 @@ function Home() {
               <p className="mb-3 text-xs text-muted-foreground">
                 Application Windows autonome. Fonctionne dans la barre des tâches, enregistre votre raccourci
                 globalement pour que l'enregistrement marche en jeu plein écran, et copie la traduction
-                automatiquement dans le presse-papiers. L'installeur crée des raccourcis Bureau et Menu Démarrer
-                et peut lancer <span className="notranslate">TalKing</span> masqué avec Windows.
+                automatiquement dans le presse-papiers. Le téléchargement contient l'application complète,
+                sans setup : décompressez le ZIP puis lancez <span className="notranslate">TalKing</span>.
                 {isMobile && " Téléchargez maintenant et transférez sur votre PC plus tard."}
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/__l5e/assets-v1/a2e8cee2-66e8-4eae-95ce-8fca06864334/TalKing-Setup-1.0.1.exe"
-                  download="TalKing-Setup-1.0.1.exe"
+                  href="/__l5e/assets-v1/24c0925b-de76-4405-ac9f-d21412bf0030/TalKing-Windows-1.0.1.zip"
+                  download="TalKing-Windows-1.0.1.zip"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v1.0.1 (.exe, 99 Mo)
-                </a>
-                <a
-                  href="/__l5e/assets-v1/3a020989-73ec-4fb3-98f3-37cbfa7c1608/TalKing-win32-x64-1.0.0.zip"
-                  download="TalKing-win32-x64-1.0.0.zip"
-                  className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-                  title="ZIP portable - pas d'installation, décompresser et lancer"
-                >
-                  ZIP portable (148 Mo)
+                  ⬇ Télécharger TalKing v1.0.1 (.zip, 139 Mo)
                 </a>
               </div>
               <p className="mt-2 text-[11px] text-muted-foreground">
-                Windows SmartScreen peut avertir au premier lancement (app non signée). Cliquez sur <em>Informations complémentaires</em> → <em>Exécuter quand même</em>.
+                Aucun setup ne sera lancé. Fermez l'ancienne version avant de remplacer son dossier.
               </p>
             </div>
           )}
