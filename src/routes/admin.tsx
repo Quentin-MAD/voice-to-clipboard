@@ -511,7 +511,9 @@ function AdminPage() {
             * Estimation historique : certaines anciennes écritures de coût ont été perdues. Le calcul utilise le nombre d'opérations conservé et le coût moyen réel par type. Les nouvelles opérations sont journalisées précisément.
           </p>
         </div>
+        </>)}
       </div>
+
     </div>
   );
 }
