@@ -72,11 +72,16 @@ function AppGate() {
   const [checked, setChecked] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   useEffect(() => {
-    setIsElectron(typeof window !== "undefined" && !!window.voxElectron?.isElectron);
+    const skinPreview =
+      typeof window !== "undefined" && new URLSearchParams(window.location.search).get("skin") === "draft";
+    setIsElectron(
+      (typeof window !== "undefined" && !!window.voxElectron?.isElectron) || skinPreview,
+    );
     setChecked(true);
   }, []);
   if (!checked) return null;
   if (!isElectron) return <BrowserBlocked />;
+
   return <Home />;
 }
 
