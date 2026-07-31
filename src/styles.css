@@ -155,6 +155,12 @@
     font-weight: 400;
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+}
+
 /* Hide default vertical scrollbar on the website while keeping scroll functionality */
 html, body {
   overflow-x: hidden;
@@ -165,6 +171,7 @@ html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
 
 
 
