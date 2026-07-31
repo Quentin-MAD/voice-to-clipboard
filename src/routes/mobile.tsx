@@ -112,8 +112,11 @@ function MobilePage() {
   const [isMobile, setIsMobile] = useState(true);
   useEffect(() => {
     setMounted(true);
-    setIsMobile(isMobileDevice());
+    // Aperçu admin (?skin=draft) : on rend toujours l'app mobile, même sur PC.
+    const isPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
+    setIsMobile(isPreview || isMobileDevice());
   }, []);
+
 
   if (!mounted) return null;
   if (!isMobile) return <DesktopBlocker />;
