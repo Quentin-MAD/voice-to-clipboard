@@ -88,8 +88,8 @@ function BrowserBlocked() {
           <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/b2d75705-93b5-4ce6-9a7b-743b0e3a91b7/TalKing-Setup-0.12.3.exe"
-          download="TalKing-Setup-0.12.3.exe"
+          href="/TalKing-Setup-1.0.0.exe"
+          download="TalKing-Setup-1.0.0.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
