@@ -32,11 +32,19 @@ export const Route = createFileRoute("/api/public/cleanup-unconfirmed")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env.CLEANUP_CRON_SECRET;
-        const provided = request.headers.get("x-cleanup-secret");
-        if (!secret || provided !== secret) {
-          return new Response("Unauthorized", { status: 401 });
+        const provided = request.headers.get("x-cleanup-secret") ?? "";
+        const envSecret = process.env.CLEANUP_CRON_SECRET;
+        let allowed = !!envSecret && provided === envSecret;
+        if (!allowed && provided) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data } = await supabaseAdmin
+            .from("internal_config")
+            .select("value")
+            .eq("key", "cleanup_cron_secret")
+            .maybeSingle();
+          allowed = !!data?.value && data.value === provided;
         }
+        if (!allowed) return new Response("Unauthorized", { status: 401 });
         try {
           const deleted = await runCleanup();
           return Response.json({ ok: true, deleted: deleted.length });
