@@ -20,8 +20,13 @@ export const Route = createFileRoute("/mobile/account")({
 
 function MobileAccountPage() {
   const { user, loading: authLoading } = useAuth();
+  const userStatus = useUserStatus();
   const { openCheckout, loading } = usePaddleCheckout();
   const navigate = useNavigate();
+  const statusLoading = !!user && !userStatus;
+  const isTester = !!userStatus?.is_tester;
+  const isSubscribed = !!userStatus?.subscribed;
+  const unlimited = isTester || isSubscribed;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
