@@ -69,7 +69,8 @@ export function SubscriptionPanel() {
 
   if (!info || !info.has_subscription) return null;
 
-  const active = ["active", "trialing", "past_due"].includes(info.status);
+  const active = ["active", "trialing"].includes(info.status);
+  const pastDue = info.status === "past_due";
   const end = info.current_period_end;
 
   const cancel = async () => {
