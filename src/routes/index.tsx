@@ -209,7 +209,7 @@ function LandingPage() {
             Essayer gratuitement
           </Link>
           <a
-            href="/TalKing-Setup-1.0.0.exe"
+            href="/__l5e/assets-v1/4dbc4020-20c5-4671-8ad5-976ab04082ef/TalKing-Setup-1.0.0.exe"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-base font-medium hover:bg-accent"
           >
             <HardDrive className="h-5 w-5" />
@@ -327,7 +327,7 @@ function LandingPage() {
               F8/F9 en arrière-plan, même pendant vos parties. Presse-papiers ou auto-écriture.
             </p>
             <a
-              href="/TalKing-Setup-1.0.0.exe"
+              href="/__l5e/assets-v1/4dbc4020-20c5-4671-8ad5-976ab04082ef/TalKing-Setup-1.0.0.exe"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
             >
               <HardDrive className="h-5 w-5" />
