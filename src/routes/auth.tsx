@@ -135,6 +135,13 @@ function AuthPage() {
                   : "Créez votre compte pour commencer à traduire."}
               </p>
 
+              {pendingEmail && (
+                <p className="native-auth-sub">
+                  Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
+                  compte (supprimé automatiquement après 2 h sans validation).
+                </p>
+              )}
+
               <form onSubmit={onSubmit} className="native-auth-form">
                 <label className="native-auth-label">
                   <span>Adresse e-mail</span>
