@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { AppearanceEditor } from "@/components/AppearanceEditor";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -123,7 +125,7 @@ function AdminPage() {
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [tab, setTab] = useState<"dashboard" | "emails">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "appearance" | "emails">("dashboard");
 
 
 
@@ -266,6 +268,7 @@ function AdminPage() {
         <div className="flex gap-2 border-b">
           {([
             { k: "dashboard", label: "Tableau de bord" },
+            { k: "appearance", label: "Apparence des apps" },
             { k: "emails", label: "Aperçu mail" },
           ] as const).map((t) => (
             <button
@@ -283,7 +286,8 @@ function AdminPage() {
           ))}
         </div>
 
-        {tab === "emails" ? <EmailPreviewPanel /> : (<>
+        {tab === "emails" ? <EmailPreviewPanel /> : tab === "appearance" ? <AppearanceEditor /> : (<>
+
 
         {/* Stats cards */}
 

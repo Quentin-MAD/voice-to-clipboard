@@ -14,6 +14,9 @@ import {
 } from "@/lib/audio-cleanup";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
+import { useAppearance } from "@/hooks/use-appearance";
+import { appearanceStyle } from "@/lib/appearance";
+
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
   { code: "af", label: "Afrikaans", flag: "🇿🇦" },
@@ -145,6 +148,9 @@ type Turn = "me" | "them";
 function MobileApp() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { config: skin } = useAppearance("mobile");
+
+
 
   const [myLang, setMyLang] = useState<string>(() => {
     if (typeof window === "undefined") return "fr";
@@ -372,14 +378,17 @@ function MobileApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden select-none" style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+    <div
+      className="min-h-screen skin-root text-white flex flex-col overflow-hidden select-none"
+      style={{ ...appearanceStyle(skin), paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
       {/* Header */}
       <h1 className="sr-only">TalKing Mobile - Dialogue vocal traduit</h1>
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 pt-4 pb-2">
         <div className="flex min-w-0 items-center gap-2 notranslate">
-          <img src="/logo-app-mobile.svg" alt="TalKing" draggable={false} onDragStart={(e) => e.preventDefault()} className="h-9 w-9 shrink-0 select-none rounded-xl sm:h-10 sm:w-10" />
-          <span className="truncate text-lg font-bold text-white sm:text-xl">
-            TalKing<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
+          <img src={skin.logoUrl} alt={skin.texts.brand} draggable={false} onDragStart={(e) => e.preventDefault()} className="h-9 w-9 shrink-0 select-none sm:h-10 sm:w-10" style={{ borderRadius: "var(--skin-radius)" }} />
+          <span className="skin-heading truncate text-lg font-bold sm:text-xl">
+            {skin.texts.brand}<span className="ml-0.5 text-[0.65em] font-sans" style={{ verticalAlign: "0.35em" }}>®</span>
           </span>
         </div>
 
@@ -392,31 +401,44 @@ function MobileApp() {
         </button>
       </header>
 
+      {skin.texts.banner?.trim() && (
+        <div className="px-5 pb-2">
+          <div className="skin-banner">{skin.texts.banner}</div>
+        </div>
+      )}
+
       {/* Email + status */}
-      <div className="px-5 pt-1 pb-2 flex items-center justify-center gap-2 flex-wrap">
-        {user?.email && (
-          <span className="max-w-[220px] truncate text-xs text-white/70">{user.email}</span>
-        )}
-        <StatusPill variant="dark" />
-      </div>
+      {skin.show.email && (
+        <div className="px-5 pt-1 pb-2 flex items-center justify-center gap-2 flex-wrap">
+          {user?.email && (
+            <span className="max-w-[220px] truncate text-xs text-white/70">{user.email}</span>
+          )}
+          <StatusPill variant="dark" />
+        </div>
+      )}
 
       {/* Credits card */}
-      <div className="px-5 pb-2">
-        <CreditsCard variant="dark" manageHref="/mobile/account" showMobile />
-      </div>
+      {skin.show.credits && (
+        <div className="px-5 pb-2">
+          <CreditsCard variant="dark" manageHref="/mobile/account" showMobile />
+        </div>
+      )}
 
       {/* Usage */}
-      <div className="px-5 pb-2 text-center text-xs text-white/50">
-        {usage
-          ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
-          : "50 traductions vocales gratuites par jour"}
-      </div>
+      {skin.show.usage && (
+        <div className="px-5 pb-2 text-center text-xs text-white/50">
+          {usage
+            ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
+            : "50 traductions vocales gratuites par jour"}
+        </div>
+      )}
+
 
 
       {/* Language pair */}
       <div className="px-5 mt-3">
         <div className="text-[10px] uppercase tracking-wider text-white/40 mb-2 text-center">
-          Dialogue - chacun parle sa langue, chacun son tour
+          {skin.texts.dialogueHint}
         </div>
         <div className="flex items-stretch gap-2">
           <button
@@ -525,16 +547,17 @@ function MobileApp() {
           {recorder.state === "recording" && (
             <div className="mt-1 text-sm text-white/50 tabular-nums">{recorder.elapsed}s</div>
           )}
-          {recorder.state === "idle" && (
+          {recorder.state === "idle" && skin.texts.buttonHint?.trim() && (
             <div className="mt-1 text-xs text-white/40">
-              Après la lecture, le tour passe automatiquement à l'autre personne.
+              {skin.texts.buttonHint}
             </div>
           )}
         </div>
       </div>
 
       {/* Transcript + translation */}
-      {(transcript || translation) && (
+      {skin.show.transcript && (transcript || translation) && (
+
         <div className="px-5 pb-5 space-y-2">
           {transcript && (
             <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">

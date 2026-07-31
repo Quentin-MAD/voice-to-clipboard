@@ -47,6 +47,57 @@ export type Database = {
         }
         Relationships: []
       }
+      app_appearance: {
+        Row: {
+          app: string
+          config: Json
+          state: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          app: string
+          config?: Json
+          state: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          app?: string
+          config?: Json
+          state?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      app_appearance_history: {
+        Row: {
+          app: string
+          config: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string | null
+        }
+        Insert: {
+          app: string
+          config: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+        }
+        Update: {
+          app?: string
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string | null
+        }
+        Relationships: []
+      }
       credit_wallets: {
         Row: {
           mobile_balance: number

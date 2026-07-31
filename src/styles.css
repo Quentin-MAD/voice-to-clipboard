@@ -1139,3 +1139,45 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   gap: 3px;
 }
 .native-app .native-auth-pwd-req li.ok { color: #4ade80; }
+
+/* ---------------------------------------------------------------------------
+   Runtime app skin (editable from /admin > Apparence).
+   The skin tokens are set inline on the root element by useAppearance().
+--------------------------------------------------------------------------- */
+.skin-root {
+  background-color: var(--skin-bg);
+  color: var(--skin-text);
+  font-family: var(--skin-body-font);
+  font-size: calc(1rem * var(--skin-scale, 1));
+}
+.skin-root h1,
+.skin-root h2,
+.skin-root h3,
+.skin-root .skin-heading,
+.skin-root .native-brand-text {
+  font-family: var(--skin-heading-font);
+}
+.skin-root.native-app,
+.skin-root .native-app {
+  --nx-bg: var(--skin-surface);
+  --nx-bg-2: var(--skin-bg);
+  --nx-panel: var(--skin-surface);
+  --nx-text: var(--skin-text);
+  --nx-text-dim: var(--skin-muted);
+  --nx-text-mute: var(--skin-muted);
+  --nx-accent: var(--skin-primary);
+  --nx-accent-2: var(--skin-primary);
+}
+.skin-root.native-app .native-credits-pill,
+.skin-root.native-app .native-email-box,
+.skin-root.native-app .native-icon-btn {
+  border-radius: var(--skin-radius);
+}
+.skin-banner {
+  background: var(--skin-primary);
+  color: #fff;
+  border-radius: var(--skin-radius);
+  padding: 8px 14px;
+  font-size: 0.85em;
+  text-align: center;
+}
