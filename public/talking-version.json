@@ -1,5 +1,5 @@
 {
-  "version": "0.12.3",
-  "url": "https://talking-translator.com/__l5e/assets-v1/b2d75705-93b5-4ce6-9a7b-743b0e3a91b7/TalKing-Setup-0.12.3.exe",
-  "notes": "v0.12.3 - Suppression définitive de l'ancienne barre Windows et de son icône."
+  "version": "1.0.0",
+  "url": "https://talking-translator.com/__l5e/assets-v1/4dbc4020-20c5-4671-8ad5-976ab04082ef/TalKing-Setup-1.0.0.exe",
+  "notes": "v1.0.0 - Version stable : corrections des compteurs de crédits, nettoyage UI, paiements en ligne."
 }

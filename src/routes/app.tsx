@@ -25,7 +25,7 @@ import { acquireMicStream, describeMicError } from "@/lib/mic";
 export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
-      { title: "v0.12.3" },
+      { title: "v1.0.0" },
       {
         name: "description",
         content:
@@ -88,8 +88,8 @@ function BrowserBlocked() {
           <span className="notranslate">TalKing</span> ne fonctionne pas dans un navigateur. Téléchargez l'application Windows pour l'utiliser.
         </p>
         <a
-          href="/__l5e/assets-v1/b2d75705-93b5-4ce6-9a7b-743b0e3a91b7/TalKing-Setup-0.12.3.exe"
-          download="TalKing-Setup-0.12.3.exe"
+          href="/__l5e/assets-v1/4dbc4020-20c5-4671-8ad5-976ab04082ef/TalKing-Setup-1.0.0.exe"
+          download="TalKing-Setup-1.0.0.exe"
           className="mt-2 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground hover:bg-primary/90"
         >
           <HardDrive className="h-5 w-5" />
@@ -185,7 +185,7 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
-const APP_VERSION = "0.12.3";
+const APP_VERSION = "1.0.0";
 
 type PersistedSettings = {
   source: string;
@@ -1484,15 +1484,15 @@ function Home() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/__l5e/assets-v1/b2d75705-93b5-4ce6-9a7b-743b0e3a91b7/TalKing-Setup-0.12.3.exe"
-                  download="TalKing-Setup-0.12.3.exe"
+                  href="/__l5e/assets-v1/4dbc4020-20c5-4671-8ad5-976ab04082ef/TalKing-Setup-1.0.0.exe"
+                  download="TalKing-Setup-1.0.0.exe"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v0.12.3 (.exe, 99 Mo)
+                  ⬇ Télécharger l'installeur v1.0.0 (.exe, 99 Mo)
                 </a>
                 <a
-                  href="/__l5e/assets-v1/2cc33a27-9552-4f04-b8f2-79ba4b08e1cb/TalKing-win32-x64.zip"
-                  download="TalKing-win32-x64.zip"
+                  href="/__l5e/assets-v1/3a020989-73ec-4fb3-98f3-37cbfa7c1608/TalKing-win32-x64-1.0.0.zip"
+                  download="TalKing-win32-x64-1.0.0.zip"
                   className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
                   title="ZIP portable - pas d'installation, décompresser et lancer"
                 >
