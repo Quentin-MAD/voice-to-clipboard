@@ -216,7 +216,7 @@ function LandingPage() {
             Télécharger pour Windows
           </a>
         </div>
-        </div>
+      </section>
 
       {/* Features */}
       <section className="border-y border-border bg-muted/30">
