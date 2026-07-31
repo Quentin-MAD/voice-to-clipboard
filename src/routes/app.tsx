@@ -185,7 +185,7 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
-const APP_VERSION = "0.12.3";
+const APP_VERSION = "1.0.0";
 
 type PersistedSettings = {
   source: string;
