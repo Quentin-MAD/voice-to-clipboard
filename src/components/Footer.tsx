@@ -11,7 +11,7 @@ export function Footer() {
         alt="TalKing"
         draggable={false}
         onDragStart={(e) => e.preventDefault()}
-        className="mx-auto h-48 w-auto select-none md:absolute md:left-4 md:top-1/2 md:mx-0 md:h-64 md:-translate-y-1/2 lg:left-8"
+        className="mx-auto h-40 w-auto select-none md:absolute md:left-4 md:top-1/2 md:mx-0 md:h-56 md:-translate-y-1/2 lg:left-8"
       />
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex flex-col gap-8">
