@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Footer } from "@/components/Footer";
+import { useUserStatus } from "@/components/CreditsBadge";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -18,8 +19,12 @@ export const Route = createFileRoute("/pricing")({
 
 function PricingPage() {
   const { user, loading: authLoading } = useAuth();
+  const userStatus = useUserStatus();
   const { openCheckout, loading } = usePaddleCheckout();
   const navigate = useNavigate();
+  const statusLoading = !!user && !userStatus;
+  const cannotBuyCredits = !!userStatus && (userStatus.subscribed || userStatus.is_tester);
+  const cannotBuySubscription = !!userStatus?.is_tester;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -28,11 +33,19 @@ function PricingPage() {
     }
   }, []);
 
-  const buy = async (priceId: string) => {
-    if (authLoading) return;
+  const buy = async (priceId: string, purchaseType: "credits" | "subscription") => {
+    if (authLoading || statusLoading) return;
     if (!user) {
       toast.info("Connectez-vous pour finaliser l'achat en toute sécurité.");
       navigate({ to: "/auth", search: { redirect: `/pricing` } as any });
+      return;
+    }
+    if (userStatus?.is_tester) {
+      toast.info("Votre compte Testeur inclut déjà tous les avantages. Aucun achat n'est nécessaire.");
+      return;
+    }
+    if (purchaseType === "credits" && userStatus?.subscribed) {
+      toast.info("Votre abonnement inclut déjà les crédits illimités.");
       return;
     }
     if (!user.email) {
@@ -52,7 +65,7 @@ function PricingPage() {
   };
 
   const buttonLabel = (defaultLabel: string) => {
-    if (authLoading) return "Chargement...";
+    if (authLoading || statusLoading) return "Chargement...";
     if (!user) return "Se connecter pour acheter";
     if (loading) return "Chargement...";
     return defaultLabel;
@@ -92,11 +105,11 @@ function PricingPage() {
               <li>✓ Cumulables, sans expiration</li>
             </ul>
             <button
-              onClick={() => buy("credits_pack_50_onetime")}
-              disabled={loading || authLoading}
+              onClick={() => buy("credits_pack_50_onetime", "credits")}
+              disabled={loading || authLoading || statusLoading || cannotBuyCredits}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {buttonLabel("Acheter 75 crédits Texte")}
+              {cannotBuyCredits ? "Inclus dans votre compte" : buttonLabel("Acheter 75 crédits Texte")}
             </button>
           </div>
 
@@ -109,11 +122,11 @@ function PricingPage() {
               <li>✓ Cumulables, sans expiration</li>
             </ul>
             <button
-              onClick={() => buy("voice_pack_10_onetime")}
-              disabled={loading || authLoading}
+              onClick={() => buy("voice_pack_10_onetime", "credits")}
+              disabled={loading || authLoading || statusLoading || cannotBuyCredits}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {buttonLabel("Acheter 45 crédits vocaux")}
+              {cannotBuyCredits ? "Inclus dans votre compte" : buttonLabel("Acheter 45 crédits vocaux")}
             </button>
           </div>
 
@@ -126,11 +139,11 @@ function PricingPage() {
               <li>✓ Cumulables, sans expiration</li>
             </ul>
             <button
-              onClick={() => buy("mobile_credits_pack_75_onetime")}
-              disabled={loading || authLoading}
+              onClick={() => buy("mobile_credits_pack_75_onetime", "credits")}
+              disabled={loading || authLoading || statusLoading || cannotBuyCredits}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {buttonLabel("Acheter 75 crédits Mobile")}
+              {cannotBuyCredits ? "Inclus dans votre compte" : buttonLabel("Acheter 75 crédits Mobile")}
             </button>
           </div>
 
@@ -151,11 +164,13 @@ function PricingPage() {
               <li>✓ Support prioritaire</li>
             </ul>
             <button
-              onClick={() => buy("vox_subscription_yearly")}
-              disabled={loading || authLoading}
+              onClick={() => buy("vox_subscription_yearly", "subscription")}
+              disabled={loading || authLoading || statusLoading || cannotBuySubscription}
               className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
             >
-              {buttonLabel("S'abonner - 29,99 €/an")}
+              {cannotBuySubscription
+                ? "Inclus dans votre compte Testeur"
+                : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 29,99 €/an")}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
               *dans la limite de 150 traductions/jour (anti-spam).
