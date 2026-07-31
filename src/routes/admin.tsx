@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { AppearanceEditor } from "@/components/AppearanceEditor";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
