@@ -389,6 +389,13 @@ function MobileApp() {
     }
   };
 
+  if (loading) {
+    return <div className="min-h-screen bg-[#0a0a0a] text-white grid place-items-center"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  }
+  if (!user) {
+    return <MobileAuthPanel logoUrl={skin.logoUrl} brand={skin.texts.brand} />;
+  }
+
   return (
     <div
       className="min-h-screen skin-root text-white flex flex-col overflow-hidden select-none"
