@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
+import { SubscriptionPanel } from "@/components/SubscriptionPanel";
 
 const SUPPORT_EMAIL = "rossetquentin26@gmail.com";
 
