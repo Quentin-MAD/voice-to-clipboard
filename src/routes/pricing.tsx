@@ -11,7 +11,7 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Tarifs - TalKing" },
-      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 29,99€/an." },
+      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 24,99€/an." },
     ],
   }),
   component: PricingPage,
