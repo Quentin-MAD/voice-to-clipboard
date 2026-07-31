@@ -169,7 +169,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             {(status.mobile_balance ?? 0) > 0 && (
               <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
                 <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-                  <Smartphone className="h-3 w-3" /> Crédits mobiles achetés
+                  <Smartphone className="h-3 w-3" /> Crédits Mobiles
                 </div>
                 <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
               </div>
@@ -193,7 +193,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             </div>
             <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
               <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
-                <Smartphone className="h-3 w-3" /> Crédits mobiles achetés
+                <Smartphone className="h-3 w-3" /> Crédits Mobiles
               </div>
               <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
             </div>
