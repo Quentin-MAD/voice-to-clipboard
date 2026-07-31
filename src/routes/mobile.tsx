@@ -626,7 +626,26 @@ function MobileApp() {
         </div>
       )}
 
+      {inBrowser && (
+        <div className="mx-5 mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+          <div className="text-xs font-semibold text-amber-200">Une ancienne icône TalKing ouvre le site web ?</div>
+          <p className="mt-1 text-[11px] leading-relaxed text-white/70">
+            Désinstallez l'ancienne icône de votre écran d'accueil, puis réinstallez l'app depuis cette page.
+            {isIOS()
+              ? " iPhone : appui long sur l'icône > Supprimer, puis Safari > Partager > Sur l'écran d'accueil."
+              : " Android : appui long sur l'icône > Désinstaller, puis menu ⋮ > Installer l'application."}
+          </p>
+          <button
+            onClick={() => setShowInstallHelp(true)}
+            className="mt-2 rounded-lg border border-white/20 px-3 py-1.5 text-[11px] font-medium hover:bg-white/5"
+          >
+            Voir les étapes
+          </button>
+        </div>
+      )}
+
       {/* Install banner (Android/Chrome) */}
+
       {installVisible && (
         <div className="mx-5 mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
           <div className="flex items-center justify-between">
