@@ -42,6 +42,17 @@ export function AppearanceEditor() {
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const previewBoxRef = useRef<HTMLDivElement | null>(null);
+  const [boxWidth, setBoxWidth] = useState(0);
+
+  useEffect(() => {
+    const el = previewBoxRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setBoxWidth(el.clientWidth));
+    ro.observe(el);
+    setBoxWidth(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
 
   const config = drafts[app];
   const textFields = app === "windows" ? WINDOWS_TEXT_FIELDS : MOBILE_TEXT_FIELDS;
