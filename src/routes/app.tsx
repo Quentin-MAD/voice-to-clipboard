@@ -1908,7 +1908,7 @@ function Home() {
           </div>
         </div>
       )}
-      <Footer />
+      {!isElectron && <Footer />}
     </div>
   );
 }
