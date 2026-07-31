@@ -185,7 +185,7 @@ type UserStatus = {
 };
 
 const STORAGE_KEY = "voxtranslate:settings:v3";
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 
 type PersistedSettings = {
   source: string;
@@ -1489,7 +1489,7 @@ function Home() {
                   download="TalKing-Setup-1.0.1.exe"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
-                  ⬇ Télécharger l'installeur v1.0.0 (.exe, 99 Mo)
+                  ⬇ Télécharger l'installeur v1.0.1 (.exe, 99 Mo)
                 </a>
                 <a
                   href="/__l5e/assets-v1/3a020989-73ec-4fb3-98f3-37cbfa7c1608/TalKing-win32-x64-1.0.0.zip"
