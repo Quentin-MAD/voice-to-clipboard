@@ -517,24 +517,40 @@ function AdminPage() {
                         </div>
                       </td>
                       <td className="p-2">
-                        {u.is_tester ? (
-                          <span
-                            className="rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
-                            title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
-                          >
-                            Testeur
-                          </span>
-                        ) : (
-                          <span
-                            className={
-                              u.subscribed
-                                ? "rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                                : "rounded bg-muted px-2 py-0.5 text-muted-foreground"
-                            }
-                          >
-                            {u.subscribed ? "Abonné" : "Gratuit"}
-                          </span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {u.is_tester && (
+                            <span
+                              className="w-fit rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
+                              title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
+                            >
+                              Testeur
+                            </span>
+                          )}
+                          {u.access_origin === "paid" ? (
+                            <span
+                              className="w-fit rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
+                              title="Abonnement payé via Paddle (environnement live)"
+                            >
+                              Abonné payant
+                            </span>
+                          ) : u.access_origin === "granted" ? (
+                            <span
+                              className="w-fit rounded bg-amber-500/20 px-2 py-0.5 text-amber-700 dark:text-amber-400"
+                              title="Accès actif accordé par l'admin (ou paiement en environnement test) - aucun revenu réel"
+                            >
+                              Accès offert
+                            </span>
+                          ) : (
+                            !u.is_tester && (
+                              <span className="w-fit rounded bg-muted px-2 py-0.5 text-muted-foreground">Gratuit</span>
+                            )
+                          )}
+                          {u.sub_environment && u.sub_environment !== "live" && u.subscribed && (
+                            <span className="text-[10px] uppercase text-muted-foreground">
+                              env : {u.sub_environment}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
                         {u.ops_today ?? 0}
