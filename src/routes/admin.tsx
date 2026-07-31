@@ -266,6 +266,7 @@ function AdminPage() {
         <div className="flex gap-2 border-b">
           {([
             { k: "dashboard", label: "Tableau de bord" },
+            { k: "appearance", label: "Apparence des apps" },
             { k: "emails", label: "Aperçu mail" },
           ] as const).map((t) => (
             <button
@@ -283,7 +284,8 @@ function AdminPage() {
           ))}
         </div>
 
-        {tab === "emails" ? <EmailPreviewPanel /> : (<>
+        {tab === "emails" ? <EmailPreviewPanel /> : tab === "appearance" ? <AppearanceEditor /> : (<>
+
 
         {/* Stats cards */}
 
