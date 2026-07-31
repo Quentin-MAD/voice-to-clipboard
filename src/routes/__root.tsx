@@ -138,6 +138,7 @@ function RootComponent() {
   useEffect(() => {
 
 
+
     let sessionId = "";
     try {
       sessionId = sessionStorage.getItem("tk_sid") ?? "";
