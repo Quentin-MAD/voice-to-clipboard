@@ -52,7 +52,7 @@ export function AppearanceEditor() {
     ro.observe(el);
     setBoxWidth(el.clientWidth);
     return () => ro.disconnect();
-  }, []);
+  }, [loading]);
 
   const config = drafts[app];
   const textFields = app === "windows" ? WINDOWS_TEXT_FIELDS : MOBILE_TEXT_FIELDS;
