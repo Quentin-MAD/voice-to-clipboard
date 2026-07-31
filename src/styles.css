@@ -161,6 +161,20 @@
   }
 }
 
+/* Hide default vertical scrollbar on the website while keeping scroll functionality */
+html, body {
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+
+
+
 
 /* Google Translate widget - clean styling */
 .goog-te-banner-frame,
