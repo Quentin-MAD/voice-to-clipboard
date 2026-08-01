@@ -259,9 +259,20 @@ function registerHotkeys() {
 
 
   console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
+  if (!useLowLevel) {
+    console.error('[hotkeys] LOW-LEVEL HOOK UNAVAILABLE - hotkeys will NOT work inside games.', lowLevelHotkeys.getLoadError() || '');
+    if (!lowLevelWarned) {
+      lowLevelWarned = true;
+      notify({
+        title: 'TalKing - raccourcis limités',
+        body: "Le hook clavier bas niveau n'a pas pu démarrer : les raccourcis risquent de ne pas fonctionner en jeu. Réinstallez la dernière version de TalKing.",
+        urgent: true,
+      });
+    }
+  }
 
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk, autoTypeAccel, autoTypeOk: autoTypeHotkeyOk, autoTypeEnabled });
+    mainWindow.webContents.send('hotkey-status', { accel: toggleAccel, ok: hotkeyOk, readAccel, readOk: readHotkeyOk, autoTypeAccel, autoTypeOk: autoTypeHotkeyOk, autoTypeEnabled, backend: lowLevelHotkeys.getBackend() });
   }
   rebuildTrayMenu();
 }
