@@ -137,9 +137,11 @@ function ensureStarted() {
     uIOhook.on('keydown', (e) => {
       // Games send repeated keydown while a key is held; each callback is
       // stateful (toggle) so we only fire on the first physical press.
-      const wasHeld = heldKeys.has(e.keycode);
-      heldKeys.add(e.keycode);
-      if (wasHeld) return;
+      const now = Date.now();
+      const since = heldKeys.get(e.keycode);
+      const isRepeat = since !== undefined && now - since < HELD_STALE_MS;
+      heldKeys.set(e.keycode, now);
+      if (isRepeat) return;
       // Iterate a snapshot: a callback may re-register hotkeys synchronously.
       for (const r of registered.slice()) {
         if (matches(r.spec, e)) {
