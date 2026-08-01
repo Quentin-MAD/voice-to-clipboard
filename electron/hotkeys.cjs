@@ -11,15 +11,47 @@ let uIOhook = null;
 let UiohookKey = null;
 let started = false;
 let available = false;
+let loadError = null;
 
-try {
-  const mod = require('uiohook-napi');
-  uIOhook = mod.uIOhook;
-  UiohookKey = mod.UiohookKey;
-  available = true;
-} catch (e) {
-  console.error('[hotkeys] uiohook-napi failed to load, falling back to globalShortcut:', e && e.message);
+// Load uiohook-napi. In a packaged app the native .node binary lives outside
+// app.asar (asarUnpack), and depending on how the app was built the plain
+// require() can fail. Try the unpacked path explicitly before giving up,
+// because the globalShortcut fallback does NOT work inside games.
+function loadUiohook() {
+  const candidates = ['uiohook-napi'];
+  try {
+    const dir = __dirname;
+    const asarIdx = dir.indexOf('app.asar');
+    if (asarIdx !== -1) {
+      const base = dir.slice(0, asarIdx) + 'app.asar.unpacked';
+      candidates.push(require('path').join(base, 'node_modules', 'uiohook-napi'));
+    }
+    if (process.resourcesPath) {
+      const p = require('path');
+      candidates.push(p.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'uiohook-napi'));
+      candidates.push(p.join(process.resourcesPath, 'app', 'node_modules', 'uiohook-napi'));
+    }
+  } catch {}
+
+  for (const c of candidates) {
+    try {
+      const mod = require(c);
+      if (mod && mod.uIOhook) {
+        uIOhook = mod.uIOhook;
+        UiohookKey = mod.UiohookKey;
+        available = true;
+        console.log('[hotkeys] uiohook-napi loaded from', c);
+        return;
+      }
+    } catch (e) {
+      loadError = e && e.message;
+    }
+  }
+  console.error('[hotkeys] uiohook-napi failed to load, falling back to globalShortcut:', loadError);
 }
+
+loadUiohook();
+
 
 // Map an Electron accelerator token to a uiohook keycode.
 function tokenToKeycode(token) {
