@@ -824,6 +824,10 @@ function Home() {
       }
 
       const ctx = new AudioContext();
+      // The window is usually hidden behind the game and has never been
+      // clicked, so Chromium starts the context suspended: without this resume
+      // the ScriptProcessor never fires and we capture pure silence.
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
