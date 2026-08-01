@@ -63,6 +63,16 @@ function NoticePage() {
           </section>
 
           <section>
+            <h2 className="text-lg font-semibold">Crédits et réalisation</h2>
+            <p>
+              <strong>Logo et charte graphique</strong> : réalisés par Mme Sarah Sagnole, Infographiste.
+            </p>
+            <p className="mt-1">
+              <strong>Site web et applications</strong> (mobile et Windows) : développés par Quentin Rosset, Développeur full stack.
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-lg font-semibold">Données personnelles</h2>
             <p>
               Le traitement des données personnelles est décrit dans notre{" "}
