@@ -444,7 +444,12 @@ function Home() {
 
     if (duration < 300 || chunks.length === 0) {
       setStatus("error");
-      setErrorMsg("Enregistrement trop court");
+      const msg =
+        chunks.length === 0 && duration >= 300
+          ? "Aucun son capté par le micro. Ouvrez TalKing une fois puis réessayez."
+          : "Enregistrement trop court";
+      setErrorMsg(msg);
+      if (chunks.length === 0 && duration >= 300) toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 1500);
       return;
     }
