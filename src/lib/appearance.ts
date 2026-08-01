@@ -102,6 +102,8 @@ export const DEFAULT_APPEARANCE: Record<AppKey, AppearanceConfig> = {
       setText: "#FFFFFF",
       setMuted: "#B9B9D0",
       setAccent: "#3F44D2",
+      emailBoxBg: "#0F0F31",
+      emailBoxText: "#FFFFFF",
     },
     typography: { headingFont: "Poppins, sans-serif", bodyFont: "Roboto, sans-serif", scale: 1, radius: 10 },
     texts: {
