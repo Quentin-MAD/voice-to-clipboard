@@ -432,8 +432,10 @@ function Home() {
 
 
   const stopRecording = useCallback(async () => {
-    if (!recordingRef.current) return;
+    if (!recordingRef.current || stoppingRef.current) return;
+    stoppingRef.current = true;
     recordingRef.current = false;
+    pendingStopRef.current = false;
     if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
       void window.voxElectron.setRecordingState(false);
     }
