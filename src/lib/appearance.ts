@@ -18,6 +18,9 @@ export type AppearanceColors = {
   setText?: string;
   setMuted?: string;
   setAccent?: string;
+  /** Windows email/status box (optional overrides). */
+  emailBoxBg?: string;
+  emailBoxText?: string;
 };
 
 export const WINDOWS_SETTINGS_COLOR_FIELDS = [
@@ -27,6 +30,11 @@ export const WINDOWS_SETTINGS_COLOR_FIELDS = [
   { key: "setText", label: "Texte" },
   { key: "setMuted", label: "Texte secondaire" },
   { key: "setAccent", label: "Accent (interrupteurs)" },
+] as const;
+
+export const WINDOWS_EMAIL_BOX_COLOR_FIELDS = [
+  { key: "emailBoxBg", label: "Fond du cadre email" },
+  { key: "emailBoxText", label: "Couleur du texte email" },
 ] as const;
 
 export type AppearanceTypography = {
@@ -94,6 +102,8 @@ export const DEFAULT_APPEARANCE: Record<AppKey, AppearanceConfig> = {
       setText: "#FFFFFF",
       setMuted: "#B9B9D0",
       setAccent: "#3F44D2",
+      emailBoxBg: "#0F0F31",
+      emailBoxText: "#FFFFFF",
     },
     typography: { headingFont: "Poppins, sans-serif", bodyFont: "Roboto, sans-serif", scale: 1, radius: 10 },
     texts: {
@@ -154,6 +164,8 @@ export function appearanceStyle(cfg: AppearanceConfig): React.CSSProperties {
     ["--skin-set-text" as string]: colors.setText ?? colors.text,
     ["--skin-set-muted" as string]: colors.setMuted ?? colors.muted,
     ["--skin-set-accent" as string]: colors.setAccent ?? colors.primary,
+    ["--skin-email-box-bg" as string]: colors.emailBoxBg ?? colors.surface,
+    ["--skin-email-box-text" as string]: colors.emailBoxText ?? colors.text,
     ["--skin-radius" as string]: `${typography.radius}px`,
     ["--skin-heading-font" as string]: typography.headingFont,
     ["--skin-body-font" as string]: typography.bodyFont,

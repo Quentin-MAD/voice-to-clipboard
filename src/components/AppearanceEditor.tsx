@@ -6,6 +6,7 @@ import {
   FONT_OPTIONS,
   MOBILE_TEXT_FIELDS,
   MOBILE_TOGGLES,
+  WINDOWS_EMAIL_BOX_COLOR_FIELDS,
   WINDOWS_SETTINGS_COLOR_FIELDS,
   WINDOWS_TEXT_FIELDS,
   WINDOWS_TOGGLES,
@@ -270,6 +271,35 @@ export function AppearanceEditor() {
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 Ouvrez le bouton Paramètres dans l'aperçu à droite pour voir le rendu en direct.
+              </p>
+            </section>
+          )}
+
+          {app === "windows" && (
+            <section className="rounded-xl border border-border p-4">
+              <h3 className="mb-3 text-sm font-semibold">Couleurs du cadre email</h3>
+              <div className="space-y-2">
+                {WINDOWS_EMAIL_BOX_COLOR_FIELDS.map((f) => (
+                  <label key={f.key} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="text-muted-foreground">{f.label}</span>
+                    <span className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={config.colors[f.key] ?? "#000000"}
+                        onChange={(e) => update((c) => ({ ...c, colors: { ...c.colors, [f.key]: e.target.value } }))}
+                        className="h-8 w-10 cursor-pointer rounded border border-border bg-transparent"
+                      />
+                      <input
+                        value={config.colors[f.key] ?? ""}
+                        onChange={(e) => update((c) => ({ ...c, colors: { ...c.colors, [f.key]: e.target.value } }))}
+                        className="w-24 rounded border border-border bg-background px-2 py-1 text-xs"
+                      />
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Le cadre email est visible en haut à droite de l'app Windows, à côté du bouton Paramètres.
               </p>
             </section>
           )}
