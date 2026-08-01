@@ -292,6 +292,9 @@ async function fireAutoType() {
     });
     return;
   }
+  // Always keep a clipboard copy as a safety net. This does not paste anything
+  // and therefore remains compatible with games that block Ctrl+V.
+  try { clipboard.writeText(text); } catch {}
   // Clear the buffer immediately so a second press doesn't re-type,
   // and release the hotkey so the key behaves normally again.
   pendingAutoTypeText = '';
@@ -541,6 +544,11 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
   const text = payload && typeof payload === 'object' ? payload.text : payload;
   pendingAutoTypeText = String(text ?? '');
   pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  // Preserve every successful translation in the clipboard too, even when
+  // auto-write is selected. The keyboard injector remains the primary action.
+  if (pendingAutoTypeText) {
+    try { clipboard.writeText(pendingAutoTypeText); } catch {}
+  }
   // Arm (or release) the auto-type key only while a translation is pending.
   registerHotkeys();
   if (pendingAutoTypeText) {
@@ -551,6 +559,13 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
       body: `Cliquez dans le chat du jeu puis appuyez sur ${autoTypeAccel}. ${preview ? '\n' + preview : ''}`.trim(),
       silent: false,
     });
+    if (!autoTypeHotkeyOk) {
+      notify({
+        title: 'TalKing - auto-écriture indisponible',
+        body: `La touche ${autoTypeAccel} n'a pas pu être activée. La traduction reste disponible dans le presse-papiers.`,
+        urgent: true,
+      });
+    }
   }
   return { ok: true };
 });
