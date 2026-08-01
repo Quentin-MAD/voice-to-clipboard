@@ -593,6 +593,10 @@ function Home() {
       }
 
       const ctx = new AudioContext();
+      // Hotkey-triggered recording happens while the window is hidden behind
+      // the game: Chromium creates the context in "suspended" state and the
+      // ScriptProcessor would never run, capturing silence. Resume it first.
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
