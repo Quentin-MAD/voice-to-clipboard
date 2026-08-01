@@ -116,7 +116,12 @@ let registered = []; // { spec, cb, accel }
 // re-registering hotkeys - which happens every time an auto-type translation
 // is armed or consumed - can never leave a hotkey stuck in the "down" state
 // and therefore permanently dead.
-const heldKeys = new Set();
+const heldKeys = new Map(); // keycode -> timestamp of the keydown that set it
+
+// If a keyup is ever missed (window switch, game grabbing input, RDP, etc.) a
+// key would stay "held" forever and the hotkey would silently stop working.
+// Any repeat older than this is treated as a fresh physical press.
+const HELD_STALE_MS = 1200;
 
 function matches(spec, e) {
   return e.keycode === spec.keycode
@@ -132,9 +137,11 @@ function ensureStarted() {
     uIOhook.on('keydown', (e) => {
       // Games send repeated keydown while a key is held; each callback is
       // stateful (toggle) so we only fire on the first physical press.
-      const wasHeld = heldKeys.has(e.keycode);
-      heldKeys.add(e.keycode);
-      if (wasHeld) return;
+      const now = Date.now();
+      const since = heldKeys.get(e.keycode);
+      const isRepeat = since !== undefined && now - since < HELD_STALE_MS;
+      heldKeys.set(e.keycode, now);
+      if (isRepeat) return;
       // Iterate a snapshot: a callback may re-register hotkeys synchronously.
       for (const r of registered.slice()) {
         if (matches(r.spec, e)) {

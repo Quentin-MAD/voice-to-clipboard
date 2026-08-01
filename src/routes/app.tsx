@@ -356,6 +356,14 @@ function Home() {
   const chunksRef = useRef<Float32Array[]>([]);
   const recordingRef = useRef(false);
   const recordStartRef = useRef(0);
+  // Toggle state machine guards: F8 can be hit again while the mic is still
+  // being acquired (async) or while a translation is in flight. Without these
+  // a second press would start a *second* recording instead of stopping.
+  const startingRef = useRef(false);
+  const stoppingRef = useRef(false);
+  const pendingStopRef = useRef(false);
+  const processingRef = useRef(false);
+  const lastToggleRef = useRef(0);
   const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
   const [denoise, setDenoise] = useState<DenoiseSettings>(DEFAULT_DENOISE);
@@ -424,8 +432,10 @@ function Home() {
 
 
   const stopRecording = useCallback(async () => {
-    if (!recordingRef.current) return;
+    if (!recordingRef.current || stoppingRef.current) return;
+    stoppingRef.current = true;
     recordingRef.current = false;
+    pendingStopRef.current = false;
     if (typeof window !== "undefined" && window.voxElectron?.setRecordingState) {
       void window.voxElectron.setRecordingState(false);
     }
@@ -446,6 +456,7 @@ function Home() {
     audioCtxRef.current = null;
 
     if (duration < 300 || chunks.length === 0) {
+      stoppingRef.current = false;
       setStatus("error");
       const msg =
         chunks.length === 0 && duration >= 300
@@ -457,6 +468,7 @@ function Home() {
       return;
     }
 
+    processingRef.current = true;
     setStatus("processing");
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
@@ -566,12 +578,17 @@ function Home() {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
+    } finally {
+      processingRef.current = false;
+      stoppingRef.current = false;
     }
   }, [source, target, navigate, statusQuery, autoTypeEnabled, autoTypeKey]);
 
   const startRecording = useCallback(async () => {
-    if (recordingRef.current) return;
+    if (recordingRef.current || startingRef.current || processingRef.current) return;
+    startingRef.current = true;
     if (dailyLimitReached) {
+      startingRef.current = false;
       toast.error(
         `🛑 Limite quotidienne atteinte (150 traductions/24h). Réessayez dans ${resetCountdown ?? "quelques instants"}.`,
         { duration: 6000 },
@@ -579,6 +596,7 @@ function Home() {
       return;
     }
     if (noCreditsLeft) {
+      startingRef.current = false;
       toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
         duration: 6000,
         action: {
@@ -629,14 +647,32 @@ function Home() {
       setErrorMsg(msg);
       toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 2500);
+    } finally {
+      startingRef.current = false;
     }
 
   }, [dailyLimitReached, noCreditsLeft, resetCountdown, micDeviceId]);
 
   const toggleRecording = useCallback(() => {
-    if (recordingRef.current) void stopRecording();
-    else void startRecording();
+    // Debounce: key repeat / double physical press must not flip the state twice.
+    const now = Date.now();
+    if (now - lastToggleRef.current < 250) return;
+    lastToggleRef.current = now;
+
+    if (recordingRef.current) {
+      void stopRecording();
+      return;
+    }
+    // Mic is still being acquired from the previous press: ignore, otherwise
+    // we would open a second, parallel recording.
+    if (startingRef.current || stoppingRef.current) return;
+    if (processingRef.current) {
+      toast.info("Traduction en cours…", { duration: 1500 });
+      return;
+    }
+    void startRecording();
   }, [startRecording, stopRecording]);
+
 
   // Read-message flow refs / state
   const readAudioCtxRef = useRef<AudioContext | null>(null);
@@ -871,6 +907,7 @@ function Home() {
   // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat && !capturing) return;
       // Hotkey capture mode
       if (capturing) {
         e.preventDefault();
