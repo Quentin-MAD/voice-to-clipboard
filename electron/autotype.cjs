@@ -31,41 +31,64 @@ public class Kb {
   [StructLayout(LayoutKind.Sequential)]
   public struct KEYBDINPUT {
     public ushort wVk; public ushort wScan; public uint dwFlags;
-    public uint time; public IntPtr dwExtraInfo;
-    public uint pad1; public uint pad2;
+    public uint time; public UIntPtr dwExtraInfo;
   }
   [DllImport("user32.dll", SetLastError = true)]
   public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+  [DllImport("user32.dll")]
+  public static extern short VkKeyScanW(char ch);
   public const uint INPUT_KEYBOARD = 1;
   public const uint KEYEVENTF_KEYUP    = 0x0002;
   public const uint KEYEVENTF_UNICODE  = 0x0004;
-  public const uint KEYEVENTF_SCANCODE = 0x0008;
 
-  public static void SendChar(char c) {
-    INPUT[] inputs = new INPUT[2];
-    inputs[0].type = INPUT_KEYBOARD;
-    inputs[0].u.ki.wVk = 0;
-    inputs[0].u.ki.wScan = (ushort)c;
-    inputs[0].u.ki.dwFlags = KEYEVENTF_UNICODE;
-    inputs[1].type = INPUT_KEYBOARD;
-    inputs[1].u.ki.wVk = 0;
-    inputs[1].u.ki.wScan = (ushort)c;
-    inputs[1].u.ki.dwFlags = KEYEVENTF_UNICODE | KEYEVENTF_KEYUP;
-    // Extended flag for chars in the surrogate/high range so the low byte
-    // (0xE0..) isn't misinterpreted as a scancode-extended key.
-    if ((c & 0xFF00) == 0xE000) {
-      inputs[0].u.ki.dwFlags |= 0x0001;
-      inputs[1].u.ki.dwFlags |= 0x0001;
+  static INPUT Key(ushort vk, ushort scan, uint flags) {
+    INPUT i = new INPUT();
+    i.type = INPUT_KEYBOARD;
+    i.u.ki.wVk = vk;
+    i.u.ki.wScan = scan;
+    i.u.ki.dwFlags = flags;
+    return i;
+  }
+
+  static bool Push(INPUT[] inputs) {
+    return SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT))) == inputs.Length;
+  }
+
+  // Games commonly ignore KEYEVENTF_UNICODE while accepting ordinary virtual
+  // key presses. Prefer layout-aware physical keys and only use Unicode for a
+  // character that the active Windows keyboard layout cannot produce.
+  public static bool SendChar(char c) {
+    short mapped = VkKeyScanW(c);
+    if (mapped != -1) {
+      ushort vk = (ushort)(mapped & 0xff);
+      int modifiers = (mapped >> 8) & 0xff;
+      System.Collections.Generic.List<INPUT> inputs = new System.Collections.Generic.List<INPUT>();
+      if ((modifiers & 2) != 0) inputs.Add(Key(0x11, 0, 0)); // Ctrl
+      if ((modifiers & 4) != 0) inputs.Add(Key(0x12, 0, 0)); // Alt
+      if ((modifiers & 1) != 0) inputs.Add(Key(0x10, 0, 0)); // Shift
+      inputs.Add(Key(vk, 0, 0));
+      inputs.Add(Key(vk, 0, KEYEVENTF_KEYUP));
+      if ((modifiers & 1) != 0) inputs.Add(Key(0x10, 0, KEYEVENTF_KEYUP));
+      if ((modifiers & 4) != 0) inputs.Add(Key(0x12, 0, KEYEVENTF_KEYUP));
+      if ((modifiers & 2) != 0) inputs.Add(Key(0x11, 0, KEYEVENTF_KEYUP));
+      return Push(inputs.ToArray());
     }
-    SendInput(2, inputs, Marshal.SizeOf(typeof(INPUT)));
+    return Push(new INPUT[] {
+      Key(0, (ushort)c, KEYEVENTF_UNICODE),
+      Key(0, (ushort)c, KEYEVENTF_UNICODE | KEYEVENTF_KEYUP)
+    });
   }
 }
 "@ -Language CSharp
 
-Start-Sleep -Milliseconds 120
+Start-Sleep -Milliseconds 180
 foreach ($ch in $Text.ToCharArray()) {
-  [Kb]::SendChar($ch)
-  Start-Sleep -Milliseconds 8
+  if (-not [Kb]::SendChar($ch)) {
+    $code = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+    Write-Error "SendInput failed: $code"
+    exit 20
+  }
+  Start-Sleep -Milliseconds 10
 }
 `;
   fs.writeFileSync(tmp, src, 'utf8');
@@ -86,13 +109,18 @@ function typeText(text) {
       ps = spawn(
         'powershell.exe',
         ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script, '-Text', t],
-        { windowsHide: true, stdio: 'ignore' },
+        { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] },
       );
     } catch (e) {
       return resolve({ ok: false, error: String(e && e.message || e) });
     }
+    let stderr = '';
+    ps.stderr?.on('data', (chunk) => { stderr += String(chunk).slice(0, 1000); });
     ps.on('error', (e) => resolve({ ok: false, error: String(e && e.message || e) }));
-    ps.on('exit', (code) => resolve({ ok: code === 0, error: code === 0 ? null : `exit ${code}` }));
+    ps.on('exit', (code) => resolve({
+      ok: code === 0,
+      error: code === 0 ? null : (stderr.trim().slice(0, 300) || `exit ${code}`),
+    }));
   });
 }
 
