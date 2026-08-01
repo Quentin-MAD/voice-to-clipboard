@@ -47,6 +47,7 @@ let autoTypeEnabled = false;
 let autoTypeHotkeyOk = false;
 let pendingAutoTypeText = '';
 let pendingAutoTypeMeta = null;
+let autoTypeInProgress = false;
 let hotkeyOk = true;
 let lowLevelWarned = false;
 let readHotkeyOk = true;
@@ -250,7 +251,7 @@ function registerHotkeys() {
   // ON *and* a translation is actually waiting. Otherwise the key (Backspace by
   // default) would stay captured system-wide and break normal typing elsewhere.
   try {
-    if (autoTypeEnabled && !!pendingAutoTypeText && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
+    if (autoTypeEnabled && !autoTypeInProgress && !!pendingAutoTypeText && autoTypeAccel && autoTypeAccel !== toggleAccel && autoTypeAccel !== readAccel) {
       // The low-level observer detects this key without swallowing it. There is
       // intentionally no globalShortcut fallback because that would disable
       // Backspace system-wide for as long as a translation remains pending.
@@ -280,8 +281,9 @@ function registerHotkeys() {
 
 // Fire from the global hotkey: if a translation is pending, type it into the focused window.
 async function fireAutoType() {
+  if (autoTypeInProgress) return;
   if (mainWindow) {
-    try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
+    try { mainWindow.webContents.send('autotype:typing'); } catch {}
   }
   const text = pendingAutoTypeText;
   if (!text) {
@@ -295,22 +297,27 @@ async function fireAutoType() {
   // Always keep a clipboard copy as a safety net. This does not paste anything
   // and therefore remains compatible with games that block Ctrl+V.
   try { clipboard.writeText(text); } catch {}
-  // Clear the buffer immediately so a second press doesn't re-type,
-  // and release the hotkey so the key behaves normally again.
-  pendingAutoTypeText = '';
   const meta = pendingAutoTypeMeta;
-  pendingAutoTypeMeta = null;
+  autoTypeInProgress = true;
+  // Release the trigger registration while SendInput is running. This avoids
+  // recursively firing auto-type if the translated text contains that key.
   registerHotkeys();
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    try { mainWindow.webContents.send('autotype:cleared'); } catch {}
-  }
 
   try {
     const res = await autotype.typeText(text);
-    if (!res.ok) {
+    if (res.ok) {
+      pendingAutoTypeText = '';
+      pendingAutoTypeMeta = null;
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
+        try { mainWindow.webContents.send('autotype:cleared'); } catch {}
+      }
+      console.log('[autotype] completed', { chars: text.length });
+    } else {
+      console.error('[autotype] SendInput failed', res.error || 'unknown');
       notify({
         title: 'TalKing — auto-écriture',
-        body: `Échec de l'écriture (${res.error || 'inconnu'}). La traduction a été copiée dans le presse-papiers à la place.`,
+        body: `Échec de l'écriture (${res.error || 'inconnu'}). La traduction reste prête : réessayez ou utilisez Ctrl+V.`,
         urgent: true,
       });
       try { clipboard.writeText(text); } catch {}
@@ -318,6 +325,9 @@ async function fireAutoType() {
   } catch (e) {
     console.error('autotype failed', e);
     try { clipboard.writeText(text); } catch {}
+  } finally {
+    autoTypeInProgress = false;
+    registerHotkeys();
   }
 }
 
