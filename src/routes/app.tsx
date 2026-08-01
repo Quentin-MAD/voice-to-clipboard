@@ -578,6 +578,9 @@ function Home() {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Échec de la traduction");
       setTimeout(() => setStatus("idle"), 3000);
+    } finally {
+      processingRef.current = false;
+      stoppingRef.current = false;
     }
   }, [source, target, navigate, statusQuery, autoTypeEnabled, autoTypeKey]);
 
