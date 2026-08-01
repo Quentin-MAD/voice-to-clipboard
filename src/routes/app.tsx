@@ -356,6 +356,14 @@ function Home() {
   const chunksRef = useRef<Float32Array[]>([]);
   const recordingRef = useRef(false);
   const recordStartRef = useRef(0);
+  // Toggle state machine guards: F8 can be hit again while the mic is still
+  // being acquired (async) or while a translation is in flight. Without these
+  // a second press would start a *second* recording instead of stopping.
+  const startingRef = useRef(false);
+  const stoppingRef = useRef(false);
+  const pendingStopRef = useRef(false);
+  const processingRef = useRef(false);
+  const lastToggleRef = useRef(0);
   const stopProcessingSoundRef = useRef<(() => void) | null>(null);
 
   const [denoise, setDenoise] = useState<DenoiseSettings>(DEFAULT_DENOISE);
