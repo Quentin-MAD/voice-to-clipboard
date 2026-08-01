@@ -538,7 +538,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 
 .native-app .native-email {
   font-size: 10px;
-  color: var(--nx-text-mute);
+  color: var(--skin-email-box-text, var(--nx-text-mute));
   max-width: 220px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   padding: 0;
@@ -553,7 +553,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   padding: 3px 8px 4px;
   border-radius: 8px;
   border: 1px solid var(--nx-border, rgba(255,255,255,0.08));
-  background: var(--nx-panel-hi, rgba(255,255,255,0.03));
+  background: var(--skin-email-box-bg, var(--nx-panel-hi, rgba(255,255,255,0.03)));
   flex-shrink: 0;
   max-width: 240px;
 }
