@@ -6,6 +6,7 @@ declare global {
     ok: boolean;
     readAccel?: string;
     readOk?: boolean;
+    backend?: string;
   }
   interface VoxScreenshotResult {
     ok: boolean;
