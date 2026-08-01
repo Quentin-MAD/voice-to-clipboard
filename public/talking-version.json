@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
-  "url": "https://talking-translator.com/__l5e/assets-v1/ec1d1909-aaea-48d0-a444-df74b32307ee/TalKing-Setup-1.0.2.exe",
-  "notes": "v1.0.2 - Mise à jour automatique intégrée. TalKing télécharge, installe puis redémarre sans manipulation manuelle."
+  "version": "1.0.4",
+  "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/download/v1.0.4/TalKing-Setup.exe",
+  "notes": "v1.0.4 - Correction des raccourcis en jeu et de l'auto-écriture avec Backspace. TalKing télécharge, installe puis redémarre automatiquement."
 }
