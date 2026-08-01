@@ -963,7 +963,52 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
   background: var(--nx-accent) !important;
   border-color: var(--nx-accent) !important;
 }
-.native-app .native-switch:checked::after { transform: translateX(16px); background: var(--nx-accent-ink); }
+.native-app .native-switch:checked::after { transform: translateX(16px); background: #fff; }
+
+/* Settings dialog colors, editable from the admin appearance editor */
+.native-app .native-modal {
+  background: var(--skin-set-bg, var(--nx-panel-hi)) !important;
+  border-color: var(--skin-set-border, var(--nx-line)) !important;
+  color: var(--skin-set-text, var(--nx-text)) !important;
+}
+.native-app .native-modal-head,
+.native-app .native-modal-foot { border-color: var(--skin-set-border, var(--nx-line)); }
+.native-app .native-modal-title,
+.native-app .native-modal .native-row-title { color: var(--skin-set-text, var(--nx-text)) !important; }
+.native-app .native-modal .native-label,
+.native-app .native-modal label { color: var(--skin-set-muted, var(--nx-text-mute)) !important; }
+.native-app .native-modal .native-field-help,
+.native-app .native-modal .native-row-desc { color: var(--skin-set-muted, var(--nx-text-dim)) !important; }
+.native-app .native-modal .native-row {
+  background: var(--skin-set-surface, var(--nx-panel)) !important;
+  border-color: var(--skin-set-border, var(--nx-line));
+}
+.native-app .native-modal select,
+.native-app .native-modal input[type="text"],
+.native-app .native-modal input[type="number"],
+.native-app .native-modal button:not(.native-switch) {
+  background: var(--skin-set-surface, var(--nx-panel)) !important;
+  border: 1px solid var(--skin-set-border, var(--nx-line-hi)) !important;
+  color: var(--skin-set-text, var(--nx-text)) !important;
+}
+.native-app .native-modal select option {
+  background: var(--skin-set-surface, var(--nx-panel));
+  color: var(--skin-set-text, var(--nx-text));
+}
+.native-app .native-modal .native-switch {
+  background: var(--skin-set-surface, rgba(255,255,255,0.08)) !important;
+  border-color: var(--skin-set-border, var(--nx-line-hi)) !important;
+}
+.native-app .native-modal .native-switch:checked {
+  background: var(--skin-set-accent, var(--nx-accent)) !important;
+  border-color: var(--skin-set-accent, var(--nx-accent)) !important;
+}
+.native-app .native-modal .native-modal-foot button:last-child {
+  background: var(--skin-set-accent, var(--nx-accent)) !important;
+  border-color: var(--skin-set-accent, var(--nx-accent)) !important;
+  color: #fff !important;
+}
+
 
 /* ============ Native login screen (Electron) ============ */
 .native-app .native-auth-shell {
