@@ -37,7 +37,7 @@ declare global {
     minimizeWindow: () => Promise<boolean>;
     toggleMaximizeWindow: () => Promise<boolean>;
     closeWindow: () => Promise<boolean>;
-    info: () => Promise<{ isElectron: true; toggleAccel: string; hotkeyOk: boolean; readAccel?: string; readHotkeyOk?: boolean; version: string }>;
+    info: () => Promise<{ isElectron: true; toggleAccel: string; hotkeyOk: boolean; readAccel?: string; readHotkeyOk?: boolean; hotkeyBackend?: string; hotkeyLoadError?: string | null; version: string }>;
     getAutoStart: () => Promise<{ enabled: boolean }>;
     setAutoStart: (enabled: boolean) => Promise<{ enabled: boolean }>;
     captureScreen: () => Promise<VoxScreenshotResult>;
