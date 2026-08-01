@@ -1648,7 +1648,7 @@ function Home() {
                         value={micDeviceId}
                         onChange={(e) => setMicDeviceId(e.target.value)}
                         onFocus={() => void refreshMicDevices()}
-                        style={{ flex: 1, height: 36, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
+                        style={{ flex: 1, height: 36, minWidth: 0, background: "#1a1a1a", color: "#eee", border: "1px solid #333", borderRadius: 6, padding: "0 8px" }}
                       >
                         <option value="">Par défaut (système)</option>
                         {micDevices.map((d, i) => (
@@ -1657,7 +1657,14 @@ function Home() {
                           </option>
                         ))}
                       </select>
-                      <button onClick={() => void refreshMicDevices()} title="Rafraîchir la liste">↻</button>
+                      <button
+                        onClick={() => void refreshMicDevices()}
+                        title="Rafraîchir la liste"
+                        className="mic-refresh-btn"
+                        style={{ width: 36, height: 36, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, padding: 0 }}
+                      >
+                        ↻
+                      </button>
                     </div>
                     <p className="native-field-help">Sélectionnez le micro à utiliser pour l'enregistrement. Autorisez l'accès au micro pour voir les noms des appareils.</p>
                   </div>
