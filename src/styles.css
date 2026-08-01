@@ -875,7 +875,7 @@ html, body { top: 0 !important; position: static !important; margin-top: 0 !impo
 }
 .native-app .native-modal {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
