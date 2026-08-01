@@ -585,8 +585,10 @@ function Home() {
   }, [source, target, navigate, statusQuery, autoTypeEnabled, autoTypeKey]);
 
   const startRecording = useCallback(async () => {
-    if (recordingRef.current) return;
+    if (recordingRef.current || startingRef.current || processingRef.current) return;
+    startingRef.current = true;
     if (dailyLimitReached) {
+      startingRef.current = false;
       toast.error(
         `🛑 Limite quotidienne atteinte (150 traductions/24h). Réessayez dans ${resetCountdown ?? "quelques instants"}.`,
         { duration: 6000 },
@@ -594,6 +596,7 @@ function Home() {
       return;
     }
     if (noCreditsLeft) {
+      startingRef.current = false;
       toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
         duration: 6000,
         action: {
@@ -644,14 +647,32 @@ function Home() {
       setErrorMsg(msg);
       toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 2500);
+    } finally {
+      startingRef.current = false;
     }
 
   }, [dailyLimitReached, noCreditsLeft, resetCountdown, micDeviceId]);
 
   const toggleRecording = useCallback(() => {
-    if (recordingRef.current) void stopRecording();
-    else void startRecording();
+    // Debounce: key repeat / double physical press must not flip the state twice.
+    const now = Date.now();
+    if (now - lastToggleRef.current < 250) return;
+    lastToggleRef.current = now;
+
+    if (recordingRef.current) {
+      void stopRecording();
+      return;
+    }
+    // Mic is still being acquired from the previous press: ignore, otherwise
+    // we would open a second, parallel recording.
+    if (startingRef.current || stoppingRef.current) return;
+    if (processingRef.current) {
+      toast.info("Traduction en cours…", { duration: 1500 });
+      return;
+    }
+    void startRecording();
   }, [startRecording, stopRecording]);
+
 
   // Read-message flow refs / state
   const readAudioCtxRef = useRef<AudioContext | null>(null);
