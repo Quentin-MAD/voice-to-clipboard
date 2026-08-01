@@ -11,7 +11,23 @@ export type AppearanceColors = {
   primary: string;
   text: string;
   muted: string;
+  /** Windows settings dialog (optional overrides). */
+  setBg?: string;
+  setSurface?: string;
+  setBorder?: string;
+  setText?: string;
+  setMuted?: string;
+  setAccent?: string;
 };
+
+export const WINDOWS_SETTINGS_COLOR_FIELDS = [
+  { key: "setBg", label: "Fond du menu" },
+  { key: "setSurface", label: "Blocs / champs" },
+  { key: "setBorder", label: "Bordures" },
+  { key: "setText", label: "Texte" },
+  { key: "setMuted", label: "Texte secondaire" },
+  { key: "setAccent", label: "Accent (interrupteurs)" },
+] as const;
 
 export type AppearanceTypography = {
   headingFont: string;
@@ -72,6 +88,12 @@ export const DEFAULT_APPEARANCE: Record<AppKey, AppearanceConfig> = {
       primary: "#3F44D2",
       text: "#FFFFFF",
       muted: "#DBDBDF",
+      setBg: "#12123a",
+      setSurface: "#0F0F31",
+      setBorder: "#2A2A5C",
+      setText: "#FFFFFF",
+      setMuted: "#B9B9D0",
+      setAccent: "#3F44D2",
     },
     typography: { headingFont: "Poppins, sans-serif", bodyFont: "Roboto, sans-serif", scale: 1, radius: 10 },
     texts: {
@@ -125,6 +147,13 @@ export function appearanceStyle(cfg: AppearanceConfig): React.CSSProperties {
     ["--skin-primary" as string]: colors.primary,
     ["--skin-text" as string]: colors.text,
     ["--skin-muted" as string]: colors.muted,
+    // Windows settings dialog tokens
+    ["--skin-set-bg" as string]: colors.setBg ?? colors.surface,
+    ["--skin-set-surface" as string]: colors.setSurface ?? colors.bg,
+    ["--skin-set-border" as string]: colors.setBorder ?? "rgba(255,255,255,0.12)",
+    ["--skin-set-text" as string]: colors.setText ?? colors.text,
+    ["--skin-set-muted" as string]: colors.setMuted ?? colors.muted,
+    ["--skin-set-accent" as string]: colors.setAccent ?? colors.primary,
     ["--skin-radius" as string]: `${typography.radius}px`,
     ["--skin-heading-font" as string]: typography.headingFont,
     ["--skin-body-font" as string]: typography.bodyFont,
