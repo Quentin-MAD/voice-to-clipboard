@@ -282,11 +282,14 @@ function Home() {
     }
   }, []);
 
+  const [hotkeyBackend, setHotkeyBackend] = useState<string>("");
   useEffect(() => {
     if (!window.voxElectron?.info) return;
     let cancelled = false;
     void window.voxElectron.info().then((info) => {
-      if (!cancelled && info?.version) setInstalledVersion(info.version);
+      if (cancelled) return;
+      if (info?.version) setInstalledVersion(info.version);
+      if (info?.hotkeyBackend) setHotkeyBackend(info.hotkeyBackend);
     }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
