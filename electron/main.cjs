@@ -48,6 +48,7 @@ let autoTypeHotkeyOk = false;
 let pendingAutoTypeText = '';
 let pendingAutoTypeMeta = null;
 let hotkeyOk = true;
+let lowLevelWarned = false;
 let readHotkeyOk = true;
 let isRecording = false;
 let powerBlockerId = null;
