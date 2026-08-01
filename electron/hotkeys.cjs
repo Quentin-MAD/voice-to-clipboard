@@ -11,15 +11,47 @@ let uIOhook = null;
 let UiohookKey = null;
 let started = false;
 let available = false;
+let loadError = null;
 
-try {
-  const mod = require('uiohook-napi');
-  uIOhook = mod.uIOhook;
-  UiohookKey = mod.UiohookKey;
-  available = true;
-} catch (e) {
-  console.error('[hotkeys] uiohook-napi failed to load, falling back to globalShortcut:', e && e.message);
+// Load uiohook-napi. In a packaged app the native .node binary lives outside
+// app.asar (asarUnpack), and depending on how the app was built the plain
+// require() can fail. Try the unpacked path explicitly before giving up,
+// because the globalShortcut fallback does NOT work inside games.
+function loadUiohook() {
+  const candidates = ['uiohook-napi'];
+  try {
+    const dir = __dirname;
+    const asarIdx = dir.indexOf('app.asar');
+    if (asarIdx !== -1) {
+      const base = dir.slice(0, asarIdx) + 'app.asar.unpacked';
+      candidates.push(require('path').join(base, 'node_modules', 'uiohook-napi'));
+    }
+    if (process.resourcesPath) {
+      const p = require('path');
+      candidates.push(p.join(process.resourcesPath, 'app.asar.unpacked', 'node_modules', 'uiohook-napi'));
+      candidates.push(p.join(process.resourcesPath, 'app', 'node_modules', 'uiohook-napi'));
+    }
+  } catch {}
+
+  for (const c of candidates) {
+    try {
+      const mod = require(c);
+      if (mod && mod.uIOhook) {
+        uIOhook = mod.uIOhook;
+        UiohookKey = mod.UiohookKey;
+        available = true;
+        console.log('[hotkeys] uiohook-napi loaded from', c);
+        return;
+      }
+    } catch (e) {
+      loadError = e && e.message;
+    }
+  }
+  console.error('[hotkeys] uiohook-napi failed to load, falling back to globalShortcut:', loadError);
 }
+
+loadUiohook();
+
 
 // Map an Electron accelerator token to a uiohook keycode.
 function tokenToKeycode(token) {
@@ -77,7 +109,14 @@ function parseAccelerator(accel) {
   return spec;
 }
 
-const registered = []; // { spec, cb, accel }
+let registered = []; // { spec, cb, accel }
+
+// Physically-held keycodes, tracked independently of the registration list.
+// Using a global set (instead of a per-registration `_down` flag) means that
+// re-registering hotkeys - which happens every time an auto-type translation
+// is armed or consumed - can never leave a hotkey stuck in the "down" state
+// and therefore permanently dead.
+const heldKeys = new Set();
 
 function matches(spec, e) {
   return e.keycode === spec.keycode
@@ -91,20 +130,20 @@ function ensureStarted() {
   if (!available || started) return;
   try {
     uIOhook.on('keydown', (e) => {
-      // Debounce: many games get repeated keydown events; each registered cb
-      // is stateful (toggle) so calling twice per press would flip back.
-      // We only trigger on the very first keydown; keyup resets the latch.
-      for (const r of registered) {
-        if (matches(r.spec, e) && !r._down) {
-          r._down = true;
+      // Games send repeated keydown while a key is held; each callback is
+      // stateful (toggle) so we only fire on the first physical press.
+      const wasHeld = heldKeys.has(e.keycode);
+      heldKeys.add(e.keycode);
+      if (wasHeld) return;
+      // Iterate a snapshot: a callback may re-register hotkeys synchronously.
+      for (const r of registered.slice()) {
+        if (matches(r.spec, e)) {
           try { r.cb(); } catch (err) { console.error('[hotkeys] cb error', err); }
         }
       }
     });
     uIOhook.on('keyup', (e) => {
-      for (const r of registered) {
-        if (r._down && e.keycode === r.spec.keycode) r._down = false;
-      }
+      heldKeys.delete(e.keycode);
     });
     uIOhook.start();
     started = true;
@@ -120,19 +159,29 @@ function register(accel, cb) {
   const spec = parseAccelerator(accel);
   if (!spec) return false;
   ensureStarted();
-  registered.push({ spec, cb, accel, _down: false });
+  if (!available) return false;
+  registered.push({ spec, cb, accel });
   return true;
 }
 
 function unregisterAll() {
-  registered.length = 0;
+  // Replace the array instead of truncating it, so any in-flight iteration
+  // over a previous snapshot stays coherent.
+  registered = [];
 }
 
 function stop() {
   try { if (started && uIOhook) uIOhook.stop(); } catch {}
   started = false;
+  heldKeys.clear();
 }
 
 function isAvailable() { return available; }
 
-module.exports = { register, unregisterAll, stop, isAvailable, parseAccelerator };
+/** 'lowlevel' when the game-compatible keyboard hook is active. */
+function getBackend() { return available ? 'lowlevel' : 'globalShortcut'; }
+
+function getLoadError() { return loadError; }
+
+
+module.exports = { register, unregisterAll, stop, isAvailable, parseAccelerator, getBackend, getLoadError };

@@ -282,11 +282,14 @@ function Home() {
     }
   }, []);
 
+  const [hotkeyBackend, setHotkeyBackend] = useState<string>("");
   useEffect(() => {
     if (!window.voxElectron?.info) return;
     let cancelled = false;
     void window.voxElectron.info().then((info) => {
-      if (!cancelled && info?.version) setInstalledVersion(info.version);
+      if (cancelled) return;
+      if (info?.version) setInstalledVersion(info.version);
+      if (info?.hotkeyBackend) setHotkeyBackend(info.hotkeyBackend);
     }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
@@ -444,7 +447,12 @@ function Home() {
 
     if (duration < 300 || chunks.length === 0) {
       setStatus("error");
-      setErrorMsg("Enregistrement trop court");
+      const msg =
+        chunks.length === 0 && duration >= 300
+          ? "Aucun son capté par le micro. Ouvrez TalKing une fois puis réessayez."
+          : "Enregistrement trop court";
+      setErrorMsg(msg);
+      if (chunks.length === 0 && duration >= 300) toast.error(msg, { duration: 6000 });
       setTimeout(() => setStatus("idle"), 1500);
       return;
     }
@@ -588,6 +596,10 @@ function Home() {
       }
 
       const ctx = new AudioContext();
+      // Hotkey-triggered recording happens while the window is hidden behind
+      // the game: Chromium creates the context in "suspended" state and the
+      // ScriptProcessor would never run, capturing silence. Resume it first.
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
@@ -819,6 +831,10 @@ function Home() {
       }
 
       const ctx = new AudioContext();
+      // The window is usually hidden behind the game and has never been
+      // clicked, so Chromium starts the context suspended: without this resume
+      // the ScriptProcessor never fires and we capture pure silence.
+      if (ctx.state === "suspended") await ctx.resume().catch(() => {});
       const src = ctx.createMediaStreamSource(stream);
       const tail = buildDenoiseChain(ctx, src, denoiseRef.current);
       const processor = ctx.createScriptProcessor(4096, 1, 1);
@@ -899,7 +915,10 @@ function Home() {
       else if (kind === "read-toggle") toggleReadRecording();
       else if (kind === "auto-type") setAutoTypePending(false);
     });
-    const offStatus = window.voxElectron.onHotkeyStatus?.((s) => setHotkeyBlocked(!s.ok));
+    const offStatus = window.voxElectron.onHotkeyStatus?.((s) => {
+      setHotkeyBlocked(!s.ok);
+      if (s.backend) setHotkeyBackend(s.backend);
+    });
     return () => { offHotkey(); offStatus?.(); };
   }, [toggleKey, readKey, toggleRecording, toggleReadRecording]);
 
@@ -1588,6 +1607,16 @@ function Home() {
                   >✕</button>
                 </div>
                 <div className="native-modal-body">
+                  {hotkeyBackend && (
+                    <div
+                      className="native-field"
+                      style={{ fontSize: 12, color: hotkeyBackend === "lowlevel" ? "var(--nx-muted)" : "#fbbf24" }}
+                    >
+                      {hotkeyBackend === "lowlevel"
+                        ? "Moteur clavier : hook bas niveau (compatible jeux plein écran)"
+                        : "⚠ Moteur clavier : raccourci système - les touches ne fonctionneront pas dans les jeux. Réinstallez la dernière version de TalKing."}
+                    </div>
+                  )}
                   <div className="native-field">
                     <span className="native-label">Raccourci d'enregistrement (traduction)</span>
                     <div style={{ display: "flex", gap: 8 }}>
