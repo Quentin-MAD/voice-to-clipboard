@@ -58,7 +58,12 @@ export function Footer() {
           </div>
 
           <div className="mt-8 flex flex-col gap-2 border-t border-border pt-4 text-xs text-primary-foreground/80 md:flex-row md:items-center md:justify-between">
-            <div>© {year} Quentin Rosset - <span className="notranslate">TalKing</span>. Tous droits réservés.</div>
+            <div>
+              <div>© {year} Quentin Rosset - <span className="notranslate">TalKing</span>. Tous droits réservés.</div>
+              <div className="mt-1">
+                Réalisation du logo et de la charte graphique : Mme Sarah Sagnole, Infographiste. Site web et applications (mobile et Windows) : Quentin Rosset, Développeur full stack.
+              </div>
+            </div>
             <div>
               Paiements traités en toute sécurité par notre revendeur Paddle.com (Merchant of Record).
             </div>
