@@ -184,4 +184,4 @@ function getBackend() { return available ? 'lowlevel' : 'globalShortcut'; }
 function getLoadError() { return loadError; }
 
 
-module.exports = { register, unregisterAll, stop, isAvailable, parseAccelerator };
+module.exports = { register, unregisterAll, stop, isAvailable, parseAccelerator, getBackend, getLoadError };
