@@ -1607,6 +1607,16 @@ function Home() {
                   >✕</button>
                 </div>
                 <div className="native-modal-body">
+                  {hotkeyBackend && (
+                    <div
+                      className="native-field"
+                      style={{ fontSize: 12, color: hotkeyBackend === "lowlevel" ? "var(--nx-muted)" : "#fbbf24" }}
+                    >
+                      {hotkeyBackend === "lowlevel"
+                        ? "Moteur clavier : hook bas niveau (compatible jeux plein écran)"
+                        : "⚠ Moteur clavier : raccourci système - les touches ne fonctionneront pas dans les jeux. Réinstallez la dernière version de TalKing."}
+                    </div>
+                  )}
                   <div className="native-field">
                     <span className="native-label">Raccourci d'enregistrement (traduction)</span>
                     <div style={{ display: "flex", gap: 8 }}>
