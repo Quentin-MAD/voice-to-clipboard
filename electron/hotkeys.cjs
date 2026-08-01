@@ -116,7 +116,12 @@ let registered = []; // { spec, cb, accel }
 // re-registering hotkeys - which happens every time an auto-type translation
 // is armed or consumed - can never leave a hotkey stuck in the "down" state
 // and therefore permanently dead.
-const heldKeys = new Set();
+const heldKeys = new Map(); // keycode -> timestamp of the keydown that set it
+
+// If a keyup is ever missed (window switch, game grabbing input, RDP, etc.) a
+// key would stay "held" forever and the hotkey would silently stop working.
+// Any repeat older than this is treated as a fresh physical press.
+const HELD_STALE_MS = 1200;
 
 function matches(spec, e) {
   return e.keycode === spec.keycode
