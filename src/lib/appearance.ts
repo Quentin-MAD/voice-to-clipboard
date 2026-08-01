@@ -164,6 +164,8 @@ export function appearanceStyle(cfg: AppearanceConfig): React.CSSProperties {
     ["--skin-set-text" as string]: colors.setText ?? colors.text,
     ["--skin-set-muted" as string]: colors.setMuted ?? colors.muted,
     ["--skin-set-accent" as string]: colors.setAccent ?? colors.primary,
+    ["--skin-email-box-bg" as string]: colors.emailBoxBg ?? colors.surface,
+    ["--skin-email-box-text" as string]: colors.emailBoxText ?? colors.text,
     ["--skin-radius" as string]: `${typography.radius}px`,
     ["--skin-heading-font" as string]: typography.headingFont,
     ["--skin-body-font" as string]: typography.bodyFont,
