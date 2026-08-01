@@ -907,6 +907,7 @@ function Home() {
   // Keyboard hotkey (browser)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat && !capturing) return;
       // Hotkey capture mode
       if (capturing) {
         e.preventDefault();
