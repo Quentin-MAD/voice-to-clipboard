@@ -18,6 +18,9 @@ export type AppearanceColors = {
   setText?: string;
   setMuted?: string;
   setAccent?: string;
+  /** Windows email/status box (optional overrides). */
+  emailBoxBg?: string;
+  emailBoxText?: string;
 };
 
 export const WINDOWS_SETTINGS_COLOR_FIELDS = [
@@ -27,6 +30,11 @@ export const WINDOWS_SETTINGS_COLOR_FIELDS = [
   { key: "setText", label: "Texte" },
   { key: "setMuted", label: "Texte secondaire" },
   { key: "setAccent", label: "Accent (interrupteurs)" },
+] as const;
+
+export const WINDOWS_EMAIL_BOX_COLOR_FIELDS = [
+  { key: "emailBoxBg", label: "Fond du cadre email" },
+  { key: "emailBoxText", label: "Couleur du texte email" },
 ] as const;
 
 export type AppearanceTypography = {
