@@ -456,6 +456,7 @@ function Home() {
     audioCtxRef.current = null;
 
     if (duration < 300 || chunks.length === 0) {
+      stoppingRef.current = false;
       setStatus("error");
       const msg =
         chunks.length === 0 && duration >= 300
@@ -467,6 +468,7 @@ function Home() {
       return;
     }
 
+    processingRef.current = true;
     setStatus("processing");
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
