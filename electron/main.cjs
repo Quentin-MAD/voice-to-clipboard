@@ -452,7 +452,9 @@ async function checkForUpdates({ silent = true } = {}) {
     if (!silent) dialog.showMessageBox({ type: 'info', title: 'TalKing', message: 'Update check failed.', detail: 'Could not reach the update server. Try again later.' });
     return;
   }
-  if (cmpVersion(manifest.version, CURRENT_VERSION) > 0) {
+  // Toute version différente du manifeste est proposée (permet aussi de repartir
+  // sur une numérotation plus basse, ex. retour à la v1.0.0).
+  if (String(manifest.version) !== String(CURRENT_VERSION)) {
     latestUpdate = manifest;
     rebuildTrayMenu();
     const res = await dialog.showMessageBox({
