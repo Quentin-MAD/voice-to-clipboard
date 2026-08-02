@@ -579,23 +579,9 @@ function Home() {
   const startRecording = useCallback(async () => {
     if (recordingRef.current || startingRef.current || processingRef.current) return;
     startingRef.current = true;
-    if (dailyLimitReached) {
-      startingRef.current = false;
-      toast.error(
-        `🛑 Limite quotidienne atteinte (150 traductions/24h). Réessayez dans ${resetCountdown ?? "quelques instants"}.`,
-        { duration: 6000 },
-      );
-      return;
-    }
     if (noCreditsLeft) {
       startingRef.current = false;
-      toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
-        duration: 6000,
-        action: {
-          label: "Voir les plans",
-          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-        },
-      });
+      setLimitBlock({ kind: "text_credits" });
       return;
     }
     setErrorMsg("");
