@@ -493,12 +493,19 @@ function AdminPage() {
                           </div>
                         </td>
                         <td className="p-2 text-center font-semibold tabular-nums">
-                          {unlimited ? <span className="text-green-600">∞</span> : u.purchased_balance}
-                          {" / "}
-                          {u.voice_balance ?? 0}
-                          {" / "}
-                          {u.mobile_balance ?? 0}
+                          {unlimited ? (
+                            <span className="text-green-600" title="Accès illimité">∞</span>
+                          ) : (
+                            <>
+                              {u.purchased_balance}
+                              {" / "}
+                              {u.voice_balance ?? 0}
+                              {" / "}
+                              {u.mobile_balance ?? 0}
+                            </>
+                          )}
                         </td>
+
                         <td className={"p-2 text-right tabular-nums " + (abuseToday ? "font-semibold text-amber-600" : "")}>
                           {u.ops_today ?? 0}
                         </td>
