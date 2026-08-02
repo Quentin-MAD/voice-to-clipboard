@@ -317,11 +317,11 @@ function Home() {
   });
   const userStatus = statusQuery.data;
 
-  // Access blocking
-  const dailyLimitReached = !!userStatus && userStatus.daily_used >= userStatus.daily_limit;
+  // Access blocking : plus aucune limite journaliere globale, seuls les credits comptent.
+  const dailyLimitReached = false;
   const noCreditsLeft =
-    !!userStatus && !userStatus.subscribed && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
-  const accessBlocked = dailyLimitReached || noCreditsLeft;
+    !!userStatus && !userStatus.subscribed && !userStatus.is_tester && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
+  const accessBlocked = noCreditsLeft;
 
   // Live countdown for daily reset
   const [now, setNow] = useState(() => Date.now());
