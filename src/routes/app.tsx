@@ -1296,37 +1296,8 @@ function Home() {
           )}
 
 
-          {/* Blocking banner - daily limit reached */}
-          {dailyLimitReached && (
-            <div
-              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
-              style={{
-                borderColor: "rgba(239,68,68,0.6)",
-                background: "rgba(239,68,68,0.1)",
-                marginBottom: isElectron ? 12 : undefined,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontWeight: 700, color: isElectron ? "var(--nx-text)" : undefined, fontSize: 14 }}>
-                    🛑 Limite quotidienne atteinte (150 traductions / 24h)
-                  </div>
-                  <div style={{ fontSize: 12, color: isElectron ? "var(--nx-text-dim)" : undefined, opacity: 0.85, marginTop: 4 }}>
-                    Vous avez atteint la limite anti-abus. Toute nouvelle traduction est bloquée.
-                    {resetCountdown && (
-                      <>
-                        {" "}Prochain crédit disponible dans{" "}
-                        <strong style={{ fontFamily: "'JetBrains Mono', monospace" }}>{resetCountdown}</strong>.
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Blocking banner - out of credits */}
-          {!dailyLimitReached && noCreditsLeft && (
+          {noCreditsLeft && (
             <div
               className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
               style={{
