@@ -385,6 +385,7 @@ export const Route = createFileRoute("/api/admin")({
             | "grant_lifetime" | "grant_year" | "cancel"
             | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
             | "add_mobile_credits" | "set_mobile_credits"
+            | "set_free_text" | "set_free_voice" | "set_free_mobile"
             | "grant_tester" | "revoke_tester"
             | "send_password_reset" | "delete_user";
           user_id?: string;
