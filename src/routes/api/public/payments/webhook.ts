@@ -117,7 +117,7 @@ async function updateSubscriptionByPaddleId(data: any, env: PaddleEnv, statusOve
     .select("user_id");
 
   // Row missing (e.g. the created event was lost): rebuild it from this payload.
-  if (!updated?.length && data.customData?.userId) {
+  if (!updated?.length) {
     await upsertSubscriptionRow(data, env, statusOverride);
   }
 }
@@ -144,8 +144,8 @@ async function resolveExternalId(item: any, env: PaddleEnv): Promise<string | nu
   }
 }
 
-async function grantOneTimePurchase(data: any, env: PaddleEnv) {
-  const userId = data.customData?.userId;
+async function grantOneTimePurchase(data: any, env: PaddleEnv, resolvedUserId: string) {
+  const userId = resolvedUserId;
   if (!userId) return;
 
   let text = 0;
@@ -177,7 +177,7 @@ async function grantOneTimePurchase(data: any, env: PaddleEnv) {
 }
 
 async function handleTransactionCompleted(data: any, env: PaddleEnv) {
-  const userId = data.customData?.userId;
+  const userId = await resolveUserId(data, env);
   if (!userId) return;
 
   const kind = data.subscriptionId ? "subscription" : "one_time";
@@ -207,7 +207,7 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   // Recurring charges are reflected by the subscription.* events.
   if (data.subscriptionId) return;
 
-  await grantOneTimePurchase(data, env);
+  await grantOneTimePurchase(data, env, userId);
 }
 
 /** Refund / chargeback: revoke paid access and wipe purchased credits. */
