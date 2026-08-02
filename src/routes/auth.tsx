@@ -70,7 +70,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth` },
+          options: { emailRedirectTo: `${emailLinkOrigin()}/auth` },
         });
         if (error) throw error;
         setPendingEmail(email);
@@ -88,6 +88,29 @@ function AuthPage() {
     }
   };
 
+  const resendConfirmation = async () => {
+    const target = (pendingEmail ?? email).trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: target,
+        options: { emailRedirectTo: `${emailLinkOrigin()}/auth` },
+      });
+      if (error) throw error;
+      setPendingEmail(target);
+      toast.success("Nouvel email de vérification envoyé. Pensez à vérifier vos spams.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const sendReset = async () => {
     const target = email.trim();
     if (!target) {
@@ -97,7 +120,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(target, {
-        redirectTo: "https://talking-translator.com/reset-password",
+        redirectTo: `${emailLinkOrigin()}/reset-password`,
       });
       if (error) throw error;
       toast.success("Email de réinitialisation envoyé. Pensez à vérifier vos spams.");
