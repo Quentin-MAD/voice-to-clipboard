@@ -135,7 +135,6 @@ function PricingPage() {
             <div className="my-3 text-3xl font-bold">2,99 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ 75 traductions app mobile</li>
-              <li>✓ Crédits gratuits consommés en priorités (35/jours)</li>
               <li>✓ Cumulables, sans expiration</li>
             </ul>
             <button
@@ -161,7 +160,7 @@ function PricingPage() {
               <li>✓ Traductions Texte (F8) illimitées</li>
               <li>✓ Lectures Vocale (F9) illimitées</li>
               <li>✓ Traductions Mobile illimitées</li>
-              <li>✓ Aucune limite journalière ni mensuelle</li>
+              <li>✓ Aucune limite</li>
               <li>✓ Support prioritaire</li>
             </ul>
             <button
