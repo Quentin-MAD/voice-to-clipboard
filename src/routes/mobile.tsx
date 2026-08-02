@@ -475,8 +475,10 @@ function MobileApp() {
       {skin.show.usage && (
         <div className="px-5 pb-2 text-center text-xs text-white/50">
           {usage
-            ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
-            : "50 traductions vocales gratuites par jour"}
+            ? usage.daily_limit > 0
+              ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
+              : "Traductions illimitées"
+            : "35 traductions mobiles gratuites par jour"}
         </div>
       )}
 
