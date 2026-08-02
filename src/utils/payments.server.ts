@@ -20,6 +20,27 @@ async function fetchPrice(env: PaddleEnv, priceId: string): Promise<string | nul
   return active?.id ?? null;
 }
 
+async function restoreArchivedPrice(env: PaddleEnv, priceId: string): Promise<string | null> {
+  const archivedResponse = await gatewayFetch(
+    env,
+    `/prices?status=archived&external_id=${encodeURIComponent(priceId)}`,
+  );
+  if (!archivedResponse.ok) return null;
+
+  const archivedResult = (await archivedResponse.json()) as { data?: PaddlePrice[] };
+  const archived = archivedResult.data?.find((price) => price.status === "archived");
+  if (!archived) return null;
+
+  const restoreResponse = await gatewayFetch(env, `/prices/${archived.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "active" }),
+  });
+  if (!restoreResponse.ok) return null;
+
+  const restoredResult = (await restoreResponse.json()) as { data?: PaddlePrice };
+  return restoredResult.data?.status === "active" ? restoredResult.data.id : null;
+}
+
 export async function resolveActivePaddlePrice(
   environment: PaddleEnv,
   priceId: string,
@@ -31,7 +52,9 @@ export async function resolveActivePaddlePrice(
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      const id = await fetchPrice(environment, priceId);
+      const id =
+        (await fetchPrice(environment, priceId)) ??
+        (await restoreArchivedPrice(environment, priceId));
       if (id) {
         cache.set(key, { id, at: Date.now() });
         return id;
