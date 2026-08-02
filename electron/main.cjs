@@ -127,6 +127,27 @@ function createWindow() {
   mainWindow.setTitle(WINDOW_TITLE);
   mainWindow.loadURL(APP_URL);
 
+  // Keep window sizing tied to the actual route instead of relying only on a
+  // renderer bridge call. This also covers in-app links, redirects and reloads.
+  let restoreBoundsAfterPricing = null;
+  const syncWindowToRoute = (rawUrl) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    let isPricing = false;
+    try { isPricing = new URL(rawUrl).pathname === '/pricing'; } catch {}
+    if (isPricing) {
+      if (!restoreBoundsAfterPricing) restoreBoundsAfterPricing = mainWindow.getBounds();
+      if (!mainWindow.isMaximized()) mainWindow.maximize();
+      return;
+    }
+    if (restoreBoundsAfterPricing) {
+      if (mainWindow.isMaximized()) mainWindow.unmaximize();
+      mainWindow.setBounds(restoreBoundsAfterPricing);
+      restoreBoundsAfterPricing = null;
+    }
+  };
+  mainWindow.webContents.on('did-navigate', (_event, url) => syncWindowToRoute(url));
+  mainWindow.webContents.on('did-navigate-in-page', (_event, url) => syncWindowToRoute(url));
+
   // Tout lien externe s'ouvre dans le navigateur du système, jamais dans l'app.
   const appOrigin = (() => { try { return new URL(APP_URL).origin; } catch { return null; } })();
   const isInternal = (url) => {

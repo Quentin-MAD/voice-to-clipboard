@@ -36,10 +36,16 @@ function PricingPage() {
   // App Windows : afficher les plans en plein écran, puis restaurer en quittant.
   useEffect(() => {
     const bridge = window.voxElectron;
-    if (!bridge?.setMaximizedWindow) return;
-    bridge.setMaximizedWindow(true).catch(() => {});
+    if (bridge?.setMaximizedWindow) {
+      bridge.setMaximizedWindow(true).catch(() => {});
+    } else if (/Electron/i.test(navigator.userAgent)) {
+      // Compatibility with already-installed builds whose preload predates
+      // setMaximizedWindow. Electron permits resizing its top-level renderer.
+      window.moveTo(0, 0);
+      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+    }
     return () => {
-      bridge.setMaximizedWindow?.(false).catch(() => {});
+      bridge?.setMaximizedWindow?.(false).catch(() => {});
     };
   }, []);
 
