@@ -33,6 +33,17 @@ function PricingPage() {
     }
   }, []);
 
+  // App Windows : afficher les plans en plein écran, puis restaurer en quittant.
+  useEffect(() => {
+    const bridge = window.voxElectron;
+    if (!bridge?.setMaximizedWindow) return;
+    bridge.setMaximizedWindow(true).catch(() => {});
+    return () => {
+      bridge.setMaximizedWindow?.(false).catch(() => {});
+    };
+  }, []);
+
+
   const buy = async (priceId: string, purchaseType: "credits" | "subscription") => {
     if (authLoading || statusLoading) return;
     if (!user) {

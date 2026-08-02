@@ -533,6 +533,13 @@ ipcMain.handle('window:toggle-maximize', () => {
   else mainWindow.maximize();
   return mainWindow.isMaximized();
 });
+// Agrandit (ou restaure) la fenetre : utilise par la page Tarifs pour l'afficher en grand.
+ipcMain.handle('window:set-maximized', (_e, on) => {
+  if (!mainWindow) return false;
+  if (on) { if (!mainWindow.isMaximized()) mainWindow.maximize(); }
+  else if (mainWindow.isMaximized()) mainWindow.unmaximize();
+  return mainWindow.isMaximized();
+});
 ipcMain.handle('window:close', () => { if (mainWindow) mainWindow.close(); return true; });
 
 ipcMain.handle('hotkeys:set', (_e, payload) => {

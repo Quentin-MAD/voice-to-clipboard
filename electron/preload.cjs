@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('voxElectron', {
   showWindow: () => ipcRenderer.invoke('window:show'),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
   toggleMaximizeWindow: () => ipcRenderer.invoke('window:toggle-maximize'),
+  setMaximizedWindow: (on) => ipcRenderer.invoke('window:set-maximized', !!on),
   closeWindow: () => ipcRenderer.invoke('window:close'),
   info: () => ipcRenderer.invoke('app:info'),
   getAutoStart: () => ipcRenderer.invoke('autostart:get'),
