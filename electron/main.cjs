@@ -622,6 +622,10 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
+ipcMain.handle('shell:open-external', (_e, url) => {
+  if (typeof url === 'string' && /^https?:\/\//i.test(url)) { try { shell.openExternal(url); } catch {} }
+  return true;
+});
 ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, readAccel, readHotkeyOk, hotkeyBackend: lowLevelHotkeys.getBackend(), hotkeyLoadError: lowLevelHotkeys.getLoadError() || null, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
 
 // -------- Screenshot capture for "Read message" feature --------
