@@ -409,6 +409,8 @@ export const Route = createFileRoute("/api/admin")({
           finance,
           breakdown,
           recent,
+          payments,
+
         });
 
       },
