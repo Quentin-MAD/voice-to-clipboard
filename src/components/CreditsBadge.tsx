@@ -153,18 +153,9 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
           <div className="mt-3 space-y-2">
             <div className={`rounded-xl px-3 py-2.5 ${rowBg} text-center`}>
               <div className={`text-[11px] uppercase tracking-wider ${muted}`}>
-                {status.is_tester ? "Testeur - traductions mobile" : "Ce mois-ci (abonnement)"}
+                {status.is_tester ? "Testeur - traductions mobile" : "Abonnement - traductions mobile"}
               </div>
-              <div className="mt-0.5 text-2xl font-bold">
-                {status.is_tester ? (
-                  "∞ illimité"
-                ) : (
-                  <>
-                    {Math.max(0, (status.mobile_daily_limit ?? 500) - (status.mobile_daily_used ?? 0))}
-                    <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 500} ce mois</span>
-                  </>
-                )}
-              </div>
+              <div className="mt-0.5 text-2xl font-bold">∞ illimité</div>
             </div>
             {(status.mobile_balance ?? 0) > 0 && (
               <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
@@ -177,7 +168,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
             <p className={`text-[11px] leading-relaxed ${muted}`}>
               {status.is_tester
                 ? "Compte testeur : aucune limite sur les traductions mobiles."
-                : "Votre abonnement couvre 500 traductions mobiles par mois. Le compteur est mensuel, il repart à zéro chaque début de mois."}
+                : "Votre abonnement supprime toutes les limites : traductions mobiles illimitées, sans plafond journalier ni mensuel."}
             </p>
           </div>
         ) : (
