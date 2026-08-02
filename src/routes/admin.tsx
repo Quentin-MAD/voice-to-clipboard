@@ -979,6 +979,8 @@ function MemberDrawer({
                 ))}
               </div>
             </section>
+            )}
+
 
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Compte</h3>
