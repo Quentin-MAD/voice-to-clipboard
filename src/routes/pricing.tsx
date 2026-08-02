@@ -160,7 +160,7 @@ function PricingPage() {
               <li>✓ Traductions Texte (F8) illimitées</li>
               <li>✓ Lectures Vocale (F9) illimitées</li>
               <li>✓ Traductions Mobile illimitées</li>
-              <li>✓ Aucune limite journalière ni mensuelle</li>
+              <li>✓ Aucune limite</li>
               <li>✓ Support prioritaire</li>
             </ul>
             <button
