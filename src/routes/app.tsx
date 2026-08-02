@@ -1094,8 +1094,8 @@ function Home() {
           {/* Titlebar (Electron only) */}
           {isElectron && (
             <div className="native-titlestrip">
-              {(installedVersion || (skinPreview ? "1.0.2" : "")) && (
-                <span className="native-version notranslate">v{installedVersion || "1.0.2"}</span>
+              {(installedVersion || (skinPreview ? "1.0.0" : "")) && (
+                <span className="native-version notranslate">v{installedVersion || "1.0.0"}</span>
               )}
               <div className="native-window-controls">
                 <button
