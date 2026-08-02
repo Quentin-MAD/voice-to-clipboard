@@ -797,20 +797,13 @@ function Home() {
       toast.error("Fonction disponible uniquement dans l'application Windows.");
       return;
     }
-    if (dailyLimitReached) {
-      toast.error("🛑 Limite quotidienne atteinte.");
-      return;
-    }
     // Abonnés et testeurs : aucune limite, aucun coût en crédits
     const unlimited = !!userStatus && (userStatus.subscribed || userStatus.is_tester);
     if (!unlimited) {
-      if ((userStatus?.voice_balance ?? 0) < 1) {
+      const vCap = userStatus?.voice_daily_limit ?? 10;
+      const freeLeft = Math.max(0, vCap - (userStatus?.voice_daily_used ?? 0));
+      if (freeLeft <= 0 && (userStatus?.voice_balance ?? 0) < 1) {
         setLimitBlock({ kind: "voice_credits" });
-        return;
-      }
-      const vCap = userStatus?.voice_daily_limit ?? 15;
-      if (vCap > 0 && (userStatus?.voice_daily_used ?? 0) >= vCap) {
-        setLimitBlock({ kind: "voice_daily", resetAt: userStatus?.voice_daily_reset_at ?? null });
         return;
       }
     }
