@@ -255,6 +255,7 @@ function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [capturing, setCapturing] = useState<"toggle" | "read" | "autotype" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [limitBlock, setLimitBlock] = useState<LimitBlock | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [installedVersion, setInstalledVersion] = useState<string>("");
