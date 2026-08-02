@@ -208,6 +208,17 @@ function AuthPage() {
                 </button>
               </form>
 
+              {mode === "signin" && (
+                <button
+                  type="button"
+                  onClick={sendReset}
+                  disabled={loading}
+                  className="native-auth-switch"
+                >
+                  Mot de passe oublié ?
+                </button>
+              )}
+
               <div className="native-auth-sep">
                 <span>ou</span>
               </div>
