@@ -274,6 +274,36 @@ export const Route = createFileRoute("/api/admin")({
           };
         });
 
+        // === Derniers paiements Paddle reçus (contrôle de livraison) ===
+        const GRANTS: Record<string, string> = {
+          credits_pack_50_onetime: "75 crédits Texte",
+          voice_pack_10_onetime: "45 crédits Vocaux",
+          mobile_credits_pack_75_onetime: "75 crédits Mobile",
+          sub_extend_year_onetime: "+1 an d'abonnement",
+          vox_subscription_yearly: "Abonnement 1 an",
+        };
+        const payments = (recentPay ?? []).map((p: any) => {
+          const items = (p.raw?.items ?? []) as any[];
+          const externalIds = items
+            .map((it) => it?.price?.importMeta?.externalId ?? it?.price?.import_meta?.external_id)
+            .filter(Boolean) as string[];
+          const granted = externalIds.map((id) => GRANTS[id] ?? id);
+          return {
+            created_at: p.created_at,
+            user_id: p.user_id,
+            email: emailById.get(p.user_id) ?? "-",
+            amount_eur: Number(p.amount_eur ?? 0),
+            currency: p.currency ?? "EUR",
+            environment: p.environment,
+            kind: p.kind,
+            paddle_transaction_id: p.paddle_transaction_id,
+            products: externalIds,
+            granted: granted.length ? granted.join(", ") : p.kind === "subscription" ? "Abonnement" : "-",
+          };
+        });
+
+
+
         // === Revenus - filtrés selon le mode choisi ===
         const txRows = (tx.data ?? []).filter((t: any) => matchesEnv(t.environment));
         const txAllRows = (txAll.data ?? []).filter((t: any) => matchesEnv(t.environment));
