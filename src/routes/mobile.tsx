@@ -17,6 +17,7 @@ import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 import { useAppearance } from "@/hooks/use-appearance";
 import { appearanceStyle } from "@/lib/appearance";
 import { MobileAuthPanel } from "@/components/MobileAuthPanel";
+import { LimitDialog, limitBlockFromCode, type LimitBlock } from "@/components/LimitDialog";
 
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
