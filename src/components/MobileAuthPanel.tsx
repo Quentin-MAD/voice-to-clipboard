@@ -159,6 +159,17 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
           Continuer avec Google
         </button>
 
+        {mode === "signin" && (
+          <button
+            type="button"
+            onClick={sendReset}
+            disabled={busy}
+            className="mt-4 w-full text-center text-xs text-white/60 underline disabled:opacity-60"
+          >
+            Mot de passe oublié ?
+          </button>
+        )}
+
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="mt-5 w-full text-center text-xs text-white/60 underline"
