@@ -478,7 +478,7 @@ function MobileApp() {
             ? usage.daily_limit > 0
               ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
               : "Traductions illimitées"
-            : "35 traductions mobiles gratuites par jour"}
+            : "15 dialogues mobiles gratuits par jour"}
         </div>
       )}
 

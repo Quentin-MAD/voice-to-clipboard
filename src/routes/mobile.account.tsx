@@ -103,7 +103,7 @@ function MobileAccountPage() {
             <div className="mt-2 text-2xl font-bold">2,99 €</div>
             <ul className="mt-1 space-y-0.5 text-sm text-white/70">
               <li>✓ 75 traductions app mobile</li>
-              <li>✓ Utilisées après vos 35 gratuites/jour</li>
+              <li>✓ Utilisées après vos 15 gratuits/jour</li>
               <li>✓ Cumulables, sans expiration</li>
             </ul>
             <button
