@@ -961,6 +961,34 @@ function MemberDrawer({
                     <span className="w-20 text-xs font-semibold">{c.label}</span>
                     <span className="text-xs text-muted-foreground">restants : {c.rem} / {c.quota}</span>
                     <div className="ml-auto flex flex-wrap gap-1.5">
+                      <button
+                        className={btn}
+                        disabled={c.rem <= 0}
+                        onClick={() => run(c.action, Math.max(0, c.rem - 5))}
+                      >
+                        -5
+                      </button>
+                      <button
+                        className={btn}
+                        disabled={c.rem <= 0}
+                        onClick={() => run(c.action, Math.max(0, c.rem - 1))}
+                      >
+                        -1
+                      </button>
+                      <button
+                        className={btn}
+                        disabled={c.rem >= c.quota}
+                        onClick={() => run(c.action, Math.min(c.quota, c.rem + 1))}
+                      >
+                        +1
+                      </button>
+                      <button
+                        className={btn}
+                        disabled={c.rem >= c.quota}
+                        onClick={() => run(c.action, Math.min(c.quota, c.rem + 5))}
+                      >
+                        +5
+                      </button>
                       <button className={btn} onClick={() => run(c.action, c.quota)}>Recharger ({c.quota})</button>
                       <button
                         className={btn}
@@ -975,6 +1003,7 @@ function MemberDrawer({
                       </button>
                       <button className={btn + " text-destructive"} onClick={() => run(c.action, 0)}>Épuiser (0)</button>
                     </div>
+
                   </div>
                 ))}
               </div>
