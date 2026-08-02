@@ -1306,10 +1306,9 @@ function Home() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14 }}>💳 Vous n'avez plus de crédits</div>
+                  <div style={{ fontWeight: 700, fontSize: 14 }}>💳 Vous n'avez plus de crédit</div>
                   <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>
-                    Vous avez utilisé vos 20 crédits gratuits du mois et n'avez plus de crédits achetés.
-                    Achetez un pack (50 crédits pour 2,99 €) ou passez à l'abonnement illimité (29,99 €/an) pour continuer.
+                    Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.
                   </div>
                 </div>
                 <a
@@ -1334,7 +1333,7 @@ function Home() {
                       : undefined
                   }
                 >
-                  Voir les plans →
+                  Accéder aux Plans →
                 </a>
               </div>
             </div>

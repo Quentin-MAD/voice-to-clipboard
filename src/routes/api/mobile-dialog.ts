@@ -139,7 +139,7 @@ export const Route = createFileRoute("/api/mobile-dialog")({
             auth: { persistSession: false, autoRefreshToken: false },
           });
 
-          // Rate limit mobile: 50/day
+          // Consume a free daily dialogue first, then a purchased credit. There is no global daily cap.
           const { data: consumeData, error: consumeErr } = await admin.rpc("consume_mobile_translation", {
             _user_id: userId,
           });
@@ -149,12 +149,9 @@ export const Route = createFileRoute("/api/mobile-dialog")({
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
           if (!row?.ok) {
-            const noCredits = row?.reason === "mobile_no_credits";
             return Response.json({
-              error: noCredits
-                ? "Vos traductions mobiles gratuites du jour et vos crédits Mobile sont épuisés."
-                : "Limite journalière atteinte : 15 dialogues mobiles gratuits par jour.",
-              code: noCredits ? "mobile_no_credits" : "mobile_daily_limit",
+              error: "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
+              code: "mobile_no_credits",
               daily_used: row?.daily_used ?? 15,
               daily_limit: row?.daily_limit ?? 15,
             }, { status: 429 });

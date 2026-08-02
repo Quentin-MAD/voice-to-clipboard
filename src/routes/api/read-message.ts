@@ -226,7 +226,7 @@ export const Route = createFileRoute("/api/read-message")({
           if (!row?.ok) {
             if (row?.reason === "no_voice_credits") {
               return Response.json({
-                error: "Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €) ou passez à l'abonnement.",
+                error: "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
                 code: "no_voice_credits",
               }, { status: 402 });
             }
