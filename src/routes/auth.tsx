@@ -304,6 +304,14 @@ function AuthPage() {
                 Votre compte ne sera actif qu'après validation. Sans confirmation, il est
                 automatiquement supprimé au bout de 2 heures.
               </p>
+              <button
+                type="button"
+                onClick={resendConfirmation}
+                disabled={loading}
+                className="mt-2 text-xs font-medium underline disabled:opacity-60"
+              >
+                Renvoyer l'email de vérification
+              </button>
             </div>
           )}
 
