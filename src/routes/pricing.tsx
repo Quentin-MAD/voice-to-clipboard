@@ -179,7 +179,7 @@ function PricingPage() {
                 : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 24,99 €/an")}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
-              *dans la limite de 150 traductions/jour (anti-spam).
+              Aucun plafond journalier ni mensuel pour les abonnés.
               {userStatus?.subscribed && " L'année achetée s'ajoute à la fin de votre période en cours."}
             </p>
           </div>
