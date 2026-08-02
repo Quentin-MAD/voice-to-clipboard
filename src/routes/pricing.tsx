@@ -78,7 +78,7 @@ function PricingPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          1 crédit Texte = 1 traduction vocale (F8) : vous parlez, TalKing écrit la traduction dans votre presse-papiers. 1 crédit Vocale = 1 lecture à voix haute (F9) : vous donnez un pseudo, TalKing lit le message du joueur dans votre langue. Le compte Gratuit est régulé par des limites journalières (30 texte/jour, 15 vocale/jour, 35 mobile/jour). L'abonnement supprime toutes les limites.
+          1 crédit Texte = 1 traduction vocale (F8) : vous parlez, TalKing écrit la traduction dans votre presse-papiers. 1 crédit Vocale = 1 lecture à voix haute (F9) : vous donnez un pseudo, TalKing lit le message du joueur dans votre langue. Le compte Gratuit reçoit 20 traductions Texte et 10 lectures Vocales offertes chaque jour (non cumulables), plus 35 traductions mobiles par jour. Au-delà, il faut acheter des crédits ou prendre l'abonnement, qui supprime toutes les limites.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -86,8 +86,8 @@ function PricingPage() {
             <h2 className="text-lg font-semibold">Gratuit</h2>
             <div className="my-3 text-3xl font-bold">0 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ 30 traductions Texte/jour (F8)</li>
-              <li>✓ 15 lectures Vocale/jour (F9)</li>
+              <li>✓ 20 traductions Texte offertes/jour (F8)</li>
+              <li>✓ 10 lectures Vocale offertes/jour (F9)</li>
               <li>✓ Toutes les langues</li>
               <li>✓ App Windows incluse</li>
             </ul>

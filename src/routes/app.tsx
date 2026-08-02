@@ -317,11 +317,11 @@ function Home() {
   });
   const userStatus = statusQuery.data;
 
-  // Access blocking
-  const dailyLimitReached = !!userStatus && userStatus.daily_used >= userStatus.daily_limit;
+  // Access blocking : plus aucune limite journaliere globale, seuls les credits comptent.
+  const dailyLimitReached = false;
   const noCreditsLeft =
-    !!userStatus && !userStatus.subscribed && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
-  const accessBlocked = dailyLimitReached || noCreditsLeft;
+    !!userStatus && !userStatus.subscribed && !userStatus.is_tester && userStatus.free_remaining <= 0 && userStatus.purchased_balance <= 0;
+  const accessBlocked = noCreditsLeft;
 
   // Live countdown for daily reset
   const [now, setNow] = useState(() => Date.now());
@@ -579,23 +579,9 @@ function Home() {
   const startRecording = useCallback(async () => {
     if (recordingRef.current || startingRef.current || processingRef.current) return;
     startingRef.current = true;
-    if (dailyLimitReached) {
-      startingRef.current = false;
-      toast.error(
-        `🛑 Limite quotidienne atteinte (150 traductions/24h). Réessayez dans ${resetCountdown ?? "quelques instants"}.`,
-        { duration: 6000 },
-      );
-      return;
-    }
     if (noCreditsLeft) {
       startingRef.current = false;
-      toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
-        duration: 6000,
-        action: {
-          label: "Voir les plans",
-          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-        },
-      });
+      setLimitBlock({ kind: "text_credits" });
       return;
     }
     setErrorMsg("");
@@ -811,20 +797,13 @@ function Home() {
       toast.error("Fonction disponible uniquement dans l'application Windows.");
       return;
     }
-    if (dailyLimitReached) {
-      toast.error("🛑 Limite quotidienne atteinte.");
-      return;
-    }
     // Abonnés et testeurs : aucune limite, aucun coût en crédits
     const unlimited = !!userStatus && (userStatus.subscribed || userStatus.is_tester);
     if (!unlimited) {
-      if ((userStatus?.voice_balance ?? 0) < 1) {
+      const vCap = userStatus?.voice_daily_limit ?? 10;
+      const freeLeft = Math.max(0, vCap - (userStatus?.voice_daily_used ?? 0));
+      if (freeLeft <= 0 && (userStatus?.voice_balance ?? 0) < 1) {
         setLimitBlock({ kind: "voice_credits" });
-        return;
-      }
-      const vCap = userStatus?.voice_daily_limit ?? 15;
-      if (vCap > 0 && (userStatus?.voice_daily_used ?? 0) >= vCap) {
-        setLimitBlock({ kind: "voice_daily", resetAt: userStatus?.voice_daily_reset_at ?? null });
         return;
       }
     }
@@ -1041,16 +1020,14 @@ function Home() {
   const voiceCount = userStatus?.voice_balance ?? 0;
 
   const voiceUsed = userStatus?.voice_daily_used ?? 0;
-  const voiceCap = userStatus?.voice_daily_limit ?? 5;
+  const voiceCap = userStatus?.voice_daily_limit ?? 10;
 
-  // Compte gratuit : la vraie limite affichée est le quota gratuit journalier (30),
-  // pas le plafond anti-spam de 150 qui s'applique aux comptes payants/testeurs.
+  // Compte gratuit : 20 traductions Texte gratuites par jour, 10 lectures Vocales
+  // gratuites par jour. Au-dela, seuls les credits achetes comptent.
   const isFreePlan = !!userStatus && !userStatus.subscribed && !userStatus.is_tester;
-  const freeQuota = 30;
-  const textUsed = isFreePlan
-    ? Math.min(freeQuota, Math.max(0, freeQuota - (userStatus?.free_remaining ?? freeQuota)))
-    : (userStatus?.daily_used ?? 0);
-  const textCap = isFreePlan ? freeQuota : (userStatus?.daily_limit ?? 150);
+  const freeQuota = 20;
+  const textUsed = Math.min(freeQuota, Math.max(0, freeQuota - (userStatus?.free_remaining ?? freeQuota)));
+  const textCap = freeQuota;
 
   const resetAt = userStatus?.daily_reset_at ?? userStatus?.voice_daily_reset_at ?? null;
   const resetLabel = resetAt
@@ -1317,37 +1294,8 @@ function Home() {
           )}
 
 
-          {/* Blocking banner - daily limit reached */}
-          {dailyLimitReached && (
-            <div
-              className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
-              style={{
-                borderColor: "rgba(239,68,68,0.6)",
-                background: "rgba(239,68,68,0.1)",
-                marginBottom: isElectron ? 12 : undefined,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontWeight: 700, color: isElectron ? "var(--nx-text)" : undefined, fontSize: 14 }}>
-                    🛑 Limite quotidienne atteinte (150 traductions / 24h)
-                  </div>
-                  <div style={{ fontSize: 12, color: isElectron ? "var(--nx-text-dim)" : undefined, opacity: 0.85, marginTop: 4 }}>
-                    Vous avez atteint la limite anti-abus. Toute nouvelle traduction est bloquée.
-                    {resetCountdown && (
-                      <>
-                        {" "}Prochain crédit disponible dans{" "}
-                        <strong style={{ fontFamily: "'JetBrains Mono', monospace" }}>{resetCountdown}</strong>.
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Blocking banner - out of credits */}
-          {!dailyLimitReached && noCreditsLeft && (
+          {noCreditsLeft && (
             <div
               className={isElectron ? "native-panel" : "mb-6 rounded-xl border p-4"}
               style={{
@@ -1414,7 +1362,7 @@ function Home() {
               <button
                 onClick={toggleRecording}
                 disabled={status === "processing" || accessBlocked}
-                title={accessBlocked ? (dailyLimitReached ? `Limite quotidienne atteinte (réinit. dans ${resetCountdown ?? "…"})` : "Plus de crédits - voir les plans") : undefined}
+                title={accessBlocked ? "Plus de crédits - voir les plans" : undefined}
                 className={`native-record grid h-40 w-40 shrink-0 place-items-center rounded-full text-lg font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
                   recordingRef.current || status === "recording"
                     ? "is-recording animate-pulse bg-red-500"
@@ -1433,7 +1381,7 @@ function Home() {
               <button
                 onClick={toggleRecording}
                 disabled={status === "processing" || accessBlocked}
-                title={accessBlocked ? (dailyLimitReached ? `Limite quotidienne atteinte (réinit. dans ${resetCountdown ?? "…"})` : "Plus de crédits - voir les plans") : undefined}
+                title={accessBlocked ? "Plus de crédits - voir les plans" : undefined}
                 className={`native-record flex min-w-[12rem] items-center justify-center gap-3 rounded-xl px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition active:scale-95 disabled:opacity-60 ${
                   recordingRef.current || status === "recording"
                     ? "is-recording animate-pulse bg-red-500"

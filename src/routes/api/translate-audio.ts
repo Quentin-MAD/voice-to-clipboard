@@ -187,16 +187,6 @@ export const Route = createFileRoute("/api/translate-audio")({
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
           if (!row?.ok) {
-            if (row?.reason === "daily_limit" || row?.reason === "hourly_limit") {
-              return Response.json(
-                {
-                  error:
-                    "Limite anti-spam atteinte : 150 traductions sur les dernières 24 heures. Réessayez demain.",
-                  code: "daily_limit",
-                },
-                { status: 429 },
-              );
-            }
             if (row?.reason === "no_credits") {
               return Response.json(
                 {
