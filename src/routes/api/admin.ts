@@ -366,7 +366,7 @@ export const Route = createFileRoute("/api/admin")({
               auth: { persistSession: false, autoRefreshToken: false },
             });
             const { error } = await anon.auth.resetPasswordForEmail(email, {
-              redirectTo: `${origin}/auth`,
+              redirectTo: `${origin}/reset-password`,
             });
             if (error) return Response.json({ error: error.message }, { status: 500 });
             return Response.json({ ok: true, email });
