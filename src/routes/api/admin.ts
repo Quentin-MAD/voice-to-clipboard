@@ -342,13 +342,45 @@ export const Route = createFileRoute("/api/admin")({
           action?:
             | "grant_lifetime" | "grant_year" | "cancel"
             | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
-            | "grant_tester" | "revoke_tester";
+            | "grant_tester" | "revoke_tester"
+            | "send_password_reset" | "delete_user";
           user_id?: string;
           amount?: number;
         };
         if (!body.user_id || !body.action) {
           return Response.json({ error: "bad_request" }, { status: 400 });
         }
+        if (body.action === "send_password_reset" || body.action === "delete_user") {
+          const { data: target, error: pErr } = await supabaseAdmin
+            .from("profiles")
+            .select("email")
+            .eq("id", body.user_id)
+            .maybeSingle();
+          if (pErr) return Response.json({ error: pErr.message }, { status: 500 });
+
+          if (body.action === "send_password_reset") {
+            const email = (target?.email ?? "").trim();
+            if (!email) return Response.json({ error: "email_introuvable" }, { status: 400 });
+            const origin = new URL(request.url).origin;
+            const anon = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+              auth: { persistSession: false, autoRefreshToken: false },
+            });
+            const { error } = await anon.auth.resetPasswordForEmail(email, {
+              redirectTo: `${origin}/auth`,
+            });
+            if (error) return Response.json({ error: error.message }, { status: 500 });
+            return Response.json({ ok: true, email });
+          }
+
+          // delete_user : suppression définitive du compte
+          if ((target?.email ?? "").toLowerCase() === ADMIN_EMAIL) {
+            return Response.json({ error: "impossible de supprimer le compte admin" }, { status: 400 });
+          }
+          const { error } = await supabaseAdmin.auth.admin.deleteUser(body.user_id);
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+          return Response.json({ ok: true });
+        }
+
         if (body.action === "add_credits" || body.action === "set_credits") {
           const amt = Math.trunc(body.amount ?? 0);
           const rpc = body.action === "add_credits" ? "admin_add_credits" : "admin_set_credits";

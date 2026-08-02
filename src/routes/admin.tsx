@@ -825,6 +825,35 @@ function UserActions({
 
           <hr className="my-1" />
           <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+            Compte
+          </div>
+          <button
+            onClick={() => {
+              if (confirm("Envoyer un email de réinitialisation de mot de passe à ce membre ?")) {
+                onAct(userId, "send_password_reset");
+              }
+              setOpen(false);
+            }}
+            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
+          >
+            Envoyer le mail de réinitialisation
+          </button>
+          <button
+            onClick={() => {
+              if (confirm("Supprimer DÉFINITIVEMENT ce compte et toutes ses données ? Action irréversible.")) {
+                onAct(userId, "delete_user");
+              }
+              setOpen(false);
+            }}
+            className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
+          >
+            Supprimer le compte
+          </button>
+
+
+
+          <hr className="my-1" />
+          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
             Crédits texte (actuel : {currentText})
           </div>
           <button
