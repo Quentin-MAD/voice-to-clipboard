@@ -158,9 +158,10 @@ function PricingPage() {
               24,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ Traductions Texte (F8) illimitées*</li>
-              <li>✓ 50 lectures Vocale/jour (350/mois)</li>
-              <li>✓ 500 traductions Mobile/mois</li>
+              <li>✓ Traductions Texte (F8) illimitées</li>
+              <li>✓ Lectures Vocale (F9) illimitées</li>
+              <li>✓ Traductions Mobile illimitées</li>
+              <li>✓ Aucune limite journalière ni mensuelle</li>
               <li>✓ Support prioritaire</li>
             </ul>
             <button
