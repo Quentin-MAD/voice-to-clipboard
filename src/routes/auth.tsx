@@ -87,6 +87,26 @@ function AuthPage() {
     }
   };
 
+  const sendReset = async () => {
+    const target = email.trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(target, {
+        redirectTo: "https://talking-translator.com/reset-password",
+      });
+      if (error) throw error;
+      toast.success("Email de réinitialisation envoyé. Pensez à vérifier vos spams.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signInGoogle = async () => {
     setLoading(true);
     try {
