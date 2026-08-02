@@ -78,7 +78,7 @@ function PricingPage() {
         <Link to="/" className="text-sm text-muted-foreground hover:underline">← Retour à l'accueil</Link>
         <h1 className="mt-6 text-3xl font-bold">Tarifs</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          1 crédit Texte = 1 traduction vocale (F8) : vous parlez, TalKing écrit la traduction dans votre presse-papiers. 1 crédit Vocale = 1 lecture à voix haute (F9) : vous donnez un pseudo, TalKing lit le message du joueur dans votre langue. Limite anti-spam : 150 traductions/jour. Le compte Gratuit est régulé par des limites journalières uniquement (30 texte/jour, 15 vocale/jour).
+          1 crédit Texte = 1 traduction vocale (F8) : vous parlez, TalKing écrit la traduction dans votre presse-papiers. 1 crédit Vocale = 1 lecture à voix haute (F9) : vous donnez un pseudo, TalKing lit le message du joueur dans votre langue. Le compte Gratuit est régulé par des limites journalières (30 texte/jour, 15 vocale/jour, 35 mobile/jour). L'abonnement supprime toutes les limites.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -158,9 +158,10 @@ function PricingPage() {
               24,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
             </div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ Traductions Texte (F8) illimitées*</li>
-              <li>✓ 50 lectures Vocale/jour (350/mois)</li>
-              <li>✓ 500 traductions Mobile/mois</li>
+              <li>✓ Traductions Texte (F8) illimitées</li>
+              <li>✓ Lectures Vocale (F9) illimitées</li>
+              <li>✓ Traductions Mobile illimitées</li>
+              <li>✓ Aucune limite journalière ni mensuelle</li>
               <li>✓ Support prioritaire</li>
             </ul>
             <button
@@ -178,7 +179,7 @@ function PricingPage() {
                 : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 24,99 €/an")}
             </button>
             <p className="mt-2 text-[10px] text-muted-foreground">
-              *dans la limite de 150 traductions/jour (anti-spam).
+              Aucun plafond journalier ni mensuel pour les abonnés.
               {userStatus?.subscribed && " L'année achetée s'ajoute à la fin de votre période en cours."}
             </p>
           </div>

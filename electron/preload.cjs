@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('voxElectron', {
   setRecordingState: (isRecording) => ipcRenderer.invoke('recording:state', isRecording),
   setOverlayStatus: (status) => ipcRenderer.invoke('overlay:status', status),
   hideWindow: () => ipcRenderer.invoke('window:hide'),
+  openExternal: (url) => ipcRenderer.invoke('shell:open-external', url),
   showWindow: () => ipcRenderer.invoke('window:show'),
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
   toggleMaximizeWindow: () => ipcRenderer.invoke('window:toggle-maximize'),

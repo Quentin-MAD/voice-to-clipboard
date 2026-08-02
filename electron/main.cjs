@@ -127,6 +127,22 @@ function createWindow() {
   mainWindow.setTitle(WINDOW_TITLE);
   mainWindow.loadURL(APP_URL);
 
+  // Tout lien externe s'ouvre dans le navigateur du système, jamais dans l'app.
+  const appOrigin = (() => { try { return new URL(APP_URL).origin; } catch { return null; } })();
+  const isInternal = (url) => {
+    try { return !!appOrigin && new URL(url).origin === appOrigin; } catch { return false; }
+  };
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:/i.test(url)) { try { shell.openExternal(url); } catch {} }
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.on('will-navigate', (e, url) => {
+    if (!isInternal(url) && /^https?:/i.test(url)) {
+      e.preventDefault();
+      try { shell.openExternal(url); } catch {}
+    }
+  });
+
   // Avoid the white flash: only show the window once the renderer has content ready.
   mainWindow.once('ready-to-show', () => {
     mainWindow.setTitle(WINDOW_TITLE);
@@ -606,6 +622,10 @@ ipcMain.handle('recording:state', (_e, state) => {
 
 ipcMain.handle('overlay:status', (_e, status) => { setOverlayStatus(status); return true; });
 ipcMain.handle('window:hide', () => { if (mainWindow) mainWindow.hide(); return true; });
+ipcMain.handle('shell:open-external', (_e, url) => {
+  if (typeof url === 'string' && /^https?:\/\//i.test(url)) { try { shell.openExternal(url); } catch {} }
+  return true;
+});
 ipcMain.handle('app:info', () => ({ isElectron: true, toggleAccel, hotkeyOk, readAccel, readHotkeyOk, hotkeyBackend: lowLevelHotkeys.getBackend(), hotkeyLoadError: lowLevelHotkeys.getLoadError() || null, version: CURRENT_VERSION, userDataPath: app.getPath('userData') }));
 
 // -------- Screenshot capture for "Read message" feature --------

@@ -22,6 +22,7 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 import { acquireMicStream, describeMicError } from "@/lib/mic";
 import { useAppearance } from "@/hooks/use-appearance";
 import { appearanceStyle } from "@/lib/appearance";
+import { LimitDialog, limitBlockFromCode, type LimitBlock } from "@/components/LimitDialog";
 
 
 
@@ -254,6 +255,7 @@ function Home() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [capturing, setCapturing] = useState<"toggle" | "read" | "autotype" | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+  const [limitBlock, setLimitBlock] = useState<LimitBlock | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
   const [installedVersion, setInstalledVersion] = useState<string>("");
@@ -503,19 +505,9 @@ function Home() {
       if (!res.ok || !json.translation) {
         // Refetch status so the UI reflects new usage/limits
         statusQuery.refetch();
-        if (json.code === "daily_limit" || json.code === "hourly_limit") {
-          toast.error(
-            `🛑 Limite quotidienne atteinte (150 traductions/24h). Vous pourrez recommencer bientôt.`,
-            { duration: 7000 },
-          );
-        } else if (json.code === "no_credits") {
-          toast.error("Plus de crédits disponibles. Consultez les tarifs pour continuer.", {
-            duration: 7000,
-            action: {
-              label: "Voir les plans",
-              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-            },
-          });
+        const blocked = limitBlockFromCode(json.code);
+        if (blocked) {
+          setLimitBlock(blocked);
         } else if (json.code === "unauthorized") {
           toast.error("Session expirée");
           navigate({ to: "/auth" });
@@ -763,24 +755,11 @@ function Home() {
       };
       if (!res.ok || !json.translation || !json.audio) {
         statusQuery.refetch();
-        if (json.code === "daily_limit") {
-          toast.error("🛑 Limite quotidienne atteinte (150 / 24h).", { duration: 6000 });
-        } else if (json.code === "voice_daily_limit") {
-          toast.error(json.error ?? "🔊 Limite quotidienne de lectures vocales atteinte.", {
-            duration: 7000,
-            action: {
-              label: "Voir les plans",
-              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-            },
-          });
-        } else if (json.code === "no_voice_credits" || json.code === "no_credits") {
-          toast.error(json.error ?? "Vous n'avez plus de crédits vocaux.", {
-            duration: 7000,
-            action: {
-              label: "Acheter des crédits Vocale",
-              onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-            },
-          });
+        const blockedRead = limitBlockFromCode(
+          json.code === "no_credits" ? "no_voice_credits" : json.code,
+        );
+        if (blockedRead) {
+          setLimitBlock(blockedRead);
         } else if (json.code === "not_found") {
           toast.error(json.error ?? "Message introuvable.", { duration: 5000 });
         } else if (json.code === "unauthorized") {
@@ -836,29 +815,18 @@ function Home() {
       toast.error("🛑 Limite quotidienne atteinte.");
       return;
     }
-    // Read-message needs 1 voice credit (subscribers exempt from credit cost)
-    if (!userStatus?.subscribed) {
+    // Abonnés et testeurs : aucune limite, aucun coût en crédits
+    const unlimited = !!userStatus && (userStatus.subscribed || userStatus.is_tester);
+    if (!unlimited) {
       if ((userStatus?.voice_balance ?? 0) < 1) {
-        toast.error("Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €).", {
-          duration: 7000,
-          action: {
-            label: "Acheter",
-            onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-          },
-        });
+        setLimitBlock({ kind: "voice_credits" });
         return;
       }
-    }
-    // Voice daily cap: 5/jour gratuit, 10/jour avec abonnement (les packs de credits ne touchent pas a cette limite)
-    if ((userStatus?.voice_daily_used ?? 0) >= (userStatus?.voice_daily_limit ?? 5)) {
-      toast.error(`🔊 Limite quotidienne atteinte (${userStatus?.voice_daily_limit ?? 5} lectures/jour).`, {
-        duration: 7000,
-        action: {
-          label: "Voir les plans",
-          onClick: () => window.open("https://talking-translator.com/pricing", "_blank", "noopener"),
-        },
-      });
-      return;
+      const vCap = userStatus?.voice_daily_limit ?? 15;
+      if (vCap > 0 && (userStatus?.voice_daily_used ?? 0) >= vCap) {
+        setLimitBlock({ kind: "voice_daily", resetAt: userStatus?.voice_daily_reset_at ?? null });
+        return;
+      }
     }
     try {
       const { stream, usedFallback } = await acquireMicStream(micDeviceId);
@@ -1919,6 +1887,13 @@ function Home() {
             )}
           </div>
         </div>
+      )}
+      {limitBlock && (
+        <LimitDialog
+          block={limitBlock}
+          onClose={() => setLimitBlock(null)}
+          variant={isElectron ? "native" : "web"}
+        />
       )}
       {micSetupOpen && (
         <div

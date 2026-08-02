@@ -33,6 +33,7 @@ declare global {
     setRecordingState: (isRecording: boolean) => Promise<boolean>;
     setOverlayStatus: (status: "idle" | "recording" | "processing" | "copied" | "error") => Promise<boolean>;
     hideWindow: () => Promise<boolean>;
+    openExternal: (url: string) => Promise<boolean>;
     showWindow: () => Promise<boolean>;
     minimizeWindow: () => Promise<boolean>;
     toggleMaximizeWindow: () => Promise<boolean>;

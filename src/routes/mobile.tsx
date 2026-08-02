@@ -17,6 +17,7 @@ import { StatusPill, CreditsCard } from "@/components/CreditsBadge";
 import { useAppearance } from "@/hooks/use-appearance";
 import { appearanceStyle } from "@/lib/appearance";
 import { MobileAuthPanel } from "@/components/MobileAuthPanel";
+import { LimitDialog, limitBlockFromCode, type LimitBlock } from "@/components/LimitDialog";
 
 
 const LANGUAGES: Array<{ code: string; label: string; flag: string }> = [
@@ -189,6 +190,7 @@ function MobileApp() {
   const [translation, setTranslation] = useState("");
   const [lastDirection, setLastDirection] = useState<Turn>("me");
   const [usage, setUsage] = useState<{ daily_used: number; daily_limit: number } | null>(null);
+  const [limitBlock, setLimitBlock] = useState<LimitBlock | null>(null);
 
   const [installVisible, setInstallVisible] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
@@ -369,7 +371,9 @@ function MobileApp() {
         });
         const json = await res.json();
         if (!res.ok) {
-          toast.error(json.error ?? "Erreur");
+          const blocked = limitBlockFromCode(json.code, json.error);
+          if (blocked) setLimitBlock(blocked);
+          else toast.error(json.error ?? "Erreur");
           if (json.daily_used != null) setUsage({ daily_used: json.daily_used, daily_limit: json.daily_limit });
           recorder.setState("idle");
           return;
@@ -471,8 +475,10 @@ function MobileApp() {
       {skin.show.usage && (
         <div className="px-5 pb-2 text-center text-xs text-white/50">
           {usage
-            ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
-            : "50 traductions vocales gratuites par jour"}
+            ? usage.daily_limit > 0
+              ? `${usage.daily_used} / ${usage.daily_limit} traductions aujourd'hui`
+              : "Traductions illimitées"
+            : "35 traductions mobiles gratuites par jour"}
         </div>
       )}
 
@@ -731,6 +737,9 @@ function MobileApp() {
             </div>
           </div>
         </div>
+      )}
+      {limitBlock && (
+        <LimitDialog block={limitBlock} onClose={() => setLimitBlock(null)} variant="mobile" />
       )}
     </div>
   );
