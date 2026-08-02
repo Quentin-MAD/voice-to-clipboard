@@ -206,7 +206,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
               <Gift className="h-3 w-3" /> Texte gratuit aujourd'hui
             </div>
             <div className="mt-0.5 text-lg font-bold">{status.free_remaining}</div>
-            <div className={`text-[11px] ${muted}`}>Limite journalière : 30</div>
+            <div className={`text-[11px] ${muted}`}>20 offerts / jour</div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>
@@ -220,9 +220,9 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
               <Gift className="h-3 w-3" /> Vocal gratuit aujourd'hui
             </div>
             <div className="mt-0.5 text-lg font-bold">
-              {Math.max(0, (status.voice_daily_limit ?? 15) - (status.voice_daily_used ?? 0))}
+              {Math.max(0, (status.voice_daily_limit ?? 10) - (status.voice_daily_used ?? 0))}
             </div>
-            <div className={`text-[11px] ${muted}`}>Limite journalière : 15</div>
+            <div className={`text-[11px] ${muted}`}>10 offerts / jour</div>
           </div>
           <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
             <div className={`flex items-center gap-1 text-[11px] ${muted}`}>

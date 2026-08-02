@@ -224,21 +224,6 @@ export const Route = createFileRoute("/api/read-message")({
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
           if (!row?.ok) {
-            if (row?.reason === "daily_limit") {
-              return Response.json({ error: "Limite quotidienne atteinte (150/24h).", code: "daily_limit" }, { status: 429 });
-            }
-            if (row?.reason === "voice_daily_limit_free") {
-              return Response.json({
-                error: "Limite atteinte : 5 lectures vocales/jour en gratuit. Achetez un Pack crédits Vocale pour passer à 10/jour.",
-                code: "voice_daily_limit",
-              }, { status: 429 });
-            }
-            if (row?.reason === "voice_daily_limit") {
-              return Response.json({
-                error: "Limite atteinte : 10 lectures vocales/jour maximum.",
-                code: "voice_daily_limit",
-              }, { status: 429 });
-            }
             if (row?.reason === "no_voice_credits") {
               return Response.json({
                 error: "Vous n'avez plus de crédits vocaux. Achetez un Pack crédits Vocale (10 pour 2,99 €) ou passez à l'abonnement.",
