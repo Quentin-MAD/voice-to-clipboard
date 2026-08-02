@@ -410,6 +410,10 @@ export type Database = {
         Args: { _amount: number; _target_user: string }
         Returns: undefined
       }
+      admin_set_free_remaining: {
+        Args: { _kind: string; _remaining: number; _target_user: string }
+        Returns: undefined
+      }
       admin_set_mobile_credits: {
         Args: { _amount: number; _target_user: string }
         Returns: undefined

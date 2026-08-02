@@ -922,6 +922,39 @@ function MemberDrawer({
             </section>
 
             <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Crédits gratuits du jour (tests)
+              </h3>
+              <div className="space-y-2">
+                {([
+                  { key: "text", label: "Texte", action: "set_free_text", quota: 20, rem: st ? (st.free_remaining ?? 0) : 0 },
+                  { key: "voice", label: "Vocaux", action: "set_free_voice", quota: 10, rem: st ? Math.max(0, (st.voice_daily_limit || 10) - st.voice_daily_used) : 0 },
+                  { key: "mobile", label: "Mobile", action: "set_free_mobile", quota: 35, rem: st ? Math.max(0, (st.mobile_daily_limit || 35) - st.mobile_daily_used) : 0 },
+                ] as const).map((c) => (
+                  <div key={c.key} className="flex flex-wrap items-center gap-2 rounded-md border bg-background p-2">
+                    <span className="w-20 text-xs font-semibold">{c.label}</span>
+                    <span className="text-xs text-muted-foreground">restants : {c.rem} / {c.quota}</span>
+                    <div className="ml-auto flex flex-wrap gap-1.5">
+                      <button className={btn} onClick={() => run(c.action, c.quota)}>Recharger ({c.quota})</button>
+                      <button
+                        className={btn}
+                        onClick={() => {
+                          const raw = prompt(`Crédits gratuits ${c.label} restants aujourd'hui (max ${c.quota})`, String(c.rem));
+                          if (raw === null) return;
+                          const n = Number(raw);
+                          if (Number.isFinite(n) && n >= 0) run(c.action, Math.min(Math.trunc(n), c.quota));
+                        }}
+                      >
+                        Définir…
+                      </button>
+                      <button className={btn + " text-destructive"} onClick={() => run(c.action, 0)}>Épuiser (0)</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Compte</h3>
               <div className="flex flex-wrap gap-2">
                 <button

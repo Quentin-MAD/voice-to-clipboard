@@ -385,6 +385,7 @@ export const Route = createFileRoute("/api/admin")({
             | "grant_lifetime" | "grant_year" | "cancel"
             | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
             | "add_mobile_credits" | "set_mobile_credits"
+            | "set_free_text" | "set_free_voice" | "set_free_mobile"
             | "grant_tester" | "revoke_tester"
             | "send_password_reset" | "delete_user";
           user_id?: string;
@@ -443,6 +444,18 @@ export const Route = createFileRoute("/api/admin")({
           const amt = Math.trunc(body.amount ?? 0);
           const rpc = body.action === "add_mobile_credits" ? "admin_add_mobile_credits" : "admin_set_mobile_credits";
           const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (
+          body.action === "set_free_text" ||
+          body.action === "set_free_voice" ||
+          body.action === "set_free_mobile"
+        ) {
+          const kind = body.action.replace("set_free_", "");
+          const { error } = await supabaseAdmin.rpc("admin_set_free_remaining", {
+            _target_user: body.user_id,
+            _kind: kind,
+            _remaining: Math.trunc(body.amount ?? 0),
+          });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         } else if (body.action === "grant_tester" || body.action === "revoke_tester") {
           const { error } = await supabaseAdmin.rpc("admin_set_tester", {
