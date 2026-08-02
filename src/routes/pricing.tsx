@@ -86,8 +86,8 @@ function PricingPage() {
             <h2 className="text-lg font-semibold">Gratuit</h2>
             <div className="my-3 text-3xl font-bold">0 €</div>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ 30 traductions Texte/jour (F8)</li>
-              <li>✓ 15 lectures Vocale/jour (F9)</li>
+              <li>✓ 20 traductions Texte offertes/jour (F8)</li>
+              <li>✓ 10 lectures Vocale offertes/jour (F9)</li>
               <li>✓ Toutes les langues</li>
               <li>✓ App Windows incluse</li>
             </ul>
