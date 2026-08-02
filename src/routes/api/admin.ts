@@ -444,6 +444,18 @@ export const Route = createFileRoute("/api/admin")({
           const rpc = body.action === "add_mobile_credits" ? "admin_add_mobile_credits" : "admin_set_mobile_credits";
           const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (
+          body.action === "set_free_text" ||
+          body.action === "set_free_voice" ||
+          body.action === "set_free_mobile"
+        ) {
+          const kind = body.action.replace("set_free_", "");
+          const { error } = await supabaseAdmin.rpc("admin_set_free_remaining", {
+            _target_user: body.user_id,
+            _kind: kind,
+            _remaining: Math.trunc(body.amount ?? 0),
+          });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
         } else if (body.action === "grant_tester" || body.action === "revoke_tester") {
           const { error } = await supabaseAdmin.rpc("admin_set_tester", {
             _target_user: body.user_id,
