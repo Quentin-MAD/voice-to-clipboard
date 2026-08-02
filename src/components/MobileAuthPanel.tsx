@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { emailLinkOrigin } from "@/lib/auth-urls";
 
 /**
  * Connexion intégrée à l'app mobile.
@@ -26,7 +27,7 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/mobile` },
+          options: { emailRedirectTo: `${emailLinkOrigin()}/mobile` },
         });
         if (error) throw error;
         setPendingEmail(email);
@@ -36,6 +37,49 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         if (error) throw error;
         toast.success("Connexion réussie");
       }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    const target = (pendingEmail ?? email).trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: target,
+        options: { emailRedirectTo: `${emailLinkOrigin()}/mobile` },
+      });
+      if (error) throw error;
+      setPendingEmail(target);
+      toast.success("Nouvel email de vérification envoyé.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendReset = async () => {
+    const target = email.trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(target, {
+        redirectTo: `${emailLinkOrigin()}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Email de réinitialisation envoyé. Pensez à vérifier vos spams.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
@@ -73,9 +117,17 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         </h2>
 
         {pendingEmail && (
-          <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+          <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
             Email de vérification envoyé à {pendingEmail}. Validez-le puis revenez ici.
-          </p>
+            <button
+              type="button"
+              onClick={resendConfirmation}
+              disabled={busy}
+              className="mt-2 block underline disabled:opacity-60"
+            >
+              Renvoyer l'email
+            </button>
+          </div>
         )}
 
         <form onSubmit={onSubmit} className="mt-5 space-y-3">
@@ -114,6 +166,17 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         >
           Continuer avec Google
         </button>
+
+        {mode === "signin" && (
+          <button
+            type="button"
+            onClick={sendReset}
+            disabled={busy}
+            className="mt-4 w-full text-center text-xs text-white/60 underline disabled:opacity-60"
+          >
+            Mot de passe oublié ?
+          </button>
+        )}
 
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}

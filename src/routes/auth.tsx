@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { emailLinkOrigin } from "@/lib/auth-urls";
 import { toast } from "sonner";
 import { Footer } from "@/components/Footer";
 
@@ -69,7 +70,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth` },
+          options: { emailRedirectTo: `${emailLinkOrigin()}/auth` },
         });
         if (error) throw error;
         setPendingEmail(email);
@@ -87,6 +88,29 @@ function AuthPage() {
     }
   };
 
+  const resendConfirmation = async () => {
+    const target = (pendingEmail ?? email).trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: target,
+        options: { emailRedirectTo: `${emailLinkOrigin()}/auth` },
+      });
+      if (error) throw error;
+      setPendingEmail(target);
+      toast.success("Nouvel email de vérification envoyé. Pensez à vérifier vos spams.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const sendReset = async () => {
     const target = email.trim();
     if (!target) {
@@ -96,7 +120,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(target, {
-        redirectTo: "https://talking-translator.com/reset-password",
+        redirectTo: `${emailLinkOrigin()}/reset-password`,
       });
       if (error) throw error;
       toast.success("Email de réinitialisation envoyé. Pensez à vérifier vos spams.");
@@ -156,10 +180,20 @@ function AuthPage() {
               </p>
 
               {pendingEmail && (
-                <p className="native-auth-sub">
-                  Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
-                  compte (supprimé automatiquement après 2 h sans validation).
-                </p>
+                <>
+                  <p className="native-auth-sub">
+                    Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
+                    compte (supprimé automatiquement après 2 h sans validation).
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resendConfirmation}
+                    disabled={loading}
+                    className="native-auth-switch"
+                  >
+                    Renvoyer l'email de vérification
+                  </button>
+                </>
               )}
 
               <form onSubmit={onSubmit} className="native-auth-form">
@@ -280,6 +314,14 @@ function AuthPage() {
                 Votre compte ne sera actif qu'après validation. Sans confirmation, il est
                 automatiquement supprimé au bout de 2 heures.
               </p>
+              <button
+                type="button"
+                onClick={resendConfirmation}
+                disabled={loading}
+                className="mt-2 text-xs font-medium underline disabled:opacity-60"
+              >
+                Renvoyer l'email de vérification
+              </button>
             </div>
           )}
 
