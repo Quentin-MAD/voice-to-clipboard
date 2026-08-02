@@ -371,7 +371,9 @@ function MobileApp() {
         });
         const json = await res.json();
         if (!res.ok) {
-          toast.error(json.error ?? "Erreur");
+          const blocked = limitBlockFromCode(json.code, json.error);
+          if (blocked) setLimitBlock(blocked);
+          else toast.error(json.error ?? "Erreur");
           if (json.daily_used != null) setUsage({ daily_used: json.daily_used, daily_limit: json.daily_limit });
           recorder.setState("idle");
           return;
