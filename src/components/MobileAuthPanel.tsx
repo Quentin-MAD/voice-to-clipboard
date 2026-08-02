@@ -117,9 +117,17 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         </h2>
 
         {pendingEmail && (
-          <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
+          <div className="mt-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white/70">
             Email de vérification envoyé à {pendingEmail}. Validez-le puis revenez ici.
-          </p>
+            <button
+              type="button"
+              onClick={resendConfirmation}
+              disabled={busy}
+              className="mt-2 block underline disabled:opacity-60"
+            >
+              Renvoyer l'email
+            </button>
+          </div>
         )}
 
         <form onSubmit={onSubmit} className="mt-5 space-y-3">
