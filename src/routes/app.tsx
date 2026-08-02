@@ -22,6 +22,7 @@ import { playProcessingLoop, playSuccessChime } from "@/lib/sounds";
 import { acquireMicStream, describeMicError } from "@/lib/mic";
 import { useAppearance } from "@/hooks/use-appearance";
 import { appearanceStyle } from "@/lib/appearance";
+import { LimitDialog, limitBlockFromCode, type LimitBlock } from "@/components/LimitDialog";
 
 
 
