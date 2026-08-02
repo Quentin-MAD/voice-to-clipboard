@@ -149,11 +149,14 @@ export const Route = createFileRoute("/api/mobile-dialog")({
           }
           const row = Array.isArray(consumeData) ? consumeData[0] : consumeData;
           if (!row?.ok) {
+            const noCredits = row?.reason === "mobile_no_credits";
             return Response.json({
-              error: "Limite quotidienne atteinte : 50 traductions vocales par jour. Revenez demain.",
-              code: "mobile_daily_limit",
-              daily_used: row?.daily_used ?? 50,
-              daily_limit: row?.daily_limit ?? 50,
+              error: noCredits
+                ? "Vos traductions mobiles gratuites du jour et vos crédits Mobile sont épuisés."
+                : "Limite journalière atteinte : 35 traductions mobiles gratuites par jour.",
+              code: noCredits ? "mobile_no_credits" : "mobile_daily_limit",
+              daily_used: row?.daily_used ?? 35,
+              daily_limit: row?.daily_limit ?? 35,
             }, { status: 429 });
           }
 
