@@ -233,12 +233,20 @@ export const Route = createFileRoute("/api/admin")({
         };
 
         // === Activité utilisateurs récente (100 derniers événements) ===
-        const { data: recentTl } = await supabaseAdmin
-          .from("translations_log")
-          .select("created_at,user_id,source_type,operation_type")
-          .order("created_at", { ascending: false })
-          .limit(100);
+        const [{ data: recentTl }, { data: recentPay }] = await Promise.all([
+          supabaseAdmin
+            .from("translations_log")
+            .select("created_at,user_id,source_type,operation_type")
+            .order("created_at", { ascending: false })
+            .limit(100),
+          supabaseAdmin
+            .from("payment_transactions")
+            .select("created_at,user_id,amount_eur,currency,environment,kind,paddle_transaction_id,raw")
+            .order("created_at", { ascending: false })
+            .limit(50),
+        ]);
         const emailById = new Map<string, string>(allUsers.map((u) => [u.user_id, u.email ?? ""]));
+
         const aiByUser = new Map<string, Array<{ t: number; cost: number }>>();
         for (const r of aiRows) {
           if (!r.user_id) continue;
