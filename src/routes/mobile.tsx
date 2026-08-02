@@ -190,6 +190,7 @@ function MobileApp() {
   const [translation, setTranslation] = useState("");
   const [lastDirection, setLastDirection] = useState<Turn>("me");
   const [usage, setUsage] = useState<{ daily_used: number; daily_limit: number } | null>(null);
+  const [limitBlock, setLimitBlock] = useState<LimitBlock | null>(null);
 
   const [installVisible, setInstallVisible] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
