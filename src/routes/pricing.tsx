@@ -88,12 +88,48 @@ function PricingPage() {
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>✓ 20 traductions Texte offertes/jour (F8)</li>
               <li>✓ 10 lectures Vocale offertes/jour (F9)</li>
+              <li>✓ 15 dialogues Mobile offerts/jour</li>
               <li>✓ Toutes les langues</li>
               <li>✓ App Windows incluse</li>
             </ul>
             <div className="mt-4 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
               Formule par défaut
             </div>
+          </div>
+
+          <div className="rounded-xl border-2 border-primary bg-card p-5">
+            <div className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">
+              Recommandé
+            </div>
+            <h2 className="text-lg font-semibold">Abonnement</h2>
+            <div className="my-3 text-3xl font-bold">
+              24,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
+            </div>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              <li>✓ Traductions Texte (F8) illimitées</li>
+              <li>✓ Lectures Vocale (F9) illimitées</li>
+              <li>✓ Traductions Mobile illimitées</li>
+              <li>✓ Aucune limite</li>
+              <li>✓ Support prioritaire</li>
+            </ul>
+            <button
+              onClick={() =>
+                buy(
+                  userStatus?.subscribed ? "sub_extend_year_onetime" : "vox_subscription_yearly",
+                  "subscription",
+                )
+              }
+              disabled={loading || authLoading || statusLoading || cannotBuySubscription}
+              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
+            >
+              {cannotBuySubscription
+                ? "Inclus dans votre compte Testeur"
+                : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 24,99 €/an")}
+            </button>
+            <p className="mt-2 text-[10px] text-muted-foreground">
+              Aucun plafond journalier ni mensuel pour les abonnés.
+              {userStatus?.subscribed && " L'année achetée s'ajoute à la fin de votre période en cours."}
+            </p>
           </div>
 
           <div className="rounded-xl border border-border bg-card p-5">
@@ -145,43 +181,6 @@ function PricingPage() {
             >
               {cannotBuyCredits ? "Inclus dans votre compte" : buttonLabel("Acheter 75 crédits Mobile")}
             </button>
-          </div>
-
-
-
-          <div className="rounded-xl border-2 border-primary bg-card p-5">
-            <div className="mb-1 inline-block rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">
-              Recommandé
-            </div>
-            <h2 className="text-lg font-semibold">Abonnement</h2>
-            <div className="my-3 text-3xl font-bold">
-              24,99 € <span className="text-sm font-normal text-muted-foreground">/an</span>
-            </div>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>✓ Traductions Texte (F8) illimitées</li>
-              <li>✓ Lectures Vocale (F9) illimitées</li>
-              <li>✓ Traductions Mobile illimitées</li>
-              <li>✓ Aucune limite</li>
-              <li>✓ Support prioritaire</li>
-            </ul>
-            <button
-              onClick={() =>
-                buy(
-                  userStatus?.subscribed ? "sub_extend_year_onetime" : "vox_subscription_yearly",
-                  "subscription",
-                )
-              }
-              disabled={loading || authLoading || statusLoading || cannotBuySubscription}
-              className="mt-4 w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60"
-            >
-              {cannotBuySubscription
-                ? "Inclus dans votre compte Testeur"
-                : buttonLabel(userStatus?.subscribed ? "Acheter une année supplémentaire" : "S'abonner - 24,99 €/an")}
-            </button>
-            <p className="mt-2 text-[10px] text-muted-foreground">
-              Aucun plafond journalier ni mensuel pour les abonnés.
-              {userStatus?.subscribed && " L'année achetée s'ajoute à la fin de votre période en cours."}
-            </p>
           </div>
         </div>
 
