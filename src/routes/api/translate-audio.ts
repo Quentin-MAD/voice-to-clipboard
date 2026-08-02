@@ -191,7 +191,7 @@ export const Route = createFileRoute("/api/translate-audio")({
               return Response.json(
                 {
                   error:
-                    "Vous n'avez plus de crédits. Passez à l'abonnement (29,99 €/an, illimité) ou achetez un pack (50 crédits pour 2,99 €).",
+                    "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
                   code: "no_credits",
                 },
                 { status: 402 },

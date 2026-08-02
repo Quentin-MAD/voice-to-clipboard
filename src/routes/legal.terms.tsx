@@ -65,8 +65,7 @@ function TermsPage() {
               <li>send spam, malware or attempt to break, probe or scrape the service;</li>
               <li>submit content you do not have the right to submit;</li>
               <li>use the service to generate content that is illegal, hateful, defamatory or that harms minors;</li>
-              <li>reverse engineer, resell or redistribute the service or circumvent its technical limits (including the
-              150 translations per day anti-abuse cap).</li>
+              <li>reverse engineer, resell or redistribute the service or circumvent its technical protections.</li>
             </ul>
             <p>
               You are responsible for what you record, for how you use the translated output, and for verifying its accuracy
@@ -90,7 +89,7 @@ function TermsPage() {
             <p>
               The service is offered on a freemium basis: free users receive 20 credits per month (1 credit = 1 translation).
               Additional credits can be purchased (pack of 50 credits for €2.99) or an annual subscription (€29.99/year) grants
-              unlimited translations, subject to the 150/day anti-abuse cap.
+               unlimited translations.
             </p>
             <p>
               Our order process is conducted by our online reseller <strong>Paddle.com</strong>. Paddle.com is the Merchant

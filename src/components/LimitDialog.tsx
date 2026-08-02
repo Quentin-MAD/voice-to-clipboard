@@ -1,9 +1,7 @@
 import { Crown, ShoppingBag, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export type LimitKind =
-  | "text_daily"
-  | "voice_daily"
-  | "mobile_daily"
   | "text_credits"
   | "voice_credits"
   | "mobile_credits";
@@ -28,46 +26,25 @@ export function openPricingExternal() {
 
 function content(block: LimitBlock) {
   switch (block.kind) {
-    case "text_daily":
-      return {
-        title: "Limite journalière atteinte",
-        body: "Vous avez utilisé toutes vos traductions Texte gratuites du jour. Le compteur repart automatiquement à minuit (heure de Paris).",
-        canBuy: true,
-        buyLabel: "Acheter des crédits Texte",
-      };
-    case "voice_daily":
-      return {
-        title: "Limite journalière de lectures vocales atteinte",
-        body: "Vous avez utilisé toutes vos lectures vocales gratuites du jour. Le compteur repart automatiquement à minuit (heure de Paris).",
-        canBuy: true,
-        buyLabel: "Acheter des crédits Vocaux",
-      };
-    case "mobile_daily":
-      return {
-        title: "Limite journalière atteinte",
-        body: "Vous avez utilisé toutes vos traductions mobiles gratuites du jour. Le compteur repart automatiquement à minuit (heure de Paris).",
-        canBuy: true,
-        buyLabel: "Acheter des crédits Mobile",
-      };
     case "text_credits":
       return {
-        title: "Plus de crédits Texte",
-        body: "Vos crédits gratuits du jour et vos crédits Texte achetés sont épuisés.",
+        title: "Vous n'avez plus de crédit",
+        body: "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
         canBuy: true,
         buyLabel: "Acheter des crédits Texte",
       };
     case "voice_credits":
       return {
-        title: "Plus de crédits Vocaux",
-        body: "Vos lectures vocales gratuites du jour et vos crédits Vocaux achetés sont épuisés.",
+        title: "Vous n'avez plus de crédit",
+        body: "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
         canBuy: true,
         buyLabel: "Acheter des crédits Vocaux",
       };
     case "mobile_credits":
     default:
       return {
-        title: "Plus de crédits Mobile",
-        body: "Vos traductions mobiles gratuites du jour et vos crédits Mobile achetés sont épuisés.",
+        title: "Vous n'avez plus de crédit",
+        body: "Vous n'avez plus de crédit. Merci de recharger votre compte ou de vous abonner.",
         canBuy: true,
         buyLabel: "Acheter des crédits Mobile",
       };
@@ -120,19 +97,20 @@ export function LimitDialog({
           <div className="mt-2 space-y-2 text-sm text-white/70 [&_.limit-dialog-text]:text-white/85">
             {body}
           </div>
-          <button
+          <Button
             onClick={go}
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#3F44D2] py-3 text-sm font-semibold text-white"
+            className="mt-5 h-12 w-full text-sm font-semibold"
           >
-            <Crown className="h-4 w-4" /> S'abonner - plus aucune limite
-          </button>
+            <Crown className="h-4 w-4" /> Accéder aux Plans
+          </Button>
           {c.canBuy && (
-            <button
+            <Button
+              variant="outline"
               onClick={go}
-              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm text-white/80"
+              className="mt-2 h-11 w-full border-white/20 bg-transparent text-white hover:bg-white/10 hover:text-white"
             >
               <ShoppingBag className="h-4 w-4" /> {c.buyLabel}
-            </button>
+            </Button>
           )}
           <button onClick={onClose} className="mt-2 w-full py-2 text-xs text-white/40">
             Fermer
@@ -157,7 +135,7 @@ export function LimitDialog({
           <div className="native-modal-foot" style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
             <button onClick={onClose}>Fermer</button>
             {c.canBuy && <button onClick={go}>{c.buyLabel}</button>}
-            <button className="native-btn-primary" onClick={go}>S'abonner - plus aucune limite</button>
+            <Button className="native-btn-primary" onClick={go}>Accéder aux Plans</Button>
           </div>
         </div>
       </div>
@@ -172,19 +150,20 @@ export function LimitDialog({
       >
         <div className="text-lg font-semibold text-foreground">{c.title}</div>
         <div className="mt-2 space-y-2 text-sm text-muted-foreground">{body}</div>
-        <button
+        <Button
           onClick={go}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          className="mt-4 h-11 w-full"
         >
-          <Crown className="h-4 w-4" /> S'abonner - plus aucune limite
-        </button>
+          <Crown className="h-4 w-4" /> Accéder aux Plans
+        </Button>
         {c.canBuy && (
-          <button
+          <Button
+            variant="outline"
             onClick={go}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm"
+            className="mt-2 w-full"
           >
             <ShoppingBag className="h-4 w-4" /> {c.buyLabel}
-          </button>
+          </Button>
         )}
         <button onClick={onClose} className="mt-2 w-full py-1 text-xs text-muted-foreground">
           Fermer
@@ -199,11 +178,11 @@ export function limitBlockFromCode(code: string | undefined, detail?: string): L
   switch (code) {
     case "daily_limit":
     case "hourly_limit":
-      return { kind: "text_daily", detail };
+      return { kind: "text_credits" };
     case "voice_daily_limit":
-      return { kind: "voice_daily", detail };
+      return { kind: "voice_credits" };
     case "mobile_daily_limit":
-      return { kind: "mobile_daily", detail };
+      return { kind: "mobile_credits" };
     case "no_credits":
       return { kind: "text_credits", detail };
     case "no_voice_credits":
