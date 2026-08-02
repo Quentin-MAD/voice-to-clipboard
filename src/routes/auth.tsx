@@ -180,10 +180,20 @@ function AuthPage() {
               </p>
 
               {pendingEmail && (
-                <p className="native-auth-sub">
-                  Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
-                  compte (supprimé automatiquement après 2 h sans validation).
-                </p>
+                <>
+                  <p className="native-auth-sub">
+                    Email de vérification envoyé à {pendingEmail}. Validez-le pour activer votre
+                    compte (supprimé automatiquement après 2 h sans validation).
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resendConfirmation}
+                    disabled={loading}
+                    className="native-auth-switch"
+                  >
+                    Renvoyer l'email de vérification
+                  </button>
+                </>
               )}
 
               <form onSubmit={onSubmit} className="native-auth-form">
