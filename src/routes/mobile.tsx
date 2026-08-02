@@ -738,6 +738,9 @@ function MobileApp() {
           </div>
         </div>
       )}
+      {limitBlock && (
+        <LimitDialog block={limitBlock} onClose={() => setLimitBlock(null)} variant="mobile" />
+      )}
     </div>
   );
 }
