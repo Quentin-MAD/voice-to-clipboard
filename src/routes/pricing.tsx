@@ -45,7 +45,7 @@ function PricingPage() {
       window.resizeTo(window.screen.availWidth, window.screen.availHeight);
     }
     return () => {
-      bridge.setMaximizedWindow?.(false).catch(() => {});
+      bridge?.setMaximizedWindow?.(false).catch(() => {});
     };
   }, []);
 
