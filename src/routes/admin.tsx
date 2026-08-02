@@ -909,8 +909,10 @@ function MemberDrawer({
               </div>
             </section>
 
+            {!unlimitedText && (
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Crédits</h3>
+
               <div className="space-y-2">
                 {([
                   { key: "text", label: "Texte", set: "set_credits", add: "add_credits", cur: st?.purchased_balance ?? user.purchased_balance, step: 75 },
