@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { emailLinkOrigin } from "@/lib/auth-urls";
 
 /**
  * Connexion intégrée à l'app mobile.
@@ -26,7 +27,7 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/mobile` },
+          options: { emailRedirectTo: `${emailLinkOrigin()}/mobile` },
         });
         if (error) throw error;
         setPendingEmail(email);
@@ -36,6 +37,49 @@ export function MobileAuthPanel({ logoUrl, brand }: { logoUrl?: string; brand?: 
         if (error) throw error;
         toast.success("Connexion réussie");
       }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resendConfirmation = async () => {
+    const target = (pendingEmail ?? email).trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: target,
+        options: { emailRedirectTo: `${emailLinkOrigin()}/mobile` },
+      });
+      if (error) throw error;
+      setPendingEmail(target);
+      toast.success("Nouvel email de vérification envoyé.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erreur");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendReset = async () => {
+    const target = email.trim();
+    if (!target) {
+      toast.error("Saisissez votre adresse e-mail puis réessayez.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(target, {
+        redirectTo: `${emailLinkOrigin()}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Email de réinitialisation envoyé. Pensez à vérifier vos spams.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erreur");
     } finally {
