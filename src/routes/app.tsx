@@ -1888,6 +1888,13 @@ function Home() {
           </div>
         </div>
       )}
+      {limitBlock && (
+        <LimitDialog
+          block={limitBlock}
+          onClose={() => setLimitBlock(null)}
+          variant={isElectron ? "native" : "web"}
+        />
+      )}
       {micSetupOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-5"
