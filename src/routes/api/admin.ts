@@ -361,7 +361,12 @@ export const Route = createFileRoute("/api/admin")({
           if (body.action === "send_password_reset") {
             const email = (target?.email ?? "").trim();
             if (!email) return Response.json({ error: "email_introuvable" }, { status: 400 });
-            const origin = new URL(request.url).origin;
+            const reqOrigin = new URL(request.url).origin;
+            // Le lien est ouvert hors contexte (autre appareil / boîte mail) :
+            // on force le domaine public sauf en local/preview.
+            const origin = /localhost|127\.0\.0\.1|-preview/.test(reqOrigin)
+              ? reqOrigin
+              : "https://talking-translator.com";
             const anon = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
               auth: { persistSession: false, autoRefreshToken: false },
             });
