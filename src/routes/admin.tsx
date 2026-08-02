@@ -122,6 +122,8 @@ type AdminData = {
     all: Bucket[];
   };
   recent: RecentEvent[];
+  payments: PaymentRow[];
+
 };
 
 
@@ -357,6 +359,8 @@ function AdminPage() {
 
             <DataHealthBanner health={data.dataHealth} />
             <FinancePanel finance={data.finance} />
+            <PaymentsPanel payments={data.payments ?? []} />
+
 
             <div className="rounded-lg border bg-card p-4">
               <h2 className="mb-3 text-lg font-semibold">Consommation IA - 90 derniers jours (crédits Lovable)</h2>
