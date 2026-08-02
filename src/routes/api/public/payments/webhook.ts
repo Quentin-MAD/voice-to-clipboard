@@ -29,16 +29,54 @@ function centsToEur(v: any): number {
   return n / 100;
 }
 
+/** Filet de sécurité : retrouve le membre via l'email du client Paddle. */
+async function findUserByPaddleCustomer(
+  customerId: string | undefined,
+  env: PaddleEnv,
+): Promise<string | null> {
+  if (!customerId) return null;
+  try {
+    const res = await gatewayFetch(env, `/customers/${customerId}`);
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    const email = json?.data?.email;
+    if (!email) return null;
+    const { data } = await getSupabase()
+      .from("profiles")
+      .select("id")
+      .ilike("email", email)
+      .maybeSingle();
+    return data?.id ?? null;
+  } catch (e) {
+    console.error("Failed to resolve user from Paddle customer", customerId, e);
+    return null;
+  }
+}
+
+/** userId depuis customData, sinon repli par email client Paddle. */
+async function resolveUserId(data: any, env: PaddleEnv): Promise<string | null> {
+  const direct = data?.customData?.userId;
+  if (direct) return direct;
+  const fallback = await findUserByPaddleCustomer(data?.customerId, env);
+  if (fallback) {
+    console.warn("Webhook: customData.userId manquant, membre retrouve par email", data?.id, fallback);
+  } else {
+    console.error("Webhook: paiement non attribuable a un membre", data?.id, data?.customerId);
+  }
+  return fallback;
+}
+
 async function upsertSubscriptionRow(data: any, env: PaddleEnv, statusOverride?: string) {
-  const { id, customerId, items, status, currentBillingPeriod, customData, scheduledChange } = data;
-  const userId = customData?.userId;
+  const { id, customerId, items, status, currentBillingPeriod, scheduledChange } = data;
+  const userId = await resolveUserId(data, env);
   if (!userId) {
-    console.error("Webhook: no userId in customData for subscription", id);
+    console.error("Webhook: no userId for subscription", id);
     return;
   }
   const item = items?.[0];
   const priceId = item?.price?.importMeta?.externalId ?? null;
   const productId = item?.product?.importMeta?.externalId ?? null;
+
 
   // One row per user (subscriptions.user_id is the primary key).
   await getSupabase()
