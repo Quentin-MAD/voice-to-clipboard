@@ -122,6 +122,8 @@ type AdminData = {
     all: Bucket[];
   };
   recent: RecentEvent[];
+  payments: PaymentRow[];
+
 };
 
 
@@ -357,6 +359,8 @@ function AdminPage() {
 
             <DataHealthBanner health={data.dataHealth} />
             <FinancePanel finance={data.finance} />
+            <PaymentsPanel payments={data.payments ?? []} />
+
 
             <div className="rounded-lg border bg-card p-4">
               <h2 className="mb-3 text-lg font-semibold">Consommation IA - 90 derniers jours (crédits Lovable)</h2>
@@ -606,6 +610,75 @@ const EUR = (n: number | null | undefined) =>
 
 const EURPrecise = (n: number | null | undefined) =>
   (Number(n) || 0).toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+
+type PaymentRow = {
+  created_at: string;
+  user_id: string;
+  email: string;
+  amount_eur: number;
+  currency: string;
+  environment: string;
+  kind: string;
+  paddle_transaction_id: string;
+  products: string[];
+  granted: string;
+};
+
+function PaymentsPanel({ payments }: { payments: PaymentRow[] }) {
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <h2 className="mb-1 text-lg font-semibold">Derniers paiements reçus</h2>
+      <p className="mb-3 text-xs text-muted-foreground">
+        Chaque ligne correspond à un paiement encaissé et crédité automatiquement sur le compte du membre.
+        Si un paiement apparaît ici, l'avantage acheté a bien été attribué.
+      </p>
+      {payments.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Aucun paiement enregistré pour le moment.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="p-2">Date</th>
+                <th className="p-2">Membre</th>
+                <th className="p-2">Type</th>
+                <th className="p-2">Attribué</th>
+                <th className="p-2">Montant</th>
+                <th className="p-2">Env.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((p) => (
+                <tr key={p.paddle_transaction_id} className="border-t">
+                  <td className="p-2 whitespace-nowrap">
+                    {new Date(p.created_at).toLocaleString("fr-FR")}
+                  </td>
+                  <td className="p-2">{p.email}</td>
+                  <td className="p-2">{p.kind === "subscription" ? "Abonnement" : "Achat unique"}</td>
+                  <td className="p-2">{p.granted}</td>
+                  <td className="p-2 font-medium">{EUR(p.amount_eur)}</td>
+                  <td className="p-2">
+                    <span
+                      className={
+                        "rounded px-1.5 py-0.5 text-[10px] font-semibold " +
+                        (p.environment === "live"
+                          ? "bg-emerald-500/15 text-emerald-600"
+                          : "bg-amber-500/15 text-amber-600")
+                      }
+                    >
+                      {p.environment === "live" ? "RÉEL" : "TEST"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
   const rows: Array<{ label: string; key: "day" | "week" | "month" | "year" | "all" }> = [

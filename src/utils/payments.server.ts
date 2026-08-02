@@ -46,6 +46,6 @@ export async function resolveActivePaddlePrice(
 
   console.error("resolvePaddlePrice failed", priceId, environment, lastError);
   throw new Error(
-    "Ce tarif est momentanément indisponible. Merci de réessayer dans quelques instants.",
+    `Le tarif "${priceId}" est introuvable ou inactif dans le catalogue de paiement. Merci de réessayer ou de contacter le support (rossetquentin26@gmail.com).`,
   );
 }
