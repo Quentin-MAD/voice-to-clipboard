@@ -824,23 +824,27 @@ function MemberDrawer({
                   Utilisation en cours
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border bg-card p-3">
+                    <div className="text-xs text-muted-foreground">Opérations aujourd'hui</div>
+                    <div className="mt-1 text-2xl font-bold">{st.daily_used}</div>
+                    <div className="mt-1 text-[11px] text-muted-foreground">Aucune limite journalière</div>
+                  </div>
                   <Gauge
-                    label="Opérations aujourd'hui"
-                    used={st.daily_used}
-                    limit={st.daily_limit}
-                    hint={`Remise à zéro : ${new Date(st.daily_reset_at).toLocaleString("fr-FR")}`}
-                  />
-                  <Gauge
-                    label="Crédits texte gratuits restants"
-                    used={30 - (st.free_remaining ?? 0)}
-                    limit={30}
+                    label="Texte gratuit du jour"
+                    used={20 - (st.free_remaining ?? 0)}
+                    limit={20}
                     hint={unlimitedText ? "Accès illimité (abonné / testeur)" : `${st.free_remaining} restants aujourd'hui`}
                   />
-                  <Gauge label="Lectures vocales (jour)" used={st.voice_daily_used} limit={st.voice_daily_limit} />
                   <Gauge
-                    label={st.subscribed || st.is_tester ? "Dialogues mobile (mois)" : "Dialogues mobile (jour)"}
+                    label="Vocal gratuit du jour"
+                    used={st.voice_daily_used}
+                    limit={st.voice_daily_limit || 10}
+                    hint={st.subscribed || st.is_tester ? "Accès illimité (abonné / testeur)" : undefined}
+                  />
+                  <Gauge
+                    label="Dialogues mobile (jour)"
                     used={st.mobile_daily_used}
-                    limit={st.mobile_daily_limit}
+                    limit={st.mobile_daily_limit || 35}
                   />
                 </div>
               </section>
