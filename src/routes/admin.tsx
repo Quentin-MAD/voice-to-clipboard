@@ -493,12 +493,19 @@ function AdminPage() {
                           </div>
                         </td>
                         <td className="p-2 text-center font-semibold tabular-nums">
-                          {unlimited ? <span className="text-green-600">∞</span> : u.purchased_balance}
-                          {" / "}
-                          {u.voice_balance ?? 0}
-                          {" / "}
-                          {u.mobile_balance ?? 0}
+                          {unlimited ? (
+                            <span className="text-green-600" title="Accès illimité">∞</span>
+                          ) : (
+                            <>
+                              {u.purchased_balance}
+                              {" / "}
+                              {u.voice_balance ?? 0}
+                              {" / "}
+                              {u.mobile_balance ?? 0}
+                            </>
+                          )}
                         </td>
+
                         <td className={"p-2 text-right tabular-nums " + (abuseToday ? "font-semibold text-amber-600" : "")}>
                           {u.ops_today ?? 0}
                         </td>
@@ -808,14 +815,24 @@ function MemberDrawer({
         ) : (
           <div className="space-y-6">
             {/* Crédits en gros */}
-            <section>
-              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Solde de crédits</h3>
-              <div className="grid grid-cols-3 gap-3">
-                <BigCredit label="Texte" value={st?.purchased_balance ?? user.purchased_balance} unlimited={unlimitedText} tone="bg-card" />
-                <BigCredit label="Vocaux" value={st?.voice_balance ?? user.voice_balance ?? 0} tone="bg-card" />
-                <BigCredit label="Mobile" value={st?.mobile_balance ?? user.mobile_balance ?? 0} tone="bg-card" />
-              </div>
-            </section>
+            {unlimitedText ? (
+              <section>
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Accès</h3>
+                <div className="rounded-lg border bg-card p-4 text-sm">
+                  <span className="text-2xl font-bold text-green-600">∞</span>{" "}
+                  Accès illimité ({st?.is_tester && !st?.subscribed ? "testeur" : "abonné"}) - aucun crédit n'est décompté.
+                </div>
+              </section>
+            ) : (
+              <section>
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Solde de crédits</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <BigCredit label="Texte" value={st?.purchased_balance ?? user.purchased_balance} tone="bg-card" />
+                  <BigCredit label="Vocaux" value={st?.voice_balance ?? user.voice_balance ?? 0} tone="bg-card" />
+                  <BigCredit label="Mobile" value={st?.mobile_balance ?? user.mobile_balance ?? 0} tone="bg-card" />
+                </div>
+              </section>
+            )}
 
             {/* Quotas du jour */}
             {st && (
@@ -829,26 +846,30 @@ function MemberDrawer({
                     <div className="mt-1 text-2xl font-bold">{st.daily_used}</div>
                     <div className="mt-1 text-[11px] text-muted-foreground">Aucune limite journalière</div>
                   </div>
-                  <Gauge
-                    label="Texte gratuit du jour"
-                    used={20 - (st.free_remaining ?? 0)}
-                    limit={20}
-                    hint={unlimitedText ? "Accès illimité (abonné / testeur)" : `${st.free_remaining} restants aujourd'hui`}
-                  />
-                  <Gauge
-                    label="Vocal gratuit du jour"
-                    used={st.voice_daily_used}
-                    limit={st.voice_daily_limit || 10}
-                    hint={st.subscribed || st.is_tester ? "Accès illimité (abonné / testeur)" : undefined}
-                  />
-                  <Gauge
-                    label="Dialogues mobile (jour)"
-                    used={st.mobile_daily_used}
-                    limit={st.mobile_daily_limit || 35}
-                  />
+                  {!unlimitedText && (
+                    <>
+                      <Gauge
+                        label="Texte gratuit du jour"
+                        used={20 - (st.free_remaining ?? 0)}
+                        limit={20}
+                        hint={`${st.free_remaining} restants aujourd'hui`}
+                      />
+                      <Gauge
+                        label="Vocal gratuit du jour"
+                        used={st.voice_daily_used}
+                        limit={st.voice_daily_limit || 10}
+                      />
+                      <Gauge
+                        label="Dialogues mobile (jour)"
+                        used={st.mobile_daily_used}
+                        limit={st.mobile_daily_limit || 15}
+                      />
+                    </>
+                  )}
                 </div>
               </section>
             )}
+
 
             {/* Coûts & revenus */}
             <section>
@@ -888,8 +909,10 @@ function MemberDrawer({
               </div>
             </section>
 
+            {!unlimitedText && (
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Crédits</h3>
+
               <div className="space-y-2">
                 {([
                   { key: "text", label: "Texte", set: "set_credits", add: "add_credits", cur: st?.purchased_balance ?? user.purchased_balance, step: 75 },
@@ -920,7 +943,9 @@ function MemberDrawer({
                 ))}
               </div>
             </section>
+            )}
 
+            {!unlimitedText && (
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                 Crédits gratuits du jour (tests)
@@ -929,7 +954,8 @@ function MemberDrawer({
                 {([
                   { key: "text", label: "Texte", action: "set_free_text", quota: 20, rem: st ? (st.free_remaining ?? 0) : 0 },
                   { key: "voice", label: "Vocaux", action: "set_free_voice", quota: 10, rem: st ? Math.max(0, (st.voice_daily_limit || 10) - st.voice_daily_used) : 0 },
-                  { key: "mobile", label: "Mobile", action: "set_free_mobile", quota: 35, rem: st ? Math.max(0, (st.mobile_daily_limit || 35) - st.mobile_daily_used) : 0 },
+                  { key: "mobile", label: "Mobile", action: "set_free_mobile", quota: 15, rem: st ? Math.max(0, (st.mobile_daily_limit || 15) - st.mobile_daily_used) : 0 },
+
                 ] as const).map((c) => (
                   <div key={c.key} className="flex flex-wrap items-center gap-2 rounded-md border bg-background p-2">
                     <span className="w-20 text-xs font-semibold">{c.label}</span>
@@ -953,6 +979,8 @@ function MemberDrawer({
                 ))}
               </div>
             </section>
+            )}
+
 
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Compte</h3>

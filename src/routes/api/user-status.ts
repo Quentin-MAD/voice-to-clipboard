@@ -100,7 +100,7 @@ export const Route = createFileRoute("/api/user-status")({
           voice_daily_reset_at: row?.voice_daily_reset_at ? new Date(row.voice_daily_reset_at).toISOString() : null,
           mobile_balance: Number(row?.mobile_balance ?? 0),
           mobile_daily_used: Number(row?.mobile_daily_used ?? 0),
-          mobile_daily_limit: Number(row?.mobile_daily_limit ?? 35),
+          mobile_daily_limit: Number(row?.mobile_daily_limit ?? 15),
         };
 
         return Response.json(status);

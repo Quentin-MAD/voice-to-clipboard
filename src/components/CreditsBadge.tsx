@@ -178,8 +178,8 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
                 <Gift className="h-3 w-3" /> Gratuits aujourd'hui <span className={muted}>(reset chaque jour)</span>
               </div>
               <div className="mt-0.5 text-lg font-bold">
-                {Math.max(0, (status.mobile_daily_limit ?? 35) - (status.mobile_daily_used ?? 0))}
-                <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 35}</span>
+                {Math.max(0, (status.mobile_daily_limit ?? 15) - (status.mobile_daily_used ?? 0))}
+                <span className={`ml-1 text-xs font-normal ${muted}`}>/ {status.mobile_daily_limit ?? 15}</span>
               </div>
             </div>
             <div className={`rounded-xl px-3 py-2.5 ${rowBg}`}>
@@ -189,7 +189,7 @@ export function CreditsCard({ variant = "light", manageHref = "/pricing", manage
               <div className="mt-0.5 text-lg font-bold">{status.mobile_balance ?? 0}</div>
             </div>
             <p className={`text-[11px] leading-relaxed ${muted}`}>
-              Les <strong>35 gratuits/jour</strong> sont consommés en priorité et se réinitialisent chaque jour (non cumulables). Les <strong>crédits achetés</strong> ne sont utilisés qu'ensuite et sont permanents, sans expiration.
+              Les <strong>15 gratuits/jour</strong> sont consommés en priorité et se réinitialisent chaque jour (non cumulables). Les <strong>crédits achetés</strong> ne sont utilisés qu'ensuite et sont permanents, sans expiration.
             </p>
           </div>
 
