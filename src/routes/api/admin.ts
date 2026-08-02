@@ -41,6 +41,48 @@ export const Route = createFileRoute("/api/admin")({
 
         // Mode d'affichage : réel (live), test (sandbox) ou tout
         const url = new URL(request.url);
+
+        // === Fiche détaillée d'un membre (quotas temps réel) ===
+        const detailUserId = url.searchParams.get("user");
+        if (detailUserId) {
+          const [statusRes, walletRes, profileRes, txRes, logRes, aiRes] = await Promise.all([
+            supabaseAdmin.rpc("get_user_status", { _user_id: detailUserId }),
+            supabaseAdmin.from("credit_wallets").select("*").eq("user_id", detailUserId).maybeSingle(),
+            supabaseAdmin.from("profiles").select("id,email,created_at").eq("id", detailUserId).maybeSingle(),
+            supabaseAdmin
+              .from("payment_transactions")
+              .select("created_at,amount_eur,environment,kind,paddle_transaction_id")
+              .eq("user_id", detailUserId)
+              .order("created_at", { ascending: false })
+              .limit(30),
+            supabaseAdmin
+              .from("translations_log")
+              .select("created_at,source_type,operation_type")
+              .eq("user_id", detailUserId)
+              .order("created_at", { ascending: false })
+              .limit(30),
+            supabaseAdmin
+              .from("ai_usage_log")
+              .select("cost_credits,operation,model,created_at")
+              .eq("user_id", detailUserId)
+              .limit(50000),
+          ]);
+          const aiRowsUser = (aiRes.data ?? []) as any[];
+          const nowMs = Date.now();
+          const sum = (days: number | null) =>
+            aiRowsUser
+              .filter((r) => (days === null ? true : nowMs - new Date(r.created_at).getTime() < days * 86400000))
+              .reduce((s, r) => s + Number(r.cost_credits ?? 0), 0) * 0.92;
+          return Response.json({
+            profile: profileRes.data ?? null,
+            status: (statusRes.data as any[] | null)?.[0] ?? null,
+            wallet: walletRes.data ?? null,
+            transactions: txRes.data ?? [],
+            activity: logRes.data ?? [],
+            cost_eur: { day: sum(1), week: sum(7), month: sum(30), all: sum(null) },
+          });
+        }
+
         const envParam = url.searchParams.get("env");
         const mode: "live" | "test" | "all" =
           envParam === "test" ? "test" : envParam === "all" ? "all" : "live";
@@ -342,6 +384,7 @@ export const Route = createFileRoute("/api/admin")({
           action?:
             | "grant_lifetime" | "grant_year" | "cancel"
             | "add_credits" | "add_voice_credits" | "set_credits" | "set_voice_credits"
+            | "add_mobile_credits" | "set_mobile_credits"
             | "grant_tester" | "revoke_tester"
             | "send_password_reset" | "delete_user";
           user_id?: string;
@@ -394,6 +437,11 @@ export const Route = createFileRoute("/api/admin")({
         } else if (body.action === "add_voice_credits" || body.action === "set_voice_credits") {
           const amt = Math.trunc(body.amount ?? 0);
           const rpc = body.action === "add_voice_credits" ? "admin_add_voice_credits" : "admin_set_voice_credits";
+          const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
+          if (error) return Response.json({ error: error.message }, { status: 500 });
+        } else if (body.action === "add_mobile_credits" || body.action === "set_mobile_credits") {
+          const amt = Math.trunc(body.amount ?? 0);
+          const rpc = body.action === "add_mobile_credits" ? "admin_add_mobile_credits" : "admin_set_mobile_credits";
           const { error } = await supabaseAdmin.rpc(rpc, { _target_user: body.user_id, _amount: amt });
           if (error) return Response.json({ error: error.message }, { status: 500 });
         } else if (body.action === "grant_tester" || body.action === "revoke_tester") {

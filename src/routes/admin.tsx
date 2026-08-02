@@ -152,10 +152,8 @@ function AdminPage() {
   const [sortBy, setSortBy] = useState<"created" | "cost_total" | "cost_30d" | "ops_today" | "profit">("cost_30d");
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [tab, setTab] = useState<"dashboard" | "appearance" | "emails">("dashboard");
-
-
-
+  const [tab, setTab] = useState<"overview" | "members" | "costs" | "activity" | "appearance" | "emails">("overview");
+  const [selected, setSelected] = useState<string | null>(null);
 
   async function load(silent = false) {
     if (!silent) setLoading(true);
@@ -202,11 +200,6 @@ function AdminPage() {
     return () => clearInterval(id);
   }, [autoRefresh, userId]);
 
-
-
-
-
-
   async function act(user_id: string, action: string, amount?: number) {
     const res = await authedFetch("/api/admin", {
       method: "POST",
@@ -217,7 +210,7 @@ function AdminPage() {
       return;
     }
     toast.success("OK");
-    load();
+    await load(true);
   }
 
   // Keep the dashboard mounted once loaded: a refresh must not unmount the
@@ -225,8 +218,6 @@ function AdminPage() {
   if ((authLoading || loading) && !data) {
     return <div className="p-8 text-center text-muted-foreground">Chargement…</div>;
   }
-
-
 
   if (err) {
     return (
@@ -257,7 +248,6 @@ function AdminPage() {
       if (search && !u.email?.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     })
-
     .sort((a, b) => {
       switch (sortBy) {
         case "cost_total": return num(b.cost_usd_total) - num(a.cost_usd_total);
@@ -268,12 +258,13 @@ function AdminPage() {
       }
     });
 
+  const selectedUser = data.users.find((u) => u.user_id === selected) ?? null;
   const maxCredits = Math.max(...data.daily.map((d) => num(d.ai_credits)), 0.0001);
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold">Admin - <span className="notranslate">TalKing</span></h1>
           <div className="flex items-center gap-3">
             {lastUpdate && (
@@ -296,15 +287,17 @@ function AdminPage() {
               Rafraîchir
             </button>
           </div>
-
         </div>
 
         {/* Onglets */}
-        <div className="flex gap-2 border-b">
+        <div className="flex flex-wrap gap-2 border-b">
           {([
-            { k: "dashboard", label: "Tableau de bord" },
+            { k: "overview", label: "Vue d'ensemble" },
+            { k: "members", label: `Membres (${data.totals.users})` },
+            { k: "costs", label: "Coûts IA" },
+            { k: "activity", label: "Activité" },
             { k: "appearance", label: "Apparence des apps" },
-            { k: "emails", label: "Aperçu mail" },
+            { k: "emails", label: "Emails" },
           ] as const).map((t) => (
             <button
               key={t.k}
@@ -321,288 +314,227 @@ function AdminPage() {
           ))}
         </div>
 
-        {tab === "emails" ? <EmailPreviewPanel /> : tab === "appearance" ? <AppearanceEditor /> : (<>
+        {tab === "emails" && <EmailPreviewPanel />}
+        {tab === "appearance" && <AppearanceEditor />}
 
+        {tab === "overview" && (
+          <>
+            {/* Filtre environnement */}
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
+              <span className="text-sm font-semibold">Données affichées :</span>
+              {([
+                { k: "live", label: "Réel (live)" },
+                { k: "test", label: "Test (sandbox)" },
+                { k: "all", label: "Tout" },
+              ] as const).map((m) => (
+                <button
+                  key={m.k}
+                  onClick={() => setEnvMode(m.k)}
+                  className={
+                    "rounded-md border px-3 py-1 text-sm " +
+                    (envMode === m.k ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-accent")
+                  }
+                >
+                  {m.label}
+                </button>
+              ))}
+              <span className="ml-auto text-xs text-muted-foreground">
+                Le filtre s'applique aux revenus et paiements. Les coûts IA sont toujours réels.
+              </span>
+            </div>
 
-        {/* Filtre environnement */}
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card p-3">
-          <span className="text-sm font-semibold">Données affichées :</span>
-          {([
-            { k: "live", label: "Réel (live)" },
-            { k: "test", label: "Test (sandbox)" },
-            { k: "all", label: "Tout" },
-          ] as const).map((m) => (
-            <button
-              key={m.k}
-              onClick={() => setEnvMode(m.k)}
-              className={
-                "rounded-md border px-3 py-1 text-sm " +
-                (envMode === m.k ? "border-primary bg-primary/10 font-semibold text-primary" : "hover:bg-accent")
-              }
-            >
-              {m.label}
-            </button>
-          ))}
-          <span className="ml-auto text-xs text-muted-foreground">
-            Le filtre s'applique aux revenus et paiements. Les coûts IA sont toujours réels.
-          </span>
-        </div>
-
-        <DataHealthBanner health={data.dataHealth} />
-
-        {/* Stats cards */}
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          <Stat label="Utilisateurs" value={data.totals.users} sub={`${data.dataHealth.real_users} hors testeurs`} />
-          <Stat label="Abonnés payants" value={data.totals.subscribed} sub="Paiement Paddle live vérifié" />
-          <Stat label="Accès offerts" value={data.totals.granted} sub="Lifetime / 1 an accordés par l'admin" />
-          <Stat label="Visites (24h)" value={data.totals.views_today} sub={`${data.totals.views_7d} / 7j - ${data.totals.views_30d} / 30j`} />
-          <Stat
-            label="Crédits IA (24h)"
-            value={num(data.totals.ai_credits_today).toFixed(4)}
-            sub={`${num(data.totals.ai_credits_7d).toFixed(4)} / 7j - ${num(data.totals.ai_credits_30d).toFixed(4)} / 30j`}
-          />
-        </div>
-
-        {/* Finance: coûts / revenus / bénéfice */}
-        <FinancePanel finance={data.finance} />
-
-        {/* Détail coût IA par opération / modèle */}
-        <AiBreakdownPanel breakdown={data.breakdown} />
-
-        {/* Activité IA en temps réel (50 derniers événements) */}
-        <RecentAiFeed recent={data.recent} />
-
-
-
-
-
-        {/* AI usage chart */}
-        <div className="rounded-lg border bg-card p-4">
-          <h2 className="mb-3 text-lg font-semibold">Consommation IA - 90 derniers jours (crédits Lovable)</h2>
-          <div className="flex h-40 items-end gap-[2px]">
-            {data.daily.map((d) => (
-              <div
-                key={d.date}
-                className="flex-1 bg-primary/70 hover:bg-primary transition-colors"
-                style={{ height: `${(num(d.ai_credits) / maxCredits) * 100}%` }}
-                title={`${d.date} - ${num(d.ai_credits).toFixed(6)} cr - ${d.translations} trad. - ${d.views} visites`}
-              />
-            ))}
-          </div>
-          <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>{data.daily[0]?.date}</span>
-            <span>Total 90j : {num(data.totals.ai_credits_total).toFixed(4)} cr</span>
-            <span>{data.daily[data.daily.length - 1]?.date}</span>
-          </div>
-        </div>
-
-        {/* Daily table */}
-        <details className="rounded-lg border bg-card p-4">
-          <summary className="cursor-pointer font-semibold">Historique journalier détaillé</summary>
-          <div className="mt-3 max-h-96 overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-card">
-                <tr className="border-b text-left">
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Visites</th>
-                  <th className="p-2">Traductions</th>
-                  <th className="p-2">Crédits IA</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...data.daily].reverse().map((d) => (
-                  <tr key={d.date} className="border-b">
-                    <td className="p-2 font-mono">{d.date}</td>
-                    <td className="p-2">{d.views}</td>
-                    <td className="p-2">{d.translations}</td>
-                    <td className="p-2">{num(d.ai_credits).toFixed(6)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-
-        {/* Users */}
-        <div className="rounded-lg border bg-card p-4">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-semibold">Utilisateurs ({users.length})</h2>
-            <div className="ml-auto flex flex-wrap gap-2">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="rounded-md border bg-background px-2 py-1 text-sm"
-                title="Trier par"
-              >
-                <option value="cost_30d">Trier : coût 30j ↓</option>
-                <option value="cost_total">Trier : coût total ↓</option>
-                <option value="ops_today">Trier : ops aujourd'hui ↓</option>
-                <option value="profit">Trier : rentabilité ↑ (pires d'abord)</option>
-                <option value="created">Trier : plus récents</option>
-              </select>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
-                className="rounded-md border bg-background px-2 py-1 text-sm"
-              >
-                <option value="all">Tous</option>
-                <option value="free">Gratuits</option>
-                <option value="paid">Abonnés payants</option>
-                <option value="granted">Accès offerts</option>
-                <option value="tester">Testeurs</option>
-
-              </select>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Recherche email…"
-                className="rounded-md border bg-background px-2 py-1 text-sm"
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+              <Stat label="Utilisateurs" value={data.totals.users} sub={`${data.dataHealth.real_users} hors testeurs`} />
+              <Stat label="Abonnés payants" value={data.totals.subscribed} sub="Paiement Paddle live vérifié" />
+              <Stat label="Accès offerts" value={data.totals.granted} sub="Lifetime / 1 an accordés par l'admin" />
+              <Stat label="Visites (24h)" value={data.totals.views_today} sub={`${data.totals.views_7d} / 7j - ${data.totals.views_30d} / 30j`} />
+              <Stat
+                label="Crédits IA (24h)"
+                value={num(data.totals.ai_credits_today).toFixed(4)}
+                sub={`${num(data.totals.ai_credits_7d).toFixed(4)} / 7j - ${num(data.totals.ai_credits_30d).toFixed(4)} / 30j`}
               />
             </div>
-          </div>
-          <p className="mb-2 text-xs text-muted-foreground">
-            Coûts IA réels par membre (USD converti en € × {USD_TO_EUR}). Rentabilité = revenus payés - coût IA total.
-            Une ligne rouge = membre en perte. Ops aujourd'hui &gt; 100 = à surveiller (abus potentiel).
-          </p>
-          <div className="overflow-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left">
-                  <th className="p-2">Email</th>
-                  <th className="p-2">Statut</th>
-                  <th className="p-2" title="Opérations IA aujourd'hui (F8 + F9)">Ops 24h</th>
-                  <th className="p-2">Trad. 30j</th>
-                  <th className="p-2">Trad. total</th>
-                  <th className="p-2" title="Coût IA en € sur 7 jours">Coût 7j</th>
-                  <th className="p-2" title="Coût IA en € sur 30 jours">Coût 30j</th>
-                  <th className="p-2" title="Coût IA total depuis inscription">Coût total</th>
-                  <th className="p-2" title="Revenus Paddle live payés par ce membre">Revenus</th>
-                  <th className="p-2" title="Revenus - coût IA">Rentabilité</th>
-                  <th className="p-2">Crédits texte</th>
-                  <th className="p-2">Crédits vocaux</th>
-                  <th className="p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => {
-                  const cost7 = num(u.cost_usd_7d) * USD_TO_EUR;
-                  const cost30 = num(u.cost_usd_30d) * USD_TO_EUR;
-                  const costTotal = num(u.cost_usd_total) * USD_TO_EUR;
-                  const revenue = num(u.revenue_eur_total);
-                  // Rentabilité par membre = revenus réels - coût IA, y compris pour les testeurs.
-                  const profit = revenue - costTotal;
-                  const abuseToday = num(u.ops_today) > 100;
-                  const heavy30 = cost30 > 1;
-                  const losing = profit < -0.5;
-                  const unlimited = u.subscribed || u.is_tester;
-                  return (
-                    <tr
-                      key={u.user_id}
-                      className={
-                        u.is_tester
-                          ? "border-b bg-blue-500/10 hover:bg-blue-500/20"
-                          : losing
-                          ? "border-b bg-red-500/10 hover:bg-red-500/20"
-                          : abuseToday
-                          ? "border-b bg-amber-500/10 hover:bg-amber-500/20"
-                          : "border-b hover:bg-accent/40"
-                      }
-                    >
-                      <td className="p-2">
-                        <div>{u.email ?? "—"}</div>
-                        <div className="text-[10px] text-muted-foreground">
-                          Inscrit {new Date(u.created_at).toLocaleDateString()}
-                          {u.current_period_end && ` • fin abo ${new Date(u.current_period_end).toLocaleDateString()}`}
-                        </div>
-                      </td>
-                      <td className="p-2">
-                        <div className="flex flex-col gap-1">
-                          {u.is_tester && (
-                            <span
-                              className="w-fit rounded bg-blue-500/20 px-2 py-0.5 text-blue-700 dark:text-blue-300"
-                              title="Testeur - accès gratuit accordé par l'admin, coût inclus dans la rentabilité"
-                            >
-                              Testeur
-                            </span>
-                          )}
-                          {u.access_origin === "paid" ? (
-                            <span
-                              className="w-fit rounded bg-green-500/20 px-2 py-0.5 text-green-700 dark:text-green-400"
-                              title="Abonnement payé via Paddle (environnement live)"
-                            >
-                              Abonné payant
-                            </span>
-                          ) : u.access_origin === "granted" ? (
-                            <span
-                              className="w-fit rounded bg-amber-500/20 px-2 py-0.5 text-amber-700 dark:text-amber-400"
-                              title="Accès actif accordé par l'admin (ou paiement en environnement test) - aucun revenu réel"
-                            >
-                              Accès offert
-                            </span>
-                          ) : (
-                            !u.is_tester && (
-                              <span className="w-fit rounded bg-muted px-2 py-0.5 text-muted-foreground">Gratuit</span>
-                            )
-                          )}
-                          {u.sub_environment && u.sub_environment !== "live" && u.subscribed && (
-                            <span className="text-[10px] uppercase text-muted-foreground">
-                              env : {u.sub_environment}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className={"p-2 font-medium " + (abuseToday ? "text-amber-600 dark:text-amber-400" : "")}>
-                        {u.ops_today ?? 0}
-                      </td>
-                      <td className="p-2">{u.translations_30d}</td>
-                      <td className="p-2">{u.translations_total}</td>
-                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(cost7)}</td>
-                      <td className={"p-2 tabular-nums " + (heavy30 ? "font-semibold text-amber-600 dark:text-amber-400" : "")}>
-                        {EURPrecise(cost30)}
-                      </td>
-                      <td className="p-2 tabular-nums" title="Coût réel journalisé">{EURPrecise(costTotal)}</td>
-                      <td className="p-2 tabular-nums text-green-700 dark:text-green-400">
-                        {u.is_tester ? <span className="text-muted-foreground" title="Testeur - non facturé">-</span> : EUR(revenue)}
-                      </td>
-                      <td className="p-2 tabular-nums font-semibold">
-                        <span className={profit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                          {EURPrecise(profit)}
-                        </span>
-                      </td>
-                      <td className="p-2 font-medium">
-                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="Accès illimité (limite quotidienne uniquement)">∞</span> : u.purchased_balance}
-                      </td>
-                      <td className="p-2 font-medium">
-                        {unlimited ? <span className="text-green-700 dark:text-green-400" title="10 lectures vocales/jour, pas de crédits">∞</span> : (u.voice_balance ?? 0)}
-                      </td>
-                      <td className="p-2">
-                        <UserActions
-                          userId={u.user_id}
-                          currentText={u.purchased_balance}
-                          currentVoice={u.voice_balance ?? 0}
-                          isTester={u.is_tester}
-                          onAct={act}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
 
-              </tbody>
-            </table>
+            <DataHealthBanner health={data.dataHealth} />
+            <FinancePanel finance={data.finance} />
+
+            <div className="rounded-lg border bg-card p-4">
+              <h2 className="mb-3 text-lg font-semibold">Consommation IA - 90 derniers jours (crédits Lovable)</h2>
+              <div className="flex h-40 items-end gap-[2px]">
+                {data.daily.map((d) => (
+                  <div
+                    key={d.date}
+                    className="flex-1 bg-primary/70 hover:bg-primary transition-colors"
+                    style={{ height: `${(num(d.ai_credits) / maxCredits) * 100}%` }}
+                    title={`${d.date} - ${num(d.ai_credits).toFixed(6)} cr - ${d.translations} trad. - ${d.views} visites`}
+                  />
+                ))}
+              </div>
+              <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+                <span>{data.daily[0]?.date}</span>
+                <span>Total 90j : {num(data.totals.ai_credits_total).toFixed(4)} cr</span>
+                <span>{data.daily[data.daily.length - 1]?.date}</span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {tab === "costs" && (
+          <>
+            <AiBreakdownPanel breakdown={data.breakdown} />
+            <details className="rounded-lg border bg-card p-4">
+              <summary className="cursor-pointer font-semibold">Historique journalier détaillé</summary>
+              <div className="mt-3 max-h-96 overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-card">
+                    <tr className="border-b text-left">
+                      <th className="p-2">Date</th>
+                      <th className="p-2">Visites</th>
+                      <th className="p-2">Traductions</th>
+                      <th className="p-2">Crédits IA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...data.daily].reverse().map((d) => (
+                      <tr key={d.date} className="border-b">
+                        <td className="p-2 font-mono">{d.date}</td>
+                        <td className="p-2">{d.views}</td>
+                        <td className="p-2">{d.translations}</td>
+                        <td className="p-2">{num(d.ai_credits).toFixed(6)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </>
+        )}
+
+        {tab === "activity" && <RecentAiFeed recent={data.recent} />}
+
+        {tab === "members" && (
+          <div className="rounded-lg border bg-card p-4">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-semibold">Membres ({users.length})</h2>
+              <div className="ml-auto flex flex-wrap gap-2">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="rounded-md border bg-background px-2 py-1 text-sm"
+                >
+                  <option value="cost_30d">Trier : coût 30j ↓</option>
+                  <option value="cost_total">Trier : coût total ↓</option>
+                  <option value="ops_today">Trier : ops aujourd'hui ↓</option>
+                  <option value="profit">Trier : rentabilité ↑</option>
+                  <option value="created">Trier : plus récents</option>
+                </select>
+                <select
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value as any)}
+                  className="rounded-md border bg-background px-2 py-1 text-sm"
+                >
+                  <option value="all">Tous</option>
+                  <option value="free">Gratuits</option>
+                  <option value="paid">Abonnés payants</option>
+                  <option value="granted">Accès offerts</option>
+                  <option value="tester">Testeurs</option>
+                </select>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Recherche email…"
+                  className="rounded-md border bg-background px-2 py-1 text-sm"
+                />
+              </div>
+            </div>
+            <div className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left">
+                    <th className="p-2">Membre</th>
+                    <th className="p-2">Statut</th>
+                    <th className="p-2 text-center" title="Crédits texte / vocaux / mobile">Crédits (T / V / M)</th>
+                    <th className="p-2 text-right">Ops 24h</th>
+                    <th className="p-2 text-right">Coût 30j</th>
+                    <th className="p-2 text-right">Coût total</th>
+                    <th className="p-2 text-right">Rentabilité</th>
+                    <th className="p-2 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => {
+                    const cost30 = num(u.cost_usd_30d) * USD_TO_EUR;
+                    const costTotal = num(u.cost_usd_total) * USD_TO_EUR;
+                    const profit = num(u.revenue_eur_total) - costTotal;
+                    const abuseToday = num(u.ops_today) > 100;
+                    const unlimited = u.subscribed || u.is_tester;
+                    return (
+                      <tr
+                        key={u.user_id}
+                        className={
+                          "border-b cursor-pointer " +
+                          (u.is_tester
+                            ? "bg-blue-500/5 hover:bg-blue-500/15"
+                            : profit < -0.5
+                            ? "bg-red-500/5 hover:bg-red-500/15"
+                            : "hover:bg-accent/40")
+                        }
+                        onClick={() => setSelected(u.user_id)}
+                      >
+                        <td className="p-2">
+                          <div className="font-medium">{u.email ?? "—"}</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            Inscrit {new Date(u.created_at).toLocaleDateString("fr-FR")} · {u.translations_total} trad.
+                          </div>
+                        </td>
+                        <td className="p-2">
+                          <div className="flex flex-wrap gap-1">
+                            <StatusBadges u={u} />
+                          </div>
+                        </td>
+                        <td className="p-2 text-center font-semibold tabular-nums">
+                          {unlimited ? <span className="text-green-600">∞</span> : u.purchased_balance}
+                          {" / "}
+                          {u.voice_balance ?? 0}
+                          {" / "}
+                          {u.mobile_balance ?? 0}
+                        </td>
+                        <td className={"p-2 text-right tabular-nums " + (abuseToday ? "font-semibold text-amber-600" : "")}>
+                          {u.ops_today ?? 0}
+                        </td>
+                        <td className="p-2 text-right tabular-nums">{EURPrecise(cost30)}</td>
+                        <td className="p-2 text-right tabular-nums">{EURPrecise(costTotal)}</td>
+                        <td className="p-2 text-right tabular-nums font-semibold">
+                          <span className={profit >= 0 ? "text-green-600" : "text-red-500"}>{EURPrecise(profit)}</span>
+                        </td>
+                        <td className="p-2 text-right">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setSelected(u.user_id); }}
+                            className="rounded-md border px-3 py-1 text-xs font-semibold hover:bg-accent"
+                          >
+                            Gérer
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Clique sur une ligne pour ouvrir la fiche complète du membre (crédits, quotas du jour, paiements, actions).
+            </p>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Tous les coûts affichés proviennent uniquement des écritures réellement journalisées (aucune estimation).
-            Les coûts anciens sans membre rattaché sont regroupés dans la ligne "coûts non attribués" du bandeau d'état.
-          </p>
-        </div>
-        </>)}
+        )}
       </div>
 
+      {selectedUser && (
+        <MemberDrawer user={selectedUser} onClose={() => setSelected(null)} onAct={act} />
+      )}
     </div>
   );
 }
+
 
 function DataHealthBanner({ health }: { health: DataHealth }) {
   const coverage = Math.round((Number(health.cost_coverage_ratio) || 0) * 100);
@@ -764,151 +696,339 @@ function FinancePanel({ finance }: { finance: AdminData["finance"] }) {
 }
 
 
-function UserActions({
-  userId,
-  currentText,
-  currentVoice,
-  isTester,
-  onAct,
-}: {
-  userId: string;
-  currentText: number;
-  currentVoice: number;
-  isTester: boolean;
-  onAct: (id: string, action: string, amount?: number) => void;
-}) {
-  const [open, setOpen] = useState(false);
+type MemberDetail = {
+  profile: { id: string; email: string | null; created_at: string } | null;
+  status: {
+    subscribed: boolean;
+    is_tester: boolean;
+    has_purchased: boolean;
+    free_remaining: number;
+    purchased_balance: number;
+    daily_used: number;
+    daily_limit: number;
+    daily_reset_at: string;
+    voice_balance: number;
+    voice_daily_used: number;
+    voice_daily_limit: number;
+    mobile_balance: number;
+    mobile_daily_used: number;
+    mobile_daily_limit: number;
+  } | null;
+  wallet: { purchased_balance: number; voice_balance: number; mobile_balance: number } | null;
+  transactions: Array<{ created_at: string; amount_eur: number; environment: string; kind: string; paddle_transaction_id: string }>;
+  activity: Array<{ created_at: string; source_type: string; operation_type: string }>;
+  cost_eur: { day: number; week: number; month: number; all: number };
+};
+
+function Gauge({ label, used, limit, hint }: { label: string; used: number; limit: number; hint?: string }) {
+  const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+  const danger = pct >= 90;
   return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)} className="rounded border px-2 py-0.5 text-xs hover:bg-accent">
-        Gérer
-      </button>
-      {open && (
-        <div className="absolute right-0 z-10 mt-1 w-64 rounded-md border bg-popover p-1 shadow-lg">
-          <button
-            onClick={() => { onAct(userId, "grant_lifetime"); setOpen(false); }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Accorder Lifetime
-          </button>
-          <button
-            onClick={() => { onAct(userId, "grant_year"); setOpen(false); }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Accorder 1 an
-          </button>
-          <button
-            onClick={() => { onAct(userId, "cancel"); setOpen(false); }}
-            className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
-          >
-            Annuler l'abonnement
-          </button>
-          <hr className="my-1" />
-          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Statut Testeur (accès gratuit, coût compté)
-          </div>
-          {isTester ? (
-            <button
-              onClick={() => { onAct(userId, "revoke_tester"); setOpen(false); }}
-              className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
-            >
-              Retirer le statut Testeur
-            </button>
-          ) : (
-            <button
-              onClick={() => { onAct(userId, "grant_tester"); setOpen(false); }}
-              className="block w-full rounded px-2 py-1 text-left text-xs text-blue-600 dark:text-blue-400 hover:bg-accent"
-            >
-              Accorder le statut Testeur
-            </button>
-          )}
-
-          <hr className="my-1" />
-          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Compte
-          </div>
-          <button
-            onClick={() => {
-              if (confirm("Envoyer un email de réinitialisation de mot de passe à ce membre ?")) {
-                onAct(userId, "send_password_reset");
-              }
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Envoyer le mail de réinitialisation
-          </button>
-          <button
-            onClick={() => {
-              if (confirm("Supprimer DÉFINITIVEMENT ce compte et toutes ses données ? Action irréversible.")) {
-                onAct(userId, "delete_user");
-              }
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs text-destructive hover:bg-accent"
-          >
-            Supprimer le compte
-          </button>
-
-
-
-          <hr className="my-1" />
-          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Crédits texte (actuel : {currentText})
-          </div>
-          <button
-            onClick={() => {
-              const raw = prompt(`Définir le solde EXACT de crédits TEXTE (actuel : ${currentText})`, String(currentText));
-              if (raw === null) return;
-              const n = Number(raw);
-              if (Number.isFinite(n) && n >= 0) onAct(userId, "set_credits", Math.trunc(n));
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Définir solde texte…
-          </button>
-          <button
-            onClick={() => {
-              const n = Number(prompt("Ajouter combien de crédits TEXTE ? (négatif pour retirer)", "50"));
-              if (Number.isFinite(n) && n !== 0) onAct(userId, "add_credits", n);
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Ajuster crédits texte (±)…
-          </button>
-          <hr className="my-1" />
-          <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Crédits vocaux (actuel : {currentVoice})
-          </div>
-          <button
-            onClick={() => {
-              const raw = prompt(`Définir le solde EXACT de crédits VOCAUX (actuel : ${currentVoice})`, String(currentVoice));
-              if (raw === null) return;
-              const n = Number(raw);
-              if (Number.isFinite(n) && n >= 0) onAct(userId, "set_voice_credits", Math.trunc(n));
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Définir solde vocal…
-          </button>
-          <button
-            onClick={() => {
-              const n = Number(prompt("Ajouter combien de crédits VOCALE ? (négatif pour retirer)", "10"));
-              if (Number.isFinite(n) && n !== 0) onAct(userId, "add_voice_credits", n);
-              setOpen(false);
-            }}
-            className="block w-full rounded px-2 py-1 text-left text-xs hover:bg-accent"
-          >
-            Ajuster crédits vocaux (±)…
-          </button>
-        </div>
-      )}
+    <div className="rounded-md border bg-background p-3">
+      <div className="flex items-baseline justify-between">
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <span className={"text-sm font-semibold tabular-nums " + (danger ? "text-red-500" : "")}>
+          {used} / {limit}
+        </span>
+      </div>
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+        <div className={"h-full " + (danger ? "bg-red-500" : "bg-primary")} style={{ width: `${pct}%` }} />
+      </div>
+      {hint && <div className="mt-1 text-[10px] text-muted-foreground">{hint}</div>}
     </div>
   );
 }
+
+function BigCredit({ label, value, unlimited, tone }: { label: string; value: number; unlimited?: boolean; tone: string }) {
+  return (
+    <div className={"rounded-lg border p-4 " + tone}>
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-1 text-4xl font-bold tabular-nums">{unlimited ? "∞" : value}</div>
+    </div>
+  );
+}
+
+function MemberDrawer({
+  user,
+  onClose,
+  onAct,
+}: {
+  user: AdminUser;
+  onClose: () => void;
+  onAct: (id: string, action: string, amount?: number) => Promise<void> | void;
+}) {
+  const [detail, setDetail] = useState<MemberDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function loadDetail() {
+    setLoading(true);
+    const res = await authedFetch(`/api/admin?user=${user.user_id}`);
+    if (res.ok) setDetail((await res.json()) as MemberDetail);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.user_id]);
+
+  async function run(action: string, amount?: number) {
+    await onAct(user.user_id, action, amount);
+    loadDetail();
+  }
+
+  const st = detail?.status;
+  const unlimitedText = !!(st?.subscribed || st?.is_tester);
+  const btn = "rounded-md border px-3 py-1.5 text-xs hover:bg-accent";
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onClick={onClose}>
+      <div
+        className="h-full w-full max-w-2xl overflow-auto border-l bg-background p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold">{user.email ?? "—"}</h2>
+            <p className="text-xs text-muted-foreground">
+              Inscrit le {new Date(user.created_at).toLocaleDateString("fr-FR")}
+              {user.current_period_end && ` · fin d'accès ${new Date(user.current_period_end).toLocaleDateString("fr-FR")}`}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <StatusBadges u={user} />
+            </div>
+          </div>
+          <button onClick={onClose} className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent">
+            Fermer
+          </button>
+        </div>
+
+        {loading && !detail ? (
+          <p className="py-10 text-center text-sm text-muted-foreground">Chargement de la fiche…</p>
+        ) : (
+          <div className="space-y-6">
+            {/* Crédits en gros */}
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Solde de crédits</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <BigCredit label="Texte" value={st?.purchased_balance ?? user.purchased_balance} unlimited={unlimitedText} tone="bg-card" />
+                <BigCredit label="Vocaux" value={st?.voice_balance ?? user.voice_balance ?? 0} tone="bg-card" />
+                <BigCredit label="Mobile" value={st?.mobile_balance ?? user.mobile_balance ?? 0} tone="bg-card" />
+              </div>
+            </section>
+
+            {/* Quotas du jour */}
+            {st && (
+              <section>
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  Utilisation en cours
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Gauge
+                    label="Opérations aujourd'hui"
+                    used={st.daily_used}
+                    limit={st.daily_limit}
+                    hint={`Remise à zéro : ${new Date(st.daily_reset_at).toLocaleString("fr-FR")}`}
+                  />
+                  <Gauge
+                    label="Crédits texte gratuits restants"
+                    used={30 - (st.free_remaining ?? 0)}
+                    limit={30}
+                    hint={unlimitedText ? "Accès illimité (abonné / testeur)" : `${st.free_remaining} restants aujourd'hui`}
+                  />
+                  <Gauge label="Lectures vocales (jour)" used={st.voice_daily_used} limit={st.voice_daily_limit} />
+                  <Gauge
+                    label={st.subscribed || st.is_tester ? "Dialogues mobile (mois)" : "Dialogues mobile (jour)"}
+                    used={st.mobile_daily_used}
+                    limit={st.mobile_daily_limit}
+                  />
+                </div>
+              </section>
+            )}
+
+            {/* Coûts & revenus */}
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Coûts &amp; revenus</h3>
+              <div className="grid grid-cols-4 gap-3 text-sm">
+                <div className="rounded-md border bg-background p-3">
+                  <div className="text-xs text-muted-foreground">Coût 24h</div>
+                  <div className="font-semibold text-red-500">{EURPrecise(detail?.cost_eur.day ?? 0)}</div>
+                </div>
+                <div className="rounded-md border bg-background p-3">
+                  <div className="text-xs text-muted-foreground">Coût 30j</div>
+                  <div className="font-semibold text-red-500">{EURPrecise(detail?.cost_eur.month ?? 0)}</div>
+                </div>
+                <div className="rounded-md border bg-background p-3">
+                  <div className="text-xs text-muted-foreground">Coût total</div>
+                  <div className="font-semibold text-red-500">{EURPrecise(detail?.cost_eur.all ?? 0)}</div>
+                </div>
+                <div className="rounded-md border bg-background p-3">
+                  <div className="text-xs text-muted-foreground">Revenus</div>
+                  <div className="font-semibold text-green-600">{EUR(user.revenue_eur_total)}</div>
+                </div>
+              </div>
+            </section>
+
+            {/* Actions */}
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Abonnement</h3>
+              <div className="flex flex-wrap gap-2">
+                <button className={btn} onClick={() => run("grant_lifetime")}>Accorder Lifetime</button>
+                <button className={btn} onClick={() => run("grant_year")}>Accorder 1 an</button>
+                <button className={btn + " text-destructive"} onClick={() => run("cancel")}>Annuler l'abonnement</button>
+                {user.is_tester ? (
+                  <button className={btn + " text-destructive"} onClick={() => run("revoke_tester")}>Retirer le statut Testeur</button>
+                ) : (
+                  <button className={btn + " text-blue-600"} onClick={() => run("grant_tester")}>Accorder le statut Testeur</button>
+                )}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Crédits</h3>
+              <div className="space-y-2">
+                {([
+                  { key: "text", label: "Texte", set: "set_credits", add: "add_credits", cur: st?.purchased_balance ?? user.purchased_balance, step: 75 },
+                  { key: "voice", label: "Vocaux", set: "set_voice_credits", add: "add_voice_credits", cur: st?.voice_balance ?? user.voice_balance ?? 0, step: 45 },
+                  { key: "mobile", label: "Mobile", set: "set_mobile_credits", add: "add_mobile_credits", cur: st?.mobile_balance ?? user.mobile_balance ?? 0, step: 75 },
+                ] as const).map((c) => (
+                  <div key={c.key} className="flex flex-wrap items-center gap-2 rounded-md border bg-background p-2">
+                    <span className="w-20 text-xs font-semibold">{c.label}</span>
+                    <span className="text-xs text-muted-foreground">solde : {c.cur}</span>
+                    <div className="ml-auto flex flex-wrap gap-1.5">
+                      <button className={btn} onClick={() => run(c.add, c.step)}>+{c.step}</button>
+                      <button className={btn} onClick={() => run(c.add, 10)}>+10</button>
+                      <button className={btn} onClick={() => run(c.add, -10)}>-10</button>
+                      <button
+                        className={btn}
+                        onClick={() => {
+                          const raw = prompt(`Solde exact de crédits ${c.label} (actuel : ${c.cur})`, String(c.cur));
+                          if (raw === null) return;
+                          const n = Number(raw);
+                          if (Number.isFinite(n) && n >= 0) run(c.set, Math.trunc(n));
+                        }}
+                      >
+                        Définir…
+                      </button>
+                      <button className={btn + " text-destructive"} onClick={() => run(c.set, 0)}>Remettre à 0</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Compte</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className={btn}
+                  onClick={() => {
+                    if (user.email) navigator.clipboard?.writeText(user.email);
+                    toast.success("Email copié");
+                  }}
+                >
+                  Copier l'email
+                </button>
+                <button
+                  className={btn}
+                  onClick={() => {
+                    if (confirm("Envoyer un email de réinitialisation de mot de passe ?")) run("send_password_reset");
+                  }}
+                >
+                  Envoyer le mail de réinitialisation
+                </button>
+                <button
+                  className={btn + " text-destructive"}
+                  onClick={() => {
+                    if (confirm("Supprimer DÉFINITIVEMENT ce compte et toutes ses données ?")) {
+                      run("delete_user");
+                      onClose();
+                    }
+                  }}
+                >
+                  Supprimer le compte
+                </button>
+              </div>
+            </section>
+
+            {/* Paiements */}
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Paiements ({detail?.transactions.length ?? 0})
+              </h3>
+              {(detail?.transactions.length ?? 0) === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun paiement enregistré.</p>
+              ) : (
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b text-left text-muted-foreground">
+                      <th className="p-1.5">Date</th>
+                      <th className="p-1.5">Type</th>
+                      <th className="p-1.5">Env.</th>
+                      <th className="p-1.5 text-right">Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detail!.transactions.map((t) => (
+                      <tr key={t.paddle_transaction_id} className="border-b">
+                        <td className="p-1.5">{new Date(t.created_at).toLocaleString("fr-FR")}</td>
+                        <td className="p-1.5">{t.kind}</td>
+                        <td className="p-1.5">{t.environment}</td>
+                        <td className="p-1.5 text-right tabular-nums">{EUR(t.amount_eur)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </section>
+
+            {/* Activité récente */}
+            <section>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Dernières actions
+              </h3>
+              {(detail?.activity.length ?? 0) === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucune activité.</p>
+              ) : (
+                <div className="max-h-64 overflow-auto rounded-md border">
+                  <table className="w-full text-xs">
+                    <tbody>
+                      {detail!.activity.map((a, i) => (
+                        <tr key={i} className="border-b last:border-0">
+                          <td className="p-1.5 text-muted-foreground">{new Date(a.created_at).toLocaleString("fr-FR")}</td>
+                          <td className="p-1.5">{operationLabel(a.operation_type)}</td>
+                          <td className="p-1.5 text-muted-foreground">{a.source_type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StatusBadges({ u }: { u: AdminUser }) {
+  return (
+    <>
+      {u.is_tester && (
+        <span className="rounded bg-blue-500/20 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-300">Testeur</span>
+      )}
+      {u.access_origin === "paid" ? (
+        <span className="rounded bg-green-500/20 px-2 py-0.5 text-xs text-green-700 dark:text-green-400">Abonné payant</span>
+      ) : u.access_origin === "granted" ? (
+        <span className="rounded bg-amber-500/20 px-2 py-0.5 text-xs text-amber-700 dark:text-amber-400">Accès offert</span>
+      ) : (
+        !u.is_tester && <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">Gratuit</span>
+      )}
+    </>
+  );
+}
+
 
 function operationLabel(op: string) {
   switch (op) {
