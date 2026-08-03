@@ -27,6 +27,7 @@ import { Route as ApiTranslateAudioRouteImport } from './routes/api/translate-au
 import { Route as ApiSupportRouteImport } from './routes/api/support'
 import { Route as ApiSubscriptionRouteImport } from './routes/api/subscription'
 import { Route as ApiReadMessageRouteImport } from './routes/api/read-message'
+import { Route as ApiMobileTtsRouteImport } from './routes/api/mobile-tts'
 import { Route as ApiMobileDialogRouteImport } from './routes/api/mobile-dialog'
 import { Route as ApiAppearanceRouteImport } from './routes/api/appearance'
 import { Route as ApiAdminEmailsRouteImport } from './routes/api/admin-emails'
@@ -128,6 +129,11 @@ const ApiReadMessageRoute = ApiReadMessageRouteImport.update({
   path: '/api/read-message',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMobileTtsRoute = ApiMobileTtsRouteImport.update({
+  id: '/api/mobile-tts',
+  path: '/api/mobile-tts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMobileDialogRoute = ApiMobileDialogRouteImport.update({
   id: '/api/mobile-dialog',
   path: '/api/mobile-dialog',
@@ -195,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/appearance': typeof ApiAppearanceRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
+  '/api/mobile-tts': typeof ApiMobileTtsRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
   '/api/support': typeof ApiSupportRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/appearance': typeof ApiAppearanceRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
+  '/api/mobile-tts': typeof ApiMobileTtsRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
   '/api/support': typeof ApiSupportRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/api/admin-emails': typeof ApiAdminEmailsRoute
   '/api/appearance': typeof ApiAppearanceRoute
   '/api/mobile-dialog': typeof ApiMobileDialogRoute
+  '/api/mobile-tts': typeof ApiMobileTtsRoute
   '/api/read-message': typeof ApiReadMessageRoute
   '/api/subscription': typeof ApiSubscriptionRoute
   '/api/support': typeof ApiSupportRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/api/admin-emails'
     | '/api/appearance'
     | '/api/mobile-dialog'
+    | '/api/mobile-tts'
     | '/api/read-message'
     | '/api/subscription'
     | '/api/support'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/api/admin-emails'
     | '/api/appearance'
     | '/api/mobile-dialog'
+    | '/api/mobile-tts'
     | '/api/read-message'
     | '/api/subscription'
     | '/api/support'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/api/admin-emails'
     | '/api/appearance'
     | '/api/mobile-dialog'
+    | '/api/mobile-tts'
     | '/api/read-message'
     | '/api/subscription'
     | '/api/support'
@@ -379,6 +391,7 @@ export interface RootRouteChildren {
   ApiAdminEmailsRoute: typeof ApiAdminEmailsRoute
   ApiAppearanceRoute: typeof ApiAppearanceRoute
   ApiMobileDialogRoute: typeof ApiMobileDialogRoute
+  ApiMobileTtsRoute: typeof ApiMobileTtsRoute
   ApiReadMessageRoute: typeof ApiReadMessageRoute
   ApiSubscriptionRoute: typeof ApiSubscriptionRoute
   ApiSupportRoute: typeof ApiSupportRoute
@@ -524,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiReadMessageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mobile-tts': {
+      id: '/api/mobile-tts'
+      path: '/api/mobile-tts'
+      fullPath: '/api/mobile-tts'
+      preLoaderRoute: typeof ApiMobileTtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/mobile-dialog': {
       id: '/api/mobile-dialog'
       path: '/api/mobile-dialog'
@@ -621,6 +641,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminEmailsRoute: ApiAdminEmailsRoute,
   ApiAppearanceRoute: ApiAppearanceRoute,
   ApiMobileDialogRoute: ApiMobileDialogRoute,
+  ApiMobileTtsRoute: ApiMobileTtsRoute,
   ApiReadMessageRoute: ApiReadMessageRoute,
   ApiSubscriptionRoute: ApiSubscriptionRoute,
   ApiSupportRoute: ApiSupportRoute,

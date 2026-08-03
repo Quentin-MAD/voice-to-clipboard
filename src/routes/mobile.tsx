@@ -305,14 +305,12 @@ function MobileApp() {
   const sourceLangObj = turn === "me" ? myLangObj : theirLangObj;
   const targetLangObj = turn === "me" ? theirLangObj : myLangObj;
 
-  const playAudioBase64 = async (b64: string) => {
-    if (lastAudioUrlRef.current) URL.revokeObjectURL(lastAudioUrlRef.current);
-    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: "audio/mpeg" });
-    const url = URL.createObjectURL(blob);
+  const playTtsStream = async (ttsToken: string) => {
+    const url = `/api/mobile-tts?t=${encodeURIComponent(ttsToken)}`;
     lastAudioUrlRef.current = url;
     const audio = audioRef.current ?? new Audio();
     audioRef.current = audio;
+    audio.preload = "auto";
     audio.src = url;
     const finish = () => {
       recorder.setState("idle");
@@ -323,6 +321,7 @@ function MobileApp() {
     audio.onerror = () => recorder.setState("idle");
     try {
       recorder.setState("playing");
+      // Playback starts on the first bytes of the stream.
       await audio.play();
     } catch {
       recorder.setState("idle");
@@ -337,6 +336,7 @@ function MobileApp() {
       await audio.play();
     } catch { /* ignore */ }
   };
+
 
   const swapTurn = () => {
     if (recorder.state === "recording" || recorder.state === "processing") return;
