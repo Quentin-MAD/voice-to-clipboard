@@ -1,4 +1,5 @@
 import { Crown, ShoppingBag, X } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
 export type LimitKind =
@@ -62,6 +63,7 @@ export function LimitDialog({
   onClose: () => void;
   variant: "native" | "mobile" | "web";
 }) {
+  const navigate = useNavigate();
   const c = content(block);
   const resetLabel = block.resetAt
     ? new Date(block.resetAt).toLocaleString("fr-FR", { weekday: "long", hour: "2-digit", minute: "2-digit" })
@@ -69,10 +71,10 @@ export function LimitDialog({
 
   const go = () => {
     if (variant === "mobile") {
-      // En PWA installée, window.open est bloqué/refermé aussitôt par le système :
-      // on reste dans l'app et on ouvre l'écran d'achat dédié mobile.
+      // Navigation interne indispensable dans la PWA installée : une navigation
+      // document complète peut être confiée puis aussitôt refermée par le système.
       onClose();
-      window.location.assign("/mobile/account");
+      navigate({ to: "/mobile/account" });
       return;
     }
     openPricingExternal();

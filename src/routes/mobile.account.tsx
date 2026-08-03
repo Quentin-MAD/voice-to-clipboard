@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Crown, ShoppingBag, Settings2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,6 +30,7 @@ function MobileAccountPage() {
   const isTester = !!userStatus?.is_tester;
   const isSubscribed = !!userStatus?.subscribed;
   const unlimited = isTester || isSubscribed;
+  const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -51,17 +52,36 @@ function MobileAccountPage() {
       toast.info("Votre abonnement inclut déjà ces crédits.");
       return;
     }
-    try {
-      await openCheckout({
-        priceId,
-        customerEmail: user.email,
-        customData: { userId: user.id },
-        successUrl: `${window.location.origin}/mobile/account?checkout=success`,
-      });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Impossible d'ouvrir le paiement.");
-    }
+    setCheckoutPriceId(priceId);
   };
+
+  useEffect(() => {
+    if (!checkoutPriceId || !user?.email) return;
+    let cancelled = false;
+    const openInlineCheckout = async () => {
+      // Attend que la cible soit réellement montée avant de demander à Paddle
+      // d'y intégrer le paiement. Aucun nouvel onglet ni overlay système.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      if (cancelled || !document.getElementById("mobile-checkout-container")) return;
+      try {
+        window.Paddle?.Checkout?.close?.();
+        await openCheckout({
+          priceId: checkoutPriceId,
+          customerEmail: user.email,
+          customData: { userId: user.id },
+          successUrl: `${window.location.origin}/mobile/account?checkout=success`,
+          displayMode: "inline",
+          frameTarget: "mobile-checkout-container",
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Impossible d'ouvrir le paiement.";
+        toast.error(message);
+        setCheckoutPriceId(null);
+      }
+    };
+    void openInlineCheckout();
+    return () => { cancelled = true; };
+  }, [checkoutPriceId, openCheckout, user?.email, user?.id]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -94,7 +114,26 @@ function MobileAccountPage() {
 
         <h2 className="mt-8 text-sm font-semibold uppercase tracking-wider text-white/60">Recharger</h2>
 
-        {!unlimited && (
+        {checkoutPriceId && (
+          <section className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-3" aria-label="Paiement sécurisé">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold">Paiement sécurisé</span>
+              <button
+                type="button"
+                onClick={() => {
+                  window.Paddle?.Checkout?.close?.();
+                  setCheckoutPriceId(null);
+                }}
+                className="text-xs text-white/60 underline-offset-2 hover:underline"
+              >
+                Fermer
+              </button>
+            </div>
+            <div id="mobile-checkout-container" className="min-h-[480px] w-full overflow-hidden" />
+          </section>
+        )}
+
+        {!checkoutPriceId && !unlimited && (
           <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4 text-emerald-400" />
@@ -116,7 +155,7 @@ function MobileAccountPage() {
           </div>
         )}
 
-        {!isTester && (
+        {!checkoutPriceId && !isTester && (
           <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="flex items-center gap-2">
               <Crown className="h-4 w-4 text-amber-400" />
