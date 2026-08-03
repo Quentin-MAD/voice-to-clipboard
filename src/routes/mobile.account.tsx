@@ -163,10 +163,12 @@ function MobileAccountPage() {
             </div>
             <div className="mt-2 text-2xl font-bold">24,99 € <span className="text-sm font-normal text-white/60">/ an</span></div>
             <ul className="mt-1 space-y-0.5 text-sm text-white/70">
-              <li>✓ 500 traductions mobile/mois, texte illimité (F8)</li>
-              <li>✓ Lecture IA F9 : 50/jour (350/mois)</li>
+              <li>✓ Application mobile en illimité (dialogues sans limite)</li>
+              <li>✓ Application Windows en illimité (traductions F8 + lectures IA F9)</li>
+              <li>✓ Aucune limite journalière ni mensuelle</li>
               <li>✓ Prioritaire sur les nouveautés</li>
             </ul>
+
             <button
               onClick={() => buy(isSubscribed ? "sub_extend_year_onetime" : "vox_subscription_yearly")}
               disabled={loading || authLoading || statusLoading}
