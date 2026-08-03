@@ -379,13 +379,13 @@ async function fireAutoType() {
   try {
     const res = await autotype.typeText(text);
     if (res.ok) {
-      pendingAutoTypeText = '';
-      pendingAutoTypeMeta = null;
+      autoTypeInProgress = false;
       if (mainWindow && !mainWindow.isDestroyed()) {
         try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
-        try { mainWindow.webContents.send('autotype:cleared'); } catch {}
       }
+      setPendingAutoType('', null);
       console.log('[autotype] completed', { chars: text.length });
+
     } else {
       console.error('[autotype] SendInput failed', res.error || 'unknown');
       notify({
