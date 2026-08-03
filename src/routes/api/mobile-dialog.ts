@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createClient } from "@supabase/supabase-js";
+import { signTtsToken } from "@/lib/mobile-tts-token";
 
 const LANG_NAMES: Record<string, string> = {
   fr: "French", en: "English", es: "Spanish", de: "German", it: "Italian",
@@ -15,84 +16,63 @@ const LANG_NAMES: Record<string, string> = {
   af: "Afrikaans",
 };
 
-const STT_LANG: Record<string, string> = {
-  fr: "fr", en: "en", es: "es", de: "de", it: "it", ru: "ru", ja: "ja", zh: "zh",
-  pt: "pt", ko: "ko", tr: "tr", pl: "pl", nl: "nl", ar: "ar", id: "id", vi: "vi",
-  th: "th", sv: "sv", uk: "uk", el: "el", hi: "hi", ro: "ro", cs: "cs", hu: "hu",
-  da: "da", fi: "fi", no: "no", he: "he", bg: "bg", hr: "hr", sk: "sk", ms: "ms",
-  fa: "fa", bn: "bn", ur: "ur", pa: "pa", ta: "ta", te: "te", mr: "mr", gu: "gu",
-  jv: "jv", sw: "sw", tl: "tl", sr: "sr", sl: "sl", ca: "ca", af: "af",
-};
+const DIALOG_MODEL = "google/gemini-2.5-flash-lite";
 
-
-async function transcribe(audio: Blob, filename: string, sourceLang: string | null) {
-  const key = process.env.LOVABLE_API_KEY!;
-  const form = new FormData();
-  form.append("file", audio, filename);
-  form.append("model", "openai/gpt-4o-mini-transcribe");
-  if (sourceLang && STT_LANG[sourceLang]) form.append("language", STT_LANG[sourceLang]);
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}` },
-    body: form,
-  });
-  if (!res.ok) throw new Error(`STT [${res.status}]: ${await res.text().catch(() => "")}`);
-  const json = (await res.json()) as { text?: string };
-  return (json.text ?? "").trim();
+function toBase64(buf: ArrayBuffer) {
+  return Buffer.from(buf).toString("base64");
 }
 
-async function translate(text: string, sourceLang: string | null, targetLang: string) {
+/**
+ * Single multimodal call: the audio is transcribed AND translated in one round
+ * trip (previously two sequential gateway calls).
+ */
+async function transcribeAndTranslate(
+  audio: Blob,
+  sourceLang: string | null,
+  targetLang: string,
+) {
   const key = process.env.LOVABLE_API_KEY!;
   const targetName = LANG_NAMES[targetLang] ?? targetLang;
   const sourceName = sourceLang && LANG_NAMES[sourceLang] ? LANG_NAMES[sourceLang] : "the detected language";
+  const b64 = toBase64(await audio.arrayBuffer());
+
   const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash-lite",
+      model: DIALOG_MODEL,
       reasoning_effort: "none",
-      max_tokens: 400,
+      max_tokens: 500,
       temperature: 0.2,
       messages: [
         {
           role: "system",
-          content: `You are a natural, idiomatic translator from ${sourceName} into ${targetName}. Translate the spoken message the way a native ${targetName} speaker would actually say it in a real face-to-face conversation. Preserve tone, register, emotion, humor. Adapt idioms. Fix obvious speech-to-text mistakes silently. Output ONLY the translation in ${targetName}, no quotes, no comments, no language labels.`,
+          content: `You transcribe a short spoken message in ${sourceName} and translate it into ${targetName}. Translate the way a native ${targetName} speaker would actually say it in a real face-to-face conversation: preserve tone, register, emotion and humor, adapt idioms, silently fix obvious speech recognition mistakes. Answer with EXACTLY two lines and nothing else:\nTRANSCRIPT: <the spoken words, verbatim>\nTRANSLATION: <the ${targetName} translation>`,
         },
-        { role: "user", content: text },
+        {
+          role: "user",
+          content: [
+            { type: "text", text: `Transcribe then translate into ${targetName}.` },
+            { type: "input_audio", input_audio: { data: b64, format: "wav" } },
+          ],
+        },
       ],
     }),
   });
-  if (!res.ok) throw new Error(`Translate [${res.status}]: ${await res.text().catch(() => "")}`);
+  if (!res.ok) throw new Error(`Dialog [${res.status}]: ${await res.text().catch(() => "")}`);
   const json = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
     usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
+  const raw = (json.choices?.[0]?.message?.content ?? "").trim();
+  const transcript = (raw.match(/TRANSCRIPT:\s*([\s\S]*?)(?:\n\s*TRANSLATION:|$)/i)?.[1] ?? "").trim();
+  const translation = (raw.match(/TRANSLATION:\s*([\s\S]*)$/i)?.[1] ?? "").trim();
   return {
-    text: (json.choices?.[0]?.message?.content ?? "").trim(),
+    transcript,
+    translation: translation || (transcript ? "" : raw),
     inputTokens: json.usage?.prompt_tokens ?? 0,
     outputTokens: json.usage?.completion_tokens ?? 0,
   };
-}
-
-async function synthesize(text: string, targetLang: string): Promise<string> {
-  const key = process.env.LOVABLE_API_KEY!;
-  // Alternate voices so the two speakers sound different
-  const maleLangs = new Set(["fr"]);
-  const voice = maleLangs.has(targetLang) ? "onyx" : "nova";
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({
-      model: "openai/gpt-4o-mini-tts",
-      input: text,
-      voice,
-      response_format: "mp3",
-      speed: 1.05,
-    }),
-  });
-  if (!res.ok) throw new Error(`TTS [${res.status}]: ${await res.text().catch(() => "")}`);
-  const buf = await res.arrayBuffer();
-  return Buffer.from(buf).toString("base64");
 }
 
 async function logAiUsage(userId: string, entries: Array<{ model: string; operation: string; input_tokens?: number; output_tokens?: number; cost_credits: number }>) {
@@ -176,30 +156,34 @@ export const Route = createFileRoute("/api/mobile-dialog")({
             return Response.json({ error: "Langue source non supportée.", code: "bad_lang" }, { status: 400 });
           }
 
-          const filename = (audio as File).name || "recording.wav";
-          const transcript = await transcribe(audio, filename, sourceLang);
-          if (!transcript) {
+          const result = await transcribeAndTranslate(audio, sourceLang, targetLang);
+          if (!result.transcript && !result.translation) {
             return Response.json({ error: "Aucune parole détectée.", code: "no_speech" }, { status: 422 });
           }
 
-          const translation = await translate(transcript, sourceLang, targetLang);
-          const audioB64 = await synthesize(translation.text, targetLang);
-
-          const audioSec = Math.max(1, audio.size / 32000);
-          const transcribeCost = 0.00005 * audioSec;
-          const translateCost = translation.inputTokens * 0.0000001 + translation.outputTokens * 0.0000004;
-          const ttsCost = translation.text.length * 0.0000179;
+          const cost = result.inputTokens * 0.0000001 + result.outputTokens * 0.0000004;
           await logAiUsage(userId, [
-            { model: "openai/gpt-4o-mini-transcribe", operation: "mobile_transcription", cost_credits: transcribeCost },
-            { model: "google/gemini-2.5-flash-lite", operation: "mobile_translation", input_tokens: translation.inputTokens, output_tokens: translation.outputTokens, cost_credits: translateCost },
-            { model: "openai/gpt-4o-mini-tts", operation: "mobile_tts", output_tokens: translation.text.length, cost_credits: ttsCost },
+            {
+              model: DIALOG_MODEL,
+              operation: "mobile_translation",
+              input_tokens: result.inputTokens,
+              output_tokens: result.outputTokens,
+              cost_credits: cost,
+            },
           ]);
 
+          // The voice is streamed separately so playback can start as soon as the
+          // first bytes arrive instead of waiting for the whole file.
+          const ttsToken = signTtsToken({
+            userId,
+            text: result.translation || result.transcript,
+            lang: targetLang,
+          });
+
           return Response.json({
-            transcript,
-            translation: translation.text,
-            audio: audioB64,
-            audioFormat: "mp3",
+            transcript: result.transcript,
+            translation: result.translation,
+            ttsToken,
             usage: {
               daily_used: row.daily_used,
               daily_limit: row.daily_limit,
