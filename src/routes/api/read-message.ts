@@ -28,8 +28,7 @@ type VisionResult = {
 async function analyzeScreenshotAndAudio(
   audioBase64: string,
   audioFormat: string,
-  screenshotBase64: string,
-  screenshotMime: string,
+  screenshots: Array<{ base64: string; mime: string }>,
   targetLang: string,
 ): Promise<VisionResult> {
   const key = process.env.LOVABLE_API_KEY;
