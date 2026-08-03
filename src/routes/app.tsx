@@ -698,13 +698,16 @@ function Home() {
     stopProcessingSoundRef.current?.();
     stopProcessingSoundRef.current = playProcessingLoop();
     try {
-      // 1. Capture screenshot NOW (after speaking, chat is still visible)
+      // 1. Capture screenshot NOW (after speaking, chat is still visible).
+      // Multi-monitor setups return one image per screen.
       const shot = await window.voxElectron.captureScreen();
-      if (!shot?.ok || !shot.dataBase64) {
+      if (!shot?.ok || (!shot.dataBase64 && !shot.shots?.length)) {
         throw new Error(shot?.error ?? "Capture d'écran impossible");
       }
-      const shotMime = shot.mime ?? "image/png";
-      const screenshotBlob = await (await fetch(`data:${shotMime};base64,${shot.dataBase64}`)).blob();
+      const shotList =
+        shot.shots && shot.shots.length > 0
+          ? shot.shots
+          : [{ dataBase64: shot.dataBase64 as string, mime: shot.mime ?? "image/png" }];
 
       // 2. Encode audio to WAV
       const wav = encodeCleanedWav(chunks, sampleRate, denoiseRef.current, 16000);
@@ -712,7 +715,14 @@ function Home() {
       const form = new FormData();
       form.append("audio", wav, "recording.wav");
       form.append("audioFormat", "wav");
-      form.append("screenshot", screenshotBlob, shotMime === "image/jpeg" ? "screen.jpg" : "screen.png");
+      for (let i = 0; i < shotList.length; i++) {
+        const s = shotList[i];
+        const mime = s.mime ?? "image/png";
+        const blob = await (await fetch(`data:${mime};base64,${s.dataBase64}`)).blob();
+        const ext = mime === "image/jpeg" ? "jpg" : "png";
+        // First screen keeps the historical field name for compatibility.
+        form.append(i === 0 ? "screenshot" : `screenshot${i + 1}`, blob, `screen${i + 1}.${ext}`);
+      }
       form.append("targetLang", readLang);
 
 
