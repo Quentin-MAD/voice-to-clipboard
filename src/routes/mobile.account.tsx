@@ -62,7 +62,7 @@ function MobileAccountPage() {
       // Attend que la cible soit réellement montée avant de demander à Paddle
       // d'y intégrer le paiement. Aucun nouvel onglet ni overlay système.
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      if (cancelled || !document.getElementById("mobile-checkout-container")) return;
+      if (cancelled || !document.querySelector(".mobile-checkout-container")) return;
       try {
         window.Paddle?.Checkout?.close?.();
         await openCheckout({
@@ -129,7 +129,7 @@ function MobileAccountPage() {
                 Fermer
               </button>
             </div>
-            <div id="mobile-checkout-container" className="min-h-[480px] w-full overflow-hidden" />
+            <div id="mobile-checkout-container" className="mobile-checkout-container min-h-[480px] w-full overflow-hidden" />
           </section>
         )}
 
