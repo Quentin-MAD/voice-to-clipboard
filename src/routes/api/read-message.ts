@@ -67,9 +67,14 @@ Rules:
       {
         role: "user",
         content: [
-          { type: "text", text: `Read the message and translate it to ${targetName}. Listen to what I'm saying and look at the screenshot.` },
+          { type: "text", text: `Read the message and translate it to ${targetName}. Listen to what I'm saying and look at ${screenshots.length > 1 ? `all ${screenshots.length} screenshots (one per monitor)` : "the screenshot"}.` },
           { type: "input_audio", input_audio: { data: audioBase64, format: audioFormat } },
-          { type: "image_url", image_url: { url: `data:${screenshotMime};base64,${screenshotBase64}` } },
+          ...screenshots.flatMap((s, i) => [
+            ...(screenshots.length > 1
+              ? [{ type: "text", text: `Screen ${i + 1}:` } as const]
+              : []),
+            { type: "image_url", image_url: { url: `data:${s.mime};base64,${s.base64}` } } as const,
+          ]),
         ],
       },
     ],
