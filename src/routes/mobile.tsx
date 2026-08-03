@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Loader2, Volume2, LogOut, Smartphone, ArrowLeftRight, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -115,6 +115,7 @@ export const Route = createFileRoute("/mobile")({
 function MobilePage() {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   useEffect(() => {
     setMounted(true);
     // Aperçu admin (?skin=draft) : on rend toujours l'app mobile, même sur PC.
@@ -124,6 +125,10 @@ function MobilePage() {
 
 
   if (!mounted) return <AppSplash />;
+  // Les écrans internes comme /mobile/account sont imbriqués sous cette route.
+  // Sans Outlet, le routeur remontait aussitôt l'application principale et
+  // donnait l'impression que l'écran de paiement s'ouvrait puis se refermait.
+  if (pathname !== "/mobile") return <Outlet />;
   if (!isMobile) return <DesktopBlocker />;
   return <MobileApp />;
 }
