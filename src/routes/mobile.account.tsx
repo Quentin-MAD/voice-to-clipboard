@@ -72,10 +72,6 @@ function MobileAccountPage() {
           successUrl: `${window.location.origin}/mobile/account?checkout=success`,
           displayMode: "inline",
           frameTarget: "mobile-checkout-container",
-          onError: () => {
-            toast.error("Impossible d'ouvrir le paiement. Merci de réessayer.");
-            setCheckoutPriceId(null);
-          },
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Impossible d'ouvrir le paiement.";
