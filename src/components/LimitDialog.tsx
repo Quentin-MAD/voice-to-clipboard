@@ -68,6 +68,13 @@ export function LimitDialog({
     : null;
 
   const go = () => {
+    if (variant === "mobile") {
+      // En PWA installée, window.open est bloqué/refermé aussitôt par le système :
+      // on reste dans l'app et on ouvre l'écran d'achat dédié mobile.
+      onClose();
+      window.location.assign("/mobile/account");
+      return;
+    }
     openPricingExternal();
     onClose();
   };
