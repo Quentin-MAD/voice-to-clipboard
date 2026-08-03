@@ -526,7 +526,7 @@ async function checkForUpdates({ silent = true } = {}) {
     return;
   }
   // Toute version différente du manifeste est proposée (permet aussi de repartir
-  // sur une numérotation plus basse, ex. retour à la v1.0.0).
+  // sur une numérotation plus basse, ex. retour à la v1.0.1).
   if (String(manifest.version) !== String(CURRENT_VERSION)) {
     latestUpdate = manifest;
     rebuildTrayMenu();
