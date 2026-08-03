@@ -66,6 +66,10 @@ function loadSettings() {
       if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
       if (raw && typeof raw.autoTypeAccel === 'string') autoTypeAccel = raw.autoTypeAccel;
       if (raw && typeof raw.autoTypeEnabled === 'boolean') autoTypeEnabled = raw.autoTypeEnabled;
+      // A translation waiting to be written must survive an app restart: it is
+      // only consumed once actually typed (auto-type key) or pasted (Ctrl+V).
+      if (raw && typeof raw.pendingAutoTypeText === 'string') pendingAutoTypeText = raw.pendingAutoTypeText;
+      if (raw && raw.pendingAutoTypeMeta && typeof raw.pendingAutoTypeMeta === 'object') pendingAutoTypeMeta = raw.pendingAutoTypeMeta;
       autoTypeMigratedV2 = !!(raw && raw.autoTypeMigratedV2);
       // One-time migration: earlier builds shipped F10 as the default auto-type
       // key. New default is Backspace. Reset it once so existing installs pick
@@ -84,9 +88,27 @@ function saveSettings() {
     if (!SETTINGS_PATH) return;
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify({
       toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled, autoTypeMigratedV2,
+      pendingAutoTypeText, pendingAutoTypeMeta,
     }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
+
+// Central place to change the waiting translation: keeps disk, hotkey arming
+// and the renderer in sync. The text stays in memory until it is really
+// written (auto-type key) or pasted (Ctrl+V).
+function setPendingAutoType(text, meta) {
+  pendingAutoTypeText = String(text ?? '');
+  pendingAutoTypeMeta = pendingAutoTypeText ? (meta || null) : null;
+  saveSettings();
+  registerHotkeys();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('autotype:pending', { hasPending: !!pendingAutoTypeText }); } catch {}
+    if (!pendingAutoTypeText) {
+      try { mainWindow.webContents.send('autotype:cleared'); } catch {}
+    }
+  }
+}
+
 
 // -------- Single-instance lock --------
 const gotLock = app.requestSingleInstanceLock();
@@ -296,6 +318,20 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register auto-type hotkey', e); }
 
+  // Passive Ctrl+V observer: when the user pastes the translation manually, the
+  // message has been delivered, so the pending translation is consumed too.
+  try {
+    if (!autoTypeInProgress && !!pendingAutoTypeText) {
+      bind('Ctrl+V', 'auto-type-pasted', () => {
+        if (!pendingAutoTypeText || autoTypeInProgress) return;
+        console.log('[autotype] pending cleared by Ctrl+V');
+        setPendingAutoType('', null);
+      }, false);
+    }
+  } catch (e) { console.error('Failed to register paste observer', e); }
+
+
+
 
   console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
   if (!useLowLevel) {
@@ -343,13 +379,13 @@ async function fireAutoType() {
   try {
     const res = await autotype.typeText(text);
     if (res.ok) {
-      pendingAutoTypeText = '';
-      pendingAutoTypeMeta = null;
+      autoTypeInProgress = false;
       if (mainWindow && !mainWindow.isDestroyed()) {
         try { mainWindow.webContents.send('hotkey', 'auto-type'); } catch {}
-        try { mainWindow.webContents.send('autotype:cleared'); } catch {}
       }
+      setPendingAutoType('', null);
       console.log('[autotype] completed', { chars: text.length });
+
     } else {
       console.error('[autotype] SendInput failed', res.error || 'unknown');
       notify({
@@ -590,23 +626,24 @@ ipcMain.handle('autotype:get-config', () => ({
 ipcMain.handle('autotype:set-config', (_e, payload) => {
   if (payload && typeof payload.enabled === 'boolean') autoTypeEnabled = payload.enabled;
   if (payload && typeof payload.accel === 'string' && payload.accel.trim()) autoTypeAccel = payload.accel.trim();
-  if (!autoTypeEnabled) { pendingAutoTypeText = ''; pendingAutoTypeMeta = null; }
+  // The waiting translation is intentionally kept even when auto-write is
+  // turned off: it stays available in the clipboard until it is used.
   saveSettings();
   registerHotkeys();
-  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk };
+  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk, hasPending: !!pendingAutoTypeText };
 });
 
 ipcMain.handle('autotype:set-pending', (_e, payload) => {
   const text = payload && typeof payload === 'object' ? payload.text : payload;
-  pendingAutoTypeText = String(text ?? '');
-  pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  const meta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
   // Preserve every successful translation in the clipboard too, even when
   // auto-write is selected. The keyboard injector remains the primary action.
-  if (pendingAutoTypeText) {
-    try { clipboard.writeText(pendingAutoTypeText); } catch {}
+  if (text) {
+    try { clipboard.writeText(String(text)); } catch {}
   }
-  // Arm (or release) the auto-type key only while a translation is pending.
-  registerHotkeys();
+  // Arm (or release) the auto-type key only while a translation is pending,
+  // and persist it so it survives an app restart.
+  setPendingAutoType(text, meta);
   if (pendingAutoTypeText) {
     const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
     const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -627,11 +664,10 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
 });
 
 ipcMain.handle('autotype:clear', () => {
-  pendingAutoTypeText = '';
-  pendingAutoTypeMeta = null;
-  registerHotkeys();
+  setPendingAutoType('', null);
   return { ok: true };
 });
+
 
 
 
