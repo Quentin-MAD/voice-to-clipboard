@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { initializePaddle, getPaddlePriceId } from "@/lib/paddle";
 
 export function usePaddleCheckout() {
   const [loading, setLoading] = useState(false);
 
-  const openCheckout = async (options: {
+  const openCheckout = useCallback(async (options: {
     priceId: string;
     quantity?: number;
     customerEmail?: string;
@@ -36,7 +36,7 @@ export function usePaddleCheckout() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return { openCheckout, loading };
 }
