@@ -66,6 +66,10 @@ function loadSettings() {
       if (raw && typeof raw.readAccel === 'string') readAccel = raw.readAccel;
       if (raw && typeof raw.autoTypeAccel === 'string') autoTypeAccel = raw.autoTypeAccel;
       if (raw && typeof raw.autoTypeEnabled === 'boolean') autoTypeEnabled = raw.autoTypeEnabled;
+      // A translation waiting to be written must survive an app restart: it is
+      // only consumed once actually typed (auto-type key) or pasted (Ctrl+V).
+      if (raw && typeof raw.pendingAutoTypeText === 'string') pendingAutoTypeText = raw.pendingAutoTypeText;
+      if (raw && raw.pendingAutoTypeMeta && typeof raw.pendingAutoTypeMeta === 'object') pendingAutoTypeMeta = raw.pendingAutoTypeMeta;
       autoTypeMigratedV2 = !!(raw && raw.autoTypeMigratedV2);
       // One-time migration: earlier builds shipped F10 as the default auto-type
       // key. New default is Backspace. Reset it once so existing installs pick
@@ -84,9 +88,27 @@ function saveSettings() {
     if (!SETTINGS_PATH) return;
     fs.writeFileSync(SETTINGS_PATH, JSON.stringify({
       toggleAccel, readAccel, autoTypeAccel, autoTypeEnabled, autoTypeMigratedV2,
+      pendingAutoTypeText, pendingAutoTypeMeta,
     }, null, 2));
   } catch (e) { console.error('saveSettings failed', e); }
 }
+
+// Central place to change the waiting translation: keeps disk, hotkey arming
+// and the renderer in sync. The text stays in memory until it is really
+// written (auto-type key) or pasted (Ctrl+V).
+function setPendingAutoType(text, meta) {
+  pendingAutoTypeText = String(text ?? '');
+  pendingAutoTypeMeta = pendingAutoTypeText ? (meta || null) : null;
+  saveSettings();
+  registerHotkeys();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('autotype:pending', { hasPending: !!pendingAutoTypeText }); } catch {}
+    if (!pendingAutoTypeText) {
+      try { mainWindow.webContents.send('autotype:cleared'); } catch {}
+    }
+  }
+}
+
 
 // -------- Single-instance lock --------
 const gotLock = app.requestSingleInstanceLock();
