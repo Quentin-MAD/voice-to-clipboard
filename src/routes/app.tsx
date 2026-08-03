@@ -700,7 +700,13 @@ function Home() {
     try {
       // 1. Capture screenshot NOW (after speaking, chat is still visible).
       // Multi-monitor setups return one image per screen.
-      const shot = await window.voxElectron.captureScreen();
+      const shot = (await window.voxElectron.captureScreen()) as {
+        ok: boolean;
+        dataBase64?: string;
+        mime?: string;
+        shots?: Array<{ dataBase64: string; mime?: string }>;
+        error?: string;
+      };
       if (!shot?.ok || (!shot.dataBase64 && !shot.shots?.length)) {
         throw new Error(shot?.error ?? "Capture d'écran impossible");
       }
@@ -708,6 +714,7 @@ function Home() {
         shot.shots && shot.shots.length > 0
           ? shot.shots
           : [{ dataBase64: shot.dataBase64 as string, mime: shot.mime ?? "image/png" }];
+
 
       // 2. Encode audio to WAV
       const wav = encodeCleanedWav(chunks, sampleRate, denoiseRef.current, 16000);
