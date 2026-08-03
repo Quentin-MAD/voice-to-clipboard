@@ -10,8 +10,11 @@ declare global {
   }
   interface VoxScreenshotResult {
     ok: boolean;
+    /** Primary screen (kept for backward compatibility). */
     dataBase64?: string;
     mime?: string;
+    /** One entry per detected monitor (multi-screen setups). */
+    shots?: Array<{ dataBase64: string; mime?: string }>;
     error?: string;
   }
   interface VoxAutoTypeConfig {
