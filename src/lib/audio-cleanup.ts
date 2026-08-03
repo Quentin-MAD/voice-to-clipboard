@@ -151,7 +151,10 @@ function cleanupPcmInner(
   if (!settings.enabled || chunks.length === 0) return chunks;
   const p = PROFILES[settings.level] ?? PROFILES.normal;
   const input = flatten(chunks);
-  if (input.length < sampleRate * 0.2) return chunks;
+  // Very short clips: the real-time filter chain is enough, skip the offline
+  // pass so the upload starts immediately.
+  if (input.length < sampleRate * 1.5) return chunks;
+
 
 
   const frame = Math.max(64, Math.round(sampleRate * 0.02)); // ~20 ms
