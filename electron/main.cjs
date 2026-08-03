@@ -626,23 +626,24 @@ ipcMain.handle('autotype:get-config', () => ({
 ipcMain.handle('autotype:set-config', (_e, payload) => {
   if (payload && typeof payload.enabled === 'boolean') autoTypeEnabled = payload.enabled;
   if (payload && typeof payload.accel === 'string' && payload.accel.trim()) autoTypeAccel = payload.accel.trim();
-  if (!autoTypeEnabled) { pendingAutoTypeText = ''; pendingAutoTypeMeta = null; }
+  // The waiting translation is intentionally kept even when auto-write is
+  // turned off: it stays available in the clipboard until it is used.
   saveSettings();
   registerHotkeys();
-  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk };
+  return { enabled: autoTypeEnabled, accel: autoTypeAccel, ok: autoTypeHotkeyOk, hasPending: !!pendingAutoTypeText };
 });
 
 ipcMain.handle('autotype:set-pending', (_e, payload) => {
   const text = payload && typeof payload === 'object' ? payload.text : payload;
-  pendingAutoTypeText = String(text ?? '');
-  pendingAutoTypeMeta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
+  const meta = (payload && typeof payload === 'object' && payload.meta) ? payload.meta : null;
   // Preserve every successful translation in the clipboard too, even when
   // auto-write is selected. The keyboard injector remains the primary action.
-  if (pendingAutoTypeText) {
-    try { clipboard.writeText(pendingAutoTypeText); } catch {}
+  if (text) {
+    try { clipboard.writeText(String(text)); } catch {}
   }
-  // Arm (or release) the auto-type key only while a translation is pending.
-  registerHotkeys();
+  // Arm (or release) the auto-type key only while a translation is pending,
+  // and persist it so it survives an app restart.
+  setPendingAutoType(text, meta);
   if (pendingAutoTypeText) {
     const langName = pendingAutoTypeMeta && pendingAutoTypeMeta.targetLangName ? pendingAutoTypeMeta.targetLangName : '';
     const preview = pendingAutoTypeText.replace(/\s+/g, ' ').trim().slice(0, 140);
@@ -663,11 +664,10 @@ ipcMain.handle('autotype:set-pending', (_e, payload) => {
 });
 
 ipcMain.handle('autotype:clear', () => {
-  pendingAutoTypeText = '';
-  pendingAutoTypeMeta = null;
-  registerHotkeys();
+  setPendingAutoType('', null);
   return { ok: true };
 });
+
 
 
 
