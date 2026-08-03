@@ -387,7 +387,7 @@ function MobileApp() {
         setTranslation(json.translation ?? "");
         setLastDirection(currentDirection);
         setUsage(json.usage ?? null);
-        await playAudioBase64(json.audio);
+        await playTtsStream(json.ttsToken);
       } catch (err) {
         console.error(err);
         toast.error("Erreur réseau");
