@@ -318,6 +318,20 @@ function registerHotkeys() {
     }
   } catch (e) { console.error('Failed to register auto-type hotkey', e); }
 
+  // Passive Ctrl+V observer: when the user pastes the translation manually, the
+  // message has been delivered, so the pending translation is consumed too.
+  try {
+    if (!autoTypeInProgress && !!pendingAutoTypeText) {
+      bind('Ctrl+V', 'auto-type-pasted', () => {
+        if (!pendingAutoTypeText || autoTypeInProgress) return;
+        console.log('[autotype] pending cleared by Ctrl+V');
+        setPendingAutoType('', null);
+      }, false);
+    }
+  } catch (e) { console.error('Failed to register paste observer', e); }
+
+
+
 
   console.log(`[hotkeys] backend=${useLowLevel ? 'uIOhook (low-level)' : 'globalShortcut'} toggle=${toggleAccel}(${hotkeyOk}) read=${readAccel}(${readHotkeyOk}) autotype=${autoTypeEnabled ? autoTypeAccel + '(' + autoTypeHotkeyOk + ')' : 'off'}`);
   if (!useLowLevel) {
