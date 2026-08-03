@@ -28,8 +28,7 @@ type VisionResult = {
 async function analyzeScreenshotAndAudio(
   audioBase64: string,
   audioFormat: string,
-  screenshotBase64: string,
-  screenshotMime: string,
+  screenshots: Array<{ base64: string; mime: string }>,
   targetLang: string,
 ): Promise<VisionResult> {
   const key = process.env.LOVABLE_API_KEY;
@@ -40,7 +39,7 @@ async function analyzeScreenshotAndAudio(
 
 Your job in ONE step:
 1. Listen to the audio and identify the target player's pseudo/username the user is naming.
-2. Look at the screenshot (a game / app screen) and find that exact player's MOST RECENT chat message.
+2. Look at the screenshot(s) and find that exact player's MOST RECENT chat message. ${screenshots.length > 1 ? `There are ${screenshots.length} screenshots because the user has MULTIPLE MONITORS - they are provided in order (screen 1, screen 2, ...). Inspect EVERY screenshot; the chat may be on any of them, and only one of them usually contains it.` : ""}
 3. Detect the language of the original message (use ISO 639-1 code: fr, en, es, de, it, ru, ja, zh, pt, ko, tr, pl, nl, ar, id, vi, th, sv, uk). If uncertain, pick the closest supported code.
 4. Translate that message into natural, idiomatic ${targetName} (as a native speaker would say it, not word-for-word). Preserve tone, slang, sarcasm, profanity - do not censor.
 5. Return ONLY a JSON object, no other text.
@@ -50,7 +49,7 @@ JSON schema (STRICT - no extra fields, no markdown fence):
 
 Rules:
 - Pseudo matching is fuzzy (accents, capitalization, minor spelling variation from mishearing are OK). Match the closest visible pseudo.
-- If no chat/message area is visible OR no message from that pseudo is on screen, return {"found": false, "pseudo": "<what you heard>", "reason": "..."}.
+- Only return {"found": false, "pseudo": "<what you heard>", "reason": "..."} after checking EVERY provided screenshot and finding no chat area or no message from that pseudo on any of them.
 - If the target message is already in ${targetName}, still fill "translation" with the same text cleaned up and "sourceLang" with the detected code.
 - Keep proper nouns, game terms, brand names unchanged in the translation.
 - Never invent a message. If unsure, "found": false.`;
@@ -68,9 +67,14 @@ Rules:
       {
         role: "user",
         content: [
-          { type: "text", text: `Read the message and translate it to ${targetName}. Listen to what I'm saying and look at the screenshot.` },
+          { type: "text", text: `Read the message and translate it to ${targetName}. Listen to what I'm saying and look at ${screenshots.length > 1 ? `all ${screenshots.length} screenshots (one per monitor)` : "the screenshot"}.` },
           { type: "input_audio", input_audio: { data: audioBase64, format: audioFormat } },
-          { type: "image_url", image_url: { url: `data:${screenshotMime};base64,${screenshotBase64}` } },
+          ...screenshots.flatMap((s, i) => [
+            ...(screenshots.length > 1
+              ? [{ type: "text", text: `Screen ${i + 1}:` } as const]
+              : []),
+            { type: "image_url", image_url: { url: `data:${s.mime};base64,${s.base64}` } } as const,
+          ]),
         ],
       },
     ],
@@ -183,8 +187,22 @@ export const Route = createFileRoute("/api/read-message")({
           }
 
           const audioBase64 = Buffer.from(await audio.arrayBuffer()).toString("base64");
-          const screenshotBase64 = Buffer.from(await screenshot.arrayBuffer()).toString("base64");
-          const screenshotMime = screenshot.type === "image/jpeg" ? "image/jpeg" : "image/png";
+
+          // Multi-monitor: "screenshot" is the primary screen, "screenshot2".."screenshot4"
+          // are the extra displays sent by the Windows app.
+          const extraShots: Blob[] = [];
+          for (let i = 2; i <= 4; i++) {
+            const extra = form.get(`screenshot${i}`);
+            if (extra instanceof Blob && extra.size >= 1024 && extra.size <= 8 * 1024 * 1024) {
+              extraShots.push(extra);
+            }
+          }
+          const screenshots = await Promise.all(
+            [screenshot, ...extraShots].map(async (s) => ({
+              base64: Buffer.from(await s.arrayBuffer()).toString("base64"),
+              mime: s.type === "image/jpeg" ? "image/jpeg" : "image/png",
+            })),
+          );
 
           // ---- Vision + STT + translate in one shot ----
           const admin = createClient(supabaseUrl, serviceRole, {
@@ -193,7 +211,7 @@ export const Route = createFileRoute("/api/read-message")({
 
           let vision: VisionResult;
           try {
-            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshotBase64, screenshotMime, targetLang);
+            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshots, targetLang);
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.error("Vision call failed:", msg);

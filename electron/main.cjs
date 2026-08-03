@@ -703,29 +703,46 @@ ipcMain.handle('screenshot:capture', async () => {
       // Give the OS compositor a moment to repaint the window behind us.
       await new Promise((r) => setTimeout(r, 180));
     }
-    const primary = screen.getPrimaryDisplay();
-    const { width, height } = primary.size;
-    const scale = primary.scaleFactor || 1;
+    // Multi-monitor: capture EVERY display, not just the primary one. The game
+    // chat the user is asking about is often on a secondary screen.
+    const displays = screen.getAllDisplays();
+    const maxW = displays.reduce(
+      (m, d) => Math.max(m, Math.round((d.size.width || 1920) * (d.scaleFactor || 1))),
+      1920,
+    );
+    const maxH = displays.reduce(
+      (m, d) => Math.max(m, Math.round((d.size.height || 1080) * (d.scaleFactor || 1))),
+      1080,
+    );
     // Capture at native resolution, then downscale + JPEG-encode before upload.
     // Chat text stays readable at 1600px wide, but the payload goes from several
     // MB (PNG) to ~200-400 KB, which removes most of the F9 upload latency.
     const sources = await desktopCapturer.getSources({
       types: ['screen'],
-      thumbnailSize: {
-        width: Math.round(width * scale),
-        height: Math.round(height * scale),
-      },
+      thumbnailSize: { width: maxW, height: maxH },
     });
     if (!sources || sources.length === 0) return { ok: false, error: 'no-source' };
-    const src = sources[0];
-    let image = src.thumbnail;
-    const size = image.getSize();
+
+    // Cap the number of uploaded screens so a 4-monitor rig doesn't blow up
+    // latency or cost. 3 screens covers virtually every setup.
+    const MAX_SCREENS = 3;
     const MAX_W = 1600;
-    if (size.width > MAX_W) {
-      image = image.resize({ width: MAX_W, quality: 'good' });
+    const shots = [];
+    for (const src of sources.slice(0, MAX_SCREENS)) {
+      try {
+        let image = src.thumbnail;
+        if (!image || image.isEmpty()) continue;
+        const size = image.getSize();
+        if (size.width > MAX_W) image = image.resize({ width: MAX_W, quality: 'good' });
+        const jpeg = image.toJPEG(80);
+        if (jpeg && jpeg.length > 1024) {
+          shots.push({ dataBase64: jpeg.toString('base64'), mime: 'image/jpeg' });
+        }
+      } catch { /* skip an unreadable display */ }
     }
-    const jpeg = image.toJPEG(80);
-    return { ok: true, dataBase64: jpeg.toString('base64'), mime: 'image/jpeg' };
+    if (shots.length === 0) return { ok: false, error: 'no-source' };
+    // `dataBase64` / `mime` stay for backward compatibility with older renderers.
+    return { ok: true, dataBase64: shots[0].dataBase64, mime: shots[0].mime, shots };
   } catch (e) {
     console.error('screenshot:capture failed', e);
     return { ok: false, error: String(e && e.message || e) };
