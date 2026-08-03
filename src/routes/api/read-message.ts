@@ -187,8 +187,22 @@ export const Route = createFileRoute("/api/read-message")({
           }
 
           const audioBase64 = Buffer.from(await audio.arrayBuffer()).toString("base64");
-          const screenshotBase64 = Buffer.from(await screenshot.arrayBuffer()).toString("base64");
-          const screenshotMime = screenshot.type === "image/jpeg" ? "image/jpeg" : "image/png";
+
+          // Multi-monitor: "screenshot" is the primary screen, "screenshot2".."screenshot4"
+          // are the extra displays sent by the Windows app.
+          const extraShots: Blob[] = [];
+          for (let i = 2; i <= 4; i++) {
+            const extra = form.get(`screenshot${i}`);
+            if (extra instanceof Blob && extra.size >= 1024 && extra.size <= 8 * 1024 * 1024) {
+              extraShots.push(extra);
+            }
+          }
+          const screenshots = await Promise.all(
+            [screenshot, ...extraShots].map(async (s) => ({
+              base64: Buffer.from(await s.arrayBuffer()).toString("base64"),
+              mime: s.type === "image/jpeg" ? "image/jpeg" : "image/png",
+            })),
+          );
 
           // ---- Vision + STT + translate in one shot ----
           const admin = createClient(supabaseUrl, serviceRole, {
@@ -197,7 +211,7 @@ export const Route = createFileRoute("/api/read-message")({
 
           let vision: VisionResult;
           try {
-            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshotBase64, screenshotMime, targetLang);
+            vision = await analyzeScreenshotAndAudio(audioBase64, audioFormat, screenshots, targetLang);
           } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.error("Vision call failed:", msg);
