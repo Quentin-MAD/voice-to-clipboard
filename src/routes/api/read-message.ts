@@ -49,7 +49,7 @@ JSON schema (STRICT - no extra fields, no markdown fence):
 
 Rules:
 - Pseudo matching is fuzzy (accents, capitalization, minor spelling variation from mishearing are OK). Match the closest visible pseudo.
-- If no chat/message area is visible OR no message from that pseudo is on screen, return {"found": false, "pseudo": "<what you heard>", "reason": "..."}.
+- Only return {"found": false, "pseudo": "<what you heard>", "reason": "..."} after checking EVERY provided screenshot and finding no chat area or no message from that pseudo on any of them.
 - If the target message is already in ${targetName}, still fill "translation" with the same text cleaned up and "sourceLang" with the detected code.
 - Keep proper nouns, game terms, brand names unchanged in the translation.
 - Never invent a message. If unsure, "found": false.`;
