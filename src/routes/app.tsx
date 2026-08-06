@@ -40,8 +40,9 @@ export const Route = createFileRoute("/app")({
         property: "og:description",
         content:
           "Lancez vos traductions vocales : enregistrez avec un raccourci et la traduction est copiée dans votre presse-papiers en quelques secondes.",
-      },
+      { name: "robots", content: "noindex, follow" },
     ],
+
   }),
   component: AppGate,
 });
