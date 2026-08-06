@@ -86,6 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "TalKing" },
       { name: "application-name", content: "TalKing" },
+      {
+        name: "google-site-verification",
+        content: "7HWGZONERYYKQKuYTUBQqBsZMGPd1yQcF3XR4uJBgqI",
+      },
       { property: "og:site_name", content: "TalKing" },
       { property: "og:locale", content: "fr_FR" },
       { property: "og:title", content: "TalKing" },
