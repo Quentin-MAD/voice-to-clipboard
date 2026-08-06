@@ -12,17 +12,20 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TalKing" },
+      { title: "TalKing - Traducteur vocal instantané pour gamers" },
       {
         name: "description",
         content:
-          "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
+          "TalKing traduit votre voix en temps réel : F8 copie la traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur. 47 langues, PC et mobile.",
       },
-      { property: "og:title", content: "TalKing" },
+      { name: "keywords", content: "TalKing, traducteur vocal, traduction en temps réel, traducteur gaming, presse-papiers, F8, F9" },
+      { property: "og:site_name", content: "TalKing" },
+      { property: "og:locale", content: "fr_FR" },
+      { property: "og:title", content: "TalKing - Traducteur vocal instantané pour gamers" },
       {
         property: "og:description",
         content:
-          "Traducteur vocal push-to-talk pour gamers : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur.",
+          "Parlez dans votre langue, collez dans la leur. TalKing traduit votre voix en temps réel dans 47 langues, sur PC et mobile.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://talking-translator.com/" },
@@ -30,10 +33,54 @@ export const Route = createFileRoute("/")({
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "TalKing - Traducteur vocal instantané pour gamers" },
       { name: "twitter:image", content: "https://talking-translator.com/og-image.png" },
     ],
     links: [{ rel: "canonical", href: "https://talking-translator.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://talking-translator.com/#website",
+              url: "https://talking-translator.com/",
+              name: "TalKing",
+              alternateName: ["TalKing Translator", "TalKing traducteur vocal"],
+              inLanguage: "fr-FR",
+              publisher: { "@id": "https://talking-translator.com/#org" },
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://talking-translator.com/#org",
+              name: "TalKing",
+              url: "https://talking-translator.com/",
+              logo: "https://talking-translator.com/icon-512.png",
+              email: "rossetquentin26@gmail.com",
+            },
+            {
+              "@type": "SoftwareApplication",
+              name: "TalKing",
+              operatingSystem: "Windows, Android, iOS",
+              applicationCategory: "UtilitiesApplication",
+              url: "https://talking-translator.com/",
+              description:
+                "Traducteur vocal push-to-talk : F8 copie votre traduction dans le presse-papiers, F9 lit à voix haute le message d'un joueur. 47 langues.",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "EUR",
+                url: "https://talking-translator.com/pricing",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
+
   component: LandingPage,
 });
 
