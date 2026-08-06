@@ -10,10 +10,19 @@ import { useUserStatus } from "@/components/CreditsBadge";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Tarifs - TalKing" },
-      { name: "description", content: "Choisissez votre formule : gratuit, pack de crédits ou abonnement illimité 24,99€/an." },
+      { title: "Tarifs TalKing - Gratuit, packs de crédits ou abonnement" },
+      { name: "description", content: "Les formules TalKing : gratuit avec crédits quotidiens, packs de crédits texte, vocaux et mobiles, ou abonnement illimité PC et mobile." },
+      { property: "og:title", content: "Tarifs TalKing - Gratuit, packs de crédits ou abonnement" },
+      { property: "og:description", content: "Les formules TalKing : gratuit, packs de crédits ou abonnement illimité sur PC et mobile." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://talking-translator.com/pricing" },
+      { property: "og:image", content: "https://talking-translator.com/og-image.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://talking-translator.com/og-image.png" },
     ],
+    links: [{ rel: "canonical", href: "https://talking-translator.com/pricing" }],
   }),
+
   component: PricingPage,
 });
 
