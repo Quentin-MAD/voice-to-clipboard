@@ -12,14 +12,13 @@ interface SitemapEntry {
 const entries: SitemapEntry[] = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/pricing", changefreq: "monthly", priority: "0.9" },
-  { path: "/app", changefreq: "monthly", priority: "0.8" },
   { path: "/mobile", changefreq: "monthly", priority: "0.7" },
-  { path: "/auth", changefreq: "yearly", priority: "0.3" },
   { path: "/legal/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/legal/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/legal/refunds", changefreq: "yearly", priority: "0.3" },
   { path: "/legal/notice", changefreq: "yearly", priority: "0.3" },
 ];
+
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
