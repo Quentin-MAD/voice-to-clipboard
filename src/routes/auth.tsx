@@ -14,8 +14,13 @@ export const Route = createFileRoute("/auth")({
     meta: [
       { title: "Connexion - TalKing" },
       { name: "description", content: "Connectez-vous à votre compte TalKing ou créez-en un pour accéder au traducteur vocal, à vos crédits et à l'application Windows." },
+      { property: "og:title", content: "Connexion - TalKing" },
+      { property: "og:description", content: "Accédez à votre compte TalKing." },
+      { name: "robots", content: "noindex, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://talking-translator.com/auth" }],
   }),
+
   component: AuthPage,
 });
 

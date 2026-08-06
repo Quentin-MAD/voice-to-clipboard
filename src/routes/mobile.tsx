@@ -89,11 +89,13 @@ function isIOS() {
 export const Route = createFileRoute("/mobile")({
   head: () => ({
     meta: [
-      { title: "TalKing" },
-      { name: "description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute dans 47 langues." },
-      { property: "og:title", content: "TalKing" },
+      { title: "TalKing Mobile - Dialogue traduit à voix haute" },
+      { name: "description", content: "Dialoguez à deux voix avec TalKing : chacun parle sa langue, l'IA traduit à voix haute dans 47 langues, directement depuis votre téléphone." },
+      { property: "og:title", content: "TalKing Mobile - Dialogue traduit à voix haute" },
       { property: "og:description", content: "Dialoguez à deux voix : chacun parle sa langue, l'IA traduit à voix haute." },
+      { property: "og:url", content: "https://talking-translator.com/mobile" },
       { property: "og:type", content: "website" },
+
       { name: "twitter:card", content: "summary" },
       { name: "theme-color", content: "#0a0a0a" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
@@ -102,12 +104,14 @@ export const Route = createFileRoute("/mobile")({
       { name: "mobile-web-app-capable", content: "yes" },
     ],
     links: [
+      { rel: "canonical", href: "https://talking-translator.com/mobile" },
       // Version the manifest URL so existing Android installations promptly
       // pick up the restricted /mobile scope instead of keeping the old
       // site-wide launch behavior in browser metadata caches.
       { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v4" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
+
   }),
   component: MobilePage,
 });

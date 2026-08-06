@@ -86,7 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "TalKing" },
       { name: "application-name", content: "TalKing" },
+      { property: "og:site_name", content: "TalKing" },
+      { property: "og:locale", content: "fr_FR" },
       { property: "og:title", content: "TalKing" },
+
       {
         property: "og:description",
         content:
