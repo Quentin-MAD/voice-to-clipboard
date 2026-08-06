@@ -8,9 +8,9 @@ export const Route = createFileRoute("/legal/terms")({
       { title: "Terms & Conditions - TalKing" },
       { name: "description", content: "TalKing Terms & Conditions." },
       { property: "og:title", content: "Terms & Conditions - TalKing" },
-      { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/terms" },
+      { property: "og:url", content: "https://talking-translator.com/legal/terms" },
     ],
-    links: [{ rel: "canonical", href: "https://voice-to-clipboard.lovable.app/legal/terms" }],
+    links: [{ rel: "canonical", href: "https://talking-translator.com/legal/terms" }],
   }),
 });
 

@@ -8,9 +8,9 @@ export const Route = createFileRoute("/legal/refunds")({
       { title: "Refund Policy - TalKing" },
       { name: "description", content: "14-day money-back guarantee." },
       { property: "og:title", content: "Refund Policy - TalKing" },
-      { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/refunds" },
+      { property: "og:url", content: "https://talking-translator.com/legal/refunds" },
     ],
-    links: [{ rel: "canonical", href: "https://voice-to-clipboard.lovable.app/legal/refunds" }],
+    links: [{ rel: "canonical", href: "https://talking-translator.com/legal/refunds" }],
   }),
 });
 

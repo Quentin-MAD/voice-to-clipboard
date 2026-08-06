@@ -8,9 +8,9 @@ export const Route = createFileRoute("/legal/notice")({
       { title: "Mentions légales - TalKing" },
       { name: "description", content: "Mentions légales de TalKing : éditeur du site, coordonnées de contact, hébergement et informations juridiques obligatoires du service." },
       { property: "og:title", content: "Mentions légales - TalKing" },
-      { property: "og:url", content: "https://voice-to-clipboard.lovable.app/legal/notice" },
+      { property: "og:url", content: "https://talking-translator.com/legal/notice" },
     ],
-    links: [{ rel: "canonical", href: "https://voice-to-clipboard.lovable.app/legal/notice" }],
+    links: [{ rel: "canonical", href: "https://talking-translator.com/legal/notice" }],
   }),
 });
 
