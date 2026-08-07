@@ -1,5 +1,5 @@
 {
   "version": "1.0.2",
-  "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/download/v1.0.2/TalKing-Setup-1.0.2.exe",
+  "url": "https://github.com/Quentin-MAD/voice-to-clipboard/releases/download/v1.0.2/TalKing-Setup.exe",
   "notes": "v1.0.2 - Correction de la connexion Google OAuth qui s'ouvrait dans le navigateur externe : la connexion reste désormais dans une fenêtre interne de l'application. Session Supabase maintenue active avec rafraîchissement automatique (focus, retour réseau, toutes les 10 min)."
 }
