@@ -24,8 +24,32 @@ export function useAuth() {
       setSession(s);
       applyUser(s?.user ?? null);
     });
-    return () => sub.subscription.unsubscribe();
+
+    // L'app Windows reste souvent en arrière-plan : on force la reprise du
+    // rafraîchissement automatique du jeton pour éviter les déconnexions.
+    const revive = () => {
+      try {
+        supabase.auth.startAutoRefresh();
+      } catch {
+        /* noop */
+      }
+      void supabase.auth.getSession();
+    };
+    revive();
+    const interval = window.setInterval(revive, 10 * 60 * 1000);
+    window.addEventListener("focus", revive);
+    document.addEventListener("visibilitychange", revive);
+    window.addEventListener("online", revive);
+
+    return () => {
+      sub.subscription.unsubscribe();
+      window.clearInterval(interval);
+      window.removeEventListener("focus", revive);
+      document.removeEventListener("visibilitychange", revive);
+      window.removeEventListener("online", revive);
+    };
   }, []);
+
 
 
   return { session, user, loading };
