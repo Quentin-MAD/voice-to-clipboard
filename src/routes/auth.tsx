@@ -30,12 +30,20 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isElectron, setIsElectron] = useState(false);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const navigate = useNavigate();
   const search = Route.useSearch();
 
   useEffect(() => {
-    setIsElectron(typeof window !== "undefined" && !!window.voxElectron?.isElectron);
+    const el = typeof window !== "undefined" && !!window.voxElectron?.isElectron;
+    setIsElectron(el);
+    if (el) {
+      window.voxElectron
+        ?.info?.()
+        .then((i: { version?: string }) => setAppVersion(i?.version ?? null))
+        .catch(() => {});
+    }
   }, []);
 
   const getPostAuthPath = (): "/" | "/app" | "/admin" | "/mobile" => {
