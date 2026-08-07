@@ -288,7 +288,7 @@ function AuthPage() {
             </div>
 
             <div className="native-auth-footnote">
-              <span className="notranslate">TalKing®</span> v0.9.5 · Traducteur vocal
+              <span className="notranslate">TalKing®</span>{appVersion ? ` v${appVersion}` : ""} · Traducteur vocal
             </div>
           </div>
         </div>
