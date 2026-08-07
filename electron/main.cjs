@@ -12,6 +12,9 @@ const {
   screen,
   session,
   desktopCapturer,
+  shell,
+  dialog,
+  net,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -472,7 +475,6 @@ function buildTray() {
 }
 
 // -------- Update checker --------
-const { shell, dialog, net } = require('electron');
 let latestUpdate = null;
 
 function cmpVersion(a, b) {

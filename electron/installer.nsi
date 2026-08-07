@@ -14,11 +14,11 @@ SetCompressor /SOLID lzma
 
 !define APP_NAME       "TalKing"
 !define APP_PUBLISHER  "Quentin Rosset"
-!define APP_VERSION    "1.0.1"
+!define APP_VERSION    "1.0.2"
 !define APP_EXE        "TalKing-Frameless.exe"
 !define PREVIOUS_APP_EXE "TalKing-Official.exe"
 !define LEGACY_APP_EXE "TalKing.exe"
-!define APP_ICON       "TalKing-1.0.1.ico"
+!define APP_ICON       "TalKing-1.0.2.ico"
 !define APP_ID         "TalKing"
 !define SOURCE_DIR     "../electron-release/TalKing-win32-x64"
 !define REG_UNINSTALL  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
@@ -33,7 +33,7 @@ BrandingText "TalKing v${APP_VERSION} - ${APP_PUBLISHER}"
 ShowInstDetails hide
 ShowUninstDetails hide
 
-VIProductVersion "1.0.1.0"
+VIProductVersion "1.0.2.0"
 VIAddVersionKey "ProductName"     "${APP_NAME}"
 VIAddVersionKey "CompanyName"     "${APP_PUBLISHER}"
 VIAddVersionKey "FileDescription" "TalKing installer"
