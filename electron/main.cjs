@@ -12,6 +12,7 @@ const {
   screen,
   session,
   desktopCapturer,
+  shell,
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
