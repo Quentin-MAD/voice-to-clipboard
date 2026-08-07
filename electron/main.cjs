@@ -206,11 +206,13 @@ function createWindow() {
   });
 
   mainWindow.webContents.on('will-navigate', (e, url) => {
+    if (isOAuthUrl(url)) return; // flux de connexion : on reste dans l'app
     if (!isInternal(url) && /^https?:/i.test(url)) {
       e.preventDefault();
       try { shell.openExternal(url); } catch {}
     }
   });
+
 
   // Avoid the white flash: only show the window once the renderer has content ready.
   mainWindow.once('ready-to-show', () => {
