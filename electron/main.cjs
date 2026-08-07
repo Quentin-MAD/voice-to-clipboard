@@ -175,10 +175,36 @@ function createWindow() {
   const isInternal = (url) => {
     try { return !!appOrigin && new URL(url).origin === appOrigin; } catch { return false; }
   };
+  // Les fenêtres OAuth (Google / broker Lovable) doivent rester DANS l'app :
+  // ouvertes dans le navigateur système, la session ne revient jamais au logiciel.
+  const isOAuthUrl = (url) => {
+    try {
+      const u = new URL(url);
+      return (
+        u.pathname.startsWith('/~oauth') ||
+        /(^|\.)oauth\.lovable\.app$/i.test(u.hostname) ||
+        /(^|\.)accounts\.google\.com$/i.test(u.hostname) ||
+        /(^|\.)accounts\.youtube\.com$/i.test(u.hostname) ||
+        /(^|\.)supabase\.co$/i.test(u.hostname) ||
+        /(^|\.)appleid\.apple\.com$/i.test(u.hostname)
+      );
+    } catch { return false; }
+  };
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (isOAuthUrl(url)) {
+      return {
+        action: 'allow',
+        overrideBrowserWindowOptions: {
+          width: 520, height: 680, autoHideMenuBar: true, minimizable: false,
+          parent: mainWindow, modal: false, backgroundColor: '#0A0A29',
+          webPreferences: { contextIsolation: true, nodeIntegration: false },
+        },
+      };
+    }
     if (/^https?:/i.test(url)) { try { shell.openExternal(url); } catch {} }
     return { action: 'deny' };
   });
+
   mainWindow.webContents.on('will-navigate', (e, url) => {
     if (!isInternal(url) && /^https?:/i.test(url)) {
       e.preventDefault();
