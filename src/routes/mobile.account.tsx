@@ -69,7 +69,8 @@ function MobileAccountPage() {
           priceId: checkoutPriceId,
           customerEmail: user.email,
           customData: { userId: user.id },
-          successUrl: `${window.location.origin}/mobile/account?checkout=success`,
+          // Après paiement, on revient directement dans l'application mobile.
+          successUrl: `${window.location.origin}/mobile?launch=app&checkout=success`,
           displayMode: "inline",
           frameTarget: "mobile-checkout-container",
         });
