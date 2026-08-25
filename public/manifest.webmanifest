@@ -4,7 +4,7 @@
   "description": "Dialogue vocal traduit en temps réel dans 47 langues.",
   "id": "/talking-mobile-v4",
   "start_url": "/mobile?launch=app",
-  "scope": "/",
+  "scope": "/mobile",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0a0a",
