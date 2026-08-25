@@ -108,7 +108,7 @@ export const Route = createFileRoute("/mobile")({
       // Version the manifest URL so existing Android installations promptly
       // pick up the restricted /mobile scope instead of keeping the old
       // site-wide launch behavior in browser metadata caches.
-      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v4" },
+      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v5" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
 
@@ -122,6 +122,9 @@ function MobilePage() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   useEffect(() => {
     setMounted(true);
+    // Marque durablement ce navigateur comme application mobile. Cela permet
+    // aussi de récupérer les anciennes installations dont le raccourci ouvre "/".
+    try { localStorage.setItem("tk_mobile_app", "1"); } catch {}
     // Aperçu admin (?skin=draft) : on rend toujours l'app mobile, même sur PC.
     const isPreview = new URLSearchParams(window.location.search).get("skin") === "draft";
     setIsMobile(isPreview || isMobileDevice());
