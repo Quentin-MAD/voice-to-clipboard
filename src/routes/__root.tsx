@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#0a0a0a" },
+      { name: "theme-color", content: "#0A0A29" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -117,7 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
       { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
       { rel: "apple-touch-icon", sizes: "512x512", href: "/icon-512.png" },
-      { rel: "manifest", href: "/manifest.webmanifest?v=talking-mobile-v6" },
+      { rel: "manifest", href: "/manifest.webmanifest?v=talking-mobile-v7" },
     ],
   }),
   shellComponent: RootShell,
