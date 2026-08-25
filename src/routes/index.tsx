@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HardDrive, Mic, Globe, Zap, Ear, Smartphone } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { UserMenu } from "@/components/UserMenu";
@@ -87,12 +87,37 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const installPromptRef = useRef<Event | null>(null);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
 
   useEffect(() => {
     if (!loading && user && typeof window !== "undefined" && window.voxElectron?.isElectron) {
       navigate({ to: "/app", replace: true });
     }
   }, [loading, user, navigate]);
+
+  useEffect(() => {
+    const captureInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      installPromptRef.current = event;
+    };
+    window.addEventListener("beforeinstallprompt", captureInstallPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", captureInstallPrompt);
+  }, []);
+
+  const installMobileApp = async () => {
+    const promptEvent = installPromptRef.current as (Event & {
+      prompt?: () => Promise<void>;
+      userChoice?: Promise<{ outcome: "accepted" | "dismissed" }>;
+    }) | null;
+    if (promptEvent?.prompt) {
+      await promptEvent.prompt();
+      await promptEvent.userChoice;
+      installPromptRef.current = null;
+      return;
+    }
+    setShowInstallHelp(true);
+  };
 
   return (
 
@@ -275,16 +300,53 @@ function LandingPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               Dialogue traduit à voix haute : chacun parle sa langue, l'IA traduit dans 47 langues.
             </p>
-            <a
-              href="/mobile"
+            <button
+              type="button"
+              onClick={installMobileApp}
               className="mt-6 inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-base font-medium hover:bg-accent"
             >
               <Smartphone className="h-5 w-5" />
               Installer sur téléphone
-            </a>
+            </button>
           </div>
         </div>
       </section>
+
+      {showInstallHelp && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/70 p-0 sm:items-center sm:p-4" onClick={() => setShowInstallHelp(false)}>
+          <div className="w-full max-w-md rounded-t-lg border border-border bg-background p-6 shadow-xl sm:rounded-lg" onClick={(event) => event.stopPropagation()}>
+            <h2 className="text-xl font-bold">Installer TalKing</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              L'installation ajoute directement l'icône TalKing sur votre écran d'accueil.
+            </p>
+            <div className="mt-5 space-y-5 text-sm">
+              <div>
+                <h3 className="font-semibold">Sur iPhone avec Safari</h3>
+                <ol className="mt-2 list-inside list-decimal space-y-1 text-muted-foreground">
+                  <li>Touchez le bouton Partager.</li>
+                  <li>Choisissez « Sur l'écran d'accueil ».</li>
+                  <li>Touchez Ajouter.</li>
+                </ol>
+              </div>
+              <div>
+                <h3 className="font-semibold">Sur Android avec Chrome</h3>
+                <ol className="mt-2 list-inside list-decimal space-y-1 text-muted-foreground">
+                  <li>Ouvrez le menu ⋮.</li>
+                  <li>Choisissez « Installer l'application ».</li>
+                  <li>Confirmez l'installation.</li>
+                </ol>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowInstallHelp(false)}
+              className="mt-6 w-full rounded-lg bg-primary px-4 py-3 font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
 
 
 
