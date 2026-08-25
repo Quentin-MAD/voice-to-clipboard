@@ -7,6 +7,7 @@ import logoBlanc from "@/assets/TalKing-blanc.svg.asset.json";
 
 import { GoogleTranslate } from "@/components/GoogleTranslate";
 import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
 
 
 export const Route = createFileRoute("/")({
@@ -89,6 +90,8 @@ function LandingPage() {
   const navigate = useNavigate();
   const installPromptRef = useRef<Event | null>(null);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const [isSamsungBrowser, setIsSamsungBrowser] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
     if (!loading && user && typeof window !== "undefined" && window.voxElectron?.isElectron) {
@@ -97,10 +100,14 @@ function LandingPage() {
   }, [loading, user, navigate]);
 
   useEffect(() => {
+    setIsSamsungBrowser(/SamsungBrowser/i.test(window.navigator.userAgent));
+    setIsAndroid(/Android/i.test(window.navigator.userAgent));
     const captureInstallPrompt = (event: Event) => {
       event.preventDefault();
       installPromptRef.current = event;
     };
+    const earlyPrompt = (window as Window & { __talkingInstallPrompt?: Event }).__talkingInstallPrompt;
+    if (earlyPrompt) installPromptRef.current = earlyPrompt;
     window.addEventListener("beforeinstallprompt", captureInstallPrompt);
     return () => window.removeEventListener("beforeinstallprompt", captureInstallPrompt);
   }, []);
@@ -300,14 +307,15 @@ function LandingPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               Dialogue traduit à voix haute : chacun parle sa langue, l'IA traduit dans 47 langues.
             </p>
-            <button
+    <Button
               type="button"
               onClick={installMobileApp}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-border px-6 py-3 text-base font-medium hover:bg-accent"
+              variant="outline"
+              className="mt-6 h-auto rounded-xl px-6 py-3 text-base"
             >
               <Smartphone className="h-5 w-5" />
               Installer sur téléphone
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -319,6 +327,26 @@ function LandingPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               L'installation ajoute directement l'icône TalKing sur votre écran d'accueil.
             </p>
+            {isAndroid && (
+              <div className="mt-5 rounded-md border border-primary/40 bg-primary/10 p-4">
+                <h3 className="font-semibold">Vous êtes dans Google ou un navigateur intégré ?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Ces fenêtres ne permettent pas l'installation. Ouvrez d'abord le site dans votre navigateur Samsung ou Chrome.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <Button asChild size="sm">
+                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.sec.android.app.sbrowser;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
+                      Ouvrir dans Samsung Internet
+                    </a>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
+                      Ouvrir dans Chrome
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="mt-5 space-y-5 text-sm">
               <div>
                 <h3 className="font-semibold">Sur iPhone avec Safari</h3>
@@ -328,22 +356,33 @@ function LandingPage() {
                   <li>Touchez Ajouter.</li>
                 </ol>
               </div>
+              {isSamsungBrowser && (
+                <div className="rounded-md border border-primary/40 bg-primary/10 p-4">
+                  <h3 className="font-semibold">Sur votre Samsung</h3>
+                  <ol className="mt-2 list-inside list-decimal space-y-1 text-muted-foreground">
+                    <li>Fermez cette fenêtre.</li>
+                    <li>Ouvrez le menu Samsung Internet <b>☰</b> ou <b>⋮</b>.</li>
+                    <li>Touchez « Ajouter la page à », puis « Écran d'accueil ».</li>
+                    <li>Confirmez avec « Installer » ou « Ajouter ».</li>
+                  </ol>
+                </div>
+              )}
               <div>
-                <h3 className="font-semibold">Sur Android avec Chrome</h3>
+                <h3 className="font-semibold">Sur Android avec Chrome ou Edge</h3>
                 <ol className="mt-2 list-inside list-decimal space-y-1 text-muted-foreground">
                   <li>Ouvrez le menu ⋮.</li>
-                  <li>Choisissez « Installer l'application ».</li>
+                  <li>Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».</li>
                   <li>Confirmez l'installation.</li>
                 </ol>
               </div>
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => setShowInstallHelp(false)}
-              className="mt-6 w-full rounded-lg bg-primary px-4 py-3 font-medium text-primary-foreground hover:bg-primary/90"
+              className="mt-6 h-auto w-full rounded-lg py-3"
             >
               Fermer
-            </button>
+            </Button>
           </div>
         </div>
       )}
