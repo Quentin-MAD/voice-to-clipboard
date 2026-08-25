@@ -91,6 +91,7 @@ function LandingPage() {
   const installPromptRef = useRef<Event | null>(null);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const [isSamsungBrowser, setIsSamsungBrowser] = useState(false);
+  const [isAndroid, setIsAndroid] = useState(false);
 
   useEffect(() => {
     if (!loading && user && typeof window !== "undefined" && window.voxElectron?.isElectron) {
@@ -100,6 +101,7 @@ function LandingPage() {
 
   useEffect(() => {
     setIsSamsungBrowser(/SamsungBrowser/i.test(window.navigator.userAgent));
+    setIsAndroid(/Android/i.test(window.navigator.userAgent));
     const captureInstallPrompt = (event: Event) => {
       event.preventDefault();
       installPromptRef.current = event;
@@ -325,6 +327,26 @@ function LandingPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               L'installation ajoute directement l'icône TalKing sur votre écran d'accueil.
             </p>
+            {isAndroid && (
+              <div className="mt-5 rounded-md border border-primary/40 bg-primary/10 p-4">
+                <h3 className="font-semibold">Vous êtes dans Google ou un navigateur intégré ?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Ces fenêtres ne permettent pas l'installation. Ouvrez d'abord le site dans votre navigateur Samsung ou Chrome.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <Button asChild size="sm">
+                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.sec.android.app.sbrowser;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
+                      Ouvrir dans Samsung Internet
+                    </a>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
+                      Ouvrir dans Chrome
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="mt-5 space-y-5 text-sm">
               <div>
                 <h3 className="font-semibold">Sur iPhone avec Safari</h3>
