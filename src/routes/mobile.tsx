@@ -226,6 +226,16 @@ function MobileApp() {
   };
 
 
+  // Retour de paiement : on reste dans l'app mobile, on confirme et on nettoie l'URL.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") !== "success") return;
+    toast.success("Merci ! Votre paiement a été enregistré. Vos avantages arrivent dans quelques secondes.");
+    params.delete("checkout");
+    const qs = params.toString();
+    window.history.replaceState({}, "", `/mobile${qs ? `?${qs}` : ""}`);
+  }, []);
+
   useEffect(() => { localStorage.setItem("tk_mobile_mylang", myLang); }, [myLang]);
   useEffect(() => { localStorage.setItem("tk_mobile_theirlang", theirLang); }, [theirLang]);
 
