@@ -113,6 +113,13 @@ function LandingPage() {
   }, []);
 
   const installMobileApp = async () => {
+    // Samsung Internet peut empaqueter la PWA dans un ancien WebAPK, ensuite
+    // bloqué par Play Protect sur les versions Android récentes. Dans ce
+    // navigateur, ne jamais lancer son invite native : guider vers Chrome.
+    if (/SamsungBrowser/i.test(window.navigator.userAgent)) {
+      setShowInstallHelp(true);
+      return;
+    }
     const promptEvent = installPromptRef.current as (Event & {
       prompt?: () => Promise<void>;
       userChoice?: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -333,14 +340,9 @@ function LandingPage() {
                 <p className="mt-1 text-sm text-muted-foreground">
                   Ces fenêtres ne permettent pas l'installation. Ouvrez d'abord le site dans votre navigateur Samsung ou Chrome.
                 </p>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <Button asChild size="sm">
-                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.sec.android.app.sbrowser;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
-                      Ouvrir dans Samsung Internet
-                    </a>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <a href="intent://talking-translator.com/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2F;end">
+                <div className="mt-3">
+                  <Button asChild size="sm" className="w-full">
+                    <a href="intent://talking-translator.com/mobile#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2Fmobile;end">
                       Ouvrir dans Chrome
                     </a>
                   </Button>
@@ -360,11 +362,12 @@ function LandingPage() {
                 <div className="rounded-md border border-primary/40 bg-primary/10 p-4">
                   <h3 className="font-semibold">Sur votre Samsung</h3>
                   <ol className="mt-2 list-inside list-decimal space-y-1 text-muted-foreground">
-                    <li>Fermez cette fenêtre.</li>
-                    <li>Ouvrez le menu Samsung Internet <b>☰</b> ou <b>⋮</b>.</li>
-                    <li>Touchez « Ajouter la page à », puis « Écran d'accueil ».</li>
-                    <li>Confirmez avec « Installer » ou « Ajouter ».</li>
+                    <li>Touchez « Ouvrir dans Chrome » ci-dessus.</li>
+                    <li>Dans Chrome, ouvrez le menu <b>⋮</b>.</li>
+                    <li>Touchez « Installer l'application ».</li>
+                    <li>Confirmez l'installation.</li>
                   </ol>
+                  <p className="mt-2 text-xs text-muted-foreground">N'utilisez pas l'installation proposée par Samsung Internet : Android peut la bloquer comme application ancienne.</p>
                 </div>
               )}
               <div>

@@ -287,6 +287,10 @@ function MobileApp() {
     const handler = (e: Event) => {
       e.preventDefault();
       deferredPromptRef.current = e;
+      if (/SamsungBrowser/i.test(window.navigator.userAgent)) {
+        setInstallVisible(true);
+        return;
+      }
       const standalone = matchMedia("(display-mode: standalone)").matches
         || (navigator as unknown as { standalone?: boolean }).standalone === true;
       if (!standalone) setInstallVisible(true);
@@ -415,6 +419,10 @@ function MobileApp() {
   };
 
   const doInstall = async () => {
+    if (/SamsungBrowser/i.test(window.navigator.userAgent)) {
+      setShowInstallHelp(true);
+      return;
+    }
     const p = deferredPromptRef.current as unknown as { prompt?: () => Promise<void>; userChoice?: Promise<{ outcome: string }> } | null;
     if (p?.prompt) {
       await p.prompt();
@@ -698,13 +706,25 @@ function MobileApp() {
               </div>
             ) : (
               <div className="space-y-3 text-sm text-white/80">
-                <p className="text-white/70">Sur Android, avec Chrome ou Edge :</p>
+                {/SamsungBrowser/i.test(window.navigator.userAgent) && (
+                  <div className="rounded-xl border border-white/15 bg-white/5 p-3">
+                    <p className="font-medium text-white">Samsung Internet n'est pas compatible avec cette installation.</p>
+                    <p className="mt-1 text-xs text-white/60">Son ancienne application peut être bloquée par Play Protect. Installez TalKing depuis Chrome.</p>
+                    <a
+                      href="intent://talking-translator.com/mobile#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Ftalking-translator.com%2Fmobile;end"
+                      className="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-3 font-medium text-black"
+                    >
+                      Ouvrir dans Chrome
+                    </a>
+                  </div>
+                )}
+                <p className="text-white/70">Sur Android, avec Chrome :</p>
                 <ol className="list-decimal list-inside space-y-2 text-white/80">
                   <li>Touchez le menu <b>⋮</b> en haut à droite du navigateur.</li>
                   <li>Choisissez <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>.</li>
                   <li>Confirmez. L'icône TalKing apparaît sur votre écran d'accueil.</li>
                 </ol>
-                <p className="text-xs text-white/50">Si l'option n'apparaît pas, essayez avec Chrome (à jour). Sur Samsung Internet, l'option est dans le menu ≡.</p>
+                <p className="text-xs text-white/50">Si l'option n'apparaît pas, mettez Chrome à jour puis rechargez cette page.</p>
               </div>
             )}
             <button
