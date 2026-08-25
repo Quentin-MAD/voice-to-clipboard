@@ -117,6 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
       { rel: "icon", href: "/favicon.png", type: "image/png", sizes: "64x64" },
       { rel: "apple-touch-icon", sizes: "512x512", href: "/icon-512.png" },
+      { rel: "manifest", href: "/manifest.webmanifest?v=talking-mobile-v5" },
     ],
   }),
   shellComponent: RootShell,
@@ -136,7 +137,7 @@ function RootShell({ children }: { children: ReactNode }) {
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;var p=window.location.pathname;if(s&&p!=='/mobile'&&!p.startsWith('/mobile/')){document.documentElement.classList.add('tk-pwa-root-boot');window.location.replace('/mobile?launch=app')}}catch(e){}})();`,
+            __html: `(function(){try{var q=new URLSearchParams(window.location.search);var p=window.location.pathname;var standalone=(window.matchMedia&&(window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: fullscreen)').matches||window.matchMedia('(display-mode: minimal-ui)').matches))||window.navigator.standalone===true;var mobile=/Android|iPhone|iPad|iPod|Mobile|IEMobile|BlackBerry|Opera Mini/i.test(navigator.userAgent||'');var appLaunch=standalone||q.get('launch')==='app'||localStorage.getItem('tk_mobile_app')==='1';if((appLaunch||(mobile&&p==='/'))&&!p.startsWith('/mobile')){localStorage.setItem('tk_mobile_app','1');document.documentElement.classList.add('tk-pwa-root-boot');window.location.replace('/mobile?launch=app')}}catch(e){}})();`,
           }}
         />
         <HeadContent />
@@ -160,10 +161,16 @@ function RootComponent() {
     try {
       const standalone =
         window.matchMedia?.("(display-mode: standalone)").matches ||
+        window.matchMedia?.("(display-mode: fullscreen)").matches ||
+        window.matchMedia?.("(display-mode: minimal-ui)").matches ||
         (window.navigator as unknown as { standalone?: boolean }).standalone === true;
       const inIframe = window.top !== window.self;
       const path = window.location.pathname;
-      if (standalone && !inIframe && !path.startsWith("/mobile")) {
+      const appLaunch = standalone ||
+        new URLSearchParams(window.location.search).get("launch") === "app" ||
+        localStorage.getItem("tk_mobile_app") === "1";
+      if (appLaunch && !inIframe && !path.startsWith("/mobile")) {
+        localStorage.setItem("tk_mobile_app", "1");
         window.location.replace("/mobile?launch=app");
         return;
       }
