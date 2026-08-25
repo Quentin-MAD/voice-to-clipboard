@@ -97,7 +97,7 @@ export const Route = createFileRoute("/mobile")({
       { property: "og:type", content: "website" },
 
       { name: "twitter:card", content: "summary" },
-      { name: "theme-color", content: "#0a0a0a" },
+      { name: "theme-color", content: "#0A0A29" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "TalKing" },
@@ -105,7 +105,7 @@ export const Route = createFileRoute("/mobile")({
     ],
     links: [
       { rel: "canonical", href: "https://talking-translator.com/mobile" },
-      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v6" },
+      { rel: "manifest", href: "/mobile.webmanifest?v=talking-mobile-v7" },
       { rel: "apple-touch-icon", href: "/icon-512.png" },
     ],
 
