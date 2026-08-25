@@ -137,7 +137,7 @@ function RootShell({ children }: { children: ReactNode }) {
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var q=new URLSearchParams(window.location.search);var p=window.location.pathname;var standalone=(window.matchMedia&&(window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: fullscreen)').matches||window.matchMedia('(display-mode: minimal-ui)').matches))||window.navigator.standalone===true;var appLaunch=standalone||q.get('launch')==='app';if(appLaunch&&!p.startsWith('/mobile')){document.documentElement.classList.add('tk-pwa-root-boot');window.location.replace('/mobile?launch=app')}}catch(e){}})();`,
+            __html: `(function(){try{window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__talkingInstallPrompt=e});var q=new URLSearchParams(window.location.search);var p=window.location.pathname;var standalone=(window.matchMedia&&(window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: fullscreen)').matches||window.matchMedia('(display-mode: minimal-ui)').matches))||window.navigator.standalone===true;var appLaunch=standalone||q.get('launch')==='app';if(appLaunch&&!p.startsWith('/mobile')){document.documentElement.classList.add('tk-pwa-root-boot');window.location.replace('/mobile?launch=app')}}catch(e){}})();`,
           }}
         />
         <HeadContent />
